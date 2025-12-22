@@ -8,7 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { PageHeader, Breadcrumb } from '../../../../shared/components/page-header';
-import { StatusBadge } from '../../../../shared/components/status-badge';
+import { StatusBadge, BadgeColor } from '../../../../shared/components/status-badge';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog';
 import { VenueService } from '../../services/venue.service';
@@ -64,8 +64,8 @@ export class VenueDetail implements OnInit {
     });
   }
 
-  getStatusColor(status: VenueStatus): string {
-    const colors: Record<VenueStatus, string> = { [VenueStatus.Active]: 'success', [VenueStatus.Inactive]: 'default', [VenueStatus.UnderMaintenance]: 'warning' };
+  getStatusColor(status: VenueStatus): BadgeColor {
+    const colors: Record<VenueStatus, BadgeColor> = { [VenueStatus.Active]: 'success', [VenueStatus.Inactive]: 'default', [VenueStatus.UnderMaintenance]: 'warning' };
     return colors[status] || 'default';
   }
 

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type BadgeColor = 'primary' | 'accent' | 'warn' | 'success' | 'info' | 'neutral';
+export type BadgeColor = 'primary' | 'accent' | 'warn' | 'success' | 'info' | 'default' | 'danger' | 'warning' | 'neutral';
 
 @Component({
   selector: 'app-status-badge',
@@ -11,7 +11,8 @@ export type BadgeColor = 'primary' | 'accent' | 'warn' | 'success' | 'info' | 'n
   styleUrl: './status-badge.scss'
 })
 export class StatusBadge {
-  @Input() text = '';
-  @Input() color: BadgeColor = 'neutral';
+  @Input() status = '';
+  @Input() set text(value: string) { this.status = value; }
+  @Input() color: BadgeColor = 'default';
   @Input() size: 'small' | 'medium' = 'medium';
 }

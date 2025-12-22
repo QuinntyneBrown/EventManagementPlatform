@@ -6,8 +6,11 @@
   [class.status-badge--warn]="color === 'warn'"
   [class.status-badge--success]="color === 'success'"
   [class.status-badge--info]="color === 'info'"
+  [class.status-badge--default]="color === 'default'"
+  [class.status-badge--danger]="color === 'danger'"
+  [class.status-badge--warning]="color === 'warning'"
   [class.status-badge--neutral]="color === 'neutral'"
-  [attr.aria-label]="text"
+  [attr.aria-label]="status"
 >
-  {{ text }}
+  {{ status }}
 </span>

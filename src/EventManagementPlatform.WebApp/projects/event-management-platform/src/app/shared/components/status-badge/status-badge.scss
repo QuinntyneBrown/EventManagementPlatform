@@ -40,6 +40,21 @@
     color: #2196f3;
   }
 
+  &--default {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &--danger {
+    background-color: rgba(244, 67, 54, 0.12);
+    color: #f44336;
+  }
+
+  &--warning {
+    background-color: rgba(255, 152, 0, 0.12);
+    color: #ff9800;
+  }
+
   &--neutral {
     background-color: rgba(0, 0, 0, 0.08);
     color: rgba(0, 0, 0, 0.6);

@@ -8,7 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { PageHeader, Breadcrumb } from '../../../../shared/components/page-header';
-import { StatusBadge } from '../../../../shared/components/status-badge';
+import { StatusBadge, BadgeColor } from '../../../../shared/components/status-badge';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog';
 import { StaffService } from '../../services/staff.service';
@@ -64,8 +64,8 @@ export class StaffDetail implements OnInit {
     });
   }
 
-  getStatusColor(status: StaffStatus): string {
-    const colors: Record<StaffStatus, string> = { [StaffStatus.Active]: 'success', [StaffStatus.OnLeave]: 'warning', [StaffStatus.Inactive]: 'default', [StaffStatus.Terminated]: 'danger' };
+  getStatusColor(status: StaffStatus): BadgeColor {
+    const colors: Record<StaffStatus, BadgeColor> = { [StaffStatus.Active]: 'success', [StaffStatus.OnLeave]: 'warning', [StaffStatus.Inactive]: 'default', [StaffStatus.Terminated]: 'danger' };
     return colors[status] || 'default';
   }
 

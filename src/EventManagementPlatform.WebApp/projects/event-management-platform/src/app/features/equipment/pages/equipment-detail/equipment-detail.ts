@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { PageHeader, Breadcrumb } from '../../../../shared/components/page-header';
-import { StatusBadge } from '../../../../shared/components/status-badge';
+import { StatusBadge, BadgeColor } from '../../../../shared/components/status-badge';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog';
 import { EquipmentService } from '../../services/equipment.service';
@@ -64,8 +64,8 @@ export class EquipmentDetail implements OnInit {
     });
   }
 
-  getStatusColor(status: EquipmentStatus): string {
-    const colors: Record<EquipmentStatus, string> = {
+  getStatusColor(status: EquipmentStatus): BadgeColor {
+    const colors: Record<EquipmentStatus, BadgeColor> = {
       [EquipmentStatus.Available]: 'success', [EquipmentStatus.InUse]: 'info',
       [EquipmentStatus.Reserved]: 'warning', [EquipmentStatus.Maintenance]: 'default', [EquipmentStatus.Retired]: 'danger'
     };

@@ -15,7 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PageHeader, Breadcrumb } from '../../../../shared/components/page-header';
-import { StatusBadge } from '../../../../shared/components/status-badge';
+import { StatusBadge, BadgeColor } from '../../../../shared/components/status-badge';
 import { LoadingSpinner } from '../../../../shared/components/loading-spinner';
 import { EmptyState } from '../../../../shared/components/empty-state';
 import { ConfirmDialog } from '../../../../shared/components/confirm-dialog';
@@ -86,8 +86,8 @@ export class StaffList implements OnInit {
     });
   }
 
-  getStatusColor(status: StaffStatus): string {
-    const colors: Record<StaffStatus, string> = { [StaffStatus.Active]: 'success', [StaffStatus.OnLeave]: 'warning', [StaffStatus.Inactive]: 'default', [StaffStatus.Terminated]: 'danger' };
+  getStatusColor(status: StaffStatus): BadgeColor {
+    const colors: Record<StaffStatus, BadgeColor> = { [StaffStatus.Active]: 'success', [StaffStatus.OnLeave]: 'warning', [StaffStatus.Inactive]: 'default', [StaffStatus.Terminated]: 'danger' };
     return colors[status] || 'default';
   }
 

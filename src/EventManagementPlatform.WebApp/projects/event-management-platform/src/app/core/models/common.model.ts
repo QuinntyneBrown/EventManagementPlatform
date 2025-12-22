@@ -9,10 +9,10 @@ export interface PagedResult<T> {
 }
 
 export interface QueryParams {
-  pageNumber?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
+  pageIndex: number;
+  pageSize: number;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc' | '';
   searchTerm?: string;
 }
 
