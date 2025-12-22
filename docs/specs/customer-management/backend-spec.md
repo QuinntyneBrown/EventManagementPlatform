@@ -1,546 +1,57 @@
-# Contact & Customer Management - Backend Specification
+# Customer Management Software Requirements Specification
 
 ## Document Information
-- **Version**: 1.0.0
-- **Last Updated**: 2025-12-22
-- **Technology Stack**: .NET 8, Azure Cloud Services, Azure AI
-- **Architecture Pattern**: Event-Driven Architecture, CQRS, Domain-Driven Design
+
+- **Project:** {project}
+- **Version:** 1.0.0
+- **Date:** 2025-12-22
+- **Status:** Draft
+
+---
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [System Architecture](#system-architecture)
-3. [Domain Model](#domain-model)
-4. [Domain Events](#domain-events)
-5. [API Specifications](#api-specifications)
-6. [Data Model](#data-model)
-7. [Azure Services Integration](#azure-services-integration)
-8. [Azure AI Integration](#azure-ai-integration)
-9. [Security Requirements](#security-requirements)
-10. [Performance Requirements](#performance-requirements)
-11. [Integration Points](#integration-points)
-12. [Error Handling](#error-handling)
-13. [Testing Strategy](#testing-strategy)
-14. [Deployment Strategy](#deployment-strategy)
+
+1. [Customer CRUD Requirements](#customer-crud-requirements)
+2. [Customer Contact Requirements](#customer-contact-requirements)
+3. [Customer Address Requirements](#customer-address-requirements)
+4. [Customer Profile Requirements](#customer-profile-requirements)
+5. [Communication History Requirements](#communication-history-requirements)
+6. [Complaint Management Requirements](#complaint-management-requirements)
+7. [Testimonial Management Requirements](#testimonial-management-requirements)
+8. [Validation Requirements](#validation-requirements)
+9. [Authorization Requirements](#authorization-requirements)
+10. [Azure Integration Requirements](#azure-integration-requirements)
+11. [Performance Requirements](#performance-requirements)
+12. [Testing Requirements](#testing-requirements)
 
 ---
 
-## 1. Overview
+## 1. Customer CRUD Requirements
 
-### 1.1 Purpose
-The Contact & Customer Management feature provides comprehensive capabilities for managing customer profiles, contacts, communication history, and customer preferences within the Event Management Platform.
+### REQ-CUS-001: Create Customer
 
-### 1.2 Scope
-This specification covers:
-- Customer profile management (CRUD operations)
-- Contact information management
-- Communication history tracking (email, SMS, phone calls, meetings)
-- Customer preferences and segmentation
-- Contact list import/export functionality
-- Customer complaint and testimonial management
-- Customer merging and deactivation
-- Azure AI-powered customer insights and sentiment analysis
+**Requirement:** The system shall allow authorized users to create new customer profiles with comprehensive business and contact information.
 
-### 1.3 Business Context
-The system enables event organizers to:
-- Maintain detailed customer profiles
-- Track all customer interactions
-- Analyze customer behavior and preferences
-- Improve customer engagement
-- Resolve complaints efficiently
-- Leverage testimonials for marketing
+**Acceptance Criteria:**
+- [ ] Only users with Create privilege on Customer aggregate can create customers
+- [ ] Customer number is auto-generated with unique sequential format
+- [ ] Company name is required and validated (minimum 2 characters)
+- [ ] Customer type must be one of: Individual, SmallBusiness, Enterprise, NonProfit, Government
+- [ ] Primary email is required and must be valid email format
+- [ ] Primary phone is required and validated against international format
+- [ ] Billing address is required with all fields (street, city, state, zipCode, country)
+- [ ] Shipping address is optional
+- [ ] Customer preferences are optional with default values
+- [ ] CustomerRegistered domain event is raised upon creation
+- [ ] Customer is created with Active status by default
 
----
+**API Endpoint:**
 
-## 2. System Architecture
-
-### 2.1 Architecture Overview
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         API Gateway                              │
-│                    (Azure API Management)                        │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-┌───────────────────────────┴─────────────────────────────────────┐
-│                  Customer Management Service                     │
-│                      (.NET 8 Web API)                            │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │   Command    │  │    Query     │  │   Domain     │         │
-│  │   Handlers   │  │   Handlers   │  │   Services   │         │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-┌───────▼──────┐   ┌───────▼──────┐   ┌───────▼──────┐
-│  Azure SQL   │   │   Azure      │   │  Azure       │
-│  Database    │   │ Service Bus  │   │  AI Services │
-└──────────────┘   └──────────────┘   └──────────────┘
-```
-
-### 2.2 Technology Stack
-- **Runtime**: .NET 8
-- **Web Framework**: ASP.NET Core 8.0
-- **Database**: Azure SQL Database
-- **ORM**: Entity Framework Core 8
-- **Messaging**: Azure Service Bus
-- **Cache**: Azure Redis Cache
-- **Storage**: Azure Blob Storage
-- **AI Services**: Azure OpenAI, Azure Cognitive Services
-- **Authentication**: Azure Active Directory B2C
-- **API Documentation**: Swagger/OpenAPI 3.0
-
-### 2.3 Design Patterns
-- **CQRS (Command Query Responsibility Segregation)**
-- **Event Sourcing** (for audit trail)
-- **Repository Pattern**
-- **Unit of Work Pattern**
-- **Mediator Pattern** (using MediatR)
-- **Domain-Driven Design** (DDD)
-
----
-
-## 3. Domain Model
-
-### 3.1 Aggregates
-
-#### 3.1.1 Customer Aggregate
-```csharp
-public class Customer : AggregateRoot
-{
-    public Guid Id { get; private set; }
-    public string CustomerNumber { get; private set; }
-    public CustomerProfile Profile { get; private set; }
-    public CustomerContactInfo ContactInfo { get; private set; }
-    public CustomerPreferences Preferences { get; private set; }
-    public CustomerStatus Status { get; private set; }
-    public List<Contact> Contacts { get; private set; }
-    public List<CommunicationHistory> CommunicationHistory { get; private set; }
-    public List<Complaint> Complaints { get; private set; }
-    public List<Testimonial> Testimonials { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime? LastModifiedAt { get; private set; }
-    public string CreatedBy { get; private set; }
-    public string LastModifiedBy { get; private set; }
-}
-```
-
-#### 3.1.2 Contact Aggregate
-```csharp
-public class Contact : Entity
-{
-    public Guid Id { get; private set; }
-    public Guid CustomerId { get; private set; }
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string Email { get; private set; }
-    public string Phone { get; private set; }
-    public string Position { get; private set; }
-    public bool IsPrimary { get; private set; }
-    public List<string> Tags { get; private set; }
-    public ContactStatus Status { get; private set; }
-}
-```
-
-### 3.2 Value Objects
-
-#### 3.2.1 CustomerProfile
-```csharp
-public class CustomerProfile : ValueObject
-{
-    public string CompanyName { get; private set; }
-    public string Industry { get; private set; }
-    public CustomerType Type { get; private set; }
-    public CustomerSegment Segment { get; private set; }
-    public decimal LifetimeValue { get; private set; }
-    public int TotalEvents { get; private set; }
-    public CustomerRating Rating { get; private set; }
-}
-```
-
-#### 3.2.2 CustomerContactInfo
-```csharp
-public class CustomerContactInfo : ValueObject
-{
-    public string PrimaryEmail { get; private set; }
-    public string SecondaryEmail { get; private set; }
-    public string PrimaryPhone { get; private set; }
-    public string SecondaryPhone { get; private set; }
-    public Address BillingAddress { get; private set; }
-    public Address ShippingAddress { get; private set; }
-    public string Website { get; private set; }
-    public SocialMediaLinks SocialMedia { get; private set; }
-}
-```
-
-#### 3.2.3 CustomerPreferences
-```csharp
-public class CustomerPreferences : ValueObject
-{
-    public CommunicationPreferences Communication { get; private set; }
-    public List<string> PreferredEventTypes { get; private set; }
-    public List<string> Interests { get; private set; }
-    public string PreferredLanguage { get; private set; }
-    public string TimeZone { get; private set; }
-    public NotificationSettings Notifications { get; private set; }
-}
-```
-
-### 3.3 Enumerations
-```csharp
-public enum CustomerStatus
-{
-    Active,
-    Inactive,
-    Suspended,
-    Archived
-}
-
-public enum CustomerType
-{
-    Individual,
-    SmallBusiness,
-    Enterprise,
-    NonProfit,
-    Government
-}
-
-public enum CustomerSegment
-{
-    Standard,
-    Premium,
-    VIP,
-    Corporate
-}
-
-public enum CommunicationType
-{
-    Email,
-    SMS,
-    PhoneCall,
-    Meeting,
-    InPerson,
-    VideoCall
-}
-
-public enum ComplaintStatus
-{
-    New,
-    InProgress,
-    Resolved,
-    Closed,
-    Escalated
-}
-
-public enum ComplaintPriority
-{
-    Low,
-    Medium,
-    High,
-    Critical
-}
-```
-
----
-
-## 4. Domain Events
-
-### 4.1 Customer Events
-
-#### 4.1.1 CustomerRegistered
-```csharp
-public record CustomerRegistered : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public string CustomerNumber { get; init; }
-    public string CompanyName { get; init; }
-    public CustomerType Type { get; init; }
-    public string PrimaryEmail { get; init; }
-    public string PrimaryPhone { get; init; }
-    public DateTime RegisteredAt { get; init; }
-    public string RegisteredBy { get; init; }
-}
-```
-
-#### 4.1.2 CustomerProfileUpdated
-```csharp
-public record CustomerProfileUpdated : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public Dictionary<string, object> ChangedFields { get; init; }
-    public DateTime UpdatedAt { get; init; }
-    public string UpdatedBy { get; init; }
-}
-```
-
-#### 4.1.3 CustomerContactInfoUpdated
-```csharp
-public record CustomerContactInfoUpdated : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public string PreviousEmail { get; init; }
-    public string NewEmail { get; init; }
-    public string PreviousPhone { get; init; }
-    public string NewPhone { get; init; }
-    public DateTime UpdatedAt { get; init; }
-}
-```
-
-#### 4.1.4 CustomerPreferencesUpdated
-```csharp
-public record CustomerPreferencesUpdated : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public CustomerPreferences UpdatedPreferences { get; init; }
-    public DateTime UpdatedAt { get; init; }
-}
-```
-
-#### 4.1.5 CustomerMerged
-```csharp
-public record CustomerMerged : DomainEvent
-{
-    public Guid SourceCustomerId { get; init; }
-    public Guid TargetCustomerId { get; init; }
-    public List<string> MergedEntities { get; init; }
-    public DateTime MergedAt { get; init; }
-    public string MergedBy { get; init; }
-}
-```
-
-#### 4.1.6 CustomerDeactivated
-```csharp
-public record CustomerDeactivated : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public string Reason { get; init; }
-    public DateTime DeactivatedAt { get; init; }
-    public string DeactivatedBy { get; init; }
-}
-```
-
-#### 4.1.7 CustomerReactivated
-```csharp
-public record CustomerReactivated : DomainEvent
-{
-    public Guid CustomerId { get; init; }
-    public string Reason { get; init; }
-    public DateTime ReactivatedAt { get; init; }
-    public string ReactivatedBy { get; init; }
-}
-```
-
-### 4.2 Contact Events
-
-#### 4.2.1 ContactAdded
-```csharp
-public record ContactAdded : DomainEvent
-{
-    public Guid ContactId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string FullName { get; init; }
-    public string Email { get; init; }
-    public bool IsPrimary { get; init; }
-    public DateTime AddedAt { get; init; }
-}
-```
-
-#### 4.2.2 ContactUpdated
-```csharp
-public record ContactUpdated : DomainEvent
-{
-    public Guid ContactId { get; init; }
-    public Guid CustomerId { get; init; }
-    public Dictionary<string, object> ChangedFields { get; init; }
-    public DateTime UpdatedAt { get; init; }
-}
-```
-
-#### 4.2.3 ContactRemoved
-```csharp
-public record ContactRemoved : DomainEvent
-{
-    public Guid ContactId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Reason { get; init; }
-    public DateTime RemovedAt { get; init; }
-}
-```
-
-#### 4.2.4 ContactTagged
-```csharp
-public record ContactTagged : DomainEvent
-{
-    public Guid ContactId { get; init; }
-    public string Tag { get; init; }
-    public DateTime TaggedAt { get; init; }
-}
-```
-
-#### 4.2.5 ContactUntagged
-```csharp
-public record ContactUntagged : DomainEvent
-{
-    public Guid ContactId { get; init; }
-    public string Tag { get; init; }
-    public DateTime UntaggedAt { get; init; }
-}
-```
-
-#### 4.2.6 ContactListImported
-```csharp
-public record ContactListImported : DomainEvent
-{
-    public Guid ImportId { get; init; }
-    public int TotalRecords { get; init; }
-    public int SuccessfulRecords { get; init; }
-    public int FailedRecords { get; init; }
-    public List<string> Errors { get; init; }
-    public DateTime ImportedAt { get; init; }
-    public string ImportedBy { get; init; }
-}
-```
-
-#### 4.2.7 ContactListExported
-```csharp
-public record ContactListExported : DomainEvent
-{
-    public Guid ExportId { get; init; }
-    public int RecordCount { get; init; }
-    public string Format { get; init; }
-    public string BlobUrl { get; init; }
-    public DateTime ExportedAt { get; init; }
-    public string ExportedBy { get; init; }
-}
-```
-
-### 4.3 Communication Events
-
-#### 4.3.1 CustomerEmailSent
-```csharp
-public record CustomerEmailSent : DomainEvent
-{
-    public Guid CommunicationId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Subject { get; init; }
-    public string RecipientEmail { get; init; }
-    public bool IsDelivered { get; init; }
-    public DateTime SentAt { get; init; }
-    public string SentBy { get; init; }
-}
-```
-
-#### 4.3.2 CustomerSMSSent
-```csharp
-public record CustomerSMSSent : DomainEvent
-{
-    public Guid CommunicationId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string RecipientPhone { get; init; }
-    public string MessagePreview { get; init; }
-    public bool IsDelivered { get; init; }
-    public DateTime SentAt { get; init; }
-}
-```
-
-#### 4.3.3 CustomerPhoneCallLogged
-```csharp
-public record CustomerPhoneCallLogged : DomainEvent
-{
-    public Guid CommunicationId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string PhoneNumber { get; init; }
-    public int DurationInSeconds { get; init; }
-    public string CallType { get; init; }
-    public string Summary { get; init; }
-    public DateTime CallTime { get; init; }
-}
-```
-
-#### 4.3.4 CustomerMeetingScheduled
-```csharp
-public record CustomerMeetingScheduled : DomainEvent
-{
-    public Guid MeetingId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Title { get; init; }
-    public DateTime ScheduledStart { get; init; }
-    public DateTime ScheduledEnd { get; init; }
-    public string Location { get; init; }
-    public List<string> Attendees { get; init; }
-    public DateTime ScheduledAt { get; init; }
-}
-```
-
-#### 4.3.5 CustomerFollowUpCreated
-```csharp
-public record CustomerFollowUpCreated : DomainEvent
-{
-    public Guid FollowUpId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Subject { get; init; }
-    public string Description { get; init; }
-    public DateTime DueDate { get; init; }
-    public string AssignedTo { get; init; }
-    public DateTime CreatedAt { get; init; }
-}
-```
-
-### 4.4 Complaint & Testimonial Events
-
-#### 4.4.1 CustomerComplaintReceived
-```csharp
-public record CustomerComplaintReceived : DomainEvent
-{
-    public Guid ComplaintId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Subject { get; init; }
-    public string Description { get; init; }
-    public ComplaintPriority Priority { get; init; }
-    public string Category { get; init; }
-    public DateTime ReceivedAt { get; init; }
-}
-```
-
-#### 4.4.2 CustomerComplaintResolved
-```csharp
-public record CustomerComplaintResolved : DomainEvent
-{
-    public Guid ComplaintId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Resolution { get; init; }
-    public string ResolvedBy { get; init; }
-    public DateTime ResolvedAt { get; init; }
-    public int ResolutionTimeInHours { get; init; }
-}
-```
-
-#### 4.4.3 CustomerTestimonialReceived
-```csharp
-public record CustomerTestimonialReceived : DomainEvent
-{
-    public Guid TestimonialId { get; init; }
-    public Guid CustomerId { get; init; }
-    public string Content { get; init; }
-    public int Rating { get; init; }
-    public string RelatedEventId { get; init; }
-    public bool IsPublic { get; init; }
-    public DateTime ReceivedAt { get; init; }
-}
-```
-
----
-
-## 5. API Specifications
-
-### 5.1 Customer Management Endpoints
-
-#### 5.1.1 Create Customer
 ```http
 POST /api/v1/customers
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "companyName": "string",
   "type": "Individual|SmallBusiness|Enterprise|NonProfit|Government",
@@ -553,11 +64,6 @@ Request Body:
     "state": "string",
     "zipCode": "string",
     "country": "string"
-  },
-  "preferences": {
-    "communicationChannels": ["Email", "SMS"],
-    "preferredLanguage": "string",
-    "timeZone": "string"
   }
 }
 
@@ -571,7 +77,23 @@ Response: 201 Created
 }
 ```
 
-#### 5.1.2 Get Customer
+---
+
+### REQ-CUS-002: Retrieve Customer by ID
+
+**Requirement:** The system shall provide the ability to retrieve complete customer information by unique identifier.
+
+**Acceptance Criteria:**
+- [ ] Endpoint accepts customer GUID as path parameter
+- [ ] Returns complete customer profile including all related data
+- [ ] Includes profile, contact info, preferences, and status
+- [ ] Returns 404 if customer not found
+- [ ] Returns 403 if user lacks Read privilege on Customer aggregate
+- [ ] Excludes soft-deleted customers from retrieval
+- [ ] Response includes audit metadata (createdAt, lastModifiedAt)
+
+**API Endpoint:**
+
 ```http
 GET /api/v1/customers/{id}
 Authorization: Bearer {token}
@@ -580,80 +102,35 @@ Response: 200 OK
 {
   "id": "uuid",
   "customerNumber": "string",
-  "profile": {
-    "companyName": "string",
-    "industry": "string",
-    "type": "string",
-    "segment": "string",
-    "lifetimeValue": "decimal",
-    "totalEvents": "integer",
-    "rating": "string"
-  },
-  "contactInfo": {
-    "primaryEmail": "string",
-    "primaryPhone": "string",
-    "billingAddress": {},
-    "website": "string"
-  },
-  "preferences": {},
-  "status": "string",
+  "profile": { },
+  "contactInfo": { },
+  "preferences": { },
+  "status": "Active",
   "createdAt": "datetime",
   "lastModifiedAt": "datetime"
 }
 ```
 
-#### 5.1.3 Update Customer Profile
-```http
-PUT /api/v1/customers/{id}/profile
-Authorization: Bearer {token}
-Content-Type: application/json
+---
 
-Request Body:
-{
-  "companyName": "string",
-  "industry": "string",
-  "website": "string"
-}
+### REQ-CUS-003: Search and Filter Customers
 
-Response: 200 OK
-```
+**Requirement:** The system shall provide advanced search and filtering capabilities with pagination support.
 
-#### 5.1.4 Update Customer Contact Info
-```http
-PUT /api/v1/customers/{id}/contact-info
-Authorization: Bearer {token}
-Content-Type: application/json
+**Acceptance Criteria:**
+- [ ] Supports full-text search across company name, email, and customer number
+- [ ] Filter by customer type (multiple selection)
+- [ ] Filter by customer segment (Standard, Premium, VIP, Corporate)
+- [ ] Filter by status (Active, Inactive, Suspended, Archived)
+- [ ] Supports pagination with configurable page size (default 20, max 100)
+- [ ] Returns total count for pagination
+- [ ] Supports sorting by multiple fields
+- [ ] Search is case-insensitive
+- [ ] Results exclude soft-deleted customers
+- [ ] Performance target: < 500ms for queries returning up to 100 records
 
-Request Body:
-{
-  "primaryEmail": "string",
-  "primaryPhone": "string",
-  "billingAddress": {}
-}
+**API Endpoint:**
 
-Response: 200 OK
-```
-
-#### 5.1.5 Update Customer Preferences
-```http
-PUT /api/v1/customers/{id}/preferences
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "communication": {
-    "channels": ["Email", "SMS"],
-    "frequency": "string"
-  },
-  "preferredEventTypes": ["string"],
-  "notifications": {}
-}
-
-Response: 200 OK
-```
-
-#### 5.1.6 Search Customers
 ```http
 GET /api/v1/customers/search?query={query}&type={type}&segment={segment}&status={status}&page={page}&pageSize={pageSize}
 Authorization: Bearer {token}
@@ -668,13 +145,130 @@ Response: 200 OK
 }
 ```
 
-#### 5.1.7 Merge Customers
+---
+
+### REQ-CUS-004: Update Customer Profile
+
+**Requirement:** The system shall allow authorized users to update customer profile information with audit tracking.
+
+**Acceptance Criteria:**
+- [ ] Only users with Write privilege on Customer aggregate can update profiles
+- [ ] Company name can be updated (minimum 2 characters)
+- [ ] Industry can be updated
+- [ ] Website can be updated with URL format validation
+- [ ] Customer type cannot be changed after creation
+- [ ] All changes are tracked in audit log
+- [ ] CustomerProfileUpdated domain event is raised with changed fields
+- [ ] LastModifiedAt and LastModifiedBy are updated
+- [ ] Returns 404 if customer not found
+- [ ] Returns 409 if concurrent update conflict detected
+
+**API Endpoint:**
+
+```http
+PUT /api/v1/customers/{id}/profile
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "companyName": "string",
+  "industry": "string",
+  "website": "string"
+}
+
+Response: 200 OK
+```
+
+---
+
+### REQ-CUS-005: Deactivate Customer
+
+**Requirement:** The system shall support soft deletion of customer accounts with reason tracking for data retention compliance.
+
+**Acceptance Criteria:**
+- [ ] Only users with Delete privilege on Customer aggregate can deactivate customers
+- [ ] Deactivation is soft delete (IsDeleted flag set to true)
+- [ ] Reason for deactivation is required
+- [ ] Customer status changes to Inactive
+- [ ] Deactivated customers cannot be modified
+- [ ] Deactivated customers are excluded from standard queries
+- [ ] All related data is retained for audit purposes
+- [ ] CustomerDeactivated domain event is raised
+- [ ] Deactivation timestamp is recorded
+- [ ] User who deactivated is recorded
+
+**API Endpoint:**
+
+```http
+POST /api/v1/customers/{id}/deactivate
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "reason": "string"
+}
+
+Response: 200 OK
+```
+
+---
+
+### REQ-CUS-006: Reactivate Customer
+
+**Requirement:** The system shall allow authorized users to reactivate previously deactivated customers.
+
+**Acceptance Criteria:**
+- [ ] Only users with Write privilege on Customer aggregate can reactivate
+- [ ] Reason for reactivation is required
+- [ ] Customer status changes to Active
+- [ ] IsDeleted flag is set to false
+- [ ] Customer becomes visible in standard queries
+- [ ] CustomerReactivated domain event is raised
+- [ ] Reactivation timestamp is recorded
+- [ ] User who reactivated is recorded
+- [ ] Returns 400 if customer is not deactivated
+
+**API Endpoint:**
+
+```http
+POST /api/v1/customers/{id}/reactivate
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "reason": "string"
+}
+
+Response: 200 OK
+```
+
+---
+
+### REQ-CUS-007: Merge Customers
+
+**Requirement:** The system shall provide functionality to merge duplicate customer records with comprehensive data consolidation.
+
+**Acceptance Criteria:**
+- [ ] Only users with Delete privilege on Customer aggregate can merge customers
+- [ ] Source customer ID and target customer ID must be specified
+- [ ] Merge options specify which data to consolidate (contacts, communications, complaints, testimonials)
+- [ ] All contacts from source are transferred to target
+- [ ] All communication history is transferred to target
+- [ ] All complaints are transferred to target
+- [ ] All testimonials are transferred to target
+- [ ] Source customer is deactivated after merge
+- [ ] CustomerMerged domain event is raised
+- [ ] Transaction ensures atomic operation
+- [ ] Returns 400 if source and target are the same
+- [ ] Returns 404 if either customer not found
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/merge
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "sourceCustomerId": "uuid",
   "targetCustomerId": "uuid",
@@ -689,43 +283,35 @@ Request Body:
 Response: 200 OK
 ```
 
-#### 5.1.8 Deactivate Customer
-```http
-POST /api/v1/customers/{id}/deactivate
-Authorization: Bearer {token}
-Content-Type: application/json
+---
 
-Request Body:
-{
-  "reason": "string"
-}
+## 2. Customer Contact Requirements
 
-Response: 200 OK
-```
+### REQ-CUS-008: Add Contact to Customer
 
-#### 5.1.9 Reactivate Customer
-```http
-POST /api/v1/customers/{id}/reactivate
-Authorization: Bearer {token}
-Content-Type: application/json
+**Requirement:** The system shall allow adding multiple contacts to a customer account with role designation.
 
-Request Body:
-{
-  "reason": "string"
-}
+**Acceptance Criteria:**
+- [ ] Contact first name is required
+- [ ] Contact last name is required
+- [ ] Contact email is required and validated
+- [ ] Contact phone is optional but validated if provided
+- [ ] Position/title is optional
+- [ ] One contact can be marked as primary
+- [ ] If first contact added, automatically set as primary
+- [ ] Only one contact can be primary at a time
+- [ ] Tags can be assigned to contacts (multiple tags allowed)
+- [ ] ContactAdded domain event is raised
+- [ ] Maximum 50 contacts per customer
+- [ ] Returns 409 if email already exists for another contact in same customer
 
-Response: 200 OK
-```
+**API Endpoint:**
 
-### 5.2 Contact Management Endpoints
-
-#### 5.2.1 Add Contact
 ```http
 POST /api/v1/customers/{customerId}/contacts
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "firstName": "string",
   "lastName": "string",
@@ -739,13 +325,31 @@ Request Body:
 Response: 201 Created
 ```
 
-#### 5.2.2 Update Contact
+---
+
+### REQ-CUS-009: Update Contact Information
+
+**Requirement:** The system shall allow updating contact information while maintaining data integrity.
+
+**Acceptance Criteria:**
+- [ ] Contact first name can be updated
+- [ ] Contact last name can be updated
+- [ ] Contact email can be updated with uniqueness validation
+- [ ] Contact phone can be updated
+- [ ] Position can be updated
+- [ ] isPrimary can be updated (enforcing single primary constraint)
+- [ ] When setting new primary, previous primary is automatically unset
+- [ ] ContactUpdated domain event is raised with changed fields
+- [ ] Returns 404 if contact or customer not found
+- [ ] Returns 409 if email conflicts with another contact
+
+**API Endpoint:**
+
 ```http
 PUT /api/v1/customers/{customerId}/contacts/{contactId}
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "firstName": "string",
   "lastName": "string",
@@ -757,7 +361,23 @@ Request Body:
 Response: 200 OK
 ```
 
-#### 5.2.3 Remove Contact
+---
+
+### REQ-CUS-010: Remove Contact
+
+**Requirement:** The system shall allow removal of contacts with safeguards for primary contacts.
+
+**Acceptance Criteria:**
+- [ ] Contact can be removed if not the only contact
+- [ ] Primary contact can only be removed if another contact is set as primary first
+- [ ] Removal reason can be optionally provided
+- [ ] ContactRemoved domain event is raised
+- [ ] Soft delete is performed (contact marked as inactive)
+- [ ] Returns 400 if attempting to remove last contact
+- [ ] Returns 400 if attempting to remove primary contact without replacement
+
+**API Endpoint:**
+
 ```http
 DELETE /api/v1/customers/{customerId}/contacts/{contactId}
 Authorization: Bearer {token}
@@ -765,13 +385,29 @@ Authorization: Bearer {token}
 Response: 204 No Content
 ```
 
-#### 5.2.4 Tag Contact
+---
+
+### REQ-CUS-011: Tag and Untag Contacts
+
+**Requirement:** The system shall provide tagging functionality for contact organization and segmentation.
+
+**Acceptance Criteria:**
+- [ ] Multiple tags can be assigned to a single contact
+- [ ] Tags are case-insensitive
+- [ ] Tag names must be alphanumeric with hyphens/underscores allowed
+- [ ] Maximum tag length is 50 characters
+- [ ] ContactTagged domain event is raised when tag added
+- [ ] ContactUntagged domain event is raised when tag removed
+- [ ] Duplicate tags are prevented
+- [ ] Returns 404 if contact not found
+
+**API Endpoints:**
+
 ```http
 POST /api/v1/customers/{customerId}/contacts/{contactId}/tags
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "tag": "string"
 }
@@ -779,7 +415,6 @@ Request Body:
 Response: 200 OK
 ```
 
-#### 5.2.5 Untag Contact
 ```http
 DELETE /api/v1/customers/{customerId}/contacts/{contactId}/tags/{tag}
 Authorization: Bearer {token}
@@ -787,13 +422,33 @@ Authorization: Bearer {token}
 Response: 200 OK
 ```
 
-#### 5.2.6 Import Contact List
+---
+
+### REQ-CUS-012: Import Contact List
+
+**Requirement:** The system shall support bulk contact import from CSV, Excel, or JSON files with validation and error reporting.
+
+**Acceptance Criteria:**
+- [ ] Accepts CSV, Excel (.xlsx), and JSON formats
+- [ ] Field mappings can be customized by user
+- [ ] Required fields are validated (firstName, lastName, email)
+- [ ] Email uniqueness is validated within the file and against existing contacts
+- [ ] Phone numbers are validated if provided
+- [ ] Import process is asynchronous for files > 100 records
+- [ ] Progress tracking is available for async imports
+- [ ] Returns import ID for status checking
+- [ ] Detailed error report is generated for failed records
+- [ ] ContactListImported domain event is raised with statistics
+- [ ] Maximum file size: 10MB
+- [ ] Maximum records per import: 10,000
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/contacts/import
 Authorization: Bearer {token}
 Content-Type: multipart/form-data
 
-Request Body:
 {
   "file": "binary",
   "format": "CSV|Excel|JSON",
@@ -811,13 +466,31 @@ Response: 202 Accepted
 }
 ```
 
-#### 5.2.7 Export Contact List
+---
+
+### REQ-CUS-013: Export Contact List
+
+**Requirement:** The system shall provide contact export functionality with filtering and format options.
+
+**Acceptance Criteria:**
+- [ ] Export to CSV, Excel (.xlsx), or JSON format
+- [ ] Filter by customer IDs
+- [ ] Filter by contact tags
+- [ ] Select specific fields to export
+- [ ] Export process is asynchronous for > 1000 records
+- [ ] Export file is stored in Azure Blob Storage
+- [ ] Download URL is returned with expiration (24 hours)
+- [ ] ContactListExported domain event is raised
+- [ ] Maximum records per export: 50,000
+- [ ] Includes headers in CSV and Excel formats
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/contacts/export
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "format": "CSV|Excel|JSON",
   "filters": {
@@ -834,15 +507,202 @@ Response: 202 Accepted
 }
 ```
 
-### 5.3 Communication History Endpoints
+---
 
-#### 5.3.1 Send Email
+## 3. Customer Address Requirements
+
+### REQ-CUS-014: Update Billing Address
+
+**Requirement:** The system shall allow updating customer billing address with validation and audit tracking.
+
+**Acceptance Criteria:**
+- [ ] Street address is required
+- [ ] City is required
+- [ ] State/Province is required
+- [ ] Zip/Postal code is required and validated by country
+- [ ] Country is required (ISO country code)
+- [ ] Address validation is performed using Azure Maps API
+- [ ] Invalid addresses generate warnings but don't block update
+- [ ] CustomerContactInfoUpdated domain event is raised
+- [ ] Previous address is maintained in audit log
+- [ ] Returns 400 if required fields are missing
+
+**API Endpoint:**
+
+```http
+PUT /api/v1/customers/{id}/contact-info
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "billingAddress": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zipCode": "string",
+    "country": "string"
+  }
+}
+
+Response: 200 OK
+```
+
+---
+
+### REQ-CUS-015: Update Shipping Address
+
+**Requirement:** The system shall support separate shipping address management with optional same-as-billing functionality.
+
+**Acceptance Criteria:**
+- [ ] Shipping address is optional
+- [ ] If provided, all fields are required (street, city, state, zipCode, country)
+- [ ] Can copy billing address to shipping address
+- [ ] Address validation performed using Azure Maps API
+- [ ] CustomerContactInfoUpdated domain event is raised
+- [ ] Returns 400 if partial address provided (must be complete or empty)
+
+---
+
+## 4. Customer Profile Requirements
+
+### REQ-CUS-016: Update Customer Preferences
+
+**Requirement:** The system shall allow customers and authorized users to manage communication preferences and notification settings.
+
+**Acceptance Criteria:**
+- [ ] Communication channels can be specified (Email, SMS, Phone, both, or none)
+- [ ] Preferred event types can be selected (multiple selection)
+- [ ] Interests can be specified as free-form tags
+- [ ] Preferred language can be set (default: 'en')
+- [ ] Time zone can be set (default: 'UTC')
+- [ ] Email notification preference (default: true)
+- [ ] SMS notification preference (default: false)
+- [ ] Push notification preference (default: true)
+- [ ] Marketing consent must be explicitly opted-in (default: false)
+- [ ] Data processing consent is required (default: true)
+- [ ] CustomerPreferencesUpdated domain event is raised
+- [ ] GDPR compliance for consent management
+
+**API Endpoint:**
+
+```http
+PUT /api/v1/customers/{id}/preferences
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "communication": {
+    "channels": ["Email", "SMS"],
+    "frequency": "string"
+  },
+  "preferredEventTypes": ["string"],
+  "notifications": {
+    "email": true,
+    "sms": false,
+    "push": true
+  },
+  "marketingConsent": false,
+  "dataProcessingConsent": true
+}
+
+Response: 200 OK
+```
+
+---
+
+### REQ-CUS-017: Customer Segmentation
+
+**Requirement:** The system shall automatically assign customer segments based on business rules and allow manual override.
+
+**Acceptance Criteria:**
+- [ ] Default segment is Standard for new customers
+- [ ] Automatic upgrade to Premium when lifetime value > $10,000
+- [ ] Automatic upgrade to VIP when lifetime value > $50,000
+- [ ] Corporate segment assigned to Enterprise type customers
+- [ ] Manual segment override is allowed by authorized users
+- [ ] Segment changes are logged in audit trail
+- [ ] Segment affects pricing and service levels in other modules
+- [ ] CustomerProfileUpdated event includes segment changes
+
+**Segment Definitions:**
+
+| Segment | Criteria | Benefits |
+|---------|----------|----------|
+| Standard | Default | Standard pricing, email support |
+| Premium | LTV > $10,000 or manual | 10% discount, priority support |
+| VIP | LTV > $50,000 or manual | 20% discount, dedicated account manager |
+| Corporate | Enterprise type | Custom pricing, SLA guarantees |
+
+---
+
+### REQ-CUS-018: Customer Rating System
+
+**Requirement:** The system shall maintain customer ratings based on multiple factors for relationship management.
+
+**Acceptance Criteria:**
+- [ ] Rating is calculated automatically based on factors
+- [ ] Factors include: payment history, event attendance, complaint count, testimonials
+- [ ] Rating scale: Excellent, Good, Fair, Poor, Unrated
+- [ ] Rating is recalculated on significant events (payment, complaint, testimonial)
+- [ ] Manual rating override is allowed by managers
+- [ ] Rating affects service priority and offers
+- [ ] Rating history is maintained for trend analysis
+
+**Rating Calculation:**
+
+| Rating | Criteria |
+|--------|----------|
+| Excellent | Perfect payment history, 5+ events, 0 complaints, positive testimonials |
+| Good | Good payment history, 3+ events, <2 complaints |
+| Fair | Some late payments, 1-2 events, 2-5 complaints |
+| Poor | Payment issues, >5 complaints, no events |
+| Unrated | Insufficient data (new customer) |
+
+---
+
+### REQ-CUS-019: Lifetime Value Tracking
+
+**Requirement:** The system shall automatically calculate and maintain customer lifetime value (LTV) for business analytics.
+
+**Acceptance Criteria:**
+- [ ] LTV is calculated from all paid invoices
+- [ ] LTV includes ticket sales, merchandise, services
+- [ ] LTV excludes refunded amounts
+- [ ] LTV is updated in real-time when payments are received
+- [ ] Total events attended is tracked separately
+- [ ] LTV calculation is accurate to 2 decimal places
+- [ ] Historical LTV trends are maintained
+- [ ] LTV is displayed in customer profile
+- [ ] LTV affects customer segmentation
+
+---
+
+## 5. Communication History Requirements
+
+### REQ-CUS-020: Send Email Communication
+
+**Requirement:** The system shall support sending emails to customers with template support and delivery tracking.
+
+**Acceptance Criteria:**
+- [ ] Recipient email is validated
+- [ ] Subject is required
+- [ ] Body content is required (plain text or HTML)
+- [ ] Optional template ID for pre-defined templates
+- [ ] Attachments supported (max 5 files, 10MB total)
+- [ ] Email is sent via Azure Communication Services or SendGrid
+- [ ] Delivery status is tracked
+- [ ] Email is logged in communication history
+- [ ] CustomerEmailSent domain event is raised
+- [ ] Supports personalization variables (name, company, etc.)
+- [ ] Bounce and complaint handling
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/communications/email
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "recipientEmail": "string",
   "subject": "string",
@@ -852,15 +712,37 @@ Request Body:
 }
 
 Response: 201 Created
+{
+  "communicationId": "uuid",
+  "status": "Sent"
+}
 ```
 
-#### 5.3.2 Send SMS
+---
+
+### REQ-CUS-021: Send SMS Communication
+
+**Requirement:** The system shall support sending SMS messages to customers with delivery confirmation.
+
+**Acceptance Criteria:**
+- [ ] Recipient phone number is validated (E.164 format)
+- [ ] Message content is required (max 1600 characters)
+- [ ] Optional template ID for pre-defined templates
+- [ ] SMS is sent via Azure Communication Services or Twilio
+- [ ] Delivery status is tracked
+- [ ] SMS is logged in communication history
+- [ ] CustomerSMSSent domain event is raised
+- [ ] Character count validation
+- [ ] Multi-part SMS handled automatically
+- [ ] Opt-out handling (STOP keyword)
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/communications/sms
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "recipientPhone": "string",
   "message": "string",
@@ -868,15 +750,37 @@ Request Body:
 }
 
 Response: 201 Created
+{
+  "communicationId": "uuid",
+  "status": "Sent"
+}
 ```
 
-#### 5.3.3 Log Phone Call
+---
+
+### REQ-CUS-022: Log Phone Call
+
+**Requirement:** The system shall allow logging of phone call interactions with duration and summary tracking.
+
+**Acceptance Criteria:**
+- [ ] Phone number is required
+- [ ] Call type is required (Inbound or Outbound)
+- [ ] Duration in seconds is required
+- [ ] Call summary is required (minimum 10 characters)
+- [ ] Optional detailed notes
+- [ ] Call timestamp is required
+- [ ] CustomerPhoneCallLogged domain event is raised
+- [ ] Call is stored in communication history
+- [ ] Integration with phone systems for automatic logging
+- [ ] Returns 400 if invalid call type
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/communications/phone-call
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "phoneNumber": "string",
   "callType": "Inbound|Outbound",
@@ -889,13 +793,33 @@ Request Body:
 Response: 201 Created
 ```
 
-#### 5.3.4 Schedule Meeting
+---
+
+### REQ-CUS-023: Schedule Meeting
+
+**Requirement:** The system shall provide meeting scheduling functionality with calendar integration.
+
+**Acceptance Criteria:**
+- [ ] Meeting title is required
+- [ ] Description is optional
+- [ ] Scheduled start date/time is required
+- [ ] Scheduled end date/time is required
+- [ ] End time must be after start time
+- [ ] Location is required for in-person meetings
+- [ ] Virtual meeting link is required for virtual meetings
+- [ ] Attendee list is required (minimum 1 attendee)
+- [ ] CustomerMeetingScheduled domain event is raised
+- [ ] Calendar invites sent to attendees via email
+- [ ] Integration with Google Calendar and Outlook
+- [ ] Reminder notifications sent before meeting
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/communications/meeting
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "title": "string",
   "description": "string",
@@ -910,13 +834,31 @@ Request Body:
 Response: 201 Created
 ```
 
-#### 5.3.5 Create Follow-up
+---
+
+### REQ-CUS-024: Create Follow-up Task
+
+**Requirement:** The system shall support creating follow-up tasks for customer relationship management.
+
+**Acceptance Criteria:**
+- [ ] Follow-up subject is required
+- [ ] Description is optional
+- [ ] Due date is required and must be in the future
+- [ ] Priority is required (Low, Medium, High)
+- [ ] Task can be assigned to specific user
+- [ ] Unassigned tasks visible to all customer managers
+- [ ] CustomerFollowUpCreated domain event is raised
+- [ ] Email notification sent to assigned user
+- [ ] Task appears in user's task dashboard
+- [ ] Overdue tasks highlighted in dashboards
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/follow-ups
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "subject": "string",
   "description": "string",
@@ -928,29 +870,72 @@ Request Body:
 Response: 201 Created
 ```
 
-#### 5.3.6 Get Communication History
+---
+
+### REQ-CUS-025: Retrieve Communication History
+
+**Requirement:** The system shall provide comprehensive communication history retrieval with filtering capabilities.
+
+**Acceptance Criteria:**
+- [ ] Filter by communication type (Email, SMS, Phone, Meeting)
+- [ ] Filter by date range (start date and end date)
+- [ ] Pagination supported (default 20 per page)
+- [ ] Results sorted by date descending (most recent first)
+- [ ] Includes all communication metadata
+- [ ] Returns empty array if no communications found
+- [ ] Performance target: < 500ms for queries
+
+**API Endpoint:**
+
 ```http
 GET /api/v1/customers/{customerId}/communications?type={type}&startDate={startDate}&endDate={endDate}&page={page}
 Authorization: Bearer {token}
 
 Response: 200 OK
 {
-  "items": [],
+  "items": [
+    {
+      "id": "uuid",
+      "type": "Email",
+      "subject": "string",
+      "createdAt": "datetime",
+      "status": "Delivered"
+    }
+  ],
   "totalCount": "integer",
   "page": "integer",
   "pageSize": "integer"
 }
 ```
 
-### 5.4 Complaint Management Endpoints
+---
 
-#### 5.4.1 Submit Complaint
+## 6. Complaint Management Requirements
+
+### REQ-CUS-026: Submit Customer Complaint
+
+**Requirement:** The system shall allow recording customer complaints with categorization and priority assignment.
+
+**Acceptance Criteria:**
+- [ ] Complaint subject is required (max 500 characters)
+- [ ] Complaint description is required (max 5000 characters)
+- [ ] Category is optional but recommended
+- [ ] Priority is required (Low, Medium, High, Critical)
+- [ ] Related event ID is optional
+- [ ] Attachments supported (max 5 files, 20MB total)
+- [ ] Complaint number is auto-generated (format: COMP-YYYYMMDD-NNNN)
+- [ ] Status is set to New by default
+- [ ] CustomerComplaintReceived domain event is raised
+- [ ] Automatic assignment based on category
+- [ ] Email notification sent to support team
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/complaints
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "subject": "string",
   "description": "string",
@@ -961,30 +946,78 @@ Request Body:
 }
 
 Response: 201 Created
+{
+  "complaintId": "uuid",
+  "complaintNumber": "COMP-20251222-0001",
+  "status": "New"
+}
 ```
 
-#### 5.4.2 Update Complaint Status
+---
+
+### REQ-CUS-027: Update Complaint Status
+
+**Requirement:** The system shall allow authorized users to update complaint status with notes.
+
+**Acceptance Criteria:**
+- [ ] Only assigned user or managers can update status
+- [ ] Status must be one of: New, InProgress, Resolved, Closed, Escalated
+- [ ] Status transitions must follow business rules (New → InProgress → Resolved → Closed)
+- [ ] Status notes are required for status changes
+- [ ] Escalation requires manager approval
+- [ ] Automatic email notification on status change
+- [ ] Status change is logged in audit trail
+- [ ] Returns 400 if invalid status transition
+
+**Status Transition Rules:**
+
+| From Status | Valid Transitions |
+|-------------|-------------------|
+| New | InProgress, Escalated |
+| InProgress | Resolved, Escalated |
+| Resolved | Closed, InProgress (reopen) |
+| Escalated | InProgress, Resolved |
+| Closed | (No transitions allowed) |
+
+**API Endpoint:**
+
 ```http
 PUT /api/v1/customers/{customerId}/complaints/{complaintId}/status
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
-  "status": "New|InProgress|Resolved|Closed|Escalated",
+  "status": "InProgress",
   "notes": "string"
 }
 
 Response: 200 OK
 ```
 
-#### 5.4.3 Resolve Complaint
+---
+
+### REQ-CUS-028: Resolve Complaint
+
+**Requirement:** The system shall provide complaint resolution workflow with customer satisfaction tracking.
+
+**Acceptance Criteria:**
+- [ ] Resolution description is required (minimum 20 characters)
+- [ ] Compensation offered is optional
+- [ ] Customer satisfaction flag is required (boolean)
+- [ ] Resolution time is calculated automatically
+- [ ] CustomerComplaintResolved domain event is raised
+- [ ] Status automatically changes to Resolved
+- [ ] Email notification sent to customer
+- [ ] Follow-up task created if customer not satisfied
+- [ ] Resolution added to knowledge base for future reference
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/complaints/{complaintId}/resolve
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "resolution": "string",
   "compensationOffered": "string",
@@ -992,762 +1025,575 @@ Request Body:
 }
 
 Response: 200 OK
+{
+  "resolutionTimeInHours": 48
+}
 ```
 
-#### 5.4.4 Get Complaints
-```http
-GET /api/v1/customers/{customerId}/complaints?status={status}&priority={priority}
-Authorization: Bearer {token}
+---
 
-Response: 200 OK
-```
+### REQ-CUS-029: Complaint Auto-Escalation
 
-### 5.5 Testimonial Management Endpoints
+**Requirement:** The system shall automatically escalate unresolved complaints based on priority and time thresholds.
 
-#### 5.5.1 Submit Testimonial
+**Acceptance Criteria:**
+- [ ] Critical priority complaints escalated after 4 hours
+- [ ] High priority complaints escalated after 24 hours
+- [ ] Medium priority complaints escalated after 48 hours
+- [ ] Low priority complaints escalated after 7 days
+- [ ] Escalation email sent to manager
+- [ ] Escalation triggers high priority notification
+- [ ] Background job checks every hour for escalation candidates
+- [ ] Escalation logic configurable via app settings
+
+**Escalation Thresholds:**
+
+| Priority | Escalation Time |
+|----------|----------------|
+| Critical | 4 hours |
+| High | 24 hours |
+| Medium | 48 hours |
+| Low | 7 days |
+
+---
+
+## 7. Testimonial Management Requirements
+
+### REQ-CUS-030: Submit Customer Testimonial
+
+**Requirement:** The system shall allow collection of customer testimonials with approval workflow.
+
+**Acceptance Criteria:**
+- [ ] Testimonial content is required (max 2000 characters)
+- [ ] Rating is required (1-5 stars)
+- [ ] Related event ID is optional
+- [ ] Public visibility flag (default: false)
+- [ ] Author name is required
+- [ ] Approval status is set to pending by default
+- [ ] CustomerTestimonialReceived domain event is raised
+- [ ] Email notification sent to marketing team
+- [ ] Profanity filter applied to content
+- [ ] Returns 400 if rating is out of range
+
+**API Endpoint:**
+
 ```http
 POST /api/v1/customers/{customerId}/testimonials
 Authorization: Bearer {token}
 Content-Type: application/json
 
-Request Body:
 {
   "content": "string",
-  "rating": "integer",
+  "rating": 5,
   "relatedEventId": "uuid",
-  "isPublic": "boolean",
+  "isPublic": false,
   "authorName": "string"
 }
 
 Response: 201 Created
-```
-
-#### 5.5.2 Get Testimonials
-```http
-GET /api/v1/customers/{customerId}/testimonials?isPublic={isPublic}
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-### 5.6 Customer Insights Endpoints (Azure AI)
-
-#### 5.6.1 Get Customer Insights
-```http
-GET /api/v1/customers/{customerId}/insights
-Authorization: Bearer {token}
-
-Response: 200 OK
 {
-  "customerId": "uuid",
-  "sentimentScore": "decimal",
-  "engagementLevel": "Low|Medium|High",
-  "churnRisk": "decimal",
-  "recommendedActions": ["string"],
-  "keyInterests": ["string"],
-  "preferredCommunicationTimes": ["string"],
-  "generatedAt": "datetime"
-}
-```
-
-#### 5.6.2 Analyze Communication Sentiment
-```http
-POST /api/v1/customers/{customerId}/analyze-sentiment
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-  "text": "string",
-  "communicationType": "Email|SMS|PhoneCall"
-}
-
-Response: 200 OK
-{
-  "sentiment": "Positive|Neutral|Negative",
-  "score": "decimal",
-  "keyPhrases": ["string"],
-  "entities": []
+  "testimonialId": "uuid",
+  "isApproved": false
 }
 ```
 
 ---
 
-## 6. Data Model
+### REQ-CUS-031: Approve Testimonial
 
-### 6.1 Database Schema
+**Requirement:** The system shall provide testimonial approval workflow for marketing use.
 
-#### 6.1.1 Customers Table
-```sql
-CREATE TABLE Customers (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerNumber NVARCHAR(50) NOT NULL UNIQUE,
-    CompanyName NVARCHAR(200) NOT NULL,
-    Industry NVARCHAR(100),
-    Type NVARCHAR(50) NOT NULL,
-    Segment NVARCHAR(50) NOT NULL DEFAULT 'Standard',
-    LifetimeValue DECIMAL(18,2) DEFAULT 0,
-    TotalEvents INT DEFAULT 0,
-    Rating NVARCHAR(20) DEFAULT 'Unrated',
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Active',
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    LastModifiedAt DATETIME2,
-    CreatedBy NVARCHAR(100) NOT NULL,
-    LastModifiedBy NVARCHAR(100),
-    IsDeleted BIT NOT NULL DEFAULT 0,
-    DeletedAt DATETIME2,
-    RowVersion ROWVERSION,
-    INDEX IX_CustomerNumber (CustomerNumber),
-    INDEX IX_Status (Status),
-    INDEX IX_Type (Type),
-    INDEX IX_CreatedAt (CreatedAt)
-);
-```
-
-#### 6.1.2 CustomerContactInfo Table
-```sql
-CREATE TABLE CustomerContactInfo (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    PrimaryEmail NVARCHAR(255) NOT NULL,
-    SecondaryEmail NVARCHAR(255),
-    PrimaryPhone NVARCHAR(20),
-    SecondaryPhone NVARCHAR(20),
-    Website NVARCHAR(255),
-    BillingStreet NVARCHAR(255),
-    BillingCity NVARCHAR(100),
-    BillingState NVARCHAR(100),
-    BillingZipCode NVARCHAR(20),
-    BillingCountry NVARCHAR(100),
-    ShippingStreet NVARCHAR(255),
-    ShippingCity NVARCHAR(100),
-    ShippingState NVARCHAR(100),
-    ShippingZipCode NVARCHAR(20),
-    ShippingCountry NVARCHAR(100),
-    LinkedInUrl NVARCHAR(255),
-    TwitterHandle NVARCHAR(100),
-    FacebookUrl NVARCHAR(255),
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_PrimaryEmail (PrimaryEmail)
-);
-```
-
-#### 6.1.3 CustomerPreferences Table
-```sql
-CREATE TABLE CustomerPreferences (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    PreferredCommunicationChannels NVARCHAR(500),
-    CommunicationFrequency NVARCHAR(50),
-    PreferredEventTypes NVARCHAR(MAX),
-    Interests NVARCHAR(MAX),
-    PreferredLanguage NVARCHAR(10) DEFAULT 'en',
-    TimeZone NVARCHAR(50) DEFAULT 'UTC',
-    EmailNotifications BIT DEFAULT 1,
-    SMSNotifications BIT DEFAULT 0,
-    PushNotifications BIT DEFAULT 1,
-    MarketingConsent BIT DEFAULT 0,
-    DataProcessingConsent BIT DEFAULT 1,
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    UNIQUE (CustomerId)
-);
-```
-
-#### 6.1.4 Contacts Table
-```sql
-CREATE TABLE Contacts (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    FirstName NVARCHAR(100) NOT NULL,
-    LastName NVARCHAR(100) NOT NULL,
-    Email NVARCHAR(255) NOT NULL,
-    Phone NVARCHAR(20),
-    Position NVARCHAR(100),
-    IsPrimary BIT NOT NULL DEFAULT 0,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Active',
-    Tags NVARCHAR(MAX),
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    LastModifiedAt DATETIME2,
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_CustomerId (CustomerId),
-    INDEX IX_Email (Email),
-    INDEX IX_IsPrimary (IsPrimary)
-);
-```
-
-#### 6.1.5 CommunicationHistory Table
-```sql
-CREATE TABLE CommunicationHistory (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    Type NVARCHAR(50) NOT NULL,
-    Subject NVARCHAR(500),
-    Content NVARCHAR(MAX),
-    RecipientEmail NVARCHAR(255),
-    RecipientPhone NVARCHAR(20),
-    Direction NVARCHAR(20),
-    Status NVARCHAR(50),
-    IsDelivered BIT DEFAULT 0,
-    DurationInSeconds INT,
-    ScheduledStart DATETIME2,
-    ScheduledEnd DATETIME2,
-    Location NVARCHAR(255),
-    Attendees NVARCHAR(MAX),
-    Notes NVARCHAR(MAX),
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    CreatedBy NVARCHAR(100) NOT NULL,
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_CustomerId_Type (CustomerId, Type),
-    INDEX IX_CreatedAt (CreatedAt)
-);
-```
-
-#### 6.1.6 Complaints Table
-```sql
-CREATE TABLE Complaints (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    ComplaintNumber NVARCHAR(50) NOT NULL UNIQUE,
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    Subject NVARCHAR(500) NOT NULL,
-    Description NVARCHAR(MAX) NOT NULL,
-    Category NVARCHAR(100),
-    Priority NVARCHAR(20) NOT NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'New',
-    RelatedEventId UNIQUEIDENTIFIER,
-    AssignedTo NVARCHAR(100),
-    Resolution NVARCHAR(MAX),
-    ResolvedBy NVARCHAR(100),
-    ResolvedAt DATETIME2,
-    ResolutionTimeInHours INT,
-    CompensationOffered NVARCHAR(MAX),
-    CustomerSatisfied BIT,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    LastModifiedAt DATETIME2,
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_CustomerId (CustomerId),
-    INDEX IX_Status (Status),
-    INDEX IX_Priority (Priority)
-);
-```
-
-#### 6.1.7 Testimonials Table
-```sql
-CREATE TABLE Testimonials (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    Content NVARCHAR(MAX) NOT NULL,
-    Rating INT NOT NULL CHECK (Rating >= 1 AND Rating <= 5),
-    RelatedEventId UNIQUEIDENTIFIER,
-    IsPublic BIT NOT NULL DEFAULT 0,
-    IsApproved BIT NOT NULL DEFAULT 0,
-    AuthorName NVARCHAR(200),
-    ApprovedBy NVARCHAR(100),
-    ApprovedAt DATETIME2,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_CustomerId (CustomerId),
-    INDEX IX_IsPublic_IsApproved (IsPublic, IsApproved)
-);
-```
-
-#### 6.1.8 FollowUps Table
-```sql
-CREATE TABLE FollowUps (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    Subject NVARCHAR(500) NOT NULL,
-    Description NVARCHAR(MAX),
-    DueDate DATETIME2 NOT NULL,
-    Priority NVARCHAR(20) NOT NULL,
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
-    AssignedTo NVARCHAR(100),
-    CompletedAt DATETIME2,
-    CompletedBy NVARCHAR(100),
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    CreatedBy NVARCHAR(100) NOT NULL,
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    INDEX IX_CustomerId (CustomerId),
-    INDEX IX_DueDate (DueDate),
-    INDEX IX_Status (Status)
-);
-```
-
-#### 6.1.9 CustomerInsights Table (Azure AI Generated)
-```sql
-CREATE TABLE CustomerInsights (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    CustomerId UNIQUEIDENTIFIER NOT NULL,
-    SentimentScore DECIMAL(5,2),
-    EngagementLevel NVARCHAR(20),
-    ChurnRisk DECIMAL(5,2),
-    RecommendedActions NVARCHAR(MAX),
-    KeyInterests NVARCHAR(MAX),
-    PreferredCommunicationTimes NVARCHAR(500),
-    LastInteractionDate DATETIME2,
-    TotalInteractions INT,
-    GeneratedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    FOREIGN KEY (CustomerId) REFERENCES Customers(Id) ON DELETE CASCADE,
-    UNIQUE (CustomerId),
-    INDEX IX_GeneratedAt (GeneratedAt)
-);
-```
-
-#### 6.1.10 DomainEvents Table (Event Sourcing)
-```sql
-CREATE TABLE DomainEvents (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    AggregateId UNIQUEIDENTIFIER NOT NULL,
-    AggregateType NVARCHAR(100) NOT NULL,
-    EventType NVARCHAR(100) NOT NULL,
-    EventData NVARCHAR(MAX) NOT NULL,
-    EventVersion INT NOT NULL DEFAULT 1,
-    OccurredAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    UserId NVARCHAR(100),
-    INDEX IX_AggregateId (AggregateId),
-    INDEX IX_EventType (EventType),
-    INDEX IX_OccurredAt (OccurredAt)
-);
-```
+**Acceptance Criteria:**
+- [ ] Only marketing managers can approve testimonials
+- [ ] Approved testimonials can be set as public
+- [ ] Approver and approval timestamp are recorded
+- [ ] Email notification sent to customer when approved
+- [ ] Approved public testimonials visible on website
+- [ ] Rejection reason required if testimonial rejected
+- [ ] Approval decision is final (cannot be unapproved)
 
 ---
 
-## 7. Azure Services Integration
+## 8. Validation Requirements
 
-### 7.1 Azure SQL Database
-- **Purpose**: Primary data store
-- **Tier**: Standard S3 or Premium P2
-- **Features**:
-  - Geo-replication for disaster recovery
-  - Automated backups
-  - Query performance insights
-  - Advanced threat protection
-  - Row-level security
+### REQ-CUS-032: Email Validation
 
-### 7.2 Azure Service Bus
-- **Purpose**: Event-driven messaging and domain event distribution
-- **Configuration**:
-  - Topics for domain events
-  - Subscriptions for event consumers
-  - Dead-letter queues for failed messages
-  - Session-enabled queues for ordered processing
+**Requirement:** The system shall validate all email addresses using comprehensive format and domain validation.
 
-**Topics**:
-- `customer-events`: All customer-related events
-- `contact-events`: Contact management events
-- `communication-events`: Communication history events
-- `complaint-events`: Complaint management events
-
-### 7.3 Azure Redis Cache
-- **Purpose**: Distributed caching layer
-- **Usage**:
-  - Customer profile caching (30-minute expiration)
-  - Contact list caching
-  - Communication history caching
-  - Query result caching
-  - Session management
-
-### 7.4 Azure Blob Storage
-- **Purpose**: File storage
-- **Containers**:
-  - `contact-imports`: Imported contact list files
-  - `contact-exports`: Exported contact list files
-  - `complaint-attachments`: Complaint-related files
-  - `communication-attachments`: Email attachments
-
-### 7.5 Azure API Management
-- **Purpose**: API gateway and management
-- **Features**:
-  - Rate limiting
-  - Request/response transformation
-  - API versioning
-  - Developer portal
-  - Analytics and monitoring
-
-### 7.6 Azure Application Insights
-- **Purpose**: Application performance monitoring
-- **Metrics**:
-  - API response times
-  - Error rates
-  - Dependency tracking
-  - Custom events
-  - User analytics
-
-### 7.7 Azure Key Vault
-- **Purpose**: Secrets management
-- **Stored Secrets**:
-  - Database connection strings
-  - Azure Service Bus connection strings
-  - Azure Storage account keys
-  - Azure AI service keys
-  - Third-party API keys
+**Acceptance Criteria:**
+- [ ] Email format validated using RFC 5322 standard
+- [ ] Domain DNS validation performed
+- [ ] Disposable email domains rejected
+- [ ] Maximum length 255 characters
+- [ ] Returns specific error message for invalid format
+- [ ] Returns specific error message for invalid domain
+- [ ] Validation performed synchronously (< 100ms)
 
 ---
 
-## 8. Azure AI Integration
+### REQ-CUS-033: Phone Number Validation
 
-### 8.1 Azure OpenAI Service
-**Purpose**: Advanced AI capabilities for customer insights
+**Requirement:** The system shall validate phone numbers using international standards.
 
-#### 8.1.1 Customer Insight Generation
-```csharp
-public class CustomerInsightService
-{
-    private readonly OpenAIClient _openAIClient;
+**Acceptance Criteria:**
+- [ ] Phone numbers validated using E.164 format
+- [ ] Country code required (can be inferred from customer country)
+- [ ] Format: +[country code][subscriber number]
+- [ ] Length validation based on country (7-15 digits)
+- [ ] Special characters allowed: + - ( ) space
+- [ ] Returns normalized format in response
+- [ ] Invalid format returns specific error message
 
-    public async Task<CustomerInsights> GenerateInsightsAsync(
-        Guid customerId,
-        CancellationToken cancellationToken)
-    {
-        var customer = await _repository.GetCustomerWithHistoryAsync(customerId);
-
-        var prompt = $@"
-        Analyze the following customer data and provide insights:
-
-        Customer Profile: {customer.Profile}
-        Communication History: {customer.CommunicationHistory}
-        Complaints: {customer.Complaints}
-        Testimonials: {customer.Testimonials}
-
-        Provide:
-        1. Overall sentiment score (0-100)
-        2. Engagement level (Low/Medium/High)
-        3. Churn risk percentage
-        4. 3-5 recommended actions
-        5. Key interests
-        6. Preferred communication times
-        ";
-
-        var response = await _openAIClient.GetChatCompletionsAsync(
-            new ChatCompletionsOptions
-            {
-                DeploymentName = "gpt-4",
-                Messages = { new ChatMessage(ChatRole.User, prompt) },
-                Temperature = 0.7f,
-                MaxTokens = 1000
-            },
-            cancellationToken);
-
-        return ParseInsights(response.Value.Choices[0].Message.Content);
-    }
-}
-```
-
-#### 8.1.2 Email Template Generation
-```csharp
-public async Task<string> GeneratePersonalizedEmailAsync(
-    Customer customer,
-    string purpose)
-{
-    var prompt = $@"
-    Generate a personalized email for:
-    Customer: {customer.Profile.CompanyName}
-    Purpose: {purpose}
-    Previous Interactions: {GetRecentInteractions(customer)}
-    Preferences: {customer.Preferences}
-
-    Make it professional, friendly, and relevant to their interests.
-    ";
-
-    // Call Azure OpenAI
-}
-```
-
-### 8.2 Azure Cognitive Services - Text Analytics
-**Purpose**: Sentiment analysis and key phrase extraction
-
-#### 8.2.1 Communication Sentiment Analysis
-```csharp
-public class SentimentAnalysisService
-{
-    private readonly TextAnalyticsClient _textAnalyticsClient;
-
-    public async Task<SentimentAnalysis> AnalyzeCommunicationAsync(
-        string text,
-        CancellationToken cancellationToken)
-    {
-        var response = await _textAnalyticsClient.AnalyzeSentimentAsync(
-            text,
-            cancellationToken: cancellationToken);
-
-        var keyPhrases = await _textAnalyticsClient.ExtractKeyPhrasesAsync(
-            text,
-            cancellationToken: cancellationToken);
-
-        return new SentimentAnalysis
-        {
-            Sentiment = response.Value.Sentiment.ToString(),
-            PositiveScore = response.Value.ConfidenceScores.Positive,
-            NeutralScore = response.Value.ConfidenceScores.Neutral,
-            NegativeScore = response.Value.ConfidenceScores.Negative,
-            KeyPhrases = keyPhrases.Value.ToList()
-        };
-    }
-}
-```
-
-### 8.3 Azure Cognitive Services - Language Understanding (LUIS)
-**Purpose**: Intent detection for customer communications
-
-#### 8.3.1 Email Intent Classification
-- Complaint detection
-- Follow-up request detection
-- Meeting request detection
-- Feedback detection
-- Information request detection
-
-### 8.4 Azure Machine Learning
-**Purpose**: Predictive analytics
-
-#### 8.4.1 Churn Prediction Model
-```csharp
-public class ChurnPredictionService
-{
-    public async Task<ChurnPrediction> PredictChurnRiskAsync(Guid customerId)
-    {
-        var features = await ExtractFeaturesAsync(customerId);
-
-        // Call Azure ML endpoint
-        var prediction = await _mlClient.PredictAsync(features);
-
-        return new ChurnPrediction
-        {
-            ChurnRisk = prediction.Probability,
-            RiskLevel = CalculateRiskLevel(prediction.Probability),
-            KeyFactors = prediction.FeatureImportance,
-            RecommendedActions = GenerateRetentionActions(prediction)
-        };
-    }
-}
-```
-
-#### 8.4.2 Customer Lifetime Value Prediction
-- Predict future revenue from customer
-- Identify high-value customers
-- Optimize resource allocation
+**Examples:**
+- Valid: +1-555-123-4567, +44 20 7946 0958, +91 98765 43210
+- Invalid: 555-1234, (555) 123-4567
 
 ---
 
-## 9. Security Requirements
+### REQ-CUS-034: Address Validation
 
-### 9.1 Authentication
-- Azure Active Directory B2C integration
-- JWT token-based authentication
-- Token expiration: 60 minutes
-- Refresh token rotation
-- Multi-factor authentication support
+**Requirement:** The system shall validate addresses using Azure Maps API with fallback validation.
 
-### 9.2 Authorization
-- Role-based access control (RBAC)
-- Roles:
-  - `CustomerManager`: Full access to customer management
-  - `SalesRep`: Read and update customers, create communications
-  - `SupportAgent`: Read customers, manage complaints
-  - `Admin`: Full system access
-  - `Viewer`: Read-only access
-
-### 9.3 Data Protection
-- Encryption at rest (Azure SQL TDE)
-- Encryption in transit (TLS 1.3)
-- PII data masking in logs
-- GDPR compliance
-  - Right to be forgotten
-  - Data export capability
-  - Consent management
-
-### 9.4 API Security
-- API key validation
-- Rate limiting: 1000 requests per hour per user
-- IP whitelisting for admin operations
-- Request signing for sensitive operations
-- CORS configuration
-
-### 9.5 Audit Logging
-- All data modifications logged
-- User activity tracking
-- Security event logging
-- 7-year retention policy for audit logs
+**Acceptance Criteria:**
+- [ ] Address validated against Azure Maps API
+- [ ] Validation includes street, city, state, zip code, country
+- [ ] Returns standardized address format
+- [ ] Invalid addresses generate warnings (non-blocking)
+- [ ] Validation cache for performance (24-hour expiration)
+- [ ] Fallback to regex validation if API unavailable
+- [ ] Country-specific zip code format validation
 
 ---
 
-## 10. Performance Requirements
+### REQ-CUS-035: Business Rule Validation
 
-### 10.1 Response Time
-- API endpoints: < 200ms (p95)
-- Search operations: < 500ms (p95)
-- Complex queries: < 1s (p95)
-- Report generation: < 3s
+**Requirement:** The system shall enforce business rules through validation pipeline.
 
-### 10.2 Throughput
-- Support 10,000 concurrent users
-- Handle 50,000 requests per minute
-- Process 1,000 events per second
-
-### 10.3 Scalability
-- Horizontal scaling for API services
-- Database read replicas for query scaling
-- Azure Service Bus standard tier
-- Auto-scaling based on CPU and memory
-
-### 10.4 Caching Strategy
-- Redis cache for frequently accessed data
-- Cache warming on application startup
-- Sliding expiration for dynamic data
-- Absolute expiration for static data
+**Acceptance Criteria:**
+- [ ] Duplicate email prevention within customer contacts
+- [ ] Maximum contacts per customer enforced (50)
+- [ ] One primary contact per customer enforced
+- [ ] Customer number uniqueness enforced
+- [ ] Status transition rules enforced
+- [ ] Communication preference consistency enforced
+- [ ] All validation errors return HTTP 400 with detailed error messages
+- [ ] Validation errors include field name and specific issue
 
 ---
 
-## 11. Integration Points
+## 9. Authorization Requirements
 
-### 11.1 Event Management Module
-- Customer event registration
-- Event attendance tracking
-- Post-event follow-ups
+### REQ-CUS-036: Role-Based Access Control
 
-### 11.2 Ticketing Module
-- Customer ticket purchase history
-- Ticket preferences
+**Requirement:** The system shall implement role-based access control for customer management operations.
 
-### 11.3 Marketing Module
-- Campaign targeting
-- Email marketing lists
-- Customer segmentation
+**Acceptance Criteria:**
+- [ ] CustomerManager role has full CRUD access
+- [ ] SalesRep role can create, read, and update customers
+- [ ] SupportAgent role can read customers and manage complaints
+- [ ] Admin role has full system access
+- [ ] Viewer role has read-only access
+- [ ] Authorization checked before all operations
+- [ ] Insufficient privileges return HTTP 403
+- [ ] Authorization decisions logged for audit
 
-### 11.4 Analytics Module
-- Customer behavior analytics
-- Revenue analytics
-- Engagement metrics
+**Role Privilege Matrix:**
 
-### 11.5 External Integrations
-- Email service providers (SendGrid, Mailchimp)
-- SMS gateways (Twilio, Azure Communication Services)
-- CRM systems (Salesforce, HubSpot)
-- Calendar services (Google Calendar, Outlook)
-
----
-
-## 12. Error Handling
-
-### 12.1 Error Response Format
-```json
-{
-  "traceId": "uuid",
-  "type": "ErrorType",
-  "title": "Error Title",
-  "status": 400,
-  "detail": "Detailed error message",
-  "instance": "/api/v1/customers/123",
-  "errors": {
-    "field": ["validation error"]
-  }
-}
-```
-
-### 12.2 Error Types
-- `ValidationError`: Input validation failures
-- `NotFoundError`: Resource not found
-- `ConflictError`: Resource conflict (e.g., duplicate email)
-- `UnauthorizedError`: Authentication failure
-- `ForbiddenError`: Authorization failure
-- `InternalServerError`: Unexpected server error
-
-### 12.3 Retry Strategy
-- Exponential backoff for transient failures
-- Maximum 3 retry attempts
-- Circuit breaker pattern for external services
-- Dead-letter queue for failed messages
+| Role | Create | Read | Update | Delete | Manage Complaints | Merge |
+|------|--------|------|--------|--------|-------------------|-------|
+| CustomerManager | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SalesRep | ✓ | ✓ | ✓ | - | - | - |
+| SupportAgent | - | ✓ | - | - | ✓ | - |
+| Admin | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Viewer | - | ✓ | - | - | - | - |
 
 ---
 
-## 13. Testing Strategy
+### REQ-CUS-037: Data Access Control
 
-### 13.1 Unit Testing
-- xUnit framework
-- Moq for mocking
-- FluentAssertions for assertions
-- 80% code coverage minimum
+**Requirement:** The system shall enforce data access controls based on organizational hierarchy and data sensitivity.
 
-### 13.2 Integration Testing
-- TestContainers for database testing
-- In-memory Service Bus for messaging tests
-- WebApplicationFactory for API testing
-
-### 13.3 Performance Testing
-- JMeter or k6 for load testing
-- Target: 10,000 concurrent users
-- 95th percentile response time < 500ms
-
-### 13.4 Security Testing
-- OWASP ZAP for vulnerability scanning
-- Penetration testing annually
-- Dependency scanning with Dependabot
+**Acceptance Criteria:**
+- [ ] Users can only access customers assigned to their region (if applicable)
+- [ ] Managers can access all customers in their organization
+- [ ] PII data is masked in logs
+- [ ] Sensitive fields require elevated privileges to view
+- [ ] Data export requires special permission
+- [ ] All data access logged for compliance
 
 ---
 
-## 14. Deployment Strategy
+## 10. Azure Integration Requirements
 
-### 14.1 CI/CD Pipeline
-- Azure DevOps or GitHub Actions
-- Automated build on commit
-- Automated testing
-- Automated deployment to staging
-- Manual approval for production
+### REQ-CUS-038: Azure SQL Database Integration
 
-### 14.2 Deployment Environments
-- **Development**: Developer workstations
-- **Testing**: Automated testing environment
-- **Staging**: Pre-production environment
-- **Production**: Live environment with high availability
+**Requirement:** The system shall use Azure SQL Database for data persistence with high availability and disaster recovery.
 
-### 14.3 Database Migrations
-- Entity Framework Core migrations
-- Automated migration on deployment
-- Rollback capability
-- Zero-downtime deployments
-
-### 14.4 Monitoring and Alerting
-- Application Insights for monitoring
-- Azure Monitor for infrastructure
-- PagerDuty or Azure Monitor alerts
-- 24/7 on-call rotation
-
-### 14.5 Blue-Green Deployment
-- Zero-downtime deployments
-- Quick rollback capability
-- Traffic splitting for gradual rollout
+**Acceptance Criteria:**
+- [ ] Database tier: Standard S3 or Premium P2
+- [ ] Geo-replication enabled for disaster recovery
+- [ ] Automated backups with 7-day retention
+- [ ] Point-in-time restore capability
+- [ ] Transparent Data Encryption (TDE) enabled
+- [ ] Advanced Threat Protection enabled
+- [ ] Row-level security implemented where applicable
+- [ ] Connection pooling optimized for performance
 
 ---
 
-## Appendix A: API Error Codes
+### REQ-CUS-039: Azure Service Bus Integration
 
-| Code | Description |
-|------|-------------|
-| CUST-001 | Customer not found |
-| CUST-002 | Duplicate customer email |
-| CUST-003 | Invalid customer status transition |
-| CUST-004 | Customer already deactivated |
-| CONT-001 | Contact not found |
-| CONT-002 | Duplicate contact email |
-| CONT-003 | Primary contact cannot be removed |
-| COMM-001 | Invalid recipient email/phone |
-| COMM-002 | Email delivery failed |
-| COMP-001 | Complaint not found |
-| COMP-002 | Complaint already resolved |
+**Requirement:** The system shall publish domain events to Azure Service Bus for event-driven architecture.
+
+**Acceptance Criteria:**
+- [ ] All domain events published to appropriate topics
+- [ ] Topics: customer-events, contact-events, communication-events, complaint-events
+- [ ] Each topic has subscriptions for consuming services
+- [ ] Dead-letter queues configured for failed messages
+- [ ] Message retry policy: exponential backoff, 3 attempts
+- [ ] Session-enabled queues for ordered processing
+- [ ] Message TTL: 24 hours
+- [ ] Maximum message size: 256KB
+
+**Topics Configuration:**
+
+| Topic | Purpose | Subscriptions |
+|-------|---------|---------------|
+| customer-events | Customer lifecycle events | Analytics, Reporting, Audit |
+| contact-events | Contact management events | Email Marketing, CRM Sync |
+| communication-events | Communication tracking | Analytics, Campaign Tracking |
+| complaint-events | Complaint workflow events | Support Dashboard, Analytics |
 
 ---
 
-## Appendix B: Configuration Settings
+### REQ-CUS-040: Azure Blob Storage Integration
+
+**Requirement:** The system shall use Azure Blob Storage for file storage and management.
+
+**Acceptance Criteria:**
+- [ ] Separate containers for each file type
+- [ ] Containers: contact-imports, contact-exports, complaint-attachments, communication-attachments
+- [ ] Access tier: Hot for active files, Cool for archives
+- [ ] SAS tokens for secure file access
+- [ ] Token expiration: 24 hours for downloads, 1 hour for uploads
+- [ ] Automatic deletion of temp files after 7 days
+- [ ] Blob versioning enabled
+- [ ] Soft delete enabled (14-day retention)
+
+---
+
+### REQ-CUS-041: Azure Redis Cache Integration
+
+**Requirement:** The system shall use Azure Redis Cache for distributed caching and performance optimization.
+
+**Acceptance Criteria:**
+- [ ] Customer profile cached for 30 minutes
+- [ ] Contact lists cached for 15 minutes
+- [ ] Communication history cached for 10 minutes
+- [ ] Search results cached for 5 minutes
+- [ ] Cache invalidation on data updates
+- [ ] Cache-aside pattern implementation
+- [ ] Redis cluster mode for high availability
+- [ ] Maximum cache size per entry: 1MB
+
+**Cache Keys Convention:**
+
+| Data Type | Key Pattern | Expiration |
+|-----------|-------------|------------|
+| Customer Profile | customer:{id} | 30 minutes |
+| Customer Contacts | customer:{id}:contacts | 15 minutes |
+| Communication History | customer:{id}:communications | 10 minutes |
+| Search Results | search:{hash} | 5 minutes |
+
+---
+
+### REQ-CUS-042: Azure OpenAI Integration
+
+**Requirement:** The system shall integrate Azure OpenAI for AI-powered customer insights and sentiment analysis.
+
+**Acceptance Criteria:**
+- [ ] GPT-4 model for customer insight generation
+- [ ] Temperature: 0.7 for balanced creativity
+- [ ] Max tokens: 1000 per request
+- [ ] Prompts include customer history and context
+- [ ] Insights generated: sentiment score, engagement level, churn risk, recommended actions
+- [ ] Insights refreshed every 24 hours
+- [ ] API calls rate-limited to prevent excessive costs
+- [ ] Fallback to rule-based analysis if API unavailable
+
+---
+
+### REQ-CUS-043: Azure Cognitive Services Integration
+
+**Requirement:** The system shall use Azure Cognitive Services for text analytics and sentiment analysis.
+
+**Acceptance Criteria:**
+- [ ] Text Analytics API for sentiment analysis
+- [ ] Key phrase extraction from communications
+- [ ] Entity recognition for customer data enrichment
+- [ ] Language detection for multi-lingual support
+- [ ] Sentiment scores: positive, neutral, negative (0-1 scale)
+- [ ] Batch processing for efficiency (up to 10 documents per call)
+- [ ] Results cached for 24 hours
+- [ ] PII detection and redaction
+
+---
+
+## 11. Performance Requirements
+
+### REQ-CUS-044: API Response Time
+
+**Requirement:** The system shall meet specified response time targets for all API endpoints.
+
+**Acceptance Criteria:**
+- [ ] Simple GET requests: < 200ms (p95)
+- [ ] POST/PUT requests: < 300ms (p95)
+- [ ] Search operations: < 500ms (p95)
+- [ ] Complex queries: < 1s (p95)
+- [ ] Report generation: < 3s
+- [ ] Performance monitoring via Application Insights
+- [ ] Alerts triggered if p95 exceeds targets
+- [ ] Performance degradation investigated and resolved within 4 hours
+
+---
+
+### REQ-CUS-045: System Throughput
+
+**Requirement:** The system shall support high concurrency and request volumes.
+
+**Acceptance Criteria:**
+- [ ] Support 10,000 concurrent users
+- [ ] Handle 50,000 requests per minute
+- [ ] Process 1,000 domain events per second
+- [ ] Database connection pool: 100 connections minimum
+- [ ] API rate limiting: 1,000 requests per hour per user
+- [ ] Throttling for expensive operations
+- [ ] Auto-scaling based on CPU (> 70%) and memory (> 80%)
+
+---
+
+### REQ-CUS-046: Database Performance
+
+**Requirement:** The system shall optimize database operations for high performance.
+
+**Acceptance Criteria:**
+- [ ] Indexes on frequently queried columns (CustomerNumber, Email, Status)
+- [ ] Composite indexes for common query patterns
+- [ ] Query execution time < 50ms for simple queries
+- [ ] Query execution time < 200ms for complex joins
+- [ ] Database statistics updated weekly
+- [ ] Query plan analysis for slow queries
+- [ ] Read replicas for query scaling
+- [ ] Partitioning for large tables (> 1M rows)
+
+**Indexes:**
+
+| Table | Index Columns | Type |
+|-------|---------------|------|
+| Customers | CustomerNumber | Unique |
+| Customers | Status, Type | Composite |
+| CustomerContactInfo | PrimaryEmail | Non-Unique |
+| Contacts | CustomerId, Email | Composite |
+| CommunicationHistory | CustomerId, Type, CreatedAt | Composite |
+| Complaints | CustomerId, Status | Composite |
+
+---
+
+### REQ-CUS-047: Caching Strategy
+
+**Requirement:** The system shall implement comprehensive caching strategy for optimal performance.
+
+**Acceptance Criteria:**
+- [ ] Redis cache for frequently accessed data
+- [ ] Cache-aside pattern for read operations
+- [ ] Write-through pattern for critical data
+- [ ] Cache warming on application startup
+- [ ] Sliding expiration for dynamic data
+- [ ] Absolute expiration for static data
+- [ ] Cache hit ratio > 80%
+- [ ] Cache invalidation on updates/deletes
+- [ ] Distributed cache for multi-instance deployments
+
+---
+
+## 12. Testing Requirements
+
+### REQ-CUS-048: Unit Test Coverage
+
+**Requirement:** The system shall maintain comprehensive unit test coverage for all customer management functionality.
+
+**Acceptance Criteria:**
+- [ ] Minimum 80% code coverage
+- [ ] All command handlers have unit tests
+- [ ] All query handlers have unit tests
+- [ ] All validators have unit tests
+- [ ] Domain event handlers have unit tests
+- [ ] Tests use mocked dependencies
+- [ ] Tests cover success and failure scenarios
+- [ ] Tests are automated in CI/CD pipeline
+
+**Test Coverage Areas:**
+
+| Component | Minimum Coverage | Test Framework |
+|-----------|------------------|----------------|
+| Command Handlers | 85% | xUnit |
+| Query Handlers | 85% | xUnit |
+| Domain Logic | 90% | xUnit |
+| Validators | 95% | xUnit |
+| API Controllers | 80% | xUnit + WebApplicationFactory |
+
+---
+
+### REQ-CUS-049: Integration Testing
+
+**Requirement:** The system shall include integration tests for API endpoints and database operations.
+
+**Acceptance Criteria:**
+- [ ] All API endpoints have integration tests
+- [ ] Tests use TestContainers for database
+- [ ] Tests use in-memory Service Bus
+- [ ] Tests verify end-to-end workflows
+- [ ] Tests include authentication/authorization
+- [ ] Tests validate HTTP status codes and response bodies
+- [ ] Tests are isolated (no shared state)
+- [ ] Tests run automatically in CI/CD pipeline
+
+---
+
+### REQ-CUS-050: Performance Testing
+
+**Requirement:** The system shall undergo performance testing to validate scalability and response times.
+
+**Acceptance Criteria:**
+- [ ] Load testing with JMeter or k6
+- [ ] Test scenarios: 1,000 / 5,000 / 10,000 concurrent users
+- [ ] 95th percentile response time < 500ms under load
+- [ ] No errors under expected load
+- [ ] < 1% error rate under 2x expected load
+- [ ] Performance tests run before major releases
+- [ ] Performance regression detected and blocked in CI/CD
+
+---
+
+### REQ-CUS-051: Security Testing
+
+**Requirement:** The system shall undergo security testing to identify and remediate vulnerabilities.
+
+**Acceptance Criteria:**
+- [ ] OWASP ZAP vulnerability scanning
+- [ ] Penetration testing performed annually
+- [ ] Dependency scanning with Dependabot
+- [ ] SQL injection testing
+- [ ] XSS attack testing
+- [ ] Authentication/authorization bypass testing
+- [ ] Data exposure testing
+- [ ] All high and critical vulnerabilities remediated before production
+
+---
+
+## Appendix A: Domain Events Summary
+
+### Customer Events
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| CustomerRegistered | Customer creation | Analytics, Email Marketing, CRM Sync |
+| CustomerProfileUpdated | Profile changes | Analytics, Search Index |
+| CustomerContactInfoUpdated | Contact info changes | Email Marketing, CRM Sync |
+| CustomerPreferencesUpdated | Preference changes | Marketing, Notification Service |
+| CustomerMerged | Customer merge | Analytics, Audit |
+| CustomerDeactivated | Customer deactivation | Analytics, Email Marketing |
+| CustomerReactivated | Customer reactivation | Analytics, Email Marketing |
+
+### Contact Events
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| ContactAdded | Contact creation | Email Marketing, CRM Sync |
+| ContactUpdated | Contact changes | Email Marketing, CRM Sync |
+| ContactRemoved | Contact deletion | Email Marketing, CRM Sync |
+| ContactTagged | Tag addition | Segmentation Service |
+| ContactUntagged | Tag removal | Segmentation Service |
+| ContactListImported | Bulk import | Analytics, Audit |
+| ContactListExported | Bulk export | Audit |
+
+### Communication Events
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| CustomerEmailSent | Email sent | Analytics, Campaign Tracking |
+| CustomerSMSSent | SMS sent | Analytics, Campaign Tracking |
+| CustomerPhoneCallLogged | Call logged | Analytics, CRM Sync |
+| CustomerMeetingScheduled | Meeting scheduled | Calendar Service, Notification Service |
+| CustomerFollowUpCreated | Follow-up created | Task Service, Notification Service |
+
+### Complaint Events
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| CustomerComplaintReceived | Complaint submitted | Support Dashboard, Analytics, Notification Service |
+| CustomerComplaintResolved | Complaint resolved | Analytics, Notification Service, Knowledge Base |
+
+### Testimonial Events
+
+| Event | Trigger | Consumers |
+|-------|---------|-----------|
+| CustomerTestimonialReceived | Testimonial submitted | Marketing Service, Notification Service |
+
+---
+
+## Appendix B: Error Codes
+
+| Code | Description | HTTP Status |
+|------|-------------|-------------|
+| CUST-001 | Customer not found | 404 |
+| CUST-002 | Duplicate customer email | 409 |
+| CUST-003 | Invalid customer status transition | 400 |
+| CUST-004 | Customer already deactivated | 400 |
+| CUST-005 | Cannot deactivate customer with active events | 400 |
+| CONT-001 | Contact not found | 404 |
+| CONT-002 | Duplicate contact email | 409 |
+| CONT-003 | Primary contact cannot be removed | 400 |
+| CONT-004 | Maximum contacts limit reached | 400 |
+| COMM-001 | Invalid recipient email/phone | 400 |
+| COMM-002 | Email delivery failed | 500 |
+| COMM-003 | SMS delivery failed | 500 |
+| COMP-001 | Complaint not found | 404 |
+| COMP-002 | Complaint already resolved | 400 |
+| COMP-003 | Invalid complaint status transition | 400 |
+| TEST-001 | Testimonial not found | 404 |
+| TEST-002 | Testimonial already approved | 400 |
+
+---
+
+## Appendix C: Configuration Settings
 
 ```json
 {
   "CustomerManagement": {
     "MaxContactsPerCustomer": 50,
-    "MaxCommunicationHistoryRetention": 365,
-    "ComplaintAutoEscalationHours": 48,
+    "MaxCommunicationHistoryRetentionDays": 365,
+    "ComplaintAutoEscalationHours": {
+      "Critical": 4,
+      "High": 24,
+      "Medium": 48,
+      "Low": 168
+    },
     "CustomerInactivityThresholdDays": 180,
     "DefaultPageSize": 20,
     "MaxPageSize": 100,
     "EnableAIInsights": true,
-    "AIInsightsRefreshIntervalHours": 24
+    "AIInsightsRefreshIntervalHours": 24,
+    "LifetimeValueThresholds": {
+      "Premium": 10000,
+      "VIP": 50000
+    },
+    "CacheExpirationMinutes": {
+      "CustomerProfile": 30,
+      "ContactList": 15,
+      "CommunicationHistory": 10,
+      "SearchResults": 5
+    }
   }
 }
 ```
@@ -1758,5 +1604,5 @@ public class ChurnPredictionService
 
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
-| 1.0.0 | 2025-12-22 | System Architect | Initial version |
+| 1.0.0 | 2025-12-22 | System Architect | Initial structured requirements version |
 

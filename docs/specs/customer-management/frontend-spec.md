@@ -1,1010 +1,743 @@
-# Contact & Customer Management - Frontend Specification
+# Customer Management Software Requirements Specification - Frontend
 
 ## Document Information
-- **Version**: 1.0.0
-- **Last Updated**: 2025-12-22
-- **Technology Stack**: Angular 18+, Angular Material, RxJS
-- **Architecture Pattern**: Component-Based Architecture, Reactive Programming
+
+- **Project:** {project} - Angular Frontend
+- **Version:** 1.0.0
+- **Date:** 2025-12-22
+- **Status:** Draft
+
+---
 
 ## Table of Contents
-1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [Module Structure](#module-structure)
-4. [Component Specifications](#component-specifications)
-5. [State Management](#state-management)
-6. [Routing](#routing)
-7. [UI/UX Design](#uiux-design)
-8. [Forms and Validation](#forms-and-validation)
-9. [Data Services](#data-services)
-10. [Real-time Features](#real-time-features)
-11. [Accessibility](#accessibility)
-12. [Performance Optimization](#performance-optimization)
-13. [Testing Strategy](#testing-strategy)
-14. [Deployment](#deployment)
+
+1. [Customer List Requirements](#customer-list-requirements)
+2. [Customer Detail Requirements](#customer-detail-requirements)
+3. [Customer Form Requirements](#customer-form-requirements)
+4. [Contact Management Requirements](#contact-management-requirements)
+5. [Communication History Requirements](#communication-history-requirements)
+6. [Complaint Management Requirements](#complaint-management-requirements)
+7. [Customer Insights Requirements](#customer-insights-requirements)
+8. [State Management Requirements](#state-management-requirements)
+9. [Routing Requirements](#routing-requirements)
+10. [Validation Requirements](#validation-requirements)
+11. [UI/UX Requirements](#uiux-requirements)
+12. [Performance Requirements](#performance-requirements)
+13. [Accessibility Requirements](#accessibility-requirements)
+14. [Testing Requirements](#testing-requirements)
 
 ---
 
-## 1. Overview
+## 1. Customer List Requirements
 
-### 1.1 Purpose
-The Customer Management frontend provides an intuitive, responsive interface for managing customer profiles, contacts, communications, complaints, and testimonials within the Event Management Platform.
+### REQ-FE-CUS-001: Customer List Display
 
-### 1.2 Scope
-This specification covers:
-- Customer profile management interface
-- Contact list management
-- Communication history tracking and creation
-- Complaint management dashboard
-- Testimonial collection and display
-- Customer insights and analytics dashboard
-- Contact import/export functionality
-- Real-time notifications
-- Responsive design for desktop, tablet, and mobile
+**Requirement:** The system shall provide a responsive customer list component with search, filtering, sorting, and pagination capabilities.
 
-### 1.3 Key Features
-- Modern Material Design interface
-- Real-time updates via SignalR
-- Advanced search and filtering
-- Data visualization with charts
-- Drag-and-drop functionality
-- Offline capability (PWA)
-- Accessibility compliance (WCAG 2.1 AA)
-- Multi-language support
+**Acceptance Criteria:**
+- [ ] Component uses Angular Reactive Forms for filters
+- [ ] Displays customers in Material table with sortable columns
+- [ ] Table columns: customerNumber, companyName, type, segment, status, lifetimeValue, actions
+- [ ] OnPush change detection strategy for performance
+- [ ] Pagination with configurable page size (10, 20, 50, 100)
+- [ ] Loading indicator displayed during data fetch
+- [ ] Empty state message when no customers found
+- [ ] Row click navigates to customer detail view
+- [ ] Actions menu with View, Edit, and Deactivate options
 
----
+**Component Features:**
 
-## 2. Architecture
-
-### 2.1 High-Level Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Angular Application                       │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │              Customer Management Module               │  │
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐       │  │
-│  │  │ Components │ │  Services  │ │   Guards   │       │  │
-│  │  └────────────┘ └────────────┘ └────────────┘       │  │
-│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐       │  │
-│  │  │   Models   │ │   Pipes    │ │ Validators │       │  │
-│  │  └────────────┘ └────────────┘ └────────────┘       │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │                   Shared Module                       │  │
-│  │  (UI Components, Directives, Pipes, Services)        │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │                    Core Module                        │  │
-│  │  (HTTP, Auth, State Management, Error Handling)      │  │
-│  └──────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     Backend API                              │
-│              (REST API + SignalR Hubs)                       │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 2.2 Technology Stack
-- **Framework**: Angular 18+
-- **UI Library**: Angular Material 18+
-- **State Management**: NgRx (Store, Effects, Entity)
-- **Forms**: Reactive Forms
-- **HTTP Client**: Angular HttpClient
-- **Real-time**: SignalR for Angular
-- **Routing**: Angular Router
-- **Internationalization**: ngx-translate
-- **Charts**: Chart.js with ng2-charts
-- **Date Handling**: date-fns
-- **File Upload**: ngx-file-drop
-- **Rich Text Editor**: ngx-quill
-- **Testing**: Jasmine, Karma, Cypress
-
-### 2.3 Design Patterns
-- **Smart/Dumb Components** (Container/Presentational)
-- **Reactive Programming** (RxJS)
-- **Facade Pattern** (for state management)
-- **Strategy Pattern** (for form validation)
-- **Observer Pattern** (for event handling)
-- **Lazy Loading** (for route modules)
+| Feature | Implementation |
+|---------|----------------|
+| Change Detection | OnPush |
+| Data Source | Observable from Facade |
+| Pagination | MatPaginator |
+| Sorting | MatSort |
+| Filtering | Reactive Forms |
 
 ---
 
-## 3. Module Structure
+### REQ-FE-CUS-002: Customer Search
 
-### 3.1 Feature Module Structure
-```
-src/app/features/customer-management/
-├── customer-management.module.ts
-├── customer-management-routing.module.ts
-├── components/
-│   ├── customer-list/
-│   │   ├── customer-list.component.ts
-│   │   ├── customer-list.component.html
-│   │   ├── customer-list.component.scss
-│   │   └── customer-list.component.spec.ts
-│   ├── customer-detail/
-│   │   ├── customer-detail.component.ts
-│   │   ├── customer-detail.component.html
-│   │   ├── customer-detail.component.scss
-│   │   └── customer-detail.component.spec.ts
-│   ├── customer-form/
-│   ├── contact-list/
-│   ├── contact-form/
-│   ├── communication-history/
-│   ├── communication-form/
-│   ├── complaint-list/
-│   ├── complaint-detail/
-│   ├── testimonial-list/
-│   ├── customer-insights/
-│   └── customer-dashboard/
-├── services/
-│   ├── customer.service.ts
-│   ├── contact.service.ts
-│   ├── communication.service.ts
-│   ├── complaint.service.ts
-│   └── testimonial.service.ts
-├── store/
-│   ├── actions/
-│   ├── effects/
-│   ├── reducers/
-│   ├── selectors/
-│   └── customer.facade.ts
-├── models/
-│   ├── customer.model.ts
-│   ├── contact.model.ts
-│   ├── communication.model.ts
-│   └── complaint.model.ts
-├── guards/
-│   └── customer-management.guard.ts
-└── validators/
-    └── customer.validators.ts
-```
+**Requirement:** The system shall provide real-time search functionality with debouncing for performance.
 
----
+**Acceptance Criteria:**
+- [ ] Search input field with Material design
+- [ ] Search icon displayed as prefix
+- [ ] Search query debounced by 300ms
+- [ ] Searches across company name, email, and customer number
+- [ ] Search is case-insensitive
+- [ ] Clear button to reset search
+- [ ] Search results update table data reactively
+- [ ] Loading state during search
 
-## 4. Component Specifications
+**Search Implementation:**
 
-### 4.1 Customer List Component
-
-#### 4.1.1 Overview
-Displays a searchable, filterable, and sortable list of customers with pagination.
-
-#### 4.1.2 Component Class
 ```typescript
-@Component({
-  selector: 'app-customer-list',
-  templateUrl: './customer-list.component.html',
-  styleUrls: ['./customer-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class CustomerListComponent implements OnInit, OnDestroy {
-  customers$: Observable<Customer[]>;
-  loading$: Observable<boolean>;
-  totalCount$: Observable<number>;
+searchControl = new FormControl('');
 
-  displayedColumns = [
-    'customerNumber',
-    'companyName',
-    'type',
-    'segment',
-    'status',
-    'lifetimeValue',
-    'actions'
-  ];
-
-  searchControl = new FormControl('');
-  filterForm: FormGroup;
-
-  pageSize = 20;
-  pageIndex = 0;
-
-  constructor(
-    private customerFacade: CustomerFacade,
-    private router: Router,
-    private dialog: MatDialog
-  ) {}
-
-  ngOnInit(): void {
-    this.loadCustomers();
-    this.setupSearch();
-    this.setupFilters();
-  }
-
-  loadCustomers(): void {
-    this.customerFacade.loadCustomers({
-      page: this.pageIndex,
-      pageSize: this.pageSize
-    });
-  }
-
-  onSearch(query: string): void {
+ngOnInit(): void {
+  this.searchControl.valueChanges.pipe(
+    debounceTime(300),
+    distinctUntilChanged()
+  ).subscribe(query => {
     this.customerFacade.searchCustomers(query);
-  }
-
-  onFilterChange(filters: CustomerFilters): void {
-    this.customerFacade.filterCustomers(filters);
-  }
-
-  onPageChange(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.loadCustomers();
-  }
-
-  viewCustomer(customer: Customer): void {
-    this.router.navigate(['/customers', customer.id]);
-  }
-
-  editCustomer(customer: Customer): void {
-    this.router.navigate(['/customers', customer.id, 'edit']);
-  }
-
-  deleteCustomer(customer: Customer): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Deactivate Customer',
-        message: `Are you sure you want to deactivate ${customer.companyName}?`
-      }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(() => this.customerFacade.deactivateCustomer(customer.id))
-    ).subscribe();
-  }
-
-  exportCustomers(): void {
-    this.customerFacade.exportCustomers();
-  }
-}
-```
-
-#### 4.1.3 Template
-```html
-<div class="customer-list-container">
-  <mat-toolbar color="primary">
-    <h1>Customer Management</h1>
-    <span class="spacer"></span>
-    <button mat-raised-button color="accent" routerLink="/customers/new">
-      <mat-icon>add</mat-icon>
-      New Customer
-    </button>
-  </mat-toolbar>
-
-  <mat-card class="filter-card">
-    <mat-card-content>
-      <!-- Search Bar -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Search Customers</mat-label>
-        <input matInput [formControl]="searchControl" placeholder="Search by name, email, or number">
-        <mat-icon matPrefix>search</mat-icon>
-      </mat-form-field>
-
-      <!-- Filters -->
-      <form [formGroup]="filterForm" class="filter-form">
-        <mat-form-field appearance="outline">
-          <mat-label>Type</mat-label>
-          <mat-select formControlName="type" multiple>
-            <mat-option value="Individual">Individual</mat-option>
-            <mat-option value="SmallBusiness">Small Business</mat-option>
-            <mat-option value="Enterprise">Enterprise</mat-option>
-            <mat-option value="NonProfit">Non-Profit</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Segment</mat-label>
-          <mat-select formControlName="segment" multiple>
-            <mat-option value="Standard">Standard</mat-option>
-            <mat-option value="Premium">Premium</mat-option>
-            <mat-option value="VIP">VIP</mat-option>
-            <mat-option value="Corporate">Corporate</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status" multiple>
-            <mat-option value="Active">Active</mat-option>
-            <mat-option value="Inactive">Inactive</mat-option>
-            <mat-option value="Suspended">Suspended</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <button mat-raised-button type="button" (click)="clearFilters()">
-          Clear Filters
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Customer Table -->
-  <mat-card class="table-card">
-    <mat-card-content>
-      <div class="table-actions">
-        <button mat-button (click)="exportCustomers()">
-          <mat-icon>download</mat-icon>
-          Export
-        </button>
-      </div>
-
-      <div class="table-container">
-        <table mat-table [dataSource]="customers$ | async" matSort>
-          <!-- Customer Number Column -->
-          <ng-container matColumnDef="customerNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Customer #
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              {{ customer.customerNumber }}
-            </td>
-          </ng-container>
-
-          <!-- Company Name Column -->
-          <ng-container matColumnDef="companyName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Company Name
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              {{ customer.profile.companyName }}
-            </td>
-          </ng-container>
-
-          <!-- Type Column -->
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Type
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              <mat-chip>{{ customer.profile.type }}</mat-chip>
-            </td>
-          </ng-container>
-
-          <!-- Segment Column -->
-          <ng-container matColumnDef="segment">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Segment
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              <mat-chip [color]="getSegmentColor(customer.profile.segment)">
-                {{ customer.profile.segment }}
-              </mat-chip>
-            </td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Status
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              <mat-chip [color]="getStatusColor(customer.status)">
-                {{ customer.status }}
-              </mat-chip>
-            </td>
-          </ng-container>
-
-          <!-- Lifetime Value Column -->
-          <ng-container matColumnDef="lifetimeValue">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Lifetime Value
-            </th>
-            <td mat-cell *matCellDef="let customer">
-              {{ customer.profile.lifetimeValue | currency }}
-            </td>
-          </ng-container>
-
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let customer">
-              <button mat-icon-button [matMenuTriggerFor]="menu">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="viewCustomer(customer)">
-                  <mat-icon>visibility</mat-icon>
-                  View
-                </button>
-                <button mat-menu-item (click)="editCustomer(customer)">
-                  <mat-icon>edit</mat-icon>
-                  Edit
-                </button>
-                <button mat-menu-item (click)="deleteCustomer(customer)">
-                  <mat-icon>delete</mat-icon>
-                  Deactivate
-                </button>
-              </mat-menu>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              class="customer-row"
-              (click)="viewCustomer(row)">
-          </tr>
-        </table>
-      </div>
-
-      <mat-paginator
-        [length]="totalCount$ | async"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="[10, 20, 50, 100]"
-        (page)="onPageChange($event)"
-        showFirstLastButtons>
-      </mat-paginator>
-    </mat-card-content>
-  </mat-card>
-</div>
-```
-
-### 4.2 Customer Detail Component
-
-#### 4.2.1 Overview
-Displays comprehensive customer information with tabs for profile, contacts, communications, complaints, and insights.
-
-#### 4.2.2 Component Class
-```typescript
-@Component({
-  selector: 'app-customer-detail',
-  templateUrl: './customer-detail.component.html',
-  styleUrls: ['./customer-detail.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class CustomerDetailComponent implements OnInit {
-  customer$: Observable<Customer>;
-  contacts$: Observable<Contact[]>;
-  communications$: Observable<Communication[]>;
-  complaints$: Observable<Complaint[]>;
-  testimonials$: Observable<Testimonial[]>;
-  insights$: Observable<CustomerInsights>;
-
-  selectedTabIndex = 0;
-
-  constructor(
-    private route: ActivatedRoute,
-    private customerFacade: CustomerFacade,
-    private dialog: MatDialog
-  ) {}
-
-  ngOnInit(): void {
-    const customerId = this.route.snapshot.paramMap.get('id');
-    this.customerFacade.loadCustomerById(customerId);
-    this.customer$ = this.customerFacade.selectedCustomer$;
-    this.contacts$ = this.customerFacade.customerContacts$;
-    this.communications$ = this.customerFacade.customerCommunications$;
-    this.complaints$ = this.customerFacade.customerComplaints$;
-    this.testimonials$ = this.customerFacade.customerTestimonials$;
-    this.insights$ = this.customerFacade.customerInsights$;
-  }
-
-  sendEmail(customer: Customer): void {
-    const dialogRef = this.dialog.open(EmailDialogComponent, {
-      width: '800px',
-      data: { customer }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(emailData => this.customerFacade.sendEmail(emailData))
-    ).subscribe();
-  }
-
-  scheduleFollowUp(customer: Customer): void {
-    const dialogRef = this.dialog.open(FollowUpDialogComponent, {
-      width: '600px',
-      data: { customer }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(followUpData => this.customerFacade.createFollowUp(followUpData))
-    ).subscribe();
-  }
-}
-```
-
-#### 4.2.3 Template
-```html
-<div class="customer-detail-container" *ngIf="customer$ | async as customer">
-  <!-- Header -->
-  <mat-toolbar color="primary">
-    <button mat-icon-button routerLink="/customers">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h1>{{ customer.profile.companyName }}</h1>
-    <span class="spacer"></span>
-    <button mat-button (click)="sendEmail(customer)">
-      <mat-icon>email</mat-icon>
-      Send Email
-    </button>
-    <button mat-button (click)="scheduleFollowUp(customer)">
-      <mat-icon>event</mat-icon>
-      Follow Up
-    </button>
-    <button mat-icon-button [routerLink]="['/customers', customer.id, 'edit']">
-      <mat-icon>edit</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <!-- Customer Summary Card -->
-  <mat-card class="summary-card">
-    <mat-card-content>
-      <div class="summary-grid">
-        <div class="summary-item">
-          <span class="label">Customer #:</span>
-          <span class="value">{{ customer.customerNumber }}</span>
-        </div>
-        <div class="summary-item">
-          <span class="label">Type:</span>
-          <mat-chip>{{ customer.profile.type }}</mat-chip>
-        </div>
-        <div class="summary-item">
-          <span class="label">Segment:</span>
-          <mat-chip>{{ customer.profile.segment }}</mat-chip>
-        </div>
-        <div class="summary-item">
-          <span class="label">Status:</span>
-          <mat-chip [color]="getStatusColor(customer.status)">
-            {{ customer.status }}
-          </mat-chip>
-        </div>
-        <div class="summary-item">
-          <span class="label">Lifetime Value:</span>
-          <span class="value">{{ customer.profile.lifetimeValue | currency }}</span>
-        </div>
-        <div class="summary-item">
-          <span class="label">Total Events:</span>
-          <span class="value">{{ customer.profile.totalEvents }}</span>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Tabs -->
-  <mat-tab-group [(selectedIndex)]="selectedTabIndex" animationDuration="300ms">
-    <!-- Profile Tab -->
-    <mat-tab label="Profile">
-      <app-customer-profile [customer]="customer"></app-customer-profile>
-    </mat-tab>
-
-    <!-- Contacts Tab -->
-    <mat-tab label="Contacts">
-      <app-contact-list
-        [customerId]="customer.id"
-        [contacts]="contacts$ | async">
-      </app-contact-list>
-    </mat-tab>
-
-    <!-- Communications Tab -->
-    <mat-tab label="Communications">
-      <app-communication-history
-        [customerId]="customer.id"
-        [communications]="communications$ | async">
-      </app-communication-history>
-    </mat-tab>
-
-    <!-- Complaints Tab -->
-    <mat-tab label="Complaints">
-      <app-complaint-list
-        [customerId]="customer.id"
-        [complaints]="complaints$ | async">
-      </app-complaint-list>
-    </mat-tab>
-
-    <!-- Testimonials Tab -->
-    <mat-tab label="Testimonials">
-      <app-testimonial-list
-        [customerId]="customer.id"
-        [testimonials]="testimonials$ | async">
-      </app-testimonial-list>
-    </mat-tab>
-
-    <!-- Insights Tab -->
-    <mat-tab label="AI Insights">
-      <app-customer-insights
-        [insights]="insights$ | async">
-      </app-customer-insights>
-    </mat-tab>
-  </mat-tab-group>
-</div>
-```
-
-### 4.3 Customer Form Component
-
-#### 4.3.1 Component Class
-```typescript
-@Component({
-  selector: 'app-customer-form',
-  templateUrl: './customer-form.component.html',
-  styleUrls: ['./customer-form.component.scss']
-})
-export class CustomerFormComponent implements OnInit {
-  customerForm: FormGroup;
-  isEditMode = false;
-  customerId: string;
-
-  customerTypes = ['Individual', 'SmallBusiness', 'Enterprise', 'NonProfit', 'Government'];
-  industries = ['Technology', 'Healthcare', 'Finance', 'Education', 'Retail', 'Other'];
-
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private customerFacade: CustomerFacade,
-    private snackBar: MatSnackBar
-  ) {
-    this.createForm();
-  }
-
-  ngOnInit(): void {
-    this.customerId = this.route.snapshot.paramMap.get('id');
-    this.isEditMode = !!this.customerId;
-
-    if (this.isEditMode) {
-      this.customerFacade.loadCustomerById(this.customerId);
-      this.customerFacade.selectedCustomer$.pipe(
-        filter(customer => !!customer),
-        take(1)
-      ).subscribe(customer => {
-        this.populateForm(customer);
-      });
-    }
-  }
-
-  createForm(): void {
-    this.customerForm = this.fb.group({
-      companyName: ['', [Validators.required, Validators.minLength(2)]],
-      type: ['', Validators.required],
-      industry: [''],
-      primaryEmail: ['', [Validators.required, Validators.email]],
-      secondaryEmail: ['', Validators.email],
-      primaryPhone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]],
-      secondaryPhone: [''],
-      website: ['', Validators.pattern(/^https?:\/\/.+/)],
-      billingAddress: this.fb.group({
-        street: ['', Validators.required],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        zipCode: ['', Validators.required],
-        country: ['', Validators.required]
-      }),
-      shippingAddress: this.fb.group({
-        street: [''],
-        city: [''],
-        state: [''],
-        zipCode: [''],
-        country: ['']
-      }),
-      preferences: this.fb.group({
-        communicationChannels: [[]],
-        preferredLanguage: ['en'],
-        timeZone: ['UTC'],
-        emailNotifications: [true],
-        smsNotifications: [false]
-      })
-    });
-  }
-
-  populateForm(customer: Customer): void {
-    this.customerForm.patchValue({
-      companyName: customer.profile.companyName,
-      type: customer.profile.type,
-      industry: customer.profile.industry,
-      primaryEmail: customer.contactInfo.primaryEmail,
-      secondaryEmail: customer.contactInfo.secondaryEmail,
-      primaryPhone: customer.contactInfo.primaryPhone,
-      secondaryPhone: customer.contactInfo.secondaryPhone,
-      website: customer.contactInfo.website,
-      billingAddress: customer.contactInfo.billingAddress,
-      shippingAddress: customer.contactInfo.shippingAddress,
-      preferences: customer.preferences
-    });
-  }
-
-  copyBillingToShipping(): void {
-    const billingAddress = this.customerForm.get('billingAddress').value;
-    this.customerForm.get('shippingAddress').patchValue(billingAddress);
-  }
-
-  onSubmit(): void {
-    if (this.customerForm.invalid) {
-      this.customerForm.markAllAsTouched();
-      return;
-    }
-
-    const formData = this.customerForm.value;
-
-    const action$ = this.isEditMode
-      ? this.customerFacade.updateCustomer(this.customerId, formData)
-      : this.customerFacade.createCustomer(formData);
-
-    action$.subscribe({
-      next: () => {
-        this.snackBar.open(
-          `Customer ${this.isEditMode ? 'updated' : 'created'} successfully`,
-          'Close',
-          { duration: 3000 }
-        );
-        this.router.navigate(['/customers']);
-      },
-      error: (error) => {
-        this.snackBar.open(
-          `Error: ${error.message}`,
-          'Close',
-          { duration: 5000 }
-        );
-      }
-    });
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/customers']);
-  }
-}
-```
-
-### 4.4 Contact List Component
-
-#### 4.4.1 Component Class
-```typescript
-@Component({
-  selector: 'app-contact-list',
-  templateUrl: './contact-list.component.html',
-  styleUrls: ['./contact-list.component.scss']
-})
-export class ContactListComponent {
-  @Input() customerId: string;
-  @Input() contacts: Contact[];
-
-  displayedColumns = ['name', 'email', 'phone', 'position', 'isPrimary', 'tags', 'actions'];
-
-  constructor(
-    private dialog: MatDialog,
-    private customerFacade: CustomerFacade
-  ) {}
-
-  addContact(): void {
-    const dialogRef = this.dialog.open(ContactFormDialogComponent, {
-      width: '600px',
-      data: { customerId: this.customerId }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(contactData =>
-        this.customerFacade.addContact(this.customerId, contactData)
-      )
-    ).subscribe();
-  }
-
-  editContact(contact: Contact): void {
-    const dialogRef = this.dialog.open(ContactFormDialogComponent, {
-      width: '600px',
-      data: { customerId: this.customerId, contact }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(contactData =>
-        this.customerFacade.updateContact(this.customerId, contact.id, contactData)
-      )
-    ).subscribe();
-  }
-
-  removeContact(contact: Contact): void {
-    this.customerFacade.removeContact(this.customerId, contact.id).subscribe();
-  }
-
-  importContacts(): void {
-    const dialogRef = this.dialog.open(ContactImportDialogComponent, {
-      width: '800px',
-      data: { customerId: this.customerId }
-    });
-  }
-
-  exportContacts(): void {
-    this.customerFacade.exportContacts(this.customerId).subscribe();
-  }
-}
-```
-
-### 4.5 Communication History Component
-
-#### 4.5.1 Component Class
-```typescript
-@Component({
-  selector: 'app-communication-history',
-  templateUrl: './communication-history.component.html',
-  styleUrls: ['./communication-history.component.scss']
-})
-export class CommunicationHistoryComponent implements OnInit {
-  @Input() customerId: string;
-  @Input() communications: Communication[];
-
-  filterForm: FormGroup;
-  filteredCommunications: Communication[];
-
-  constructor(
-    private fb: FormBuilder,
-    private dialog: MatDialog,
-    private customerFacade: CustomerFacade
-  ) {
-    this.filterForm = this.fb.group({
-      type: [[]],
-      startDate: [null],
-      endDate: [null]
-    });
-  }
-
-  ngOnInit(): void {
-    this.filterForm.valueChanges.pipe(
-      debounceTime(300)
-    ).subscribe(() => {
-      this.applyFilters();
-    });
-
-    this.filteredCommunications = this.communications;
-  }
-
-  applyFilters(): void {
-    const filters = this.filterForm.value;
-    // Apply filtering logic
-  }
-
-  logPhoneCall(): void {
-    const dialogRef = this.dialog.open(PhoneCallDialogComponent, {
-      width: '600px',
-      data: { customerId: this.customerId }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(callData =>
-        this.customerFacade.logPhoneCall(this.customerId, callData)
-      )
-    ).subscribe();
-  }
-
-  scheduleMeeting(): void {
-    const dialogRef = this.dialog.open(MeetingDialogComponent, {
-      width: '700px',
-      data: { customerId: this.customerId }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(meetingData =>
-        this.customerFacade.scheduleMeeting(this.customerId, meetingData)
-      )
-    ).subscribe();
-  }
-}
-```
-
-### 4.6 Complaint Management Component
-
-#### 4.6.1 Component Class
-```typescript
-@Component({
-  selector: 'app-complaint-list',
-  templateUrl: './complaint-list.component.html',
-  styleUrls: ['./complaint-list.component.scss']
-})
-export class ComplaintListComponent {
-  @Input() customerId: string;
-  @Input() complaints: Complaint[];
-
-  displayedColumns = [
-    'complaintNumber',
-    'subject',
-    'category',
-    'priority',
-    'status',
-    'createdAt',
-    'actions'
-  ];
-
-  constructor(
-    private dialog: MatDialog,
-    private customerFacade: CustomerFacade
-  ) {}
-
-  viewComplaint(complaint: Complaint): void {
-    const dialogRef = this.dialog.open(ComplaintDetailDialogComponent, {
-      width: '800px',
-      data: { complaint }
-    });
-  }
-
-  resolveComplaint(complaint: Complaint): void {
-    const dialogRef = this.dialog.open(ResolveComplaintDialogComponent, {
-      width: '600px',
-      data: { complaint }
-    });
-
-    dialogRef.afterClosed().pipe(
-      filter(result => result),
-      switchMap(resolution =>
-        this.customerFacade.resolveComplaint(
-          this.customerId,
-          complaint.id,
-          resolution
-        )
-      )
-    ).subscribe();
-  }
-}
-```
-
-### 4.7 Customer Insights Component
-
-#### 4.7.1 Component Class
-```typescript
-@Component({
-  selector: 'app-customer-insights',
-  templateUrl: './customer-insights.component.html',
-  styleUrls: ['./customer-insights.component.scss']
-})
-export class CustomerInsightsComponent implements OnInit {
-  @Input() insights: CustomerInsights;
-
-  sentimentChartData: ChartData;
-  engagementChartData: ChartData;
-
-  constructor() {}
-
-  ngOnInit(): void {
-    this.setupCharts();
-  }
-
-  setupCharts(): void {
-    // Sentiment chart
-    this.sentimentChartData = {
-      labels: ['Positive', 'Neutral', 'Negative'],
-      datasets: [{
-        data: [
-          this.insights?.sentimentScore || 0,
-          50,
-          100 - (this.insights?.sentimentScore || 0)
-        ],
-        backgroundColor: ['#4caf50', '#ff9800', '#f44336']
-      }]
-    };
-
-    // Engagement chart
-    this.engagementChartData = {
-      // Chart configuration
-    };
-  }
-
-  getSentimentColor(score: number): string {
-    if (score >= 70) return 'green';
-    if (score >= 40) return 'orange';
-    return 'red';
-  }
-
-  getChurnRiskColor(risk: number): string {
-    if (risk < 30) return 'green';
-    if (risk < 60) return 'orange';
-    return 'red';
-  }
+  });
 }
 ```
 
 ---
 
-## 5. State Management
+### REQ-FE-CUS-003: Customer Filtering
 
-### 5.1 NgRx Store Structure
+**Requirement:** The system shall provide multi-select filtering for customer type, segment, and status.
 
-#### 5.1.1 State Interface
+**Acceptance Criteria:**
+- [ ] Filter form uses Material select components
+- [ ] Multiple selections allowed for each filter
+- [ ] Filter options: Type (Individual, SmallBusiness, Enterprise, NonProfit, Government)
+- [ ] Filter options: Segment (Standard, Premium, VIP, Corporate)
+- [ ] Filter options: Status (Active, Inactive, Suspended)
+- [ ] Clear filters button resets all selections
+- [ ] Filter changes update table data reactively
+- [ ] Selected filters persist during pagination
+
+**Filter Form:**
+
 ```typescript
-export interface CustomerManagementState {
+filterForm = this.fb.group({
+  type: [[]],
+  segment: [[]],
+  status: [[]]
+});
+```
+
+---
+
+### REQ-FE-CUS-004: Customer Export
+
+**Requirement:** The system shall provide customer list export functionality with format selection.
+
+**Acceptance Criteria:**
+- [ ] Export button displays download icon
+- [ ] Export supports CSV, Excel, and JSON formats
+- [ ] Export includes all filtered results (not just current page)
+- [ ] Export triggers file download
+- [ ] Success message displayed after export
+- [ ] Error handling for failed exports
+- [ ] Loading indicator during export process
+
+---
+
+### REQ-FE-CUS-005: Customer Status Indicators
+
+**Requirement:** The system shall display visual indicators for customer status and segment using color-coded chips.
+
+**Acceptance Criteria:**
+- [ ] Material chips used for status display
+- [ ] Active status: green color
+- [ ] Inactive status: grey color
+- [ ] Suspended status: orange color
+- [ ] VIP segment: gold color
+- [ ] Premium segment: blue color
+- [ ] Standard segment: default color
+- [ ] Corporate segment: purple color
+
+**Status Colors:**
+
+| Status/Segment | Color | Class |
+|----------------|-------|-------|
+| Active | Green | accent |
+| Inactive | Grey | - |
+| Suspended | Orange | warn |
+| VIP | Gold | vip |
+| Premium | Blue | primary |
+
+---
+
+## 2. Customer Detail Requirements
+
+### REQ-FE-CUS-006: Customer Detail View
+
+**Requirement:** The system shall provide a comprehensive customer detail view with tabbed navigation for different data categories.
+
+**Acceptance Criteria:**
+- [ ] Component uses OnPush change detection
+- [ ] Header displays customer company name
+- [ ] Back button navigates to customer list
+- [ ] Edit button navigates to edit form
+- [ ] Quick action buttons for Send Email and Schedule Follow-up
+- [ ] Summary card displays key customer metrics
+- [ ] Tabbed interface for Profile, Contacts, Communications, Complaints, Testimonials, AI Insights
+- [ ] Data loaded from facade service
+- [ ] Loading state for async data
+- [ ] Error handling for failed data loads
+
+**Summary Card Metrics:**
+
+| Metric | Display Format |
+|--------|----------------|
+| Customer Number | Text |
+| Type | Chip |
+| Segment | Chip |
+| Status | Color-coded chip |
+| Lifetime Value | Currency pipe |
+| Total Events | Number |
+
+---
+
+### REQ-FE-CUS-007: Customer Profile Tab
+
+**Requirement:** The system shall display complete customer profile information in an organized layout.
+
+**Acceptance Criteria:**
+- [ ] Profile information displayed in grid layout
+- [ ] Company name, industry, website displayed
+- [ ] Primary and secondary email displayed
+- [ ] Primary and secondary phone displayed
+- [ ] Billing address displayed with all fields
+- [ ] Shipping address displayed if different from billing
+- [ ] Social media links displayed as clickable icons
+- [ ] All fields are read-only (edit via Edit button)
+- [ ] Responsive layout for mobile devices
+
+---
+
+### REQ-FE-CUS-008: Customer Tabs Navigation
+
+**Requirement:** The system shall provide seamless tab navigation with lazy loading of tab content.
+
+**Acceptance Criteria:**
+- [ ] Material tab group with smooth animations
+- [ ] Animation duration: 300ms
+- [ ] Tab content lazy loaded on first access
+- [ ] Selected tab index persisted in component state
+- [ ] Tab labels display counts (e.g., "Contacts (5)")
+- [ ] Tab content scrollable independently
+- [ ] Tab navigation accessible via keyboard
+- [ ] Active tab visually distinguished
+
+---
+
+### REQ-FE-CUS-009: Quick Action Dialogs
+
+**Requirement:** The system shall provide modal dialogs for quick actions like sending emails and scheduling meetings.
+
+**Acceptance Criteria:**
+- [ ] Send Email dialog: width 800px, includes customer context
+- [ ] Schedule Meeting dialog: width 700px, calendar integration
+- [ ] Schedule Follow-up dialog: width 600px, task assignment
+- [ ] Dialogs use Material Dialog component
+- [ ] Dialogs validate input before submission
+- [ ] Success notification after action completion
+- [ ] Error handling with user-friendly messages
+- [ ] Dialogs close on successful submission
+- [ ] Dialogs can be cancelled without data loss
+
+---
+
+## 3. Customer Form Requirements
+
+### REQ-FE-CUS-010: Customer Create/Edit Form
+
+**Requirement:** The system shall provide a comprehensive form for creating and editing customer information with validation.
+
+**Acceptance Criteria:**
+- [ ] Form uses Angular Reactive Forms
+- [ ] Form determines mode based on route (create vs edit)
+- [ ] Edit mode pre-populates form with existing data
+- [ ] Company name field: required, min 2 characters
+- [ ] Type field: required, dropdown selection
+- [ ] Industry field: optional, dropdown with predefined options
+- [ ] Email fields: required (primary), email format validation
+- [ ] Phone fields: required (primary), international format validation
+- [ ] Website field: optional, URL format validation
+- [ ] Form displays validation errors in real-time
+- [ ] Submit button disabled when form invalid
+- [ ] Cancel button navigates back without saving
+
+**Form Fields:**
+
+| Field Group | Fields | Validation |
+|-------------|--------|------------|
+| Profile | companyName, type, industry | required, minLength(2) |
+| Contact | primaryEmail, secondaryEmail, primaryPhone, secondaryPhone | required, email, phone |
+| Web | website | url pattern |
+| Billing Address | street, city, state, zipCode, country | required |
+| Shipping Address | street, city, state, zipCode, country | optional |
+| Preferences | channels, language, timezone, notifications | defaults |
+
+---
+
+### REQ-FE-CUS-011: Address Form Section
+
+**Requirement:** The system shall provide address input sections with validation and copy functionality.
+
+**Acceptance Criteria:**
+- [ ] Billing address form group with all required fields
+- [ ] Shipping address form group (optional)
+- [ ] "Copy billing to shipping" button
+- [ ] Clicking copy button populates shipping address
+- [ ] Street, city, state, zip code, country all required for billing
+- [ ] All shipping address fields required if any is provided
+- [ ] Country dropdown with searchable list
+- [ ] State/province dropdown based on country selection
+- [ ] Zip code format validation based on country
+
+---
+
+### REQ-FE-CUS-012: Customer Preferences Form Section
+
+**Requirement:** The system shall provide customer preferences configuration with intuitive controls.
+
+**Acceptance Criteria:**
+- [ ] Communication channels: checkbox group (Email, SMS, Phone)
+- [ ] Preferred language: dropdown (default 'en')
+- [ ] Time zone: searchable dropdown (default 'UTC')
+- [ ] Email notifications: toggle switch (default true)
+- [ ] SMS notifications: toggle switch (default false)
+- [ ] Push notifications: toggle switch (default true)
+- [ ] Marketing consent: checkbox (default false, requires explicit opt-in)
+- [ ] Data processing consent: checkbox (default true, required)
+- [ ] GDPR notice displayed for consent fields
+
+---
+
+### REQ-FE-CUS-013: Form Submission and Error Handling
+
+**Requirement:** The system shall handle form submission with loading states and comprehensive error handling.
+
+**Acceptance Criteria:**
+- [ ] Submit button shows loading spinner during submission
+- [ ] Form disabled during submission
+- [ ] Success: snackbar message for 3 seconds
+- [ ] Success: navigate to customer list
+- [ ] Error: snackbar message with error details for 5 seconds
+- [ ] Error: form remains editable for corrections
+- [ ] Validation errors: form.markAllAsTouched() to show all errors
+- [ ] Network errors: retry option provided
+- [ ] 409 Conflict: specific message for duplicate email
+
+---
+
+## 4. Contact Management Requirements
+
+### REQ-FE-CUS-014: Contact List Display
+
+**Requirement:** The system shall display customer contacts in a table with management actions.
+
+**Acceptance Criteria:**
+- [ ] Material table with columns: name, email, phone, position, isPrimary, tags, actions
+- [ ] Primary contact indicated with star icon and badge
+- [ ] Tags displayed as small chips
+- [ ] Add Contact button at top of list
+- [ ] Import Contacts button for bulk operations
+- [ ] Export Contacts button for data export
+- [ ] Edit action opens contact form dialog
+- [ ] Delete action shows confirmation dialog
+- [ ] Empty state when no contacts exist
+- [ ] Maximum 50 contacts enforced with warning
+
+**Contact Display:**
+
+```typescript
+displayedColumns = [
+  'name',
+  'email',
+  'phone',
+  'position',
+  'isPrimary',
+  'tags',
+  'actions'
+];
+```
+
+---
+
+### REQ-FE-CUS-015: Contact Form Dialog
+
+**Requirement:** The system shall provide a modal dialog for adding and editing contacts.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 600px
+- [ ] First name field: required
+- [ ] Last name field: required
+- [ ] Email field: required, email validation, async uniqueness check
+- [ ] Phone field: optional, phone format validation
+- [ ] Position field: optional
+- [ ] Primary contact checkbox
+- [ ] Tags input: chip list with autocomplete
+- [ ] Save button disabled when form invalid
+- [ ] Cancel button closes without saving
+- [ ] Edit mode pre-populates all fields
+- [ ] Create mode sets isPrimary true if first contact
+
+---
+
+### REQ-FE-CUS-016: Contact Tags Management
+
+**Requirement:** The system shall provide tag management with autocomplete and visual feedback.
+
+**Acceptance Criteria:**
+- [ ] Material chip list for tag display
+- [ ] Autocomplete input for adding tags
+- [ ] Tags are alphanumeric with hyphens/underscores
+- [ ] Maximum 50 characters per tag
+- [ ] Remove tag by clicking X on chip
+- [ ] Tag suggestions based on existing tags
+- [ ] Case-insensitive tag matching
+- [ ] Duplicate tags prevented
+- [ ] Visual feedback for tag operations
+
+---
+
+### REQ-FE-CUS-017: Contact Import Dialog
+
+**Requirement:** The system shall provide contact import functionality with file upload and field mapping.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 800px
+- [ ] File upload dropzone (drag-and-drop)
+- [ ] Accepts CSV, Excel (.xlsx), JSON formats
+- [ ] Maximum file size: 10MB
+- [ ] File preview showing first 5 rows
+- [ ] Field mapping interface
+- [ ] Required field validation (firstName, lastName, email)
+- [ ] Import progress indicator
+- [ ] Error report for failed records
+- [ ] Success summary with counts
+- [ ] Download error report button if failures
+
+**Import Steps:**
+
+1. File selection
+2. File validation
+3. Field mapping
+4. Preview and confirm
+5. Import execution
+6. Results summary
+
+---
+
+### REQ-FE-CUS-018: Contact Export Functionality
+
+**Requirement:** The system shall provide contact export with filtering and format selection.
+
+**Acceptance Criteria:**
+- [ ] Export dialog with format selection (CSV, Excel, JSON)
+- [ ] Field selection checkboxes (select which fields to export)
+- [ ] Tag filter (export only contacts with specific tags)
+- [ ] Include headers option for CSV/Excel
+- [ ] Export button triggers download
+- [ ] File naming: {companyName}_contacts_{date}.{format}
+- [ ] Progress indicator for large exports
+- [ ] Success notification with file size
+- [ ] Maximum 50,000 contacts per export
+
+---
+
+## 5. Communication History Requirements
+
+### REQ-FE-CUS-019: Communication History Timeline
+
+**Requirement:** The system shall display communication history in a chronological timeline with filtering.
+
+**Acceptance Criteria:**
+- [ ] Timeline view with Material components
+- [ ] Communications sorted by date (most recent first)
+- [ ] Each entry shows type icon (email, phone, SMS, meeting)
+- [ ] Entry displays: type, subject/summary, date/time, status
+- [ ] Color coding by type (email: blue, phone: green, SMS: orange, meeting: purple)
+- [ ] Click entry to view full details
+- [ ] Filter by communication type (multi-select)
+- [ ] Filter by date range (start and end date pickers)
+- [ ] Empty state when no communications found
+- [ ] Pagination for large histories
+
+---
+
+### REQ-FE-CUS-020: Log Phone Call Dialog
+
+**Requirement:** The system shall provide a dialog for logging phone call details.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 600px
+- [ ] Phone number field: required, validated
+- [ ] Call type: radio buttons (Inbound/Outbound)
+- [ ] Duration: time input in minutes and seconds
+- [ ] Call time: datetime picker (defaults to now)
+- [ ] Summary field: required, minimum 10 characters, textarea
+- [ ] Notes field: optional, textarea
+- [ ] Save button creates communication record
+- [ ] Validation prevents submission of incomplete data
+- [ ] Success notification after save
+
+---
+
+### REQ-FE-CUS-021: Schedule Meeting Dialog
+
+**Requirement:** The system shall provide meeting scheduling with calendar integration.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 700px
+- [ ] Title field: required
+- [ ] Description field: optional, rich text editor
+- [ ] Start date/time: required, datetime picker
+- [ ] End date/time: required, datetime picker, must be after start
+- [ ] Location field: required for in-person meetings
+- [ ] Virtual meeting toggle
+- [ ] Meeting link field: required when virtual
+- [ ] Attendees: chip list with email validation
+- [ ] Calendar integration checkbox (send invites)
+- [ ] Save creates meeting and sends invites
+- [ ] Validation enforces all requirements
+
+---
+
+### REQ-FE-CUS-022: Send Email Dialog
+
+**Requirement:** The system shall provide email composition with template support and attachments.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 800px
+- [ ] To field: pre-filled with customer primary email
+- [ ] Subject field: required
+- [ ] Body field: rich text editor (Quill)
+- [ ] Template selector: dropdown with predefined templates
+- [ ] Selecting template populates subject and body
+- [ ] Template variables replaced ({{companyName}}, {{contactName}})
+- [ ] Attachment upload: max 5 files, 10MB total
+- [ ] Attachment list with remove option
+- [ ] Send button: validates and sends email
+- [ ] Send status indicator
+- [ ] Success/error notification
+
+**Rich Text Editor Features:**
+
+- Bold, italic, underline
+- Bullet and numbered lists
+- Links
+- Text alignment
+- Font size and color
+
+---
+
+### REQ-FE-CUS-023: Send SMS Dialog
+
+**Requirement:** The system shall provide SMS composition with character counting.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 500px
+- [ ] To field: phone number, pre-filled with customer primary phone
+- [ ] Message field: textarea, max 1600 characters
+- [ ] Character counter displayed (updates in real-time)
+- [ ] SMS part indicator (1 SMS = 160 chars)
+- [ ] Template selector for predefined messages
+- [ ] Template variables replaced
+- [ ] Send button validates and sends
+- [ ] Warning if message > 160 characters (multi-part)
+- [ ] Success/error notification
+
+**Character Counter Display:**
+
+```
+Characters: 145 / 1600 (1 SMS)
+Characters: 320 / 1600 (2 SMS)
+```
+
+---
+
+## 6. Complaint Management Requirements
+
+### REQ-FE-CUS-024: Complaint List Display
+
+**Requirement:** The system shall display customer complaints in a table with status tracking.
+
+**Acceptance Criteria:**
+- [ ] Material table with columns: complaintNumber, subject, category, priority, status, createdAt, actions
+- [ ] Priority indicated with color-coded badges (Critical: red, High: orange, Medium: yellow, Low: green)
+- [ ] Status shown as chips with appropriate colors
+- [ ] Click row to view complaint details
+- [ ] Filter by status (multi-select)
+- [ ] Filter by priority (multi-select)
+- [ ] Sort by date, priority, status
+- [ ] Create Complaint button at top
+- [ ] Empty state when no complaints exist
+- [ ] Complaint count badge on tab
+
+**Status Colors:**
+
+| Status | Color |
+|--------|-------|
+| New | Blue |
+| InProgress | Orange |
+| Resolved | Green |
+| Closed | Grey |
+| Escalated | Red |
+
+---
+
+### REQ-FE-CUS-025: Complaint Detail Dialog
+
+**Requirement:** The system shall provide detailed complaint view with status management.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 800px
+- [ ] Displays: complaintNumber, subject, description, category, priority
+- [ ] Shows: customer info, createdAt, assignedTo, status
+- [ ] Displays attachments with download links
+- [ ] Status history timeline
+- [ ] Update Status button (only for assigned user/managers)
+- [ ] Resolve button (opens resolution dialog)
+- [ ] Escalate button (requires confirmation)
+- [ ] Add Comment section for notes
+- [ ] All timestamps display in user's timezone
+- [ ] Print button for complaint report
+
+---
+
+### REQ-FE-CUS-026: Resolve Complaint Dialog
+
+**Requirement:** The system shall provide complaint resolution workflow with satisfaction tracking.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 600px
+- [ ] Resolution description: required, textarea, min 20 characters
+- [ ] Compensation offered: optional, text input
+- [ ] Customer satisfied: required, yes/no radio buttons
+- [ ] Resolution automatically calculated and displayed
+- [ ] Resolve button submits resolution
+- [ ] Success creates follow-up if customer not satisfied
+- [ ] Status automatically changes to Resolved
+- [ ] Email notification sent to customer
+- [ ] Validation prevents incomplete submissions
+
+---
+
+### REQ-FE-CUS-027: Submit Complaint Dialog
+
+**Requirement:** The system shall provide complaint submission form with categorization.
+
+**Acceptance Criteria:**
+- [ ] Dialog width: 700px
+- [ ] Subject field: required, max 500 characters
+- [ ] Description field: required, textarea, max 5000 characters
+- [ ] Category dropdown: optional, predefined categories
+- [ ] Priority: required, radio buttons (Low, Medium, High, Critical)
+- [ ] Related event: optional, searchable dropdown
+- [ ] Attachment upload: max 5 files, 20MB total
+- [ ] Character counters for subject and description
+- [ ] Submit button validates and creates complaint
+- [ ] Complaint number generated and displayed
+- [ ] Success notification with complaint number
+
+**Complaint Categories:**
+
+- Event Quality
+- Customer Service
+- Billing Issue
+- Technical Problem
+- Accessibility
+- Other
+
+---
+
+## 7. Customer Insights Requirements
+
+### REQ-FE-CUS-028: Customer Insights Dashboard
+
+**Requirement:** The system shall display AI-generated customer insights with visualizations.
+
+**Acceptance Criteria:**
+- [ ] Insights refreshed every 24 hours
+- [ ] Manual refresh button available
+- [ ] Sentiment score displayed as gauge chart (0-100)
+- [ ] Engagement level: visual indicator (Low/Medium/High)
+- [ ] Churn risk: percentage with color coding (<30% green, 30-60% orange, >60% red)
+- [ ] Recommended actions: bullet list
+- [ ] Key interests: tag cloud
+- [ ] Preferred communication times: timeline chart
+- [ ] Last interaction date displayed
+- [ ] Total interactions count
+- [ ] Loading state during AI processing
+- [ ] Fallback message if AI unavailable
+
+**Visualizations:**
+
+| Insight | Chart Type | Library |
+|---------|-----------|---------|
+| Sentiment Score | Gauge | ng2-charts |
+| Engagement Level | Progress Bar | Material |
+| Churn Risk | Radial Progress | ng2-charts |
+| Interests | Tag Cloud | Custom |
+| Communication Times | Timeline | ng2-charts |
+
+---
+
+### REQ-FE-CUS-029: Sentiment Analysis Display
+
+**Requirement:** The system shall display sentiment analysis with visual indicators.
+
+**Acceptance Criteria:**
+- [ ] Overall sentiment score (0-100)
+- [ ] Sentiment breakdown: positive, neutral, negative percentages
+- [ ] Pie chart visualization
+- [ ] Color coding: green (positive), grey (neutral), red (negative)
+- [ ] Trend indicator (up/down arrow with percentage change)
+- [ ] Based on analysis of recent communications
+- [ ] Tooltip explains calculation method
+- [ ] Click for detailed sentiment history
+
+---
+
+### REQ-FE-CUS-030: Recommended Actions List
+
+**Requirement:** The system shall display AI-recommended actions with priority and actionability.
+
+**Acceptance Criteria:**
+- [ ] Actions displayed as expandable cards
+- [ ] Each action shows: title, description, priority, suggested date
+- [ ] Priority color coding
+- [ ] "Take Action" button for each recommendation
+- [ ] Clicking button opens relevant dialog (email, meeting, etc.)
+- [ ] Mark as done option
+- [ ] Dismiss option with feedback
+- [ ] Actions sorted by priority
+- [ ] Maximum 5 recommendations displayed
+- [ ] Refresh recommendations button
+
+**Recommended Action Types:**
+
+- Send follow-up email
+- Schedule check-in call
+- Offer upgrade/premium service
+- Address potential churn risk
+- Request testimonial
+- Resolve outstanding complaint
+
+---
+
+## 8. State Management Requirements
+
+### REQ-FE-CUS-031: NgRx Store Configuration
+
+**Requirement:** The system shall implement NgRx for state management with entities, effects, and selectors.
+
+**Acceptance Criteria:**
+- [ ] Feature state registered in app module
+- [ ] Entity adapters for customers, contacts, communications, complaints
+- [ ] State interface includes: entities, selectedId, loading, error, filters, pagination
+- [ ] Actions for all CRUD operations
+- [ ] Success and failure actions for each operation
+- [ ] Effects handle API calls and side effects
+- [ ] Selectors for all state slices
+- [ ] Memoized selectors for derived state
+- [ ] Dev tools integration for debugging
+
+**State Structure:**
+
+```typescript
+interface CustomerManagementState {
   customers: EntityState<Customer>;
   selectedCustomerId: string | null;
   contacts: EntityState<Contact>;
@@ -1019,150 +752,82 @@ export interface CustomerManagementState {
 }
 ```
 
-#### 5.1.2 Actions
+---
+
+### REQ-FE-CUS-032: Customer Actions
+
+**Requirement:** The system shall define comprehensive actions for customer operations.
+
+**Acceptance Criteria:**
+- [ ] Load Customers action with query parameters
+- [ ] Load Customers Success with customers array and total count
+- [ ] Load Customers Failure with error message
+- [ ] Create Customer with customer DTO
+- [ ] Update Customer with id and partial changes
+- [ ] Deactivate Customer with id and reason
+- [ ] Search Customers with query string
+- [ ] Filter Customers with filter criteria
+- [ ] All actions use createAction from NgRx
+- [ ] Actions use props for type safety
+
+---
+
+### REQ-FE-CUS-033: Customer Effects
+
+**Requirement:** The system shall implement effects for handling side effects and API calls.
+
+**Acceptance Criteria:**
+- [ ] Load customers effect calls service and dispatches success/failure
+- [ ] Create customer effect calls service, navigates on success
+- [ ] Update customer effect calls service, shows notification
+- [ ] Delete customer effect calls service, updates list
+- [ ] All effects use switchMap for cancellable operations
+- [ ] Error handling with catchError
+- [ ] Success notifications via snackbar service
+- [ ] Router navigation for create/update success
+- [ ] Effects properly typed with Actions type
+
+**Effect Pattern:**
+
 ```typescript
-// Customer Actions
-export const loadCustomers = createAction(
-  '[Customer List] Load Customers',
-  props<{ params: CustomerQueryParams }>()
-);
-
-export const loadCustomersSuccess = createAction(
-  '[Customer API] Load Customers Success',
-  props<{ customers: Customer[]; totalCount: number }>()
-);
-
-export const loadCustomersFailure = createAction(
-  '[Customer API] Load Customers Failure',
-  props<{ error: string }>()
-);
-
-export const createCustomer = createAction(
-  '[Customer Form] Create Customer',
-  props<{ customer: CreateCustomerDto }>()
-);
-
-export const updateCustomer = createAction(
-  '[Customer Form] Update Customer',
-  props<{ id: string; changes: Partial<Customer> }>()
-);
-
-export const deactivateCustomer = createAction(
-  '[Customer Detail] Deactivate Customer',
-  props<{ id: string; reason: string }>()
-);
-
-// Contact Actions
-export const addContact = createAction(
-  '[Contact Form] Add Contact',
-  props<{ customerId: string; contact: CreateContactDto }>()
-);
-
-export const updateContact = createAction(
-  '[Contact Form] Update Contact',
-  props<{ customerId: string; contactId: string; changes: Partial<Contact> }>()
-);
-
-export const removeContact = createAction(
-  '[Contact List] Remove Contact',
-  props<{ customerId: string; contactId: string }>()
-);
-
-// Communication Actions
-export const sendEmail = createAction(
-  '[Communication] Send Email',
-  props<{ customerId: string; email: EmailDto }>()
-);
-
-export const logPhoneCall = createAction(
-  '[Communication] Log Phone Call',
-  props<{ customerId: string; call: PhoneCallDto }>()
-);
-
-export const scheduleMeeting = createAction(
-  '[Communication] Schedule Meeting',
-  props<{ customerId: string; meeting: MeetingDto }>()
-);
-```
-
-#### 5.1.3 Reducers
-```typescript
-export const customerReducer = createReducer(
-  initialState,
-  on(loadCustomers, (state) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
-  on(loadCustomersSuccess, (state, { customers, totalCount }) =>
-    adapter.setAll(customers, {
-      ...state,
-      loading: false,
-      pagination: {
-        ...state.pagination,
-        totalCount
-      }
-    })
-  ),
-  on(loadCustomersFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error
-  })),
-  on(createCustomer, (state) => ({
-    ...state,
-    loading: true
-  })),
-  // ... more reducer cases
-);
-```
-
-#### 5.1.4 Effects
-```typescript
-@Injectable()
-export class CustomerEffects {
-  loadCustomers$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(loadCustomers),
-      switchMap(({ params }) =>
-        this.customerService.getCustomers(params).pipe(
-          map(response => loadCustomersSuccess({
-            customers: response.items,
-            totalCount: response.totalCount
-          })),
-          catchError(error => of(loadCustomersFailure({ error: error.message })))
-        )
+loadCustomers$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(loadCustomers),
+    switchMap(({ params }) =>
+      this.customerService.getCustomers(params).pipe(
+        map(response => loadCustomersSuccess({
+          customers: response.items,
+          totalCount: response.totalCount
+        })),
+        catchError(error => of(loadCustomersFailure({
+          error: error.message
+        })))
       )
     )
-  );
-
-  createCustomer$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(createCustomer),
-      switchMap(({ customer }) =>
-        this.customerService.createCustomer(customer).pipe(
-          map(created => createCustomerSuccess({ customer: created })),
-          tap(() => this.router.navigate(['/customers'])),
-          catchError(error => of(createCustomerFailure({ error: error.message })))
-        )
-      )
-    )
-  );
-
-  constructor(
-    private actions$: Actions,
-    private customerService: CustomerService,
-    private router: Router
-  ) {}
-}
+  )
+);
 ```
 
-#### 5.1.5 Selectors
-```typescript
-export const selectCustomerState = createFeatureSelector<CustomerManagementState>(
-  'customerManagement'
-);
+---
 
+### REQ-FE-CUS-034: Customer Selectors
+
+**Requirement:** The system shall provide selectors for accessing state slices efficiently.
+
+**Acceptance Criteria:**
+- [ ] Feature selector for customer management state
+- [ ] Entity selectors using adapter selectors (selectAll, selectEntities, selectIds)
+- [ ] Selected customer selector
+- [ ] Loading state selector
+- [ ] Error state selector
+- [ ] Filtered customers selector
+- [ ] Total count selector
+- [ ] All selectors memoized for performance
+- [ ] Selectors properly typed
+
+**Selector Examples:**
+
+```typescript
 export const selectAllCustomers = createSelector(
   selectCustomerState,
   adapter.getSelectors().selectAll
@@ -1170,86 +835,69 @@ export const selectAllCustomers = createSelector(
 
 export const selectCustomerById = (id: string) => createSelector(
   selectCustomerState,
-  state => adapter.getSelectors().selectEntities(state)[id]
+  state => state.entities[id]
 );
 
 export const selectLoading = createSelector(
   selectCustomerState,
   state => state.loading
 );
-
-export const selectError = createSelector(
-  selectCustomerState,
-  state => state.error
-);
-
-export const selectTotalCount = createSelector(
-  selectCustomerState,
-  state => state.pagination.totalCount
-);
 ```
 
-#### 5.1.6 Facade Service
+---
+
+### REQ-FE-CUS-035: Facade Service
+
+**Requirement:** The system shall provide a facade service to simplify component interaction with the store.
+
+**Acceptance Criteria:**
+- [ ] Facade exposes observables for all state slices
+- [ ] Facade provides methods for dispatching actions
+- [ ] Methods return observables for async operations
+- [ ] Type-safe method signatures
+- [ ] Facade injected into components
+- [ ] Centralized place for store interactions
+- [ ] Reduces boilerplate in components
+- [ ] Methods document expected behavior
+
+**Facade Interface:**
+
 ```typescript
 @Injectable()
 export class CustomerFacade {
   customers$ = this.store.select(selectAllCustomers);
   loading$ = this.store.select(selectLoading);
-  error$ = this.store.select(selectError);
   selectedCustomer$ = this.store.select(selectSelectedCustomer);
 
-  constructor(private store: Store<CustomerManagementState>) {}
-
-  loadCustomers(params: CustomerQueryParams): void {
-    this.store.dispatch(loadCustomers({ params }));
-  }
-
-  loadCustomerById(id: string): void {
-    this.store.dispatch(loadCustomerById({ id }));
-  }
-
-  createCustomer(customer: CreateCustomerDto): Observable<void> {
-    this.store.dispatch(createCustomer({ customer }));
-    return this.actions$.pipe(
-      ofType(createCustomerSuccess, createCustomerFailure),
-      take(1),
-      map(action => {
-        if (action.type === createCustomerFailure.type) {
-          throw new Error(action.error);
-        }
-      })
-    );
-  }
-
-  updateCustomer(id: string, changes: Partial<Customer>): Observable<void> {
-    this.store.dispatch(updateCustomer({ id, changes }));
-    return this.waitForAction(updateCustomerSuccess, updateCustomerFailure);
-  }
-
-  deactivateCustomer(id: string, reason: string): Observable<void> {
-    this.store.dispatch(deactivateCustomer({ id, reason }));
-    return this.waitForAction(deactivateCustomerSuccess, deactivateCustomerFailure);
-  }
-
-  private waitForAction(success: any, failure: any): Observable<void> {
-    return this.actions$.pipe(
-      ofType(success, failure),
-      take(1),
-      map(action => {
-        if (action.type === failure.type) {
-          throw new Error(action.error);
-        }
-      })
-    );
-  }
+  loadCustomers(params: CustomerQueryParams): void;
+  createCustomer(customer: CreateCustomerDto): Observable<void>;
+  updateCustomer(id: string, changes: Partial<Customer>): Observable<void>;
+  deactivateCustomer(id: string, reason: string): Observable<void>;
 }
 ```
 
 ---
 
-## 6. Routing
+## 9. Routing Requirements
 
-### 6.1 Route Configuration
+### REQ-FE-CUS-036: Route Configuration
+
+**Requirement:** The system shall define routes for customer management with guards and resolvers.
+
+**Acceptance Criteria:**
+- [ ] Customer list route: /customers
+- [ ] Customer detail route: /customers/:id
+- [ ] Customer create route: /customers/new
+- [ ] Customer edit route: /customers/:id/edit
+- [ ] Customer dashboard route: /customers/dashboard
+- [ ] All routes protected by AuthGuard
+- [ ] Customer management routes protected by CustomerManagementGuard
+- [ ] Detail and edit routes use CustomerResolver
+- [ ] Routes use data property for metadata (title, breadcrumbs)
+- [ ] Lazy loaded module for performance
+
+**Route Configuration:**
+
 ```typescript
 const routes: Routes = [
   {
@@ -1278,26 +926,32 @@ const routes: Routes = [
         component: CustomerFormComponent,
         data: { title: 'Edit Customer', mode: 'edit' },
         resolve: { customer: CustomerResolver }
-      },
-      {
-        path: 'dashboard',
-        component: CustomerDashboardComponent,
-        data: { title: 'Customer Dashboard' }
       }
     ]
   }
 ];
 ```
 
-### 6.2 Route Guards
+---
+
+### REQ-FE-CUS-037: Route Guards
+
+**Requirement:** The system shall implement guards to protect routes based on permissions.
+
+**Acceptance Criteria:**
+- [ ] CustomerManagementGuard checks customer-management permission
+- [ ] Guard implements CanActivate interface
+- [ ] Guard uses AuthService to check permissions
+- [ ] Unauthorized users redirected to /unauthorized
+- [ ] Guard returns Observable<boolean>
+- [ ] Navigation cancelled if unauthorized
+- [ ] Guard integrated with Angular router
+
+**Guard Implementation:**
+
 ```typescript
 @Injectable()
 export class CustomerManagementGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
-
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -1317,89 +971,89 @@ export class CustomerManagementGuard implements CanActivate {
 
 ---
 
-## 7. UI/UX Design
+### REQ-FE-CUS-038: Route Resolver
 
-### 7.1 Color Scheme
-```scss
-$primary: #3f51b5;
-$accent: #ff4081;
-$warn: #f44336;
-$success: #4caf50;
-$info: #2196f3;
-$warning: #ff9800;
-```
+**Requirement:** The system shall implement resolver to pre-load customer data before route activation.
 
-### 7.2 Typography
-```scss
-$font-family: 'Roboto', 'Helvetica Neue', sans-serif;
-$font-size-base: 14px;
-$font-size-large: 16px;
-$font-size-small: 12px;
-$line-height-base: 1.5;
-```
+**Acceptance Criteria:**
+- [ ] CustomerResolver implements Resolve interface
+- [ ] Resolver loads customer data by ID from route params
+- [ ] Resolved data available in component via ActivatedRoute.data
+- [ ] Resolver handles errors gracefully
+- [ ] Failed resolution redirects to customer list
+- [ ] Loading indicator shown during resolution
+- [ ] Resolver prevents route activation until data loaded
 
-### 7.3 Responsive Breakpoints
-```scss
-$breakpoints: (
-  xs: 0,
-  sm: 600px,
-  md: 960px,
-  lg: 1280px,
-  xl: 1920px
+---
+
+## 10. Validation Requirements
+
+### REQ-FE-CUS-039: Email Validation
+
+**Requirement:** The system shall validate email addresses with format and uniqueness checks.
+
+**Acceptance Criteria:**
+- [ ] Email format validated using Validators.email
+- [ ] Async validation checks email uniqueness
+- [ ] API call debounced by 300ms
+- [ ] Validation errors: 'required', 'email', 'emailTaken'
+- [ ] Error messages displayed below field
+- [ ] Validation occurs on blur and value change
+- [ ] Loading indicator during async validation
+
+**Async Validator:**
+
+```typescript
+emailFormControl = new FormControl(
+  '',
+  [Validators.required, Validators.email],
+  [CustomerValidators.uniqueEmail(this.customerService)]
 );
-```
-
-### 7.4 Material Theme
-```scss
-@use '@angular/material' as mat;
-
-$custom-primary: mat.define-palette(mat.$indigo-palette);
-$custom-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-$custom-warn: mat.define-palette(mat.$red-palette);
-
-$custom-theme: mat.define-light-theme((
-  color: (
-    primary: $custom-primary,
-    accent: $custom-accent,
-    warn: $custom-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,
-));
-
-@include mat.all-component-themes($custom-theme);
 ```
 
 ---
 
-## 8. Forms and Validation
+### REQ-FE-CUS-040: Phone Number Validation
 
-### 8.1 Custom Validators
+**Requirement:** The system shall validate phone numbers using international format.
+
+**Acceptance Criteria:**
+- [ ] Phone format validated using custom validator
+- [ ] Accepts E.164 format: +[country][number]
+- [ ] Special characters allowed: + - ( ) space
+- [ ] Validation errors: 'required', 'invalidPhone'
+- [ ] Error message: "Please enter a valid phone number"
+- [ ] Example shown: +1-555-123-4567
+- [ ] Validation on blur and value change
+
+**Phone Validator:**
+
 ```typescript
-export class CustomerValidators {
-  static uniqueEmail(customerService: CustomerService): AsyncValidatorFn {
-    return (control: AbstractControl): Observable<ValidationErrors | null> => {
-      if (!control.value) {
-        return of(null);
-      }
-
-      return customerService.checkEmailExists(control.value).pipe(
-        map(exists => exists ? { emailTaken: true } : null),
-        catchError(() => of(null))
-      );
-    };
-  }
-
-  static phoneNumber(control: AbstractControl): ValidationErrors | null {
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    return phoneRegex.test(control.value) ? null : { invalidPhone: true };
-  }
+static phoneNumber(control: AbstractControl): ValidationErrors | null {
+  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+  return phoneRegex.test(control.value) ? null : { invalidPhone: true };
 }
 ```
 
-### 8.2 Form Error Messages
+---
+
+### REQ-FE-CUS-041: Form Error Messages
+
+**Requirement:** The system shall display context-specific error messages for validation failures.
+
+**Acceptance Criteria:**
+- [ ] Error messages displayed using mat-error
+- [ ] Messages shown when field touched and invalid
+- [ ] Custom messages for each validation type
+- [ ] Dynamic messages with validation parameters
+- [ ] Error messages match backend validation
+- [ ] Consistent error styling across forms
+- [ ] ARIA labels for accessibility
+
+**Error Messages Map:**
+
 ```typescript
-export const FORM_ERROR_MESSAGES = {
+FORM_ERROR_MESSAGES = {
   required: 'This field is required',
   email: 'Please enter a valid email address',
   minlength: 'Minimum length is {requiredLength} characters',
@@ -1412,148 +1066,399 @@ export const FORM_ERROR_MESSAGES = {
 
 ---
 
-## 9. Data Services
+### REQ-FE-CUS-042: Custom Validators
 
-### 9.1 Customer Service
-```typescript
-@Injectable()
-export class CustomerService {
-  private apiUrl = `${environment.apiUrl}/api/v1/customers`;
+**Requirement:** The system shall provide reusable custom validators for complex validation scenarios.
 
-  constructor(private http: HttpClient) {}
+**Acceptance Criteria:**
+- [ ] Validators follow Angular validator pattern
+- [ ] Validators return ValidationErrors or null
+- [ ] Async validators return Observable
+- [ ] Validators are reusable across forms
+- [ ] Validators properly typed
+- [ ] Validators documented with examples
 
-  getCustomers(params: CustomerQueryParams): Observable<PagedResponse<Customer>> {
-    const httpParams = new HttpParams({ fromObject: params as any });
-    return this.http.get<PagedResponse<Customer>>(this.apiUrl, { params: httpParams });
-  }
+---
 
-  getCustomerById(id: string): Observable<Customer> {
-    return this.http.get<Customer>(`${this.apiUrl}/${id}`);
-  }
+## 11. UI/UX Requirements
 
-  createCustomer(customer: CreateCustomerDto): Observable<Customer> {
-    return this.http.post<Customer>(this.apiUrl, customer);
-  }
+### REQ-FE-CUS-043: Material Design Theme
 
-  updateCustomer(id: string, changes: Partial<Customer>): Observable<Customer> {
-    return this.http.put<Customer>(`${this.apiUrl}/${id}`, changes);
-  }
+**Requirement:** The system shall implement consistent Material Design theme across all components.
 
-  deactivateCustomer(id: string, reason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/deactivate`, { reason });
-  }
+**Acceptance Criteria:**
+- [ ] Primary color: Indigo (#3f51b5)
+- [ ] Accent color: Pink (#ff4081)
+- [ ] Warn color: Red (#f44336)
+- [ ] Custom palette defined for brand colors
+- [ ] Typography config uses Roboto font
+- [ ] Component density set to 0 (default)
+- [ ] Light theme by default
+- [ ] Dark theme available as option
+- [ ] Theme applied to all Material components
 
-  mergeCustomers(sourceId: string, targetId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/merge`, {
-      sourceCustomerId: sourceId,
-      targetCustomerId: targetId
-    });
-  }
+**Theme Configuration:**
 
-  exportCustomers(filters: CustomerFilters): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/export`, filters, {
-      responseType: 'blob'
-    });
-  }
+```scss
+$custom-primary: mat.define-palette(mat.$indigo-palette);
+$custom-accent: mat.define-palette(mat.$pink-palette);
+$custom-warn: mat.define-palette(mat.$red-palette);
 
-  getCustomerInsights(id: string): Observable<CustomerInsights> {
-    return this.http.get<CustomerInsights>(`${this.apiUrl}/${id}/insights`);
+$custom-theme: mat.define-light-theme((
+  color: (
+    primary: $custom-primary,
+    accent: $custom-accent,
+    warn: $custom-warn,
+  )
+));
+```
+
+---
+
+### REQ-FE-CUS-044: Responsive Layout
+
+**Requirement:** The system shall provide responsive layouts that adapt to different screen sizes.
+
+**Acceptance Criteria:**
+- [ ] Mobile-first design approach
+- [ ] Breakpoints: xs (0), sm (600px), md (960px), lg (1280px), xl (1920px)
+- [ ] Tables switch to cards on mobile
+- [ ] Side navigation becomes overlay on mobile
+- [ ] Form layouts stack on mobile
+- [ ] Touch-friendly button sizes on mobile (min 44px)
+- [ ] Readable font sizes on all devices
+- [ ] Proper spacing and padding for touch targets
+
+**Responsive Grid:**
+
+```scss
+.customer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
   }
 }
 ```
 
 ---
 
-## 10. Real-time Features
+### REQ-FE-CUS-045: Loading States
 
-### 10.1 SignalR Integration
+**Requirement:** The system shall provide clear loading indicators for all asynchronous operations.
+
+**Acceptance Criteria:**
+- [ ] Material spinner for full-page loads
+- [ ] Progress bar for partial loads
+- [ ] Skeleton screens for list loading
+- [ ] Disabled buttons with spinner during submission
+- [ ] Loading overlay for dialogs
+- [ ] Minimum display time: 300ms (prevents flicker)
+- [ ] Loading state from store observable
+- [ ] Accessible loading announcements
+
+**Loading Patterns:**
+
+| Operation | Indicator |
+|-----------|-----------|
+| Page load | Full page spinner |
+| List load | Skeleton rows |
+| Form submit | Button spinner |
+| Dialog load | Overlay spinner |
+| Inline action | Mini spinner |
+
+---
+
+### REQ-FE-CUS-046: Empty States
+
+**Requirement:** The system shall display helpful empty states when no data is available.
+
+**Acceptance Criteria:**
+- [ ] Empty state message displayed when list has no items
+- [ ] Icon or illustration for visual appeal
+- [ ] Helpful message explaining why list is empty
+- [ ] Call-to-action button when appropriate (e.g., "Add First Customer")
+- [ ] Different messages for filtered vs truly empty
+- [ ] Consistent styling across all empty states
+
+**Empty State Messages:**
+
+| Context | Message | Action |
+|---------|---------|--------|
+| No customers | "No customers yet. Create your first customer to get started." | Add Customer |
+| No search results | "No customers match your search. Try different keywords." | Clear Search |
+| No contacts | "No contacts added yet. Add a contact to get started." | Add Contact |
+| No communications | "No communication history. Send an email or log a call." | - |
+
+---
+
+### REQ-FE-CUS-047: Notification System
+
+**Requirement:** The system shall provide consistent notifications for user feedback.
+
+**Acceptance Criteria:**
+- [ ] Material snackbar for notifications
+- [ ] Success notifications: green background, 3 second duration
+- [ ] Error notifications: red background, 5 second duration
+- [ ] Info notifications: blue background, 3 second duration
+- [ ] Action button option (e.g., "Undo")
+- [ ] Notifications stack vertically
+- [ ] Maximum 3 simultaneous notifications
+- [ ] Dismiss button on each notification
+- [ ] Accessible announcements for screen readers
+
+**Notification Types:**
+
 ```typescript
-@Injectable()
-export class CustomerRealtimeService {
-  private hubConnection: signalR.HubConnection;
+showSuccess(message: string): void {
+  this.snackBar.open(message, 'Close', {
+    duration: 3000,
+    panelClass: ['success-snackbar']
+  });
+}
 
-  constructor(
-    private authService: AuthService,
-    private store: Store
-  ) {}
+showError(message: string): void {
+  this.snackBar.open(message, 'Close', {
+    duration: 5000,
+    panelClass: ['error-snackbar']
+  });
+}
+```
 
-  startConnection(): void {
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/hubs/customer`, {
-        accessTokenFactory: () => this.authService.getAccessToken()
-      })
-      .withAutomaticReconnect()
-      .build();
+---
 
-    this.hubConnection.start()
-      .then(() => console.log('SignalR Connected'))
-      .catch(err => console.error('SignalR Error:', err));
+## 12. Performance Requirements
 
-    this.setupEventListeners();
-  }
+### REQ-FE-CUS-048: Change Detection Strategy
 
-  private setupEventListeners(): void {
-    this.hubConnection.on('CustomerUpdated', (customer: Customer) => {
-      this.store.dispatch(customerUpdatedFromHub({ customer }));
-    });
+**Requirement:** The system shall use OnPush change detection strategy for optimal performance.
 
-    this.hubConnection.on('CommunicationReceived', (communication: Communication) => {
-      this.store.dispatch(communicationReceivedFromHub({ communication }));
-    });
+**Acceptance Criteria:**
+- [ ] All components use ChangeDetectionStrategy.OnPush
+- [ ] Component inputs are immutable
+- [ ] State updates trigger change detection via observables
+- [ ] Manual change detection when needed
+- [ ] Trackby functions for ngFor loops
+- [ ] Reduces unnecessary change detection cycles
+- [ ] Performance improvement validated with profiler
 
-    this.hubConnection.on('ComplaintStatusChanged', (update: ComplaintUpdate) => {
-      this.store.dispatch(complaintStatusChangedFromHub({ update }));
-    });
-  }
+**OnPush Implementation:**
 
-  stopConnection(): void {
-    this.hubConnection?.stop();
+```typescript
+@Component({
+  selector: 'app-customer-list',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class CustomerListComponent {
+  trackByCustomerId(index: number, customer: Customer): string {
+    return customer.id;
   }
 }
 ```
 
 ---
 
-## 11. Accessibility
+### REQ-FE-CUS-049: Lazy Loading
 
-### 11.1 ARIA Attributes
-- All interactive elements have proper ARIA labels
-- Form fields have associated labels
-- Error messages are announced to screen readers
-- Focus management for modals and dialogs
+**Requirement:** The system shall implement lazy loading for feature modules.
 
-### 11.2 Keyboard Navigation
-- Tab order follows logical flow
-- All actions accessible via keyboard
-- Escape key closes modals
-- Enter key submits forms
+**Acceptance Criteria:**
+- [ ] Customer management module lazy loaded
+- [ ] Route configuration uses loadChildren
+- [ ] Module only loaded when route accessed
+- [ ] Separate bundle created for customer module
+- [ ] Initial bundle size reduced
+- [ ] Faster initial page load
+- [ ] Code splitting verified in build output
 
-### 11.3 Color Contrast
-- WCAG AA compliance (4.5:1 for normal text)
-- Status indicators use icons in addition to color
+**Lazy Loading Configuration:**
 
----
-
-## 12. Performance Optimization
-
-### 12.1 Strategies
-- Lazy loading of feature modules
-- OnPush change detection strategy
-- Virtual scrolling for large lists
-- Image lazy loading
-- Service worker for caching
-- Memoization of selectors
-- Pagination for data-heavy views
-
-### 12.2 Bundle Size
-- Target: < 500KB initial bundle
-- Lazy loaded chunks: < 200KB each
+```typescript
+{
+  path: 'customers',
+  loadChildren: () => import('./customer-management/customer-management.module')
+    .then(m => m.CustomerManagementModule)
+}
+```
 
 ---
 
-## 13. Testing Strategy
+### REQ-FE-CUS-050: Virtual Scrolling
 
-### 13.1 Unit Tests
+**Requirement:** The system shall use virtual scrolling for large lists to improve performance.
+
+**Acceptance Criteria:**
+- [ ] CDK Virtual Scroll for lists > 100 items
+- [ ] Item size configured appropriately
+- [ ] Buffer size optimized for smooth scrolling
+- [ ] Scroll position maintained during updates
+- [ ] Works with filtering and sorting
+- [ ] Reduces DOM nodes for better performance
+- [ ] Smooth scrolling experience
+
+**Virtual Scroll Configuration:**
+
+```html
+<cdk-virtual-scroll-viewport itemSize="48" class="customer-list-viewport">
+  <div *cdkVirtualFor="let customer of customers$ | async; trackBy: trackByCustomerId">
+    <!-- Customer row -->
+  </div>
+</cdk-virtual-scroll-viewport>
+```
+
+---
+
+### REQ-FE-CUS-051: Bundle Size Optimization
+
+**Requirement:** The system shall optimize bundle size for faster load times.
+
+**Acceptance Criteria:**
+- [ ] Initial bundle < 500KB
+- [ ] Lazy loaded chunks < 200KB each
+- [ ] Production build uses AOT compilation
+- [ ] Build optimization enabled
+- [ ] Unused code eliminated via tree shaking
+- [ ] Source maps generated for debugging
+- [ ] Bundle analysis performed regularly
+
+**Build Configuration:**
+
+```json
+{
+  "optimization": true,
+  "outputHashing": "all",
+  "sourceMap": false,
+  "extractCss": true,
+  "namedChunks": false,
+  "aot": true,
+  "buildOptimizer": true
+}
+```
+
+---
+
+## 13. Accessibility Requirements
+
+### REQ-FE-CUS-052: ARIA Attributes
+
+**Requirement:** The system shall implement ARIA attributes for screen reader accessibility.
+
+**Acceptance Criteria:**
+- [ ] All interactive elements have aria-label
+- [ ] Form fields have aria-describedby for errors
+- [ ] Loading states announced with aria-live
+- [ ] Dialog roles properly defined
+- [ ] Landmark roles for page sections
+- [ ] Table headers associated with cells
+- [ ] Button purposes clearly labeled
+- [ ] WCAG 2.1 Level AA compliance
+
+**ARIA Examples:**
+
+```html
+<button aria-label="Add new customer" (click)="addCustomer()">
+  <mat-icon>add</mat-icon>
+</button>
+
+<div aria-live="polite" aria-atomic="true" *ngIf="loading">
+  Loading customers...
+</div>
+
+<mat-error role="alert" aria-live="assertive">
+  Email is required
+</mat-error>
+```
+
+---
+
+### REQ-FE-CUS-053: Keyboard Navigation
+
+**Requirement:** The system shall support full keyboard navigation.
+
+**Acceptance Criteria:**
+- [ ] All features accessible via keyboard
+- [ ] Tab order follows logical flow
+- [ ] Enter key submits forms
+- [ ] Escape key closes dialogs
+- [ ] Arrow keys navigate lists
+- [ ] Space key toggles checkboxes
+- [ ] Focus indicators visible
+- [ ] No keyboard traps
+- [ ] Skip links for main content
+
+**Keyboard Shortcuts:**
+
+| Key | Action |
+|-----|--------|
+| Tab | Move to next element |
+| Shift+Tab | Move to previous element |
+| Enter | Submit form / Activate button |
+| Escape | Close dialog / Cancel |
+| Space | Toggle checkbox / Select |
+| Arrow keys | Navigate list |
+
+---
+
+### REQ-FE-CUS-054: Color Contrast
+
+**Requirement:** The system shall maintain sufficient color contrast for readability.
+
+**Acceptance Criteria:**
+- [ ] Normal text: 4.5:1 contrast ratio minimum
+- [ ] Large text: 3:1 contrast ratio minimum
+- [ ] UI components: 3:1 contrast ratio minimum
+- [ ] Focus indicators: 3:1 contrast ratio minimum
+- [ ] Status indicators use icons in addition to color
+- [ ] Error states indicated by more than just color
+- [ ] Contrast ratios verified with accessibility tools
+
+**Contrast Ratios:**
+
+| Element | Foreground | Background | Ratio |
+|---------|------------|------------|-------|
+| Body text | #000000 | #FFFFFF | 21:1 |
+| Primary button | #FFFFFF | #3f51b5 | 4.6:1 |
+| Error text | #d32f2f | #FFFFFF | 5.5:1 |
+
+---
+
+### REQ-FE-CUS-055: Focus Management
+
+**Requirement:** The system shall manage focus appropriately for modal dialogs and dynamic content.
+
+**Acceptance Criteria:**
+- [ ] Dialog opening moves focus to first focusable element
+- [ ] Dialog closing returns focus to trigger element
+- [ ] Focus trapped within modal dialogs
+- [ ] Dynamic content announcements for screen readers
+- [ ] Focus moved to error fields on validation failure
+- [ ] Focus visible indicator always shown
+- [ ] Focus order logical and predictable
+
+---
+
+## 14. Testing Requirements
+
+### REQ-FE-CUS-056: Unit Testing
+
+**Requirement:** The system shall maintain comprehensive unit test coverage for components and services.
+
+**Acceptance Criteria:**
+- [ ] Minimum 80% code coverage
+- [ ] All components have unit tests
+- [ ] All services have unit tests
+- [ ] All pipes have unit tests
+- [ ] All validators have unit tests
+- [ ] Tests use Jasmine framework
+- [ ] Tests run via Karma
+- [ ] Mocked dependencies using spies
+- [ ] Tests cover success and error scenarios
+- [ ] Tests automated in CI/CD pipeline
+
+**Test Example:**
+
 ```typescript
 describe('CustomerListComponent', () => {
   let component: CustomerListComponent;
@@ -1561,7 +1466,10 @@ describe('CustomerListComponent', () => {
   let mockFacade: jasmine.SpyObj<CustomerFacade>;
 
   beforeEach(() => {
-    mockFacade = jasmine.createSpyObj('CustomerFacade', ['loadCustomers']);
+    mockFacade = jasmine.createSpyObj('CustomerFacade',
+      ['loadCustomers', 'searchCustomers']
+    );
+    mockFacade.customers$ = of([]);
 
     TestBed.configureTestingModule({
       declarations: [CustomerListComponent],
@@ -1581,7 +1489,25 @@ describe('CustomerListComponent', () => {
 });
 ```
 
-### 13.2 E2E Tests (Cypress)
+---
+
+### REQ-FE-CUS-057: E2E Testing
+
+**Requirement:** The system shall include end-to-end tests for critical user workflows.
+
+**Acceptance Criteria:**
+- [ ] E2E tests use Cypress framework
+- [ ] Tests cover customer creation workflow
+- [ ] Tests cover customer editing workflow
+- [ ] Tests cover contact management
+- [ ] Tests cover complaint submission
+- [ ] Tests verify navigation flows
+- [ ] Tests check form validation
+- [ ] Tests run in CI/CD pipeline
+- [ ] Tests use data-cy attributes for selectors
+
+**E2E Test Example:**
+
 ```typescript
 describe('Customer Management', () => {
   beforeEach(() => {
@@ -1592,37 +1518,247 @@ describe('Customer Management', () => {
   it('should create a new customer', () => {
     cy.get('[data-cy=new-customer-btn]').click();
     cy.get('[data-cy=company-name]').type('Test Company');
-    cy.get('[data-cy=email]').type('test@company.com');
-    cy.get('[data-cy=phone]').type('+1234567890');
+    cy.get('[data-cy=type]').click();
+    cy.get('mat-option').contains('SmallBusiness').click();
+    cy.get('[data-cy=primary-email]').type('test@company.com');
+    cy.get('[data-cy=primary-phone]').type('+1234567890');
+    cy.get('[data-cy=street]').type('123 Main St');
+    cy.get('[data-cy=city]').type('New York');
+    cy.get('[data-cy=state]').type('NY');
+    cy.get('[data-cy=zip]').type('10001');
+    cy.get('[data-cy=country]').type('USA');
     cy.get('[data-cy=submit-btn]').click();
+
     cy.contains('Customer created successfully');
+    cy.url().should('include', '/customers');
   });
 });
 ```
 
 ---
 
-## 14. Deployment
+### REQ-FE-CUS-058: Component Testing
 
-### 14.1 Build Configuration
+**Requirement:** The system shall test components in isolation with proper mocking.
+
+**Acceptance Criteria:**
+- [ ] Each component has dedicated test file
+- [ ] Services mocked using jasmine.createSpyObj
+- [ ] Observables mocked with 'of' operator
+- [ ] Component inputs tested
+- [ ] Component outputs tested
+- [ ] DOM manipulation tested
+- [ ] Event handlers tested
+- [ ] Async operations tested with fakeAsync/tick
+- [ ] Material components properly mocked
+
+---
+
+### REQ-FE-CUS-059: Service Testing
+
+**Requirement:** The system shall test services with mocked HTTP client.
+
+**Acceptance Criteria:**
+- [ ] All service methods tested
+- [ ] HTTP requests verified with HttpTestingController
+- [ ] Request URLs validated
+- [ ] Request bodies validated
+- [ ] Response handling tested
+- [ ] Error handling tested
+- [ ] Query parameters validated
+- [ ] Headers validated
+- [ ] Observable completion tested
+
+**Service Test Example:**
+
 ```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://api.eventplatform.com',
-  signalRUrl: 'https://api.eventplatform.com/hubs',
-  azureAdConfig: {
-    clientId: 'YOUR_CLIENT_ID',
-    authority: 'YOUR_AUTHORITY',
-    redirectUri: 'https://app.eventplatform.com'
-  }
-};
+describe('CustomerService', () => {
+  let service: CustomerService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [CustomerService]
+    });
+
+    service = TestBed.inject(CustomerService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it('should get customers', () => {
+    const mockResponse = {
+      items: [{ id: '1', companyName: 'Test' }],
+      totalCount: 1
+    };
+
+    service.getCustomers({ page: 0, pageSize: 20 }).subscribe(response => {
+      expect(response.items.length).toBe(1);
+      expect(response.totalCount).toBe(1);
+    });
+
+    const req = httpMock.expectOne(req =>
+      req.url.includes('/api/v1/customers')
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+});
 ```
 
-### 14.2 CI/CD Pipeline
-1. Build: `ng build --configuration production`
-2. Test: `ng test --watch=false --code-coverage`
-3. Lint: `ng lint`
-4. Deploy to Azure Static Web Apps
+---
+
+### REQ-FE-CUS-060: Visual Regression Testing
+
+**Requirement:** The system should implement visual regression testing for UI consistency.
+
+**Acceptance Criteria:**
+- [ ] Screenshot tests for major components
+- [ ] Visual diffs detected automatically
+- [ ] Tests run on different viewport sizes
+- [ ] Theme variations tested (light/dark)
+- [ ] Baseline images maintained
+- [ ] Visual changes require approval
+- [ ] Integration with CI/CD pipeline
+
+---
+
+## Appendix A: Component Architecture
+
+### Component Tree
+
+```
+CustomerManagementModule
+├── CustomerListComponent (Smart)
+│   ├── CustomerTableComponent (Dumb)
+│   ├── CustomerFilterComponent (Dumb)
+│   └── CustomerSearchComponent (Dumb)
+├── CustomerDetailComponent (Smart)
+│   ├── CustomerProfileComponent (Dumb)
+│   ├── ContactListComponent (Smart)
+│   │   └── ContactFormComponent (Dumb)
+│   ├── CommunicationHistoryComponent (Smart)
+│   │   ├── EmailDialogComponent (Dumb)
+│   │   ├── SmsDialogComponent (Dumb)
+│   │   ├── PhoneCallDialogComponent (Dumb)
+│   │   └── MeetingDialogComponent (Dumb)
+│   ├── ComplaintListComponent (Smart)
+│   │   ├── ComplaintDetailComponent (Dumb)
+│   │   └── ResolveComplaintDialogComponent (Dumb)
+│   ├── TestimonialListComponent (Smart)
+│   └── CustomerInsightsComponent (Smart)
+└── CustomerFormComponent (Smart)
+```
+
+---
+
+## Appendix B: Service Dependencies
+
+### Services
+
+- **CustomerService**: API client for customer operations
+- **ContactService**: API client for contact operations
+- **CommunicationService**: API client for communication operations
+- **ComplaintService**: API client for complaint operations
+- **TestimonialService**: API client for testimonial operations
+- **CustomerFacade**: State management facade
+- **LocalStorageService**: Browser storage management
+- **AuthService**: Authentication and authorization
+- **NotificationService**: Snackbar notifications
+
+---
+
+## Appendix C: Data Models
+
+### TypeScript Interfaces
+
+```typescript
+interface Customer {
+  id: string;
+  customerNumber: string;
+  profile: CustomerProfile;
+  contactInfo: CustomerContactInfo;
+  preferences: CustomerPreferences;
+  status: CustomerStatus;
+  createdAt: Date;
+  lastModifiedAt?: Date;
+}
+
+interface CustomerProfile {
+  companyName: string;
+  industry: string;
+  type: CustomerType;
+  segment: CustomerSegment;
+  lifetimeValue: number;
+  totalEvents: number;
+  rating: string;
+}
+
+interface CustomerContactInfo {
+  primaryEmail: string;
+  secondaryEmail?: string;
+  primaryPhone: string;
+  secondaryPhone?: string;
+  billingAddress: Address;
+  shippingAddress?: Address;
+  website?: string;
+  socialMedia?: SocialMediaLinks;
+}
+
+interface Contact {
+  id: string;
+  customerId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  position?: string;
+  isPrimary: boolean;
+  tags: string[];
+  status: string;
+}
+
+interface Communication {
+  id: string;
+  customerId: string;
+  type: CommunicationType;
+  subject?: string;
+  content?: string;
+  recipientEmail?: string;
+  recipientPhone?: string;
+  status: string;
+  createdAt: Date;
+  createdBy: string;
+}
+
+interface Complaint {
+  id: string;
+  complaintNumber: string;
+  customerId: string;
+  subject: string;
+  description: string;
+  category: string;
+  priority: ComplaintPriority;
+  status: ComplaintStatus;
+  createdAt: Date;
+  resolvedAt?: Date;
+}
+
+interface CustomerInsights {
+  customerId: string;
+  sentimentScore: number;
+  engagementLevel: string;
+  churnRisk: number;
+  recommendedActions: string[];
+  keyInterests: string[];
+  preferredCommunicationTimes: string[];
+  generatedAt: Date;
+}
+```
 
 ---
 
@@ -1630,4 +1766,4 @@ export const environment = {
 
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
-| 1.0.0 | 2025-12-22 | Frontend Architect | Initial version |
+| 1.0.0 | 2025-12-22 | Frontend Architect | Initial structured requirements version |

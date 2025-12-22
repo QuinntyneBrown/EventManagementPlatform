@@ -1,54 +1,203 @@
-# Event Management - Backend Specification
+# Event Management - Backend Software Requirements Specification
 
 ## Document Information
-| Field | Value |
-|-------|-------|
-| Feature | Event Management |
-| Version | 1.0 |
-| Date | 2025-12-22 |
-| Status | Final |
+
+- **Project:** EventManagementPlatform
+- **Version:** 1.0
+- **Date:** 2025-12-22
+- **Status:** Final
 
 ---
 
-## 1. Overview
+## Table of Contents
 
-### 1.1 Purpose
-The Event Management module is the core component of the EventManagementPlatform system, responsible for managing the complete lifecycle of events from creation to archival.
-
-### 1.2 Scope
-This specification covers all backend requirements for event creation, modification, status management, and event-related notes and communications.
-
-### 1.3 Technology Stack
-- **Framework**: .NET 8.0
-- **Database**: SQL Server Express (via Entity Framework Core)
-- **Cloud**: Azure App Service, Azure SQL Database
-- **AI Integration**: Azure AI Services for intelligent event recommendations
-- **Messaging**: MediatR for CQRS pattern implementation
+1. [Event CRUD Requirements](#1-event-crud-requirements)
+2. [Event Status Management Requirements](#2-event-status-management-requirements)
+3. [Event Notes Requirements](#3-event-notes-requirements)
+4. [Validation Requirements](#4-validation-requirements)
+5. [Authorization Requirements](#5-authorization-requirements)
+6. [Azure Integration Requirements](#6-azure-integration-requirements)
+7. [Performance Requirements](#7-performance-requirements)
+8. [Testing Requirements](#8-testing-requirements)
 
 ---
 
-## 2. Domain Model
+## 1. Event CRUD Requirements
 
-### 2.1 Aggregate: Event
-The Event aggregate is the central entity in this bounded context.
+### REQ-EVT-001: Event Entity Model
 
-#### 2.1.1 Entity Properties
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| EventId | Guid | Yes | Unique identifier |
-| Title | string | Yes | Event title (max 200 chars) |
-| Description | string | No | Event description (max 2000 chars) |
-| EventDate | DateTime | Yes | Scheduled date and time |
-| VenueId | Guid | Yes | Reference to Venue aggregate |
-| EventTypeId | Guid | Yes | Reference to EventType |
-| Status | EventStatus | Yes | Current lifecycle status |
-| CustomerId | Guid | Yes | Reference to Customer aggregate |
-| CreatedAt | DateTime | Yes | Creation timestamp |
-| ModifiedAt | DateTime | No | Last modification timestamp |
-| CreatedBy | Guid | Yes | User who created the event |
-| ModifiedBy | Guid | No | User who last modified |
+**Requirement:** The system shall maintain a comprehensive event entity with unique identification, scheduling information, venue and customer associations, and status tracking.
 
-#### 2.1.2 EventStatus Enumeration
+**Acceptance Criteria:**
+- [ ] Each event has a unique GUID identifier (EventId)
+- [ ] Event title is required and has a maximum length of 200 characters
+- [ ] Event description is optional with a maximum length of 2000 characters
+- [ ] Event date is required and stored as DateTime
+- [ ] VenueId is required and references the Venue aggregate
+- [ ] EventTypeId is required and references EventType
+- [ ] CustomerId is required and references the Customer aggregate
+- [ ] Status is required and defaults to Draft
+- [ ] CreatedAt timestamp is automatically set on creation
+- [ ] ModifiedAt timestamp is updated on modifications
+- [ ] CreatedBy and ModifiedBy track user audit information
+- [ ] Soft delete is supported via IsDeleted flag
+
+**Entity Schema:**
+
+| Property | Type | Constraints | Description |
+|----------|------|-------------|-------------|
+| EventId | Guid | Primary Key, Required | Unique event identifier |
+| Title | string | Required, Max 200 | Event title |
+| Description | string | Optional, Max 2000 | Event description |
+| EventDate | DateTime | Required | Scheduled date and time |
+| VenueId | Guid | Required, FK | Reference to Venue |
+| EventTypeId | Guid | Required, FK | Reference to EventType |
+| CustomerId | Guid | Required, FK | Reference to Customer |
+| Status | EventStatus | Required | Current lifecycle status |
+| CreatedAt | DateTime | Required | Creation timestamp |
+| ModifiedAt | DateTime | Nullable | Last modification timestamp |
+| CreatedBy | Guid | Required | User who created |
+| ModifiedBy | Guid | Nullable | User who last modified |
+
+---
+
+### REQ-EVT-002: Event Creation
+
+**Requirement:** The system shall allow authorized users to create new events with all required information.
+
+**Acceptance Criteria:**
+- [ ] Only users with Create privilege on Event aggregate can create events
+- [ ] Event title is validated as not empty and within character limits
+- [ ] Event date must be in the future
+- [ ] VenueId must reference an existing active venue
+- [ ] EventTypeId must reference an existing active event type
+- [ ] CustomerId must reference an existing active customer
+- [ ] Venue must be available on the selected date
+- [ ] Event is created with Draft status by default
+- [ ] EventCreated domain event is raised upon creation
+- [ ] Created event ID is returned in the response
+
+**API Endpoint:**
+
+```http
+POST /api/events HTTP/1.1
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Annual Company Gala",
+  "description": "End of year celebration",
+  "eventDate": "2025-06-15T18:00:00Z",
+  "venueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "eventTypeId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "customerId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+**Sample Response:**
+
+```json
+{
+  "eventId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "title": "Annual Company Gala",
+  "status": "Draft",
+  "createdAt": "2025-01-15T10:30:00Z"
+}
+```
+
+---
+
+### REQ-EVT-003: Event Retrieval
+
+**Requirement:** The system shall provide multiple methods to retrieve event information including individual lookup, list all, and paginated results.
+
+**Acceptance Criteria:**
+- [ ] Events can be retrieved by unique ID via GET /api/events/{eventId}
+- [ ] All events can be retrieved as a list via GET /api/events
+- [ ] Events can be retrieved in paginated format via GET /api/events/page
+- [ ] Deleted events are excluded from results by default
+- [ ] Event DTOs include venue name, event type name, and customer name
+- [ ] Filtering by status, date range, event type, and venue is supported
+- [ ] Sorting by date, title, and status is supported
+- [ ] Only authorized users can view events
+
+**Retrieval Endpoints:**
+
+| Method | Endpoint | Parameters | Returns |
+|--------|----------|------------|---------|
+| GET | /api/events/{id} | eventId (Guid) | EventDetailDto |
+| GET | /api/events | status, startDate, endDate | List\<EventListDto\> |
+| GET | /api/events/page | pageIndex, pageSize, filters | PagedResult\<EventListDto\> |
+
+---
+
+### REQ-EVT-004: Event Update
+
+**Requirement:** The system shall allow authorized users to update event information including title, description, date, and venue.
+
+**Acceptance Criteria:**
+- [ ] Only users with Write privilege on Event aggregate can update events
+- [ ] Event must exist and not be deleted
+- [ ] Event cannot be updated if status is Archived or Cancelled
+- [ ] Title can be updated if within character limits
+- [ ] Description can be updated if within character limits
+- [ ] Event date can be updated if new date is in the future
+- [ ] Venue can be changed if new venue is available on the event date
+- [ ] EventDetailsUpdated domain event is raised
+- [ ] ModifiedAt and ModifiedBy are updated
+- [ ] If date changes, EventDateChanged domain event is raised
+- [ ] If venue changes, EventVenueChanged domain event is raised
+
+**API Endpoint:**
+
+```http
+PUT /api/events/{eventId} HTTP/1.1
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Updated Event Title",
+  "description": "Updated description",
+  "eventDate": "2025-06-20T18:00:00Z",
+  "venueId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+---
+
+### REQ-EVT-005: Event Deletion
+
+**Requirement:** The system shall support soft deletion of events to maintain referential integrity and audit history.
+
+**Acceptance Criteria:**
+- [ ] Only users with Delete privilege on Event aggregate can delete events
+- [ ] Deletion is soft (IsDeleted flag set to true)
+- [ ] Deleted events are excluded from standard queries
+- [ ] Event data is retained for audit purposes
+- [ ] Archived events cannot be deleted
+- [ ] Events with confirmed bookings require manager approval for deletion
+- [ ] EventDeleted domain event is raised
+
+---
+
+## 2. Event Status Management Requirements
+
+### REQ-EVT-010: Event Status Enumeration
+
+**Requirement:** The system shall support a defined set of event lifecycle statuses with controlled transitions.
+
+**Acceptance Criteria:**
+- [ ] Draft status (0) - Initial state for new events
+- [ ] PendingApproval status (1) - Submitted for manager review
+- [ ] Approved status (2) - Manager has approved the event
+- [ ] Confirmed status (3) - Customer has confirmed booking
+- [ ] InProgress status (4) - Event is currently happening
+- [ ] Completed status (5) - Event has finished
+- [ ] Cancelled status (6) - Event has been cancelled
+- [ ] Archived status (7) - Event has been archived
+
+**Status Enumeration:**
+
 ```csharp
 public enum EventStatus
 {
@@ -63,203 +212,448 @@ public enum EventStatus
 }
 ```
 
-### 2.2 Entity: EventNote
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| EventNoteId | Guid | Yes | Unique identifier |
-| EventId | Guid | Yes | Parent event reference |
-| Content | string | Yes | Note content (max 4000 chars) |
-| NoteType | NoteType | Yes | Type of note |
-| CreatedAt | DateTime | Yes | Creation timestamp |
-| CreatedBy | Guid | Yes | User who created the note |
+---
 
-### 2.3 Entity: EventType
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| EventTypeId | Guid | Yes | Unique identifier |
-| Name | string | Yes | Type name |
-| Description | string | No | Type description |
-| IsActive | bool | Yes | Whether type is active |
+### REQ-EVT-011: Event Status Transitions
+
+**Requirement:** The system shall enforce valid status transitions based on business rules.
+
+**Acceptance Criteria:**
+- [ ] Draft → PendingApproval: All required fields must be completed
+- [ ] PendingApproval → Approved: Requires authorized manager approval
+- [ ] PendingApproval → Rejected: Requires rejection reason
+- [ ] Approved → Confirmed: Customer confirms booking
+- [ ] Confirmed → InProgress: Automatic when event date/time is reached
+- [ ] Confirmed → Cancelled: Cancellation request with reason
+- [ ] Cancelled → Confirmed: Reinstatement requires approval
+- [ ] InProgress → Completed: Event date has passed
+- [ ] Completed → Archived: Manual or automatic archival
+- [ ] Invalid transitions return 409 Conflict error
+
+**Transition Rules:**
+
+| From Status | To Status | Condition |
+|-------------|-----------|-----------|
+| Draft | PendingApproval | All required fields completed |
+| PendingApproval | Approved | Approved by authorized user |
+| PendingApproval | Rejected | Rejected with reason |
+| Approved | Confirmed | Customer confirms booking |
+| Confirmed | Cancelled | Cancellation request |
+| Cancelled | Confirmed | Reinstatement approved |
+| Confirmed | Completed | Event date passed |
+| Completed | Archived | Manual or automatic archival |
 
 ---
 
-## 3. Domain Events
+### REQ-EVT-012: Submit Event for Approval
 
-### 3.1 Event Lifecycle Events
+**Requirement:** The system shall allow event creators to submit draft events for manager approval.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/submit-for-approval
+- [ ] Only events in Draft status can be submitted
+- [ ] All required fields must be populated
+- [ ] Event status changes to PendingApproval
+- [ ] EventPendingApproval domain event is raised
+- [ ] Notification is sent to approvers (managers)
+
+---
+
+### REQ-EVT-013: Approve Event
+
+**Requirement:** The system shall allow managers to approve events pending approval.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/approve
+- [ ] Only users with Manager role can approve events
+- [ ] Only events in PendingApproval status can be approved
+- [ ] Event status changes to Approved
+- [ ] EventApproved domain event is raised with approver information
+- [ ] Notification is sent to event creator and customer
+
+---
+
+### REQ-EVT-014: Reject Event
+
+**Requirement:** The system shall allow managers to reject events pending approval with a reason.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/reject
+- [ ] Only users with Manager role can reject events
+- [ ] Only events in PendingApproval status can be rejected
+- [ ] Rejection reason is required
+- [ ] Event status changes to Rejected (returns to Draft)
+- [ ] EventRejected domain event is raised with reason
+- [ ] Notification is sent to event creator
+
+---
+
+### REQ-EVT-015: Confirm Event Booking
+
+**Requirement:** The system shall allow customers to confirm event bookings after approval.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/confirm
+- [ ] Only events in Approved status can be confirmed
+- [ ] Customer or staff can confirm the booking
+- [ ] Event status changes to Confirmed
+- [ ] EventConfirmed domain event is raised
+- [ ] Confirmation notification is sent to all parties
+
+---
+
+### REQ-EVT-016: Cancel Event
+
+**Requirement:** The system shall allow authorized users to cancel confirmed events with a reason.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/cancel
+- [ ] Events in Confirmed or Approved status can be cancelled
+- [ ] Cancellation reason is required
+- [ ] Cancellation within 24 hours of event requires manager approval
+- [ ] Event status changes to Cancelled
+- [ ] EventCancelled domain event is raised
+- [ ] Cancelled events cannot be modified
+- [ ] Notification is sent to all parties
+
+---
+
+### REQ-EVT-017: Reinstate Cancelled Event
+
+**Requirement:** The system shall allow reinstating cancelled events back to confirmed status.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/reinstate
+- [ ] Only events in Cancelled status can be reinstated
+- [ ] Reinstatement requires manager approval
+- [ ] Event date must still be in the future
+- [ ] Venue must still be available
+- [ ] Event status changes to Confirmed
+- [ ] EventReinstated domain event is raised
+
+---
+
+### REQ-EVT-018: Complete Event
+
+**Requirement:** The system shall allow marking events as completed after they have occurred.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/complete
+- [ ] Only events in Confirmed or InProgress status can be completed
+- [ ] Event date must have passed
+- [ ] Event status changes to Completed
+- [ ] EventCompleted domain event is raised
+- [ ] CompletedAt timestamp is recorded
+
+---
+
+### REQ-EVT-019: Archive Event
+
+**Requirement:** The system shall allow archiving completed events for long-term storage.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/archive
+- [ ] Only events in Completed status can be archived
+- [ ] Event status changes to Archived
+- [ ] EventArchived domain event is raised
+- [ ] Archived events are excluded from default queries
+- [ ] Archived events cannot be modified
+
+---
+
+## 3. Event Notes Requirements
+
+### REQ-EVT-020: Event Note Entity Model
+
+**Requirement:** The system shall support notes attached to events for communication and tracking.
+
+**Acceptance Criteria:**
+- [ ] Each note has a unique GUID identifier (EventNoteId)
+- [ ] EventId is required and references parent event
+- [ ] Content is required with maximum 4000 characters
+- [ ] NoteType categorizes the note (Internal, CustomerComment, SystemGenerated)
+- [ ] CreatedAt timestamp is automatically set
+- [ ] CreatedBy tracks the user who created the note
+
+**Note Entity Schema:**
+
+| Property | Type | Constraints | Description |
+|----------|------|-------------|-------------|
+| EventNoteId | Guid | Primary Key | Unique note identifier |
+| EventId | Guid | Required, FK | Parent event reference |
+| Content | string | Required, Max 4000 | Note content |
+| NoteType | NoteType | Required | Type of note |
+| CreatedAt | DateTime | Required | Creation timestamp |
+| CreatedBy | Guid | Required | User who created the note |
+
+---
+
+### REQ-EVT-021: Add Event Note
+
+**Requirement:** The system shall allow authorized users to add notes to events.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is POST /api/events/{eventId}/notes
+- [ ] Event must exist and not be deleted
+- [ ] Note content is required and within character limits
+- [ ] Note type is required
+- [ ] EventNoteAdded domain event is raised
+- [ ] Created note ID is returned in response
+
+---
+
+### REQ-EVT-022: View Event Notes
+
+**Requirement:** The system shall allow authorized users to view notes for an event.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is GET /api/events/{eventId}/notes
+- [ ] Returns list of notes for the specified event
+- [ ] Notes are ordered by creation date (newest first)
+- [ ] Note DTO includes creator name
+
+---
+
+### REQ-EVT-023: Update Event Note
+
+**Requirement:** The system shall allow note authors to update their notes.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is PUT /api/events/{eventId}/notes/{noteId}
+- [ ] Only the note creator can update the note
+- [ ] Content can be updated within character limits
+- [ ] EventNoteUpdated domain event is raised
+
+---
+
+### REQ-EVT-024: Delete Event Note
+
+**Requirement:** The system shall allow note authors or managers to delete notes.
+
+**Acceptance Criteria:**
+- [ ] Endpoint is DELETE /api/events/{eventId}/notes/{noteId}
+- [ ] Note creator or manager can delete the note
+- [ ] EventNoteDeleted domain event is raised
+- [ ] Returns 204 No Content on success
+
+---
+
+## 4. Validation Requirements
+
+### REQ-EVT-030: Event Creation Validation
+
+**Requirement:** The system shall validate all input when creating events.
+
+**Acceptance Criteria:**
+- [ ] Title: Required, 1-200 characters
+- [ ] Description: Optional, max 2000 characters
+- [ ] EventDate: Required, must be future date
+- [ ] VenueId: Required, must exist and be active
+- [ ] EventTypeId: Required, must exist and be active
+- [ ] CustomerId: Required, must exist and be active
+- [ ] Validation errors return 400 Bad Request with details
+
+**Validation Rules:**
+
+| Field | Rule | Error Message |
+|-------|------|---------------|
+| Title | Required, MaxLength(200) | "Title is required" / "Title cannot exceed 200 characters" |
+| EventDate | Required, GreaterThan(Now) | "Event date must be in the future" |
+| VenueId | Required, MustExist | "Venue not found" |
+| EventTypeId | Required, MustExist | "Event type not found" |
+| CustomerId | Required, MustExist | "Customer not found" |
+
+---
+
+### REQ-EVT-031: Event Update Validation
+
+**Requirement:** The system shall validate all input when updating events.
+
+**Acceptance Criteria:**
+- [ ] All creation validation rules apply
+- [ ] Event must exist and not be deleted
+- [ ] Event must not be in Archived or Cancelled status
+- [ ] New venue must be available on event date
+- [ ] Validation errors return 400 Bad Request
+
+---
+
+### REQ-EVT-032: Business Rule Validation
+
+**Requirement:** The system shall enforce business rules for event operations.
+
+**Acceptance Criteria:**
+- [ ] EVT-001: Event date must be in the future
+- [ ] EVT-002: Event title must be unique per customer per date
+- [ ] EVT-003: Customer must have an active account
+- [ ] EVT-004: Venue must be available on the selected date
+- [ ] EVT-020: Cancelled events cannot be modified
+- [ ] EVT-021: Cancellation within 24 hours requires manager approval
+- [ ] EVT-022: Archived events cannot be cancelled or modified
+- [ ] Business rule violations return 409 Conflict
+
+---
+
+## 5. Authorization Requirements
+
+### REQ-EVT-040: Role-Based Access Control
+
+**Requirement:** The system shall enforce role-based access control for event operations.
+
+**Acceptance Criteria:**
+- [ ] Customer role: Create own events, View own events, Add comments
+- [ ] Staff role: View assigned events, Update status
+- [ ] Manager role: All operations, Approve/Reject events
+- [ ] Admin role: Full access including archive
+
+**Authorization Matrix:**
+
+| Operation | Customer | Staff | Manager | Admin |
+|-----------|----------|-------|---------|-------|
+| Create Event | Own only | No | Yes | Yes |
+| View Event | Own only | Assigned | All | All |
+| Update Event | Own Draft | Assigned | All | All |
+| Delete Event | No | No | Yes | Yes |
+| Cancel Event | Own | No | Yes | Yes |
+| Approve Event | No | No | Yes | Yes |
+| Archive Event | No | No | Yes | Yes |
+
+---
+
+### REQ-EVT-041: Privilege-Based Authorization
+
+**Requirement:** The system shall use privilege claims for fine-grained authorization.
+
+**Acceptance Criteria:**
+- [ ] CreateEvent privilege required for event creation
+- [ ] ReadEvent privilege required for viewing events
+- [ ] WriteEvent privilege required for updating events
+- [ ] DeleteEvent privilege required for deleting events
+- [ ] Privileges are validated via JWT claims
+- [ ] Insufficient privileges return 403 Forbidden
+
+---
+
+## 6. Azure Integration Requirements
+
+### REQ-EVT-050: Azure AI Services Integration
+
+**Requirement:** The system shall integrate with Azure AI Services for intelligent event features.
+
+**Acceptance Criteria:**
+- [ ] Azure Cognitive Services for sentiment analysis of customer comments
+- [ ] Azure OpenAI for smart event suggestions and descriptions
+- [ ] Azure Anomaly Detector for unusual booking pattern detection
+- [ ] AI features are optional and gracefully degrade if unavailable
+
+---
+
+### REQ-EVT-051: Azure Infrastructure
+
+**Requirement:** The system shall utilize Azure infrastructure services for reliability and scalability.
+
+**Acceptance Criteria:**
+- [ ] Azure App Service hosts the API application
+- [ ] Azure SQL Database provides primary data storage
+- [ ] Azure Blob Storage stores event attachments and documents
+- [ ] Azure Service Bus publishes domain events for integrations
+- [ ] Azure Application Insights provides monitoring and telemetry
+
+---
+
+## 7. Performance Requirements
+
+### REQ-EVT-060: API Response Time
+
+**Requirement:** The system shall meet performance requirements for API operations.
+
+**Acceptance Criteria:**
+- [ ] API response time < 200ms for 95th percentile
+- [ ] Event list query supports 10,000+ events with pagination
+- [ ] Support 100 concurrent users
+- [ ] Event creation < 500ms including validation
+
+---
+
+### REQ-EVT-061: Caching
+
+**Requirement:** The system shall implement caching for frequently accessed data.
+
+**Acceptance Criteria:**
+- [ ] Event types cached with 1-hour expiration
+- [ ] Venue availability cached with 5-minute expiration
+- [ ] Cache invalidation on relevant updates
+- [ ] Redis cache integration for distributed caching
+
+---
+
+## 8. Testing Requirements
+
+### REQ-EVT-070: Unit Test Coverage
+
+**Requirement:** The system shall maintain comprehensive unit test coverage.
+
+**Acceptance Criteria:**
+- [ ] All command handlers are unit tested
+- [ ] All query handlers are unit tested
+- [ ] Domain event generation is tested
+- [ ] Validation rules are tested
+- [ ] Minimum 80% code coverage
+- [ ] 100% coverage for business rules
+
+---
+
+### REQ-EVT-071: Integration Test Coverage
+
+**Requirement:** The system shall have integration tests for API endpoints.
+
+**Acceptance Criteria:**
+- [ ] All API endpoints are integration tested
+- [ ] Database operations are tested
+- [ ] Event publishing is tested
+- [ ] Authentication and authorization are tested
+
+---
+
+## Appendix A: Domain Events
+
+### Event Lifecycle Events
+
 | Event | Trigger | Payload |
 |-------|---------|---------|
 | EventCreated | New event registered | EventId, Title, CustomerId, EventDate |
 | EventDetailsUpdated | Event info modified | EventId, ChangedProperties |
 | EventDateChanged | Date/time rescheduled | EventId, OldDate, NewDate |
 | EventVenueChanged | Location updated | EventId, OldVenueId, NewVenueId |
-| EventTypeChanged | Type modified | EventId, OldTypeId, NewTypeId |
 | EventCancelled | Event cancelled | EventId, CancellationReason, CancelledBy |
 | EventReinstated | Cancelled event restored | EventId, ReinstatedBy |
 | EventCompleted | Event marked complete | EventId, CompletedAt |
 | EventArchived | Event archived | EventId, ArchivedAt |
 
-### 3.2 Event Status Events
+### Event Status Events
+
 | Event | Trigger | Payload |
 |-------|---------|---------|
 | EventDraftCreated | Initial draft created | EventId, CustomerId |
-| EventConfirmed | Booking confirmed | EventId, ConfirmedBy |
 | EventPendingApproval | Submitted for approval | EventId, SubmittedBy |
 | EventApproved | Event approved | EventId, ApprovedBy |
 | EventRejected | Event rejected | EventId, RejectedBy, Reason |
+| EventConfirmed | Booking confirmed | EventId, ConfirmedBy |
 
-### 3.3 Event Notes Events
+### Event Notes Events
+
 | Event | Trigger | Payload |
 |-------|---------|---------|
 | EventNoteAdded | Note added | EventNoteId, EventId, Content |
 | EventNoteUpdated | Note modified | EventNoteId, OldContent, NewContent |
 | EventNoteDeleted | Note removed | EventNoteId, EventId |
-| CustomerCommentRecorded | Customer feedback | EventId, Comment, CustomerId |
 
 ---
 
-## 4. API Endpoints
+## Appendix B: Data Transfer Objects
 
-### 4.1 Event Management Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/events | List all events with pagination |
-| GET | /api/events/{eventId} | Get event by ID |
-| POST | /api/events | Create new event |
-| PUT | /api/events/{eventId} | Update event details |
-| DELETE | /api/events/{eventId} | Soft delete event |
-| POST | /api/events/{eventId}/cancel | Cancel event |
-| POST | /api/events/{eventId}/reinstate | Reinstate cancelled event |
-| POST | /api/events/{eventId}/complete | Mark event as complete |
-| POST | /api/events/{eventId}/archive | Archive event |
+### CreateEventDto
 
-### 4.2 Event Status Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/events/{eventId}/submit-for-approval | Submit for approval |
-| POST | /api/events/{eventId}/approve | Approve event |
-| POST | /api/events/{eventId}/reject | Reject event |
-| POST | /api/events/{eventId}/confirm | Confirm booking |
-
-### 4.3 Event Notes Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/events/{eventId}/notes | List event notes |
-| POST | /api/events/{eventId}/notes | Add note to event |
-| PUT | /api/events/{eventId}/notes/{noteId} | Update note |
-| DELETE | /api/events/{eventId}/notes/{noteId} | Delete note |
-
----
-
-## 5. Commands and Queries (CQRS)
-
-### 5.1 Commands
-```
-EventManagementPlatform.Api/Features/Events/
-├── CreateEvent/
-│   ├── CreateEventCommand.cs
-│   ├── CreateEventCommandHandler.cs
-│   └── CreateEventDto.cs
-├── UpdateEvent/
-│   ├── UpdateEventCommand.cs
-│   ├── UpdateEventCommandHandler.cs
-│   └── UpdateEventDto.cs
-├── CancelEvent/
-│   ├── CancelEventCommand.cs
-│   └── CancelEventCommandHandler.cs
-├── ReinstateEvent/
-│   ├── ReinstateEventCommand.cs
-│   └── ReinstateEventCommandHandler.cs
-├── CompleteEvent/
-│   ├── CompleteEventCommand.cs
-│   └── CompleteEventCommandHandler.cs
-├── ArchiveEvent/
-│   ├── ArchiveEventCommand.cs
-│   └── ArchiveEventCommandHandler.cs
-├── ApproveEvent/
-│   ├── ApproveEventCommand.cs
-│   └── ApproveEventCommandHandler.cs
-├── RejectEvent/
-│   ├── RejectEventCommand.cs
-│   └── RejectEventCommandHandler.cs
-└── AddEventNote/
-    ├── AddEventNoteCommand.cs
-    ├── AddEventNoteCommandHandler.cs
-    └── AddEventNoteDto.cs
-```
-
-### 5.2 Queries
-```
-EventManagementPlatform.Api/Features/Events/
-├── GetEvents/
-│   ├── GetEventsQuery.cs
-│   ├── GetEventsQueryHandler.cs
-│   └── EventListDto.cs
-├── GetEventById/
-│   ├── GetEventByIdQuery.cs
-│   ├── GetEventByIdQueryHandler.cs
-│   └── EventDetailDto.cs
-└── GetEventNotes/
-    ├── GetEventNotesQuery.cs
-    ├── GetEventNotesQueryHandler.cs
-    └── EventNoteDto.cs
-```
-
----
-
-## 6. Business Rules
-
-### 6.1 Event Creation Rules
-| Rule ID | Description |
-|---------|-------------|
-| EVT-001 | Event date must be in the future |
-| EVT-002 | Event title is required and must be unique per customer per date |
-| EVT-003 | Customer must have an active account |
-| EVT-004 | Venue must be available on the selected date |
-
-### 6.2 Event Status Transition Rules
-| Rule ID | From Status | To Status | Condition |
-|---------|-------------|-----------|-----------|
-| EVT-010 | Draft | PendingApproval | All required fields completed |
-| EVT-011 | PendingApproval | Approved | Approved by authorized user |
-| EVT-012 | PendingApproval | Rejected | Rejected with reason |
-| EVT-013 | Approved | Confirmed | Customer confirms booking |
-| EVT-014 | Confirmed | Cancelled | Cancellation request |
-| EVT-015 | Cancelled | Confirmed | Reinstatement approved |
-| EVT-016 | Confirmed | Completed | Event date passed |
-| EVT-017 | Completed | Archived | Manual or automatic archival |
-
-### 6.3 Event Cancellation Rules
-| Rule ID | Description |
-|---------|-------------|
-| EVT-020 | Cancelled events cannot be modified |
-| EVT-021 | Cancellation within 24 hours requires manager approval |
-| EVT-022 | Archived events cannot be cancelled |
-
----
-
-## 7. Azure Integration
-
-### 7.1 Azure AI Services
-| Service | Purpose |
-|---------|---------|
-| Azure Cognitive Services | Sentiment analysis of customer comments |
-| Azure OpenAI | Smart event suggestions and descriptions |
-| Azure Anomaly Detector | Detect unusual booking patterns |
-
-### 7.2 Azure Infrastructure
-| Service | Purpose |
-|---------|---------|
-| Azure App Service | Host API application |
-| Azure SQL Database | Primary data storage |
-| Azure Blob Storage | Event attachments and documents |
-| Azure Service Bus | Event publishing for integrations |
-| Azure Application Insights | Monitoring and telemetry |
-
----
-
-## 8. Data Transfer Objects (DTOs)
-
-### 8.1 CreateEventDto
 ```csharp
 public record CreateEventDto(
     string Title,
@@ -271,7 +665,8 @@ public record CreateEventDto(
 );
 ```
 
-### 8.2 EventDetailDto
+### EventDetailDto
+
 ```csharp
 public record EventDetailDto(
     Guid EventId,
@@ -291,7 +686,8 @@ public record EventDetailDto(
 );
 ```
 
-### 8.3 EventListDto
+### EventListDto
+
 ```csharp
 public record EventListDto(
     Guid EventId,
@@ -306,76 +702,10 @@ public record EventListDto(
 
 ---
 
-## 9. Validation Requirements
+## Appendix C: Error Handling
 
-### 9.1 Input Validation
-| Field | Validation Rules |
-|-------|-----------------|
-| Title | Required, 1-200 characters |
-| Description | Optional, max 2000 characters |
-| EventDate | Required, must be future date |
-| VenueId | Required, must exist |
-| EventTypeId | Required, must exist |
-| CustomerId | Required, must exist |
+### Error Response Format
 
-### 9.2 FluentValidation Implementation
-```csharp
-public class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
-{
-    public CreateEventCommandValidator()
-    {
-        RuleFor(x => x.Title)
-            .NotEmpty()
-            .MaximumLength(200);
-
-        RuleFor(x => x.EventDate)
-            .GreaterThan(DateTime.UtcNow)
-            .WithMessage("Event date must be in the future");
-
-        RuleFor(x => x.VenueId)
-            .NotEmpty();
-
-        RuleFor(x => x.EventTypeId)
-            .NotEmpty();
-
-        RuleFor(x => x.CustomerId)
-            .NotEmpty();
-    }
-}
-```
-
----
-
-## 10. Security Requirements
-
-### 10.1 Authentication
-- All endpoints require JWT Bearer token authentication
-- Tokens issued by Azure AD B2C or internal identity service
-
-### 10.2 Authorization
-| Role | Permissions |
-|------|-------------|
-| Customer | Create, View own events, Add comments |
-| Staff | View assigned events, Update status |
-| Manager | All operations, Approve/Reject events |
-| Admin | Full access including archive |
-
----
-
-## 11. Performance Requirements
-
-| Metric | Requirement |
-|--------|-------------|
-| API Response Time | < 200ms for 95th percentile |
-| Event List Query | Support 10,000+ events with pagination |
-| Concurrent Users | Support 100 concurrent users |
-| Event Creation | < 500ms including validation |
-
----
-
-## 12. Error Handling
-
-### 12.1 Error Response Format
 ```json
 {
     "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
@@ -389,7 +719,8 @@ public class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
 }
 ```
 
-### 12.2 Exception Types
+### Exception Types
+
 | Exception | HTTP Status | Description |
 |-----------|-------------|-------------|
 | ValidationException | 400 | Input validation failed |
@@ -400,35 +731,8 @@ public class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
 
 ---
 
-## 13. Testing Requirements
+## Revision History
 
-### 13.1 Unit Tests
-- Test all command handlers
-- Test all query handlers
-- Test domain event generation
-- Test validation rules
-
-### 13.2 Integration Tests
-- Test API endpoints
-- Test database operations
-- Test event publishing
-
-### 13.3 Test Coverage
-- Minimum 80% code coverage
-- 100% coverage for business rules
-
----
-
-## 14. Appendices
-
-### 14.1 Related Documents
-- [Frontend Specification](./frontend-spec.md)
-- [Use Case Diagram](./diagrams/use-case.drawio)
-- [C4 Diagrams](./diagrams/c4-context.drawio)
-- [Class Diagram](./plantuml/class-diagram.plantuml)
-- [Sequence Diagrams](./plantuml/sequence-diagram.plantuml)
-
-### 14.2 Revision History
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2025-12-22 | System | Initial specification |
+| 1.0 | 2025-12-22 | System | Initial specification with requirements format |

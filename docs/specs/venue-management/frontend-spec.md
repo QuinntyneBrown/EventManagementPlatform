@@ -31,1575 +31,1296 @@ The Venue Management frontend provides:
 - **Real-time**: SignalR for notifications
 - **Testing**: Jasmine, Karma, Cypress
 
-## 2. Application Architecture
-
-### 2.1 Project Structure
-```
-venue-management/
-├── components/
-│   ├── venue-list/
-│   ├── venue-detail/
-│   ├── venue-form/
-│   ├── venue-card/
-│   ├── venue-search/
-│   ├── venue-filters/
-│   ├── venue-map/
-│   ├── venue-photos/
-│   ├── venue-contacts/
-│   ├── venue-history/
-│   ├── venue-rating/
-│   ├── venue-feedback/
-│   └── venue-issues/
-├── services/
-│   ├── venue.service.ts
-│   ├── venue-api.service.ts
-│   ├── venue-cache.service.ts
-│   └── venue-photo.service.ts
-├── store/
-│   ├── venue.actions.ts
-│   ├── venue.effects.ts
-│   ├── venue.reducer.ts
-│   ├── venue.selectors.ts
-│   └── venue.state.ts
-├── models/
-│   ├── venue.model.ts
-│   ├── venue-contact.model.ts
-│   ├── venue-filter.model.ts
-│   └── venue-history.model.ts
-├── guards/
-│   ├── venue-permission.guard.ts
-│   └── unsaved-changes.guard.ts
-├── validators/
-│   ├── venue.validators.ts
-│   └── contact.validators.ts
-├── pipes/
-│   ├── venue-status.pipe.ts
-│   └── venue-rating.pipe.ts
-└── venue-management-routing.module.ts
-```
-
-### 2.2 Module Organization
-```typescript
-// Feature Module (Lazy Loaded)
-@NgModule({
-  imports: [
-    CommonModule,
-    MaterialModule,
-    ReactiveFormsModule,
-    VenueManagementRoutingModule,
-    StoreModule.forFeature('venues', venueReducer),
-    EffectsModule.forFeature([VenueEffects])
-  ]
-})
-export class VenueManagementModule { }
-```
-
-## 3. Data Models
-
-### 3.1 TypeScript Interfaces
-
-```typescript
-export interface Venue {
-  venueId: string;
-  name: string;
-  description: string;
-  status: VenueStatus;
-  venueType: VenueType;
-  address: VenueAddress;
-  capacity: VenueCapacity;
-  amenities: string[];
-  contacts: VenueContact[];
-  accessInstructions?: string;
-  parkingInfo?: ParkingInfo;
-  photos: VenuePhoto[];
-  rating: VenueRating;
-  isActive: boolean;
-  createdAt: Date;
-  createdBy: string;
-  updatedAt?: Date;
-  updatedBy?: string;
-}
-
-export interface VenueAddress {
-  street1: string;
-  street2?: string;
-  city: string;
-  state: string;
-  country: string;
-  postalCode: string;
-  latitude?: number;
-  longitude?: number;
-  timeZone?: string;
-}
-
-export interface VenueCapacity {
-  maxCapacity: number;
-  seatedCapacity?: number;
-  standingCapacity?: number;
-  configurableLayouts?: LayoutCapacity[];
-}
-
-export interface LayoutCapacity {
-  layoutType: string;
-  capacity: number;
-}
-
-export interface VenueContact {
-  contactId: string;
-  contactType: ContactType;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  position?: string;
-  notes?: string;
-}
-
-export interface ParkingInfo {
-  hasParking: boolean;
-  parkingCapacity?: number;
-  parkingType?: ParkingType;
-  parkingInstructions?: string;
-}
-
-export interface VenuePhoto {
-  photoId: string;
-  url: string;
-  thumbnailUrl: string;
-  caption?: string;
-  isPrimary: boolean;
-  uploadedAt: Date;
-  uploadedBy: string;
-}
-
-export interface VenueRating {
-  averageRating: number;
-  totalRatings: number;
-  ratingBreakdown: { [key: number]: number };
-}
-
-export interface VenueHistory {
-  historyId: string;
-  venueId: string;
-  eventId: string;
-  eventName: string;
-  eventDate: Date;
-  rating?: number;
-  feedback?: string;
-  issues?: string;
-  createdAt: Date;
-}
-
-export interface VenueIssue {
-  issueId: string;
-  venueId: string;
-  issueType: IssueType;
-  description: string;
-  severity: Severity;
-  status: IssueStatus;
-  reportedBy: string;
-  reportedAt: Date;
-  resolvedAt?: Date;
-  resolution?: string;
-}
-
-export enum VenueStatus {
-  Active = 'Active',
-  Inactive = 'Inactive',
-  Blacklisted = 'Blacklisted',
-  PendingApproval = 'PendingApproval'
-}
-
-export enum VenueType {
-  ConferenceCenter = 'ConferenceCenter',
-  Hotel = 'Hotel',
-  ConventionCenter = 'ConventionCenter',
-  Outdoor = 'Outdoor',
-  Restaurant = 'Restaurant',
-  Theater = 'Theater',
-  Stadium = 'Stadium',
-  Other = 'Other'
-}
-
-export enum ContactType {
-  Primary = 'Primary',
-  Booking = 'Booking',
-  Technical = 'Technical',
-  Catering = 'Catering',
-  Emergency = 'Emergency'
-}
-
-export enum ParkingType {
-  Free = 'Free',
-  Paid = 'Paid',
-  Valet = 'Valet',
-  Street = 'Street',
-  None = 'None'
-}
-
-export enum IssueType {
-  Facility = 'Facility',
-  Equipment = 'Equipment',
-  Service = 'Service',
-  Safety = 'Safety',
-  Cleanliness = 'Cleanliness',
-  Other = 'Other'
-}
-
-export enum Severity {
-  Low = 'Low',
-  Medium = 'Medium',
-  High = 'High',
-  Critical = 'Critical'
-}
-
-export enum IssueStatus {
-  Open = 'Open',
-  InProgress = 'InProgress',
-  Resolved = 'Resolved',
-  Closed = 'Closed'
-}
-
-export interface VenueFilter {
-  status?: VenueStatus;
-  venueType?: VenueType;
-  city?: string;
-  country?: string;
-  minCapacity?: number;
-  maxCapacity?: number;
-  amenities?: string[];
-  searchTerm?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PagedResult<T> {
-  items: T[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-```
-
-## 4. State Management (NgRx)
-
-### 4.1 State Interface
-```typescript
-export interface VenueState {
-  venues: EntityState<Venue>;
-  selectedVenue: Venue | null;
-  loading: boolean;
-  error: string | null;
-  filters: VenueFilter;
-  pagination: {
-    page: number;
-    pageSize: number;
-    totalCount: number;
-  };
-  searchResults: Venue[];
-  topRated: Venue[];
-}
-```
-
-### 4.2 Actions
-```typescript
-// Load Venues
-export const loadVenues = createAction(
-  '[Venue List] Load Venues',
-  props<{ filter?: VenueFilter; page?: number; pageSize?: number }>()
-);
-
-export const loadVenuesSuccess = createAction(
-  '[Venue API] Load Venues Success',
-  props<{ result: PagedResult<Venue> }>()
-);
-
-export const loadVenuesFailure = createAction(
-  '[Venue API] Load Venues Failure',
-  props<{ error: string }>()
-);
-
-// Load Single Venue
-export const loadVenue = createAction(
-  '[Venue Detail] Load Venue',
-  props<{ venueId: string }>()
-);
-
-export const loadVenueSuccess = createAction(
-  '[Venue API] Load Venue Success',
-  props<{ venue: Venue }>()
-);
-
-// Create Venue
-export const createVenue = createAction(
-  '[Venue Form] Create Venue',
-  props<{ venue: Partial<Venue> }>()
-);
-
-export const createVenueSuccess = createAction(
-  '[Venue API] Create Venue Success',
-  props<{ venue: Venue }>()
-);
-
-// Update Venue
-export const updateVenue = createAction(
-  '[Venue Form] Update Venue',
-  props<{ venueId: string; changes: Partial<Venue> }>()
-);
-
-export const updateVenueSuccess = createAction(
-  '[Venue API] Update Venue Success',
-  props<{ venue: Venue }>()
-);
-
-// Delete Venue
-export const deleteVenue = createAction(
-  '[Venue List] Delete Venue',
-  props<{ venueId: string; reason?: string }>()
-);
-
-export const deleteVenueSuccess = createAction(
-  '[Venue API] Delete Venue Success',
-  props<{ venueId: string }>()
-);
-
-// Activate/Deactivate
-export const activateVenue = createAction(
-  '[Venue Detail] Activate Venue',
-  props<{ venueId: string }>()
-);
-
-export const deactivateVenue = createAction(
-  '[Venue Detail] Deactivate Venue',
-  props<{ venueId: string; reason: string }>()
-);
-
-// Blacklist/Whitelist
-export const blacklistVenue = createAction(
-  '[Venue Detail] Blacklist Venue',
-  props<{ venueId: string; reason: string }>()
-);
-
-export const whitelistVenue = createAction(
-  '[Venue Detail] Whitelist Venue',
-  props<{ venueId: string }>()
-);
-
-// Contact Management
-export const addVenueContact = createAction(
-  '[Venue Detail] Add Contact',
-  props<{ venueId: string; contact: VenueContact }>()
-);
-
-export const updateVenueContact = createAction(
-  '[Venue Detail] Update Contact',
-  props<{ venueId: string; contactId: string; changes: Partial<VenueContact> }>()
-);
-
-export const removeVenueContact = createAction(
-  '[Venue Detail] Remove Contact',
-  props<{ venueId: string; contactId: string }>()
-);
-
-// Photo Management
-export const uploadVenuePhoto = createAction(
-  '[Venue Photos] Upload Photo',
-  props<{ venueId: string; file: File; caption?: string; isPrimary?: boolean }>()
-);
-
-export const uploadVenuePhotoSuccess = createAction(
-  '[Venue API] Upload Photo Success',
-  props<{ venueId: string; photo: VenuePhoto }>()
-);
-
-export const deleteVenuePhoto = createAction(
-  '[Venue Photos] Delete Photo',
-  props<{ venueId: string; photoId: string }>()
-);
-
-// Search
-export const searchVenues = createAction(
-  '[Venue Search] Search Venues',
-  props<{ query: string; filters?: VenueFilter }>()
-);
-
-export const searchVenuesSuccess = createAction(
-  '[Venue API] Search Venues Success',
-  props<{ venues: Venue[] }>()
-);
-
-// Filters
-export const setVenueFilters = createAction(
-  '[Venue Filters] Set Filters',
-  props<{ filters: VenueFilter }>()
-);
-
-export const clearVenueFilters = createAction(
-  '[Venue Filters] Clear Filters'
-);
-```
-
-### 4.3 Selectors
-```typescript
-export const selectVenueState = createFeatureSelector<VenueState>('venues');
-
-export const selectAllVenues = createSelector(
-  selectVenueState,
-  (state) => Object.values(state.venues.entities)
-);
-
-export const selectSelectedVenue = createSelector(
-  selectVenueState,
-  (state) => state.selectedVenue
-);
-
-export const selectVenueLoading = createSelector(
-  selectVenueState,
-  (state) => state.loading
-);
-
-export const selectVenueError = createSelector(
-  selectVenueState,
-  (state) => state.error
-);
-
-export const selectVenueFilters = createSelector(
-  selectVenueState,
-  (state) => state.filters
-);
-
-export const selectActiveVenues = createSelector(
-  selectAllVenues,
-  (venues) => venues.filter(v => v.status === VenueStatus.Active)
-);
-
-export const selectTopRatedVenues = createSelector(
-  selectVenueState,
-  (state) => state.topRated
-);
-```
-
-## 5. Components
-
-### 5.1 Venue List Component
-
-#### Template
-```html
-<div class="venue-list-container">
-  <!-- Header -->
-  <mat-toolbar color="primary">
-    <h1>Venue Management</h1>
-    <span class="spacer"></span>
-    <button mat-raised-button color="accent" (click)="createVenue()" *ngIf="canCreate">
-      <mat-icon>add</mat-icon>
-      Add Venue
-    </button>
-  </mat-toolbar>
-
-  <!-- Search and Filters -->
-  <div class="filters-section">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-label>Search venues</mat-label>
-      <input matInput [formControl]="searchControl" placeholder="Search by name, city, or amenities">
-      <mat-icon matPrefix>search</mat-icon>
-    </mat-form-field>
-
-    <button mat-button (click)="toggleFilters()">
-      <mat-icon>filter_list</mat-icon>
-      Filters
-      <mat-icon>{{ showFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
-    </button>
-  </div>
-
-  <!-- Advanced Filters Panel -->
-  <mat-expansion-panel [(expanded)]="showFilters">
-    <app-venue-filters
-      [filters]="filters$ | async"
-      (filtersChange)="onFiltersChange($event)"
-      (clearFilters)="onClearFilters()">
-    </app-venue-filters>
-  </mat-expansion-panel>
-
-  <!-- Loading Indicator -->
-  <mat-progress-bar mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
-
-  <!-- Venues Grid -->
-  <div class="venues-grid" *ngIf="venues$ | async as venues">
-    <app-venue-card
-      *ngFor="let venue of venues"
-      [venue]="venue"
-      (viewDetails)="viewVenueDetails($event)"
-      (edit)="editVenue($event)"
-      (delete)="deleteVenue($event)">
-    </app-venue-card>
-
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="venues.length === 0">
-      <mat-icon>business</mat-icon>
-      <h2>No venues found</h2>
-      <p>Try adjusting your filters or create a new venue</p>
-    </div>
-  </div>
-
-  <!-- Pagination -->
-  <mat-paginator
-    [length]="totalCount$ | async"
-    [pageSize]="20"
-    [pageSizeOptions]="[10, 20, 50, 100]"
-    (page)="onPageChange($event)">
-  </mat-paginator>
-</div>
-```
-
-#### Component Class
-```typescript
-@Component({
-  selector: 'app-venue-list',
-  standalone: true,
-  imports: [CommonModule, MaterialModule, VenueCardComponent, VenueFiltersComponent],
-  templateUrl: './venue-list.component.html',
-  styleUrls: ['./venue-list.component.scss']
-})
-export class VenueListComponent implements OnInit {
-  venues$ = this.store.select(selectAllVenues);
-  loading$ = this.store.select(selectVenueLoading);
-  totalCount$ = this.store.select(selectVenueState).pipe(
-    map(state => state.pagination.totalCount)
-  );
-  filters$ = this.store.select(selectVenueFilters);
-
-  searchControl = new FormControl('');
-  showFilters = false;
-  canCreate = false;
-
-  constructor(
-    private store: Store,
-    private router: Router,
-    private authService: AuthService
-  ) {}
-
-  ngOnInit() {
-    this.loadVenues();
-    this.setupSearch();
-    this.checkPermissions();
-  }
-
-  loadVenues() {
-    this.store.dispatch(loadVenues({ page: 1, pageSize: 20 }));
-  }
-
-  setupSearch() {
-    this.searchControl.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(searchTerm => {
-        if (searchTerm) {
-          this.store.dispatch(searchVenues({ query: searchTerm }));
-        } else {
-          this.loadVenues();
-        }
-      });
-  }
-
-  onFiltersChange(filters: VenueFilter) {
-    this.store.dispatch(setVenueFilters({ filters }));
-    this.store.dispatch(loadVenues({ filter: filters }));
-  }
-
-  onClearFilters() {
-    this.store.dispatch(clearVenueFilters());
-    this.loadVenues();
-  }
-
-  onPageChange(event: PageEvent) {
-    this.store.dispatch(loadVenues({
-      page: event.pageIndex + 1,
-      pageSize: event.pageSize
-    }));
-  }
-
-  viewVenueDetails(venueId: string) {
-    this.router.navigate(['/venues', venueId]);
-  }
-
-  createVenue() {
-    this.router.navigate(['/venues', 'new']);
-  }
-
-  editVenue(venueId: string) {
-    this.router.navigate(['/venues', venueId, 'edit']);
-  }
-
-  deleteVenue(venueId: string) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Delete Venue',
-        message: 'Are you sure you want to delete this venue?',
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.store.dispatch(deleteVenue({ venueId }));
-      }
-    });
-  }
-
-  toggleFilters() {
-    this.showFilters = !this.showFilters;
-  }
-
-  private checkPermissions() {
-    this.canCreate = this.authService.hasPermission('venues.create');
-  }
-}
-```
-
-### 5.2 Venue Detail Component
-
-#### Template
-```html
-<div class="venue-detail-container" *ngIf="venue$ | async as venue">
-  <!-- Header -->
-  <div class="detail-header">
-    <button mat-icon-button (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h1>{{ venue.name }}</h1>
-    <span class="spacer"></span>
-
-    <!-- Status Badge -->
-    <mat-chip [color]="getStatusColor(venue.status)">
-      {{ venue.status | venueStatus }}
-    </mat-chip>
-
-    <!-- Actions Menu -->
-    <button mat-icon-button [matMenuTriggerFor]="actionsMenu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #actionsMenu="matMenu">
-      <button mat-menu-item (click)="editVenue()" *ngIf="canEdit">
-        <mat-icon>edit</mat-icon>
-        Edit
-      </button>
-      <button mat-menu-item (click)="activateVenue()" *ngIf="venue.status === 'Inactive' && canActivate">
-        <mat-icon>check_circle</mat-icon>
-        Activate
-      </button>
-      <button mat-menu-item (click)="deactivateVenue()" *ngIf="venue.status === 'Active' && canDeactivate">
-        <mat-icon>cancel</mat-icon>
-        Deactivate
-      </button>
-      <button mat-menu-item (click)="blacklistVenue()" *ngIf="venue.status !== 'Blacklisted' && canBlacklist">
-        <mat-icon>block</mat-icon>
-        Blacklist
-      </button>
-      <button mat-menu-item (click)="whitelistVenue()" *ngIf="venue.status === 'Blacklisted' && canWhitelist">
-        <mat-icon>check</mat-icon>
-        Whitelist
-      </button>
-      <mat-divider></mat-divider>
-      <button mat-menu-item (click)="deleteVenue()" *ngIf="canDelete" class="delete-action">
-        <mat-icon>delete</mat-icon>
-        Delete
-      </button>
-    </mat-menu>
-  </div>
-
-  <!-- Tabs -->
-  <mat-tab-group>
-    <!-- Overview Tab -->
-    <mat-tab label="Overview">
-      <div class="tab-content">
-        <!-- Photo Gallery -->
-        <app-venue-photos
-          [venueId]="venue.venueId"
-          [photos]="venue.photos"
-          [canUpload]="canUploadPhotos">
-        </app-venue-photos>
-
-        <!-- Basic Info -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Basic Information</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="label">Venue Type:</span>
-                <span class="value">{{ venue.venueType }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Max Capacity:</span>
-                <span class="value">{{ venue.capacity.maxCapacity }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Rating:</span>
-                <span class="value">
-                  <app-venue-rating [rating]="venue.rating"></app-venue-rating>
-                </span>
-              </div>
-            </div>
-            <p class="description">{{ venue.description }}</p>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Location -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Location</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="address">
-              <p>{{ venue.address.street1 }}</p>
-              <p *ngIf="venue.address.street2">{{ venue.address.street2 }}</p>
-              <p>{{ venue.address.city }}, {{ venue.address.state }} {{ venue.address.postalCode }}</p>
-              <p>{{ venue.address.country }}</p>
-            </div>
-            <app-venue-map
-              *ngIf="venue.address.latitude && venue.address.longitude"
-              [latitude]="venue.address.latitude"
-              [longitude]="venue.address.longitude"
-              [venueName]="venue.name">
-            </app-venue-map>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Amenities -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>Amenities</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-chip-listbox>
-              <mat-chip *ngFor="let amenity of venue.amenities">{{ amenity }}</mat-chip>
-            </mat-chip-listbox>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Parking Info -->
-        <mat-card *ngIf="venue.parkingInfo?.hasParking">
-          <mat-card-header>
-            <mat-card-title>Parking Information</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="info-grid">
-              <div class="info-item">
-                <span class="label">Type:</span>
-                <span class="value">{{ venue.parkingInfo.parkingType }}</span>
-              </div>
-              <div class="info-item" *ngIf="venue.parkingInfo.parkingCapacity">
-                <span class="label">Capacity:</span>
-                <span class="value">{{ venue.parkingInfo.parkingCapacity }} spaces</span>
-              </div>
-            </div>
-            <p *ngIf="venue.parkingInfo.parkingInstructions">
-              {{ venue.parkingInfo.parkingInstructions }}
-            </p>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Access Instructions -->
-        <mat-card *ngIf="venue.accessInstructions">
-          <mat-card-header>
-            <mat-card-title>Access Instructions</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>{{ venue.accessInstructions }}</p>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </mat-tab>
-
-    <!-- Contacts Tab -->
-    <mat-tab label="Contacts">
-      <div class="tab-content">
-        <app-venue-contacts
-          [venueId]="venue.venueId"
-          [contacts]="venue.contacts"
-          [canManage]="canManageContacts">
-        </app-venue-contacts>
-      </div>
-    </mat-tab>
-
-    <!-- History Tab -->
-    <mat-tab label="History">
-      <div class="tab-content">
-        <app-venue-history [venueId]="venue.venueId"></app-venue-history>
-      </div>
-    </mat-tab>
-
-    <!-- Issues Tab -->
-    <mat-tab label="Issues">
-      <div class="tab-content">
-        <app-venue-issues
-          [venueId]="venue.venueId"
-          [canReport]="canReportIssues">
-        </app-venue-issues>
-      </div>
-    </mat-tab>
-
-    <!-- Analytics Tab -->
-    <mat-tab label="Analytics" *ngIf="canViewAnalytics">
-      <div class="tab-content">
-        <app-venue-analytics [venueId]="venue.venueId"></app-venue-analytics>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-</div>
-```
-
-### 5.3 Venue Form Component
-
-#### Template
-```html
-<div class="venue-form-container">
-  <h2>{{ isEditMode ? 'Edit Venue' : 'Create New Venue' }}</h2>
-
-  <form [formGroup]="venueForm" (ngSubmit)="onSubmit()">
-    <!-- Basic Information -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Basic Information</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Venue Name</mat-label>
-            <input matInput formControlName="name" required>
-            <mat-error *ngIf="venueForm.get('name')?.hasError('required')">
-              Venue name is required
-            </mat-error>
-            <mat-error *ngIf="venueForm.get('name')?.hasError('maxlength')">
-              Name cannot exceed 200 characters
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" rows="4"></textarea>
-            <mat-hint align="end">
-              {{ venueForm.get('description')?.value?.length || 0 }} / 2000
-            </mat-hint>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Venue Type</mat-label>
-            <mat-select formControlName="venueType" required>
-              <mat-option *ngFor="let type of venueTypes" [value]="type">
-                {{ type }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Address -->
-    <mat-card formGroupName="address">
-      <mat-card-header>
-        <mat-card-title>Address</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Street Address</mat-label>
-            <input matInput formControlName="street1" required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Street Address Line 2</mat-label>
-            <input matInput formControlName="street2">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>City</mat-label>
-            <input matInput formControlName="city" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>State/Province</mat-label>
-            <input matInput formControlName="state" required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postalCode" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Country</mat-label>
-            <mat-select formControlName="country" required>
-              <mat-option *ngFor="let country of countries" [value]="country">
-                {{ country }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Capacity -->
-    <mat-card formGroupName="capacity">
-      <mat-card-header>
-        <mat-card-title>Capacity</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Maximum Capacity</mat-label>
-            <input matInput type="number" formControlName="maxCapacity" required>
-            <mat-error *ngIf="venueForm.get('capacity.maxCapacity')?.hasError('min')">
-              Capacity must be greater than 0
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Seated Capacity</mat-label>
-            <input matInput type="number" formControlName="seatedCapacity">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Standing Capacity</mat-label>
-            <input matInput type="number" formControlName="standingCapacity">
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Amenities -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Amenities</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Select Amenities</mat-label>
-          <mat-select formControlName="amenities" multiple>
-            <mat-option *ngFor="let amenity of availableAmenities" [value]="amenity">
-              {{ amenity }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Parking Information -->
-    <mat-card formGroupName="parkingInfo">
-      <mat-card-header>
-        <mat-card-title>Parking Information</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="form-row">
-          <mat-checkbox formControlName="hasParking">Parking Available</mat-checkbox>
-        </div>
-
-        <div *ngIf="venueForm.get('parkingInfo.hasParking')?.value">
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Parking Type</mat-label>
-              <mat-select formControlName="parkingType">
-                <mat-option *ngFor="let type of parkingTypes" [value]="type">
-                  {{ type }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Parking Capacity</mat-label>
-              <input matInput type="number" formControlName="parkingCapacity">
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Parking Instructions</mat-label>
-              <textarea matInput formControlName="parkingInstructions" rows="2"></textarea>
-            </mat-form-field>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Access Instructions -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Access Instructions</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Access Instructions</mat-label>
-          <textarea matInput formControlName="accessInstructions" rows="3"></textarea>
-          <mat-hint>Provide information about how to access the venue</mat-hint>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Form Actions -->
-    <div class="form-actions">
-      <button mat-button type="button" (click)="cancel()">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="!venueForm.valid || submitting">
-        <mat-spinner *ngIf="submitting" diameter="20"></mat-spinner>
-        {{ isEditMode ? 'Update' : 'Create' }} Venue
-      </button>
-    </div>
-  </form>
-</div>
-```
-
-#### Component Class
-```typescript
-@Component({
-  selector: 'app-venue-form',
-  standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule],
-  templateUrl: './venue-form.component.html',
-  styleUrls: ['./venue-form.component.scss']
-})
-export class VenueFormComponent implements OnInit {
-  venueForm: FormGroup;
-  isEditMode = false;
-  submitting = false;
-  venueId?: string;
-
-  venueTypes = Object.values(VenueType);
-  parkingTypes = Object.values(ParkingType);
-  countries = ['USA', 'Canada', 'UK', 'Australia']; // Load from service
-  availableAmenities = ['WiFi', 'Parking', 'AC', 'Projector', 'Catering', 'Audio System', 'Stage'];
-
-  constructor(
-    private fb: FormBuilder,
-    private store: Store,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
-    this.venueForm = this.createForm();
-  }
-
-  ngOnInit() {
-    this.route.params.subscribe(params => {
-      if (params['id'] && params['id'] !== 'new') {
-        this.isEditMode = true;
-        this.venueId = params['id'];
-        this.loadVenue(this.venueId);
-      }
-    });
-  }
-
-  createForm(): FormGroup {
-    return this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(200)]],
-      description: ['', Validators.maxLength(2000)],
-      venueType: ['', Validators.required],
-      address: this.fb.group({
-        street1: ['', Validators.required],
-        street2: [''],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        country: ['', Validators.required],
-        postalCode: ['', Validators.required]
-      }),
-      capacity: this.fb.group({
-        maxCapacity: [0, [Validators.required, Validators.min(1)]],
-        seatedCapacity: [0],
-        standingCapacity: [0]
-      }),
-      amenities: [[]],
-      parkingInfo: this.fb.group({
-        hasParking: [false],
-        parkingType: [''],
-        parkingCapacity: [0],
-        parkingInstructions: ['']
-      }),
-      accessInstructions: ['']
-    });
-  }
-
-  loadVenue(venueId: string) {
-    this.store.dispatch(loadVenue({ venueId }));
-    this.store.select(selectSelectedVenue)
-      .pipe(filter(venue => !!venue))
-      .subscribe(venue => {
-        this.venueForm.patchValue(venue);
-      });
-  }
-
-  onSubmit() {
-    if (this.venueForm.valid) {
-      this.submitting = true;
-      const venue = this.venueForm.value;
-
-      if (this.isEditMode && this.venueId) {
-        this.store.dispatch(updateVenue({
-          venueId: this.venueId,
-          changes: venue
-        }));
-      } else {
-        this.store.dispatch(createVenue({ venue }));
-      }
-
-      // Navigate back on success
-      this.store.select(selectVenueError)
-        .pipe(filter(error => error === null))
-        .subscribe(() => {
-          this.submitting = false;
-          this.snackBar.open('Venue saved successfully', 'Close', { duration: 3000 });
-          this.router.navigate(['/venues']);
-        });
-    }
-  }
-
-  cancel() {
-    this.router.navigate(['/venues']);
-  }
-}
-```
-
-## 6. Services
-
-### 6.1 Venue API Service
-```typescript
-@Injectable({ providedIn: 'root' })
-export class VenueApiService {
-  private readonly apiUrl = '/api/v1/venues';
-
-  constructor(private http: HttpClient) {}
-
-  getVenues(filter?: VenueFilter, page = 1, pageSize = 20): Observable<PagedResult<Venue>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-
-    if (filter) {
-      params = this.addFilterParams(params, filter);
-    }
-
-    return this.http.get<PagedResult<Venue>>(this.apiUrl, { params });
-  }
-
-  getVenue(venueId: string): Observable<Venue> {
-    return this.http.get<Venue>(`${this.apiUrl}/${venueId}`);
-  }
-
-  createVenue(venue: Partial<Venue>): Observable<Venue> {
-    return this.http.post<Venue>(this.apiUrl, venue);
-  }
-
-  updateVenue(venueId: string, changes: Partial<Venue>): Observable<Venue> {
-    return this.http.put<Venue>(`${this.apiUrl}/${venueId}`, changes);
-  }
-
-  deleteVenue(venueId: string, reason?: string): Observable<void> {
-    const params = reason ? new HttpParams().set('reason', reason) : undefined;
-    return this.http.delete<void>(`${this.apiUrl}/${venueId}`, { params });
-  }
-
-  activateVenue(venueId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${venueId}/activate`, {});
-  }
-
-  deactivateVenue(venueId: string, reason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${venueId}/deactivate`, { reason });
-  }
-
-  blacklistVenue(venueId: string, reason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${venueId}/blacklist`, { reason });
-  }
-
-  whitelistVenue(venueId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${venueId}/whitelist`, {});
-  }
-
-  // Contacts
-  addContact(venueId: string, contact: VenueContact): Observable<{ contactId: string }> {
-    return this.http.post<{ contactId: string }>(`${this.apiUrl}/${venueId}/contacts`, contact);
-  }
-
-  updateContact(venueId: string, contactId: string, changes: Partial<VenueContact>): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${venueId}/contacts/${contactId}`, changes);
-  }
-
-  removeContact(venueId: string, contactId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${venueId}/contacts/${contactId}`);
-  }
-
-  // Photos
-  uploadPhoto(venueId: string, file: File, caption?: string, isPrimary = false): Observable<VenuePhoto> {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (caption) formData.append('caption', caption);
-    formData.append('isPrimary', isPrimary.toString());
-
-    return this.http.post<VenuePhoto>(`${this.apiUrl}/${venueId}/photos`, formData);
-  }
-
-  deletePhoto(venueId: string, photoId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${venueId}/photos/${photoId}`);
-  }
-
-  // History
-  getHistory(venueId: string, startDate?: Date, endDate?: Date): Observable<VenueHistory[]> {
-    let params = new HttpParams();
-    if (startDate) params = params.set('startDate', startDate.toISOString());
-    if (endDate) params = params.set('endDate', endDate.toISOString());
-
-    return this.http.get<VenueHistory[]>(`${this.apiUrl}/${venueId}/history`, { params });
-  }
-
-  submitFeedback(venueId: string, eventId: string, feedback: string): Observable<{ sentimentScore: number }> {
-    return this.http.post<{ sentimentScore: number }>(`${this.apiUrl}/${venueId}/feedback`, {
-      eventId,
-      feedback
-    });
-  }
-
-  recordRating(venueId: string, eventId: string, rating: number, feedback?: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${venueId}/ratings`, {
-      eventId,
-      rating,
-      feedback
-    });
-  }
-
-  // Issues
-  getIssues(venueId: string, status?: IssueStatus, severity?: Severity): Observable<VenueIssue[]> {
-    let params = new HttpParams();
-    if (status) params = params.set('status', status);
-    if (severity) params = params.set('severity', severity);
-
-    return this.http.get<VenueIssue[]>(`${this.apiUrl}/${venueId}/issues`, { params });
-  }
-
-  reportIssue(venueId: string, issueType: IssueType, severity: Severity, description: string): Observable<{ issueId: string }> {
-    return this.http.post<{ issueId: string }>(`${this.apiUrl}/${venueId}/issues`, {
-      issueType,
-      severity,
-      description
-    });
-  }
-
-  // Search
-  searchVenues(query: string, filters?: VenueFilter): Observable<Venue[]> {
-    let params = new HttpParams().set('q', query);
-    if (filters) {
-      params = this.addFilterParams(params, filters);
-    }
-    return this.http.get<Venue[]>(`${this.apiUrl}/search`, { params });
-  }
-
-  getTopRated(limit = 10, venueType?: VenueType, city?: string): Observable<Venue[]> {
-    let params = new HttpParams().set('limit', limit.toString());
-    if (venueType) params = params.set('venueType', venueType);
-    if (city) params = params.set('city', city);
-
-    return this.http.get<Venue[]>(`${this.apiUrl}/top-rated`, { params });
-  }
-
-  private addFilterParams(params: HttpParams, filter: VenueFilter): HttpParams {
-    if (filter.status) params = params.set('status', filter.status);
-    if (filter.venueType) params = params.set('venueType', filter.venueType);
-    if (filter.city) params = params.set('city', filter.city);
-    if (filter.country) params = params.set('country', filter.country);
-    if (filter.minCapacity) params = params.set('minCapacity', filter.minCapacity.toString());
-    if (filter.searchTerm) params = params.set('searchTerm', filter.searchTerm);
-    if (filter.sortBy) params = params.set('sortBy', filter.sortBy);
-    if (filter.sortOrder) params = params.set('sortOrder', filter.sortOrder);
-    return params;
-  }
-}
-```
-
-## 7. Routing
-
-```typescript
-const routes: Routes = [
-  {
-    path: '',
-    component: VenueListComponent,
-    canActivate: [AuthGuard],
-    data: { permission: 'venues.view' }
-  },
-  {
-    path: 'new',
-    component: VenueFormComponent,
-    canActivate: [AuthGuard],
-    canDeactivate: [UnsavedChangesGuard],
-    data: { permission: 'venues.create' }
-  },
-  {
-    path: ':id',
-    component: VenueDetailComponent,
-    canActivate: [AuthGuard],
-    data: { permission: 'venues.view' }
-  },
-  {
-    path: ':id/edit',
-    component: VenueFormComponent,
-    canActivate: [AuthGuard],
-    canDeactivate: [UnsavedChangesGuard],
-    data: { permission: 'venues.update' }
-  }
-];
-```
-
-## 8. Styling (SCSS)
-
-### 8.1 Material Theme Customization
-```scss
-@use '@angular/material' as mat;
-
-$primary-palette: mat.define-palette(mat.$indigo-palette);
-$accent-palette: mat.define-palette(mat.$pink-palette);
-$warn-palette: mat.define-palette(mat.$red-palette);
-
-$theme: mat.define-light-theme((
-  color: (
-    primary: $primary-palette,
-    accent: $accent-palette,
-    warn: $warn-palette,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,
-));
-
-@include mat.all-component-themes($theme);
-```
-
-### 8.2 Responsive Design
-```scss
-// Breakpoints
-$mobile: 600px;
-$tablet: 960px;
-$desktop: 1280px;
-
-.venues-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  padding: 24px;
-
-  @media (max-width: $mobile) {
-    grid-template-columns: 1fr;
-    padding: 16px;
-  }
-}
-```
-
-## 9. Testing
-
-### 9.1 Unit Tests
-```typescript
-describe('VenueListComponent', () => {
-  let component: VenueListComponent;
-  let fixture: ComponentFixture<VenueListComponent>;
-  let store: MockStore;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [VenueListComponent],
-      providers: [
-        provideMockStore({ initialState })
-      ]
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(VenueListComponent);
-    component = fixture.componentInstance;
-    store = TestBed.inject(MockStore);
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should load venues on init', () => {
-    spyOn(store, 'dispatch');
-    component.ngOnInit();
-    expect(store.dispatch).toHaveBeenCalledWith(
-      loadVenues({ page: 1, pageSize: 20 })
-    );
-  });
-});
-```
-
-### 9.2 E2E Tests (Cypress)
-```typescript
-describe('Venue Management', () => {
-  beforeEach(() => {
-    cy.login();
-    cy.visit('/venues');
-  });
-
-  it('should display venue list', () => {
-    cy.get('app-venue-card').should('have.length.greaterThan', 0);
-  });
-
-  it('should create new venue', () => {
-    cy.get('[data-test="add-venue-btn"]').click();
-    cy.get('[formControlName="name"]').type('Test Venue');
-    cy.get('[formControlName="venueType"]').click();
-    cy.get('mat-option').contains('Conference Center').click();
-    // Fill other fields...
-    cy.get('[type="submit"]').click();
-    cy.contains('Venue saved successfully');
-  });
-
-  it('should search venues', () => {
-    cy.get('[data-test="search-input"]').type('Conference');
-    cy.wait(500);
-    cy.get('app-venue-card').should('contain', 'Conference');
-  });
-});
-```
-
-## 10. Performance Optimization
-
-### 10.1 Lazy Loading
-- Feature modules loaded on demand
-- Route-based code splitting
-- Defer loading of heavy components
-
-### 10.2 Change Detection
-```typescript
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-```
-
-### 10.3 Virtual Scrolling
-```html
-<cdk-virtual-scroll-viewport itemSize="100" class="venue-list">
-  <div *cdkVirtualFor="let venue of venues">
-    <app-venue-card [venue]="venue"></app-venue-card>
-  </div>
-</cdk-virtual-scroll-viewport>
-```
-
-### 10.4 Image Optimization
-- Lazy load images
-- Use thumbnails for lists
-- Implement progressive image loading
-- CDN integration
-
-## 11. Accessibility (A11y)
-
-### 11.1 ARIA Labels
-```html
-<button mat-icon-button aria-label="Delete venue" (click)="deleteVenue()">
-  <mat-icon>delete</mat-icon>
-</button>
-```
-
-### 11.2 Keyboard Navigation
-- Tab order management
-- Keyboard shortcuts
-- Focus management
-
-### 11.3 Screen Reader Support
-- Meaningful labels
-- Live regions for dynamic content
-- Descriptive error messages
-
-## 12. Security
-
-### 12.1 XSS Protection
-- Sanitize user inputs
-- Use Angular's built-in sanitization
-- Content Security Policy
-
-### 12.2 Authentication
-```typescript
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.authService.getToken();
-    if (token) {
-      req = req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` }
-      });
-    }
-    return next.handle(req);
-  }
-}
-```
-
-## 13. Error Handling
-
-### 13.1 HTTP Error Interceptor
-```typescript
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        let errorMessage = 'An error occurred';
-
-        if (error.error instanceof ErrorEvent) {
-          errorMessage = error.error.message;
-        } else {
-          errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-        }
-
-        this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
-        return throwError(() => error);
-      })
-    );
-  }
-}
-```
-
-## 14. Build and Deployment
-
-### 14.1 Build Configuration
-```json
-{
-  "configurations": {
-    "production": {
-      "optimization": true,
-      "outputHashing": "all",
-      "sourceMap": false,
-      "extractCss": true,
-      "namedChunks": false,
-      "aot": true,
-      "buildOptimizer": true,
-      "budgets": [
-        {
-          "type": "initial",
-          "maximumWarning": "2mb",
-          "maximumError": "5mb"
-        }
-      ]
-    }
-  }
-}
-```
-
-### 14.2 Environment Configuration
-```typescript
-export const environment = {
-  production: true,
-  apiUrl: 'https://api.eventmanagement.com',
-  mapsApiKey: 'YOUR_MAPS_API_KEY',
-  applicationInsights: {
-    instrumentationKey: 'YOUR_KEY'
-  }
-};
-```
+---
+
+## 2. Venue List Display Requirements
+
+### REQ-FE-VEN-001: Venue List View
+
+**Requirement:** The system shall display a paginated list of venues with search, filtering, and sorting capabilities in a responsive grid layout.
+
+**Acceptance Criteria:**
+- [ ] Venue list is displayed in a grid layout with responsive columns
+- [ ] Grid displays 1 column on mobile, 2-3 columns on tablet, 3-4 columns on desktop
+- [ ] Each venue card shows name, type, city, capacity, rating, and primary photo
+- [ ] Venue status is displayed with color-coded badge (Active=green, Inactive=yellow, Blacklisted=red)
+- [ ] Loading spinner is shown while fetching data
+- [ ] Empty state with helpful message is displayed when no venues found
+- [ ] Pagination controls are displayed at bottom of list
+- [ ] Page size options include 10, 20, 50, 100 items per page
+- [ ] Default page size is 20 venues
+- [ ] Current page and total count are displayed
+- [ ] Users can navigate between pages using pagination controls
+
+### REQ-FE-VEN-002: Venue Search
+
+**Requirement:** The system shall provide real-time search functionality with debouncing to search venues by name, city, or amenities.
+
+**Acceptance Criteria:**
+- [ ] Search input field is prominently displayed in toolbar
+- [ ] Search icon is displayed as prefix in input field
+- [ ] Search queries are debounced with 300ms delay
+- [ ] Search is triggered on every keystroke after debounce
+- [ ] Empty search clears results and shows all venues
+- [ ] Search results are highlighted or indicated visually
+- [ ] Loading indicator is shown during search
+- [ ] Search performs full-text search across name, description, city, amenities
+- [ ] Search results replace venue list display
+- [ ] Clear button allows resetting search
+
+### REQ-FE-VEN-003: Venue Filters
+
+**Requirement:** The system shall provide advanced filtering options in an expandable panel to filter venues by status, type, location, capacity, and amenities.
+
+**Acceptance Criteria:**
+- [ ] Filter button with icon is displayed in toolbar
+- [ ] Filter panel expands/collapses with smooth animation
+- [ ] Status filter supports multi-select (Active, Inactive, Blacklisted, PendingApproval)
+- [ ] Venue type filter dropdown includes all venue types
+- [ ] City and country filters support autocomplete
+- [ ] Minimum capacity filter accepts numeric input
+- [ ] Maximum capacity filter accepts numeric input
+- [ ] Amenities filter supports multi-select from predefined list
+- [ ] Applied filters are visually indicated (chip badges)
+- [ ] Clear all filters button resets all filter selections
+- [ ] Filter changes immediately update venue list
+- [ ] Filter state is preserved in URL query parameters
+
+### REQ-FE-VEN-004: Venue Sorting
+
+**Requirement:** The system shall allow users to sort the venue list by different criteria in ascending or descending order.
+
+**Acceptance Criteria:**
+- [ ] Sort dropdown is displayed in toolbar
+- [ ] Sort options include: Name, City, Capacity, Rating, Created Date
+- [ ] Default sort is by Name ascending
+- [ ] Sort order toggle button switches between ascending and descending
+- [ ] Sort order is visually indicated with arrow icons
+- [ ] Sort changes immediately update venue list
+- [ ] Current sort selection is highlighted in dropdown
+- [ ] Sort state is preserved in URL query parameters
+
+### REQ-FE-VEN-005: Create Venue Action
+
+**Requirement:** The system shall provide an "Add Venue" button that navigates to the venue creation form, visible only to authorized users.
+
+**Acceptance Criteria:**
+- [ ] "Add Venue" button is displayed in toolbar header
+- [ ] Button shows plus icon and "Add Venue" text
+- [ ] Button uses accent color to stand out
+- [ ] Button is only visible to users with venues.create permission
+- [ ] Clicking button navigates to /venues/new route
+- [ ] Navigation is smooth without page reload
+- [ ] Button is disabled during loading states
+
+---
+
+## 3. Venue Detail Display Requirements
+
+### REQ-FE-VEN-010: Venue Detail View
+
+**Requirement:** The system shall display comprehensive venue information in a tabbed interface with overview, contacts, history, issues, and analytics sections.
+
+**Acceptance Criteria:**
+- [ ] Detail view displays venue name as prominent header
+- [ ] Back button navigates to venue list
+- [ ] Status badge is displayed next to venue name with color coding
+- [ ] Actions menu (three-dot icon) provides contextual operations
+- [ ] Tab navigation displays Overview, Contacts, History, Issues, Analytics tabs
+- [ ] Overview tab is selected by default
+- [ ] Tab selection state is preserved in URL
+- [ ] Smooth transitions occur between tab changes
+- [ ] Loading spinner is shown while fetching venue data
+- [ ] Error message is displayed if venue not found (404)
+
+### REQ-FE-VEN-011: Venue Overview Tab
+
+**Requirement:** The system shall display venue overview information including photos, basic details, location, amenities, parking, and access instructions.
+
+**Acceptance Criteria:**
+- [ ] Photo gallery is displayed at top of overview
+- [ ] Primary photo is prominently featured
+- [ ] Basic information card shows venue type, capacity, rating
+- [ ] Description text is displayed with proper formatting
+- [ ] Location card shows full address with formatting
+- [ ] Interactive map displays venue location if coordinates available
+- [ ] Map marker shows venue name on hover
+- [ ] Amenities are displayed as chips/badges
+- [ ] Parking information card is shown if parking available
+- [ ] Parking type, capacity, and instructions are displayed
+- [ ] Access instructions card is shown if instructions provided
+- [ ] All cards use consistent Material Design styling
+
+### REQ-FE-VEN-012: Venue Actions Menu
+
+**Requirement:** The system shall provide a contextual actions menu with operations appropriate to user permissions and venue status.
+
+**Acceptance Criteria:**
+- [ ] Menu button (three-dot icon) is displayed in header
+- [ ] Menu opens on click with smooth animation
+- [ ] Edit action is visible to users with venues.update permission
+- [ ] Activate action is visible for Inactive venues to users with venues.activate permission
+- [ ] Deactivate action is visible for Active venues to users with venues.deactivate permission
+- [ ] Blacklist action is visible for non-blacklisted venues to admins
+- [ ] Whitelist action is visible for Blacklisted venues to admins
+- [ ] Delete action is visible to users with venues.delete permission
+- [ ] Delete action is styled in warning color (red)
+- [ ] Divider separates destructive actions from others
+- [ ] Unavailable actions are hidden, not just disabled
+- [ ] Each action shows appropriate icon
+
+### REQ-FE-VEN-013: Venue Photo Gallery
+
+**Requirement:** The system shall display venue photos in an interactive gallery with support for viewing full-size images and captions.
+
+**Acceptance Criteria:**
+- [ ] Photo gallery displays all venue photos
+- [ ] Primary photo is shown first and larger
+- [ ] Thumbnail grid shows remaining photos
+- [ ] Clicking thumbnail opens full-size image in modal/lightbox
+- [ ] Lightbox supports keyboard navigation (arrow keys, escape)
+- [ ] Photo captions are displayed in lightbox
+- [ ] Upload button is visible to users with venues.photos.upload permission
+- [ ] Delete icon overlay appears on hover for authorized users
+- [ ] Loading state shown while photos load
+- [ ] Placeholder image shown if no photos available
+- [ ] Photos are lazy-loaded for performance
+
+### REQ-FE-VEN-014: Venue Map Display
+
+**Requirement:** The system shall display an interactive map showing the venue's geographic location when coordinates are available.
+
+**Acceptance Criteria:**
+- [ ] Map is embedded in location card
+- [ ] Map centers on venue coordinates
+- [ ] Venue marker is displayed at exact location
+- [ ] Map allows zoom in/out controls
+- [ ] Map allows panning/dragging
+- [ ] Clicking marker shows venue name tooltip
+- [ ] Map is responsive and adjusts to container size
+- [ ] Fallback message shown if coordinates unavailable
+- [ ] Map loads asynchronously without blocking page render
+
+---
+
+## 4. Venue Form Requirements
+
+### REQ-FE-VEN-020: Venue Creation Form
+
+**Requirement:** The system shall provide a multi-section form for creating new venues with validation, supporting all venue properties.
+
+**Acceptance Criteria:**
+- [ ] Form displays "Create New Venue" heading
+- [ ] Form is organized into logical sections: Basic Info, Address, Capacity, Amenities, Parking, Access
+- [ ] Each section is displayed in a Material card
+- [ ] All required fields are marked with asterisk
+- [ ] Form uses reactive forms with FormGroup
+- [ ] Submit button is labeled "Create Venue"
+- [ ] Cancel button navigates back to venue list
+- [ ] Submit button is disabled when form is invalid or submitting
+- [ ] Loading spinner is shown on submit button during submission
+- [ ] Form maintains state while submitting
+
+### REQ-FE-VEN-021: Venue Edit Form
+
+**Requirement:** The system shall provide a form for editing existing venues with pre-populated values and support for partial updates.
+
+**Acceptance Criteria:**
+- [ ] Form displays "Edit Venue" heading
+- [ ] Form structure matches creation form
+- [ ] All fields are pre-populated with current venue data
+- [ ] Form loads venue data on initialization
+- [ ] Submit button is labeled "Update Venue"
+- [ ] Form supports partial updates (only changed fields sent)
+- [ ] Unsaved changes guard warns before navigation
+- [ ] Success message shown on successful update
+- [ ] User redirected to venue detail on successful update
+
+### REQ-FE-VEN-022: Basic Information Section
+
+**Requirement:** The system shall provide input fields for venue name, description, and type with appropriate validation.
+
+**Acceptance Criteria:**
+- [ ] Venue name input is required
+- [ ] Name validation enforces 3-200 character limit
+- [ ] Name field shows character count
+- [ ] Description textarea is optional
+- [ ] Description validation enforces 2000 character limit
+- [ ] Description shows character count (current/max)
+- [ ] Venue type dropdown is required
+- [ ] All venue types are available as options
+- [ ] Validation errors display below fields in red
+- [ ] Error messages are clear and specific
+- [ ] Fields highlight in red when invalid and touched
+
+### REQ-FE-VEN-023: Address Section
+
+**Requirement:** The system shall provide input fields for complete venue address information with validation.
+
+**Acceptance Criteria:**
+- [ ] Street address line 1 is required
+- [ ] Street address line 2 is optional
+- [ ] City input is required
+- [ ] State/Province input is required
+- [ ] Postal code input is required
+- [ ] Country dropdown is required with common countries
+- [ ] All address fields validate as non-empty when required
+- [ ] Postal code format validation varies by country
+- [ ] Fields are arranged in logical layout (street together, city/state/zip row)
+- [ ] Address autocomplete suggestions are provided (optional enhancement)
+
+### REQ-FE-VEN-024: Capacity Section
+
+**Requirement:** The system shall provide input fields for venue capacity information with validation of capacity constraints.
+
+**Acceptance Criteria:**
+- [ ] Maximum capacity input is required
+- [ ] Maximum capacity must be greater than 0
+- [ ] Seated capacity input is optional
+- [ ] Standing capacity input is optional
+- [ ] All capacity fields accept only numeric input
+- [ ] Validation ensures seated + standing <= maximum capacity
+- [ ] Validation error shown if capacity constraint violated
+- [ ] Fields are laid out in a single row on desktop
+- [ ] Number inputs show spinner controls
+
+### REQ-FE-VEN-025: Amenities Section
+
+**Requirement:** The system shall provide a multi-select interface for choosing venue amenities from a predefined list.
+
+**Acceptance Criteria:**
+- [ ] Amenities multi-select dropdown displays available options
+- [ ] Common amenities include: WiFi, Parking, AC, Projector, Catering, Audio System, Stage, Kitchen, Outdoor Space
+- [ ] Selected amenities are displayed as chips/badges
+- [ ] Users can remove selected amenities by clicking X on chip
+- [ ] Amenities field is optional
+- [ ] Multi-select shows count of selected items
+- [ ] Search/filter capability in dropdown for long lists
+
+### REQ-FE-VEN-026: Parking Information Section
+
+**Requirement:** The system shall provide inputs for parking availability and details with conditional field display.
+
+**Acceptance Criteria:**
+- [ ] "Parking Available" checkbox toggles parking detail fields
+- [ ] Parking detail fields are hidden when checkbox unchecked
+- [ ] Parking type dropdown includes: Free, Paid, Valet, Street, None
+- [ ] Parking capacity input accepts numeric value
+- [ ] Parking instructions textarea is optional
+- [ ] Parking instructions limited to 500 characters
+- [ ] Smooth animation when showing/hiding parking details
+- [ ] All parking fields are optional when parking is available
+
+### REQ-FE-VEN-027: Access Instructions Section
+
+**Requirement:** The system shall provide a textarea for entering venue access instructions.
+
+**Acceptance Criteria:**
+- [ ] Access instructions textarea is optional
+- [ ] Maximum length is 1000 characters
+- [ ] Character count displayed below field
+- [ ] Multi-line input supported
+- [ ] Help text explains purpose (e.g., "Provide information about how to access the venue")
+- [ ] Field expands vertically to show content
+
+### REQ-FE-VEN-028: Form Validation
+
+**Requirement:** The system shall validate all form inputs and display clear, specific error messages.
+
+**Acceptance Criteria:**
+- [ ] Validation occurs on blur and on form submission
+- [ ] Required field errors: "{Field name} is required"
+- [ ] Length errors: "{Field name} must be between {min} and {max} characters"
+- [ ] Numeric errors: "{Field name} must be a positive number"
+- [ ] Email format errors: "Please enter a valid email address"
+- [ ] Custom business rule errors display appropriate messages
+- [ ] Multiple errors for a field are all displayed
+- [ ] Form cannot be submitted while invalid
+- [ ] First invalid field is focused on submit attempt
+
+### REQ-FE-VEN-029: Form Actions
+
+**Requirement:** The system shall provide clear submit and cancel actions with appropriate feedback.
+
+**Acceptance Criteria:**
+- [ ] Cancel button is secondary styled (not prominent)
+- [ ] Submit button is primary styled (prominent)
+- [ ] Cancel button navigates to venue list without saving
+- [ ] Unsaved changes warning shown if form is dirty
+- [ ] Submit button shows loading spinner during submission
+- [ ] Submit button is disabled during submission
+- [ ] Success snackbar shown on successful save
+- [ ] Error snackbar shown on save failure
+- [ ] Form redirects to venue detail on successful creation
+- [ ] Form stays on page showing errors on validation failure
+
+---
+
+## 5. Venue Contact Management Requirements
+
+### REQ-FE-VEN-030: Contacts Tab Display
+
+**Requirement:** The system shall display all venue contacts in a list with support for adding, editing, and removing contacts.
+
+**Acceptance Criteria:**
+- [ ] Contacts are displayed in Material cards or list items
+- [ ] Each contact shows: name, contact type, email, phone, position
+- [ ] Contact type is visually distinguished with badges
+- [ ] Add Contact button is visible to users with venues.contacts.manage permission
+- [ ] Edit button appears on each contact for authorized users
+- [ ] Delete button appears on each contact for authorized users
+- [ ] Empty state shown when no contacts exist
+- [ ] Empty state message encourages adding first contact
+- [ ] Contacts are sorted by contact type (Primary first)
+
+### REQ-FE-VEN-031: Add Contact Dialog
+
+**Requirement:** The system shall provide a dialog form for adding new contacts with validation.
+
+**Acceptance Criteria:**
+- [ ] Dialog opens on clicking Add Contact button
+- [ ] Dialog title is "Add Contact"
+- [ ] Contact type dropdown is required
+- [ ] First name input is required
+- [ ] Last name input is required
+- [ ] Email input is required with email format validation
+- [ ] Phone input is required with phone format validation
+- [ ] Position input is optional
+- [ ] Notes textarea is optional
+- [ ] Save button submits the form
+- [ ] Cancel button closes dialog without saving
+- [ ] Form validation prevents saving invalid data
+- [ ] Success message shown on successful add
+- [ ] Contact list updates immediately after add
+
+### REQ-FE-VEN-032: Edit Contact Dialog
+
+**Requirement:** The system shall provide a dialog form for editing existing contacts with pre-populated values.
+
+**Acceptance Criteria:**
+- [ ] Dialog opens on clicking Edit button on contact
+- [ ] Dialog title is "Edit Contact"
+- [ ] All fields pre-populated with current contact data
+- [ ] Form structure matches Add Contact dialog
+- [ ] Update button saves changes
+- [ ] Validation same as Add Contact
+- [ ] Success message shown on successful update
+- [ ] Contact list updates immediately after update
+
+### REQ-FE-VEN-033: Delete Contact Confirmation
+
+**Requirement:** The system shall require confirmation before deleting a contact.
+
+**Acceptance Criteria:**
+- [ ] Confirmation dialog opens on clicking Delete button
+- [ ] Dialog title is "Delete Contact"
+- [ ] Dialog message confirms deletion action
+- [ ] Contact name is shown in confirmation message
+- [ ] Confirm button is styled as warning (red)
+- [ ] Cancel button dismisses dialog
+- [ ] Success message shown on successful deletion
+- [ ] Contact removed from list immediately after deletion
+- [ ] Error message shown if deletion fails
+
+---
+
+## 6. Venue Photos Management Requirements
+
+### REQ-FE-VEN-040: Photo Upload Interface
+
+**Requirement:** The system shall provide an interface for uploading venue photos with drag-and-drop support and validation.
+
+**Acceptance Criteria:**
+- [ ] Upload button is visible in photo gallery for authorized users
+- [ ] Clicking upload button opens file picker
+- [ ] Drag-and-drop zone is displayed for uploading
+- [ ] Visual feedback shown when dragging file over drop zone
+- [ ] Only JPEG and PNG file types are accepted
+- [ ] Maximum file size is 5MB
+- [ ] Error message shown for invalid file type
+- [ ] Error message shown for oversized files
+- [ ] Multiple files can be selected at once
+- [ ] Upload progress indicator shown for each file
+- [ ] Preview of image shown before upload confirmation
+
+### REQ-FE-VEN-041: Photo Upload Dialog
+
+**Requirement:** The system shall provide a dialog for configuring photo upload with caption and primary photo selection.
+
+**Acceptance Criteria:**
+- [ ] Dialog opens after file selection
+- [ ] Dialog shows preview of selected photo
+- [ ] Caption input field is optional
+- [ ] "Set as primary photo" checkbox is available
+- [ ] Upload button submits the photo
+- [ ] Cancel button dismisses dialog without uploading
+- [ ] Progress bar shows upload progress
+- [ ] Success message shown on successful upload
+- [ ] Photo gallery updates immediately with new photo
+- [ ] Error message shown if upload fails
+
+### REQ-FE-VEN-042: Photo Delete Action
+
+**Requirement:** The system shall allow authorized users to delete photos with confirmation.
+
+**Acceptance Criteria:**
+- [ ] Delete icon overlay appears on photo hover
+- [ ] Delete icon is only visible to authorized users
+- [ ] Clicking delete icon shows confirmation dialog
+- [ ] Confirmation dialog shows photo thumbnail
+- [ ] Confirm button is styled as warning
+- [ ] Success message shown on successful deletion
+- [ ] Photo removed from gallery immediately
+- [ ] Error message shown if deletion fails
+- [ ] Cannot delete if photo is being used
+
+---
+
+## 7. Venue History Requirements
+
+### REQ-FE-VEN-050: History Tab Display
+
+**Requirement:** The system shall display venue usage history in a chronological list with event details and ratings.
+
+**Acceptance Criteria:**
+- [ ] History records displayed in reverse chronological order
+- [ ] Each record shows: event name, date, rating, feedback
+- [ ] Event date is formatted in user-friendly format
+- [ ] Rating is displayed with star icons
+- [ ] Feedback text is displayed if available
+- [ ] Empty state shown when no history exists
+- [ ] Date range filter allows filtering by date range
+- [ ] Loading indicator shown while fetching history
+- [ ] History list is paginated for long lists
+
+### REQ-FE-VEN-051: History Date Filter
+
+**Requirement:** The system shall provide date range filtering for venue history records.
+
+**Acceptance Criteria:**
+- [ ] Start date picker is available
+- [ ] End date picker is available
+- [ ] Filter button applies date range filter
+- [ ] Clear button resets date filter
+- [ ] Date pickers use Material date picker component
+- [ ] Invalid date ranges are prevented (start > end)
+- [ ] Filter updates history list immediately
+- [ ] Current filter is visually indicated
+
+---
+
+## 8. Venue Rating and Feedback Requirements
+
+### REQ-FE-VEN-060: Rating Display
+
+**Requirement:** The system shall display venue ratings with visual star representation and rating breakdown.
+
+**Acceptance Criteria:**
+- [ ] Average rating displayed with star icons (filled/half/empty)
+- [ ] Numeric rating shown (e.g., "4.5 out of 5")
+- [ ] Total number of ratings displayed (e.g., "Based on 24 ratings")
+- [ ] Rating breakdown shows distribution across 1-5 stars
+- [ ] Breakdown uses horizontal bar chart
+- [ ] Each bar shows percentage and count
+- [ ] Rating component is reusable across views
+
+### REQ-FE-VEN-061: Submit Rating Dialog
+
+**Requirement:** The system shall provide a dialog for submitting ratings after events.
+
+**Acceptance Criteria:**
+- [ ] Dialog opens on clicking "Rate Venue" button
+- [ ] Event selection dropdown includes past events at venue
+- [ ] Star rating selector allows choosing 1-5 stars
+- [ ] Stars highlight on hover to preview selection
+- [ ] Selected rating is visually distinct
+- [ ] Feedback textarea is optional
+- [ ] Submit button saves rating
+- [ ] Validation ensures event and rating are selected
+- [ ] Success message shown on submission
+- [ ] Venue rating updates immediately
+
+### REQ-FE-VEN-062: Submit Feedback Form
+
+**Requirement:** The system shall provide a form for submitting detailed feedback with sentiment analysis results.
+
+**Acceptance Criteria:**
+- [ ] Feedback form accessible from history or detail view
+- [ ] Event selection dropdown includes past events
+- [ ] Feedback textarea is required
+- [ ] Character count shown for feedback
+- [ ] Submit button saves feedback
+- [ ] Loading indicator shown during sentiment analysis
+- [ ] Sentiment score displayed after submission
+- [ ] Sentiment shown with icon and color (positive=green, negative=red, neutral=gray)
+- [ ] Success message confirms submission
+
+---
+
+## 9. Venue Issue Management Requirements
+
+### REQ-FE-VEN-070: Issues Tab Display
+
+**Requirement:** The system shall display reported issues in a list with filtering by status and severity.
+
+**Acceptance Criteria:**
+- [ ] Issues displayed in list or card format
+- [ ] Each issue shows: type, severity, description, status, reported date
+- [ ] Severity displayed with color-coded badge (Critical=red, High=orange, Medium=yellow, Low=gray)
+- [ ] Status displayed with badge (Open, InProgress, Resolved, Closed)
+- [ ] Report Issue button visible to authorized users
+- [ ] Filter by status dropdown
+- [ ] Filter by severity dropdown
+- [ ] Issues sorted by reported date descending
+- [ ] Empty state shown when no issues exist
+
+### REQ-FE-VEN-071: Report Issue Dialog
+
+**Requirement:** The system shall provide a dialog for reporting new venue issues with required details.
+
+**Acceptance Criteria:**
+- [ ] Dialog opens on clicking Report Issue button
+- [ ] Issue type dropdown is required (Facility, Equipment, Service, Safety, Cleanliness, Other)
+- [ ] Severity dropdown is required (Low, Medium, High, Critical)
+- [ ] Description textarea is required
+- [ ] Description has minimum character requirement
+- [ ] Submit button reports the issue
+- [ ] Validation prevents empty submissions
+- [ ] Success message shown on successful report
+- [ ] Issues list updates with new issue
+- [ ] High/Critical severity triggers additional notification prompt
+
+### REQ-FE-VEN-072: Update Issue Status
+
+**Requirement:** The system shall allow authorized users to update issue status with resolution notes.
+
+**Acceptance Criteria:**
+- [ ] Status dropdown available on issue card for authorized users
+- [ ] Status options: Open, InProgress, Resolved, Closed
+- [ ] Resolution textarea appears when status is Resolved or Closed
+- [ ] Resolution is required for Resolved/Closed status
+- [ ] Update button saves status change
+- [ ] Success message shown on update
+- [ ] Issue card updates immediately with new status
+- [ ] Status change is logged in issue history
+
+---
+
+## 10. Venue Status Management Requirements
+
+### REQ-FE-VEN-080: Activate Venue Action
+
+**Requirement:** The system shall allow authorized users to activate inactive venues through the actions menu.
+
+**Acceptance Criteria:**
+- [ ] Activate action visible in menu for Inactive venues
+- [ ] Action only visible to users with venues.activate permission
+- [ ] Clicking activate shows confirmation dialog
+- [ ] Confirmation dialog explains activation
+- [ ] Confirm button activates the venue
+- [ ] Success message shown on activation
+- [ ] Venue status badge updates to Active immediately
+- [ ] Cannot activate Blacklisted venues
+
+### REQ-FE-VEN-081: Deactivate Venue Action
+
+**Requirement:** The system shall allow authorized users to deactivate active venues with a required reason.
+
+**Acceptance Criteria:**
+- [ ] Deactivate action visible in menu for Active venues
+- [ ] Action only visible to users with venues.deactivate permission
+- [ ] Clicking deactivate shows dialog requesting reason
+- [ ] Reason textarea is required
+- [ ] Confirm button deactivates the venue with reason
+- [ ] Success message shown on deactivation
+- [ ] Venue status badge updates to Inactive immediately
+- [ ] Deactivation reason is recorded
+
+### REQ-FE-VEN-082: Blacklist Venue Action
+
+**Requirement:** The system shall allow authorized administrators to blacklist venues with a required reason.
+
+**Acceptance Criteria:**
+- [ ] Blacklist action visible in menu for non-blacklisted venues
+- [ ] Action only visible to administrators
+- [ ] Clicking blacklist shows warning dialog
+- [ ] Dialog explains consequences of blacklisting
+- [ ] Reason textarea is required
+- [ ] Confirm button is styled as warning (red)
+- [ ] Validation checks for future bookings
+- [ ] Error shown if venue has confirmed future bookings
+- [ ] Success message shown on blacklist
+- [ ] Venue status badge updates to Blacklisted immediately
+
+### REQ-FE-VEN-083: Whitelist Venue Action
+
+**Requirement:** The system shall allow authorized administrators to remove venues from blacklist.
+
+**Acceptance Criteria:**
+- [ ] Whitelist action visible in menu for Blacklisted venues
+- [ ] Action only visible to administrators
+- [ ] Clicking whitelist shows confirmation dialog
+- [ ] Dialog explains whitelisting will restore Active status
+- [ ] Confirm button whitelists the venue
+- [ ] Success message shown on whitelist
+- [ ] Venue status badge updates to Active immediately
+
+### REQ-FE-VEN-084: Delete Venue Action
+
+**Requirement:** The system shall allow authorized users to delete venues with confirmation and validation.
+
+**Acceptance Criteria:**
+- [ ] Delete action visible in actions menu
+- [ ] Action only visible to users with venues.delete permission
+- [ ] Action styled in warning color (red)
+- [ ] Clicking delete shows warning dialog
+- [ ] Dialog warns about permanent deletion
+- [ ] Optional reason textarea provided
+- [ ] Confirm button is labeled "Delete" and styled as warning
+- [ ] Validation checks for upcoming events
+- [ ] Error shown if venue has upcoming events
+- [ ] Success message shown on deletion
+- [ ] User redirected to venue list after deletion
+
+---
+
+## 11. State Management Requirements
+
+### REQ-FE-VEN-090: NgRx Store Setup
+
+**Requirement:** The system shall use NgRx for centralized state management of venue data with proper module structure.
+
+**Acceptance Criteria:**
+- [ ] Venue feature state is registered with StoreModule.forFeature
+- [ ] Venue effects are registered with EffectsModule.forFeature
+- [ ] Entity adapter is used for venue collection management
+- [ ] State interface includes: venues, selectedVenue, loading, error, filters, pagination
+- [ ] Initial state is properly defined
+- [ ] Store is typed with TypeScript interfaces
+- [ ] Feature selector is created for venue state
+
+### REQ-FE-VEN-091: Actions Implementation
+
+**Requirement:** The system shall define comprehensive actions for all venue operations following NgRx best practices.
+
+**Acceptance Criteria:**
+- [ ] Load actions: loadVenues, loadVenuesSuccess, loadVenuesFailure
+- [ ] Single venue actions: loadVenue, loadVenueSuccess, loadVenueFailure
+- [ ] Create actions: createVenue, createVenueSuccess, createVenueFailure
+- [ ] Update actions: updateVenue, updateVenueSuccess, updateVenueFailure
+- [ ] Delete actions: deleteVenue, deleteVenueSuccess, deleteVenueFailure
+- [ ] Status actions: activateVenue, deactivateVenue, blacklistVenue, whitelistVenue
+- [ ] Contact actions: addVenueContact, updateVenueContact, removeVenueContact
+- [ ] Photo actions: uploadVenuePhoto, deleteVenuePhoto
+- [ ] Search actions: searchVenues, searchVenuesSuccess
+- [ ] Filter actions: setVenueFilters, clearVenueFilters
+- [ ] All actions include necessary payload with props
+
+### REQ-FE-VEN-092: Effects Implementation
+
+**Requirement:** The system shall implement effects to handle side effects and API calls for venue operations.
+
+**Acceptance Criteria:**
+- [ ] Load venues effect calls API and dispatches success/failure
+- [ ] Create venue effect calls API, dispatches success, and navigates on success
+- [ ] Update venue effect calls API and shows success notification
+- [ ] Delete venue effect calls API and navigates on success
+- [ ] All effects handle errors and dispatch failure actions
+- [ ] Effects use proper RxJS operators (switchMap, map, catchError)
+- [ ] Effects are registered in EffectsModule
+- [ ] API service is injected and used for HTTP calls
+
+### REQ-FE-VEN-093: Selectors Implementation
+
+**Requirement:** The system shall implement memoized selectors for efficient state queries.
+
+**Acceptance Criteria:**
+- [ ] selectVenueState feature selector is defined
+- [ ] selectAllVenues selector returns all venues from entity state
+- [ ] selectSelectedVenue selector returns currently selected venue
+- [ ] selectVenueLoading selector returns loading state
+- [ ] selectVenueError selector returns error state
+- [ ] selectVenueFilters selector returns current filters
+- [ ] selectActiveVenues selector returns filtered active venues
+- [ ] selectTopRatedVenues selector returns top rated venues
+- [ ] All selectors use createSelector for memoization
+- [ ] Selectors are properly typed
+
+### REQ-FE-VEN-094: Reducer Implementation
+
+**Requirement:** The system shall implement reducers to handle state updates for all venue actions.
+
+**Acceptance Criteria:**
+- [ ] Reducer handles loadVenuesSuccess by updating entity state
+- [ ] Reducer handles createVenueSuccess by adding to entity state
+- [ ] Reducer handles updateVenueSuccess by updating entity
+- [ ] Reducer handles deleteVenueSuccess by removing from entity state
+- [ ] Reducer handles setVenueFilters by updating filter state
+- [ ] Reducer sets loading true on request actions
+- [ ] Reducer sets loading false on success/failure actions
+- [ ] Reducer sets error on failure actions
+- [ ] Reducer uses entity adapter methods (addOne, updateOne, removeOne)
+- [ ] State is immutable
+
+---
+
+## 12. Routing and Navigation Requirements
+
+### REQ-FE-VEN-100: Route Configuration
+
+**Requirement:** The system shall configure lazy-loaded routes for venue management with proper guards.
+
+**Acceptance Criteria:**
+- [ ] Venue routes are lazy-loaded for performance
+- [ ] Route path '' displays VenueListComponent
+- [ ] Route path 'new' displays VenueFormComponent for creation
+- [ ] Route path ':id' displays VenueDetailComponent
+- [ ] Route path ':id/edit' displays VenueFormComponent for editing
+- [ ] All routes protected by AuthGuard
+- [ ] Create/edit routes have UnsavedChangesGuard
+- [ ] Routes include permission data for authorization
+- [ ] Route parameters are properly typed
+
+### REQ-FE-VEN-101: Navigation Guards
+
+**Requirement:** The system shall implement route guards for authentication, authorization, and unsaved changes protection.
+
+**Acceptance Criteria:**
+- [ ] AuthGuard verifies user is authenticated
+- [ ] AuthGuard redirects to login if not authenticated
+- [ ] PermissionGuard checks required permissions from route data
+- [ ] PermissionGuard shows access denied message if unauthorized
+- [ ] UnsavedChangesGuard checks for dirty forms
+- [ ] UnsavedChangesGuard shows confirmation dialog for unsaved changes
+- [ ] User can choose to stay or leave from confirmation
+- [ ] Guards implement CanActivate and CanDeactivate interfaces
+
+### REQ-FE-VEN-102: Navigation Flow
+
+**Requirement:** The system shall provide smooth navigation between venue views with proper state preservation.
+
+**Acceptance Criteria:**
+- [ ] Clicking venue card navigates to detail view
+- [ ] Back button from detail returns to list
+- [ ] Edit button navigates to edit form
+- [ ] Save in form navigates to detail view
+- [ ] Cancel in form navigates back to previous view
+- [ ] Delete action navigates to list view
+- [ ] Browser back/forward buttons work correctly
+- [ ] Navigation preserves query parameters (filters, page)
+- [ ] Active route is highlighted in navigation
+- [ ] Route transitions are smooth without flicker
+
+---
+
+## 13. Validation Requirements
+
+### REQ-FE-VEN-110: Client-Side Validation
+
+**Requirement:** The system shall implement comprehensive client-side validation for all form inputs using Angular validators.
+
+**Acceptance Criteria:**
+- [ ] Required fields use Validators.required
+- [ ] Text length uses Validators.minLength and Validators.maxLength
+- [ ] Email fields use Validators.email
+- [ ] Numeric fields use Validators.min and Validators.max
+- [ ] Custom validators for business rules (capacity constraints)
+- [ ] Validation runs on blur and on submit
+- [ ] Validation errors are displayed immediately after blur
+- [ ] Forms are invalid when any field is invalid
+- [ ] Submit button is disabled when form is invalid
+
+### REQ-FE-VEN-111: Error Message Display
+
+**Requirement:** The system shall display clear, specific validation error messages for all form fields.
+
+**Acceptance Criteria:**
+- [ ] Error messages appear below form fields
+- [ ] Error text is styled in red/error color
+- [ ] Messages are specific to validation type
+- [ ] Required errors: "{Field} is required"
+- [ ] Length errors: "{Field} must be between {min} and {max} characters"
+- [ ] Email errors: "Please enter a valid email address"
+- [ ] Custom errors show appropriate messages
+- [ ] Multiple errors for same field all display
+- [ ] Errors clear when field becomes valid
+
+### REQ-FE-VEN-112: Form State Indication
+
+**Requirement:** The system shall visually indicate form field state (pristine, dirty, valid, invalid, touched).
+
+**Acceptance Criteria:**
+- [ ] Invalid touched fields have red border
+- [ ] Valid touched fields have normal border
+- [ ] Pristine fields have normal appearance
+- [ ] Required fields marked with asterisk
+- [ ] Field labels remain visible when filled
+- [ ] Placeholder text provides examples
+- [ ] Focus state is clearly visible
+- [ ] Disabled state is visually distinct
+
+---
+
+## 14. API Integration Requirements
+
+### REQ-FE-VEN-120: HTTP Client Configuration
+
+**Requirement:** The system shall configure HttpClient with interceptors for authentication, error handling, and loading states.
+
+**Acceptance Criteria:**
+- [ ] HttpClient is provided in application
+- [ ] AuthInterceptor adds Bearer token to requests
+- [ ] ErrorInterceptor catches and handles HTTP errors
+- [ ] LoadingInterceptor manages global loading state
+- [ ] Base API URL is configured from environment
+- [ ] HTTP errors are converted to user-friendly messages
+- [ ] 401 errors trigger re-authentication
+- [ ] Network errors show appropriate messages
+
+### REQ-FE-VEN-121: API Service Implementation
+
+**Requirement:** The system shall implement a service layer that abstracts all API calls for venue operations.
+
+**Acceptance Criteria:**
+- [ ] VenueApiService is provided in root
+- [ ] Service methods return Observables
+- [ ] All CRUD operations are implemented
+- [ ] Query parameters are properly serialized
+- [ ] Request bodies are properly serialized as JSON
+- [ ] Response types are properly typed with interfaces
+- [ ] Service handles multipart/form-data for photo uploads
+- [ ] Service includes proper error handling
+- [ ] Service uses dependency injection for HttpClient
+
+### REQ-FE-VEN-122: Response Handling
+
+**Requirement:** The system shall properly handle API responses with type safety and error handling.
+
+**Acceptance Criteria:**
+- [ ] Success responses are mapped to typed models
+- [ ] Error responses are caught and processed
+- [ ] Loading states are managed during requests
+- [ ] Concurrent requests are handled properly
+- [ ] Request cancellation is supported where appropriate
+- [ ] Response data is validated before use
+- [ ] Null/undefined responses are handled safely
+
+---
+
+## 15. UI/UX Requirements
+
+### REQ-FE-VEN-130: Material Design Implementation
+
+**Requirement:** The system shall use Angular Material components consistently throughout the application with custom theming.
+
+**Acceptance Criteria:**
+- [ ] Custom Material theme is configured
+- [ ] Primary color palette is defined
+- [ ] Accent color palette is defined
+- [ ] Warn color palette is defined
+- [ ] Typography is configured with Material typography
+- [ ] All Material components use consistent styling
+- [ ] Elevation/shadows follow Material guidelines
+- [ ] Spacing follows 8px grid system
+- [ ] Component density is configured appropriately
+
+### REQ-FE-VEN-131: Responsive Design
+
+**Requirement:** The system shall be fully responsive and functional on mobile, tablet, and desktop screen sizes.
+
+**Acceptance Criteria:**
+- [ ] Mobile breakpoint: < 600px (1 column layout)
+- [ ] Tablet breakpoint: 600px - 960px (2 column layout)
+- [ ] Desktop breakpoint: > 960px (3-4 column layout)
+- [ ] Navigation adapts to screen size (drawer on mobile, toolbar on desktop)
+- [ ] Forms stack vertically on mobile
+- [ ] Tables become scrollable or cards on mobile
+- [ ] Images are responsive and properly sized
+- [ ] Touch targets are minimum 48x48px on mobile
+- [ ] Text is readable without zooming
+- [ ] No horizontal scrolling required
+
+### REQ-FE-VEN-132: Loading States
+
+**Requirement:** The system shall provide clear visual feedback during all asynchronous operations.
+
+**Acceptance Criteria:**
+- [ ] Spinner shown during data loading
+- [ ] Progress bar shown for file uploads
+- [ ] Skeleton screens shown for complex content
+- [ ] Button spinners shown during form submission
+- [ ] Loading overlay prevents interaction during saves
+- [ ] Loading states don't block entire UI unnecessarily
+- [ ] Minimum loading display time to prevent flicker
+- [ ] Loading cancellation is available for long operations
+
+### REQ-FE-VEN-133: Error States
+
+**Requirement:** The system shall display user-friendly error messages with actionable information.
+
+**Acceptance Criteria:**
+- [ ] Error messages are displayed in snackbars/toasts
+- [ ] Error duration is appropriate (3-5 seconds)
+- [ ] Critical errors require user acknowledgment
+- [ ] Error messages are clear and non-technical
+- [ ] Retry action is available for network errors
+- [ ] Error logs include correlation IDs for support
+- [ ] Validation errors are shown inline on forms
+- [ ] Global errors are shown in error boundary
+
+### REQ-FE-VEN-134: Success Feedback
+
+**Requirement:** The system shall provide positive feedback for successful operations.
+
+**Acceptance Criteria:**
+- [ ] Success messages shown in snackbars
+- [ ] Success duration is 3 seconds
+- [ ] Success messages use green/success color
+- [ ] Success messages include action description
+- [ ] Success icon is shown
+- [ ] Undo option provided where appropriate
+- [ ] Success animations are subtle and brief
+
+### REQ-FE-VEN-135: Empty States
+
+**Requirement:** The system shall display helpful empty states when no data is available.
+
+**Acceptance Criteria:**
+- [ ] Empty state icon is displayed
+- [ ] Empty state message explains why no data shown
+- [ ] Empty state suggests next action
+- [ ] Call-to-action button provided where appropriate
+- [ ] Empty states are centered and visually balanced
+- [ ] Different empty states for different scenarios (no results vs no data)
+
+---
+
+## 16. Accessibility Requirements
+
+### REQ-FE-VEN-140: ARIA Labels and Roles
+
+**Requirement:** The system shall implement proper ARIA labels and roles for screen reader accessibility.
+
+**Acceptance Criteria:**
+- [ ] All interactive elements have aria-label or aria-labelledby
+- [ ] Icon-only buttons have descriptive aria-label
+- [ ] Form inputs have associated labels
+- [ ] Error messages are announced to screen readers
+- [ ] Loading states are announced with aria-live
+- [ ] Modal dialogs have role="dialog"
+- [ ] Navigation has role="navigation"
+- [ ] Main content has role="main"
+
+### REQ-FE-VEN-141: Keyboard Navigation
+
+**Requirement:** The system shall be fully navigable and operable using keyboard only.
+
+**Acceptance Criteria:**
+- [ ] All interactive elements are keyboard accessible
+- [ ] Tab order is logical and follows visual flow
+- [ ] Focus indicators are clearly visible
+- [ ] Escape key closes dialogs and dropdowns
+- [ ] Enter key activates buttons and submits forms
+- [ ] Arrow keys navigate within dropdowns and lists
+- [ ] Skip navigation links are provided
+- [ ] Focus is managed when opening/closing dialogs
+- [ ] No keyboard traps exist
+
+### REQ-FE-VEN-142: Color and Contrast
+
+**Requirement:** The system shall meet WCAG 2.1 AA standards for color contrast and not rely on color alone for information.
+
+**Acceptance Criteria:**
+- [ ] Text has minimum 4.5:1 contrast ratio with background
+- [ ] Large text has minimum 3:1 contrast ratio
+- [ ] Interactive elements have sufficient contrast
+- [ ] Focus indicators have 3:1 contrast ratio
+- [ ] Status information uses icons in addition to color
+- [ ] Links are distinguishable without color alone
+- [ ] Form validation doesn't rely only on color
+
+### REQ-FE-VEN-143: Screen Reader Support
+
+**Requirement:** The system shall provide meaningful information and context to screen reader users.
+
+**Acceptance Criteria:**
+- [ ] Page titles are descriptive and unique
+- [ ] Headings are properly structured (h1-h6)
+- [ ] Form errors are associated with fields
+- [ ] Dynamic content changes are announced
+- [ ] Button purposes are clear from labels
+- [ ] Image alt text is descriptive
+- [ ] Decorative images have empty alt attribute
+
+---
+
+## 17. Performance Optimization Requirements
+
+### REQ-FE-VEN-150: Lazy Loading
+
+**Requirement:** The system shall implement lazy loading for feature modules and heavy components to optimize initial load time.
+
+**Acceptance Criteria:**
+- [ ] Venue feature module is lazy loaded
+- [ ] Route-based code splitting is implemented
+- [ ] Images are lazy loaded with loading="lazy"
+- [ ] Heavy components are dynamically imported
+- [ ] Initial bundle size is minimized
+- [ ] Lazy loading does not impact user experience
+- [ ] Loading indicators shown while loading
+
+### REQ-FE-VEN-151: Change Detection Optimization
+
+**Requirement:** The system shall optimize change detection to improve runtime performance.
+
+**Acceptance Criteria:**
+- [ ] Components use OnPush change detection strategy where possible
+- [ ] Immutable data patterns are used in state management
+- [ ] Async pipe is used for observables
+- [ ] Manual change detection triggering is minimized
+- [ ] Expensive computations are memoized
+- [ ] Large lists use trackBy functions
+- [ ] Detached change detection for complex components
+
+### REQ-FE-VEN-152: Virtual Scrolling
+
+**Requirement:** The system shall use virtual scrolling for long lists to improve rendering performance.
+
+**Acceptance Criteria:**
+- [ ] CDK Virtual Scroll is implemented for venue lists > 100 items
+- [ ] Item size is specified for consistent scrolling
+- [ ] Scroll viewport height is appropriate
+- [ ] Scroll performance is smooth
+- [ ] Virtual scrolling works with filtering/sorting
+- [ ] Accessibility is maintained with virtual scrolling
+
+### REQ-FE-VEN-153: Image Optimization
+
+**Requirement:** The system shall optimize image loading and display for performance.
+
+**Acceptance Criteria:**
+- [ ] Lazy loading is enabled for images
+- [ ] Thumbnails are used in list views
+- [ ] Progressive image loading is implemented
+- [ ] Images are served from CDN
+- [ ] Responsive images use srcset for different sizes
+- [ ] Image placeholders shown while loading
+- [ ] Failed image loads show fallback
+
+### REQ-FE-VEN-154: Caching Strategy
+
+**Requirement:** The system shall implement client-side caching for improved performance.
+
+**Acceptance Criteria:**
+- [ ] HTTP responses are cached appropriately
+- [ ] State is preserved in NgRx store
+- [ ] API calls are deduplicated using shareReplay
+- [ ] Cache invalidation occurs on data updates
+- [ ] Service Worker is configured for offline support (optional)
+- [ ] Local Storage used for user preferences
+
+---
+
+## 18. Testing Requirements
+
+### REQ-FE-VEN-160: Unit Testing
+
+**Requirement:** The system shall have comprehensive unit tests for components, services, and state management.
+
+**Acceptance Criteria:**
+- [ ] All components have unit tests
+- [ ] All services have unit tests
+- [ ] All reducers have unit tests
+- [ ] All selectors have unit tests
+- [ ] All effects have unit tests
+- [ ] Code coverage is at least 80%
+- [ ] Tests use Angular testing utilities
+- [ ] Tests use MockStore for state testing
+- [ ] Tests are isolated and independent
+- [ ] Tests run in CI/CD pipeline
+
+### REQ-FE-VEN-161: Component Testing
+
+**Requirement:** The system shall have component tests verifying UI behavior and user interactions.
+
+**Acceptance Criteria:**
+- [ ] Component rendering is tested
+- [ ] User interactions are tested (click, input, etc.)
+- [ ] Form validation is tested
+- [ ] Conditional rendering is tested
+- [ ] Output events are tested
+- [ ] Input properties are tested
+- [ ] Component integration with services is tested
+- [ ] Async operations are properly tested with fakeAsync
+
+### REQ-FE-VEN-162: E2E Testing
+
+**Requirement:** The system shall have end-to-end tests covering critical user workflows using Cypress.
+
+**Acceptance Criteria:**
+- [ ] Venue list display is tested
+- [ ] Venue creation workflow is tested
+- [ ] Venue update workflow is tested
+- [ ] Venue deletion workflow is tested
+- [ ] Search functionality is tested
+- [ ] Filter functionality is tested
+- [ ] Photo upload is tested
+- [ ] Contact management is tested
+- [ ] Rating submission is tested
+- [ ] Issue reporting is tested
+- [ ] E2E tests run in CI/CD pipeline
+
+---
+
+## 19. Security Requirements
+
+### REQ-FE-VEN-170: XSS Protection
+
+**Requirement:** The system shall implement protection against Cross-Site Scripting (XSS) attacks.
+
+**Acceptance Criteria:**
+- [ ] Angular's built-in sanitization is used
+- [ ] User input is never directly rendered as HTML
+- [ ] DomSanitizer is used when HTML rendering is necessary
+- [ ] Content Security Policy is configured
+- [ ] Trusted URLs are whitelisted
+- [ ] Scripts from external sources are validated
+- [ ] innerHTMLbinding is avoided
+
+### REQ-FE-VEN-171: Authentication Integration
+
+**Requirement:** The system shall integrate with MSAL for Azure AD authentication with token management.
+
+**Acceptance Criteria:**
+- [ ] MSAL library is configured
+- [ ] Login redirects to Azure AD
+- [ ] Tokens are stored securely
+- [ ] Token refresh is handled automatically
+- [ ] Logout clears all tokens and session
+- [ ] Protected routes require authentication
+- [ ] Auth state is managed in application state
+- [ ] Token expiration triggers re-authentication
+
+### REQ-FE-VEN-172: Authorization Checks
+
+**Requirement:** The system shall enforce authorization by checking user permissions before displaying protected features.
+
+**Acceptance Criteria:**
+- [ ] User permissions are loaded on authentication
+- [ ] Permission checks occur before rendering UI elements
+- [ ] Unauthorized features are hidden, not just disabled
+- [ ] API calls include authorization headers
+- [ ] 403 responses are handled appropriately
+- [ ] Permission service provides checking methods
+- [ ] Structural directives for permission-based rendering
+
+### REQ-FE-VEN-173: Secure Data Handling
+
+**Requirement:** The system shall handle sensitive data securely in the frontend.
+
+**Acceptance Criteria:**
+- [ ] Passwords are never stored or logged
+- [ ] Sensitive data is not logged to console
+- [ ] Local storage is not used for sensitive data
+- [ ] Session storage is cleared on logout
+- [ ] HTTPS is enforced for all requests
+- [ ] Tokens are transmitted securely
+- [ ] Input sanitization prevents injection attacks
+
+---
+
+## 20. Build and Deployment Requirements
+
+### REQ-FE-VEN-180: Build Configuration
+
+**Requirement:** The system shall have optimized build configuration for production deployment.
+
+**Acceptance Criteria:**
+- [ ] Production build enables optimization
+- [ ] Ahead-of-Time (AOT) compilation is enabled
+- [ ] Build optimizer is enabled
+- [ ] Source maps are excluded from production
+- [ ] CSS is extracted and minified
+- [ ] JavaScript is minified and uglified
+- [ ] Output hashing is enabled for cache busting
+- [ ] Bundle size budgets are configured
+- [ ] Budget warnings shown if exceeded
+
+### REQ-FE-VEN-181: Environment Configuration
+
+**Requirement:** The system shall support multiple environment configurations for different deployment targets.
+
+**Acceptance Criteria:**
+- [ ] Environment files for dev, staging, prod exist
+- [ ] API URLs are configurable per environment
+- [ ] Feature flags are configurable per environment
+- [ ] Build selects correct environment file
+- [ ] Sensitive config is not committed to source control
+- [ ] Environment variables are type-safe
+- [ ] Default environment is development
+
+### REQ-FE-VEN-182: Deployment Optimization
+
+**Requirement:** The system shall be optimized for deployment with minimal bundle size and fast load times.
+
+**Acceptance Criteria:**
+- [ ] Initial bundle size < 2MB
+- [ ] Lazy-loaded chunks are appropriately sized
+- [ ] Tree shaking removes unused code
+- [ ] Common dependencies are in shared chunk
+- [ ] Differential loading for modern browsers
+- [ ] Compression is enabled (gzip/brotli)
+- [ ] Service worker for caching (optional)
+- [ ] CDN is used for static assets
+
+---
+
+## 21. Analytics and Monitoring Requirements
+
+### REQ-FE-VEN-190: Application Insights Integration
+
+**Requirement:** The system shall integrate with Application Insights for frontend monitoring and telemetry.
+
+**Acceptance Criteria:**
+- [ ] Application Insights SDK is configured
+- [ ] Page views are tracked automatically
+- [ ] User interactions are tracked (button clicks, form submissions)
+- [ ] Exceptions are logged to Application Insights
+- [ ] Custom events are tracked for key actions
+- [ ] Performance metrics are collected
+- [ ] User sessions are tracked
+- [ ] Correlation IDs link frontend to backend logs
+
+### REQ-FE-VEN-191: Error Tracking
+
+**Requirement:** The system shall track and report client-side errors with context for debugging.
+
+**Acceptance Criteria:**
+- [ ] Global error handler is implemented
+- [ ] Errors are logged with stack traces
+- [ ] User context is included in error logs
+- [ ] Error severity is classified
+- [ ] Error notifications sent for critical errors
+- [ ] Errors don't expose sensitive information
+- [ ] Error reports include browser/device info
+- [ ] Handled errors vs unhandled errors are distinguished
+
+### REQ-FE-VEN-192: User Analytics
+
+**Requirement:** The system shall track user behavior and feature usage for product insights.
+
+**Acceptance Criteria:**
+- [ ] Feature usage is tracked (which features are used)
+- [ ] User flows are tracked (navigation patterns)
+- [ ] Performance metrics tracked (load times, interaction delays)
+- [ ] Search queries are tracked (anonymized)
+- [ ] Filter usage is tracked
+- [ ] Error rates are tracked
+- [ ] User satisfaction can be measured
+- [ ] Analytics data respects privacy regulations
+
+---
 
 ## Version History
 - v1.0.0 - Initial specification (2025-12-22)
+- v2.0.0 - Transformed to structured requirements format (2025-12-22)

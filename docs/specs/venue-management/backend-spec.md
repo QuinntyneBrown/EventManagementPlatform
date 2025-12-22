@@ -27,1621 +27,938 @@ The Venue Management backend provides:
 - **Authentication**: Azure AD B2C / Entra ID
 - **API**: ASP.NET Core Web API with OpenAPI/Swagger
 
-## 2. System Architecture
-
-### 2.1 Architectural Patterns
-- **Clean Architecture**: Separation of concerns with distinct layers
-- **CQRS**: Command Query Responsibility Segregation
-- **Event Sourcing**: Domain events as the source of truth
-- **Domain-Driven Design**: Rich domain model with aggregates
-- **Repository Pattern**: Data access abstraction
-- **Mediator Pattern**: Request handling with MediatR
-
-### 2.2 Project Structure
-```
-VenueManagement/
-├── VenueManagement.API/          # Web API layer
-├── VenueManagement.Application/  # Application logic and CQRS
-├── VenueManagement.Domain/       # Domain entities and events
-├── VenueManagement.Infrastructure/ # External services and data access
-└── VenueManagement.Tests/        # Unit and integration tests
-```
-
-## 3. Domain Model
-
-### 3.1 Aggregates
-
-#### Venue Aggregate Root
-```csharp
-Properties:
-- VenueId (Guid, Primary Key)
-- Name (string, required, max 200)
-- Description (string, max 2000)
-- Status (VenueStatus enum: Active, Inactive, Blacklisted)
-- VenueType (VenueType enum: Conference, Hotel, Convention, Outdoor, etc.)
-- Address (VenueAddress value object)
-- Capacity (VenueCapacity value object)
-- Amenities (List<Amenity>)
-- Contacts (List<VenueContact>)
-- AccessInstructions (string, max 1000)
-- ParkingInfo (ParkingInfo value object)
-- Photos (List<VenuePhoto>)
-- Rating (VenueRating value object)
-- IsActive (bool)
-- CreatedAt (DateTime)
-- CreatedBy (string)
-- UpdatedAt (DateTime)
-- UpdatedBy (string)
-```
-
-### 3.2 Value Objects
-
-#### VenueAddress
-```csharp
-- Street1 (string, required, max 100)
-- Street2 (string, optional, max 100)
-- City (string, required, max 100)
-- State (string, required, max 100)
-- Country (string, required, max 100)
-- PostalCode (string, required, max 20)
-- Latitude (decimal, optional)
-- Longitude (decimal, optional)
-- TimeZone (string)
-```
-
-#### VenueCapacity
-```csharp
-- MaxCapacity (int, required)
-- SeatedCapacity (int, optional)
-- StandingCapacity (int, optional)
-- ConfigurableLayouts (List<LayoutCapacity>)
-```
-
-#### VenueContact
-```csharp
-- ContactId (Guid)
-- ContactType (ContactType enum: Primary, Booking, Technical, Catering)
-- FirstName (string, required)
-- LastName (string, required)
-- Email (string, required)
-- Phone (string, required)
-- Position (string)
-- Notes (string)
-```
-
-#### ParkingInfo
-```csharp
-- HasParking (bool)
-- ParkingCapacity (int)
-- ParkingType (ParkingType enum: Free, Paid, Valet, Street)
-- ParkingInstructions (string)
-```
-
-#### VenuePhoto
-```csharp
-- PhotoId (Guid)
-- Url (string)
-- ThumbnailUrl (string)
-- Caption (string)
-- IsPrimary (bool)
-- UploadedAt (DateTime)
-- UploadedBy (string)
-- AzureBlobPath (string)
-```
-
-#### VenueRating
-```csharp
-- AverageRating (decimal, 0-5)
-- TotalRatings (int)
-- RatingBreakdown (Dictionary<int, int>)
-```
-
-### 3.3 Entities
-
-#### VenueHistory
-```csharp
-- HistoryId (Guid)
-- VenueId (Guid)
-- EventId (Guid)
-- EventName (string)
-- EventDate (DateTime)
-- Rating (int, 1-5)
-- Feedback (string)
-- Issues (string)
-- CreatedAt (DateTime)
-```
-
-#### VenueIssue
-```csharp
-- IssueId (Guid)
-- VenueId (Guid)
-- IssueType (IssueType enum)
-- Description (string)
-- Severity (Severity enum: Low, Medium, High, Critical)
-- Status (IssueStatus enum: Open, InProgress, Resolved, Closed)
-- ReportedBy (string)
-- ReportedAt (DateTime)
-- ResolvedAt (DateTime?)
-- Resolution (string)
-```
-
-### 3.4 Enumerations
-
-```csharp
-public enum VenueStatus
-{
-    Active,
-    Inactive,
-    Blacklisted,
-    PendingApproval
-}
-
-public enum VenueType
-{
-    ConferenceCenter,
-    Hotel,
-    ConventionCenter,
-    Outdoor,
-    Restaurant,
-    Theater,
-    Stadium,
-    Other
-}
-
-public enum ContactType
-{
-    Primary,
-    Booking,
-    Technical,
-    Catering,
-    Emergency
-}
-
-public enum ParkingType
-{
-    Free,
-    Paid,
-    Valet,
-    Street,
-    None
-}
-
-public enum IssueType
-{
-    Facility,
-    Equipment,
-    Service,
-    Safety,
-    Cleanliness,
-    Other
-}
-
-public enum Severity
-{
-    Low,
-    Medium,
-    High,
-    Critical
-}
-
-public enum IssueStatus
-{
-    Open,
-    InProgress,
-    Resolved,
-    Closed
-}
-```
-
-## 4. Domain Events
-
-### 4.1 Venue Lifecycle Events
-
-#### VenueAdded
-```csharp
-{
-    "VenueId": "guid",
-    "Name": "string",
-    "VenueType": "enum",
-    "Address": "VenueAddress",
-    "CreatedBy": "string",
-    "CreatedAt": "datetime"
-}
-```
-
-#### VenueDetailsUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "UpdatedFields": "Dictionary<string, object>",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenueRemoved
-```csharp
-{
-    "VenueId": "guid",
-    "RemovedBy": "string",
-    "RemovedAt": "datetime",
-    "Reason": "string"
-}
-```
-
-#### VenueActivated
-```csharp
-{
-    "VenueId": "guid",
-    "ActivatedBy": "string",
-    "ActivatedAt": "datetime"
-}
-```
-
-#### VenueDeactivated
-```csharp
-{
-    "VenueId": "guid",
-    "DeactivatedBy": "string",
-    "DeactivatedAt": "datetime",
-    "Reason": "string"
-}
-```
-
-### 4.2 Venue Contact Events
-
-#### VenueContactAdded
-```csharp
-{
-    "VenueId": "guid",
-    "ContactId": "guid",
-    "ContactType": "enum",
-    "FullName": "string",
-    "Email": "string",
-    "AddedBy": "string",
-    "AddedAt": "datetime"
-}
-```
-
-#### VenueContactUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "ContactId": "guid",
-    "UpdatedFields": "Dictionary<string, object>",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenueContactRemoved
-```csharp
-{
-    "VenueId": "guid",
-    "ContactId": "guid",
-    "RemovedBy": "string",
-    "RemovedAt": "datetime"
-}
-```
-
-### 4.3 Venue Details Events
-
-#### VenueAddressUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "OldAddress": "VenueAddress",
-    "NewAddress": "VenueAddress",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenueCapacityUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "OldCapacity": "VenueCapacity",
-    "NewCapacity": "VenueCapacity",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenueAmenitiesUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "AddedAmenities": "List<string>",
-    "RemovedAmenities": "List<string>",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenueAccessInstructionsAdded
-```csharp
-{
-    "VenueId": "guid",
-    "Instructions": "string",
-    "AddedBy": "string",
-    "AddedAt": "datetime"
-}
-```
-
-#### VenueParkingInfoUpdated
-```csharp
-{
-    "VenueId": "guid",
-    "ParkingInfo": "ParkingInfo",
-    "UpdatedBy": "string",
-    "UpdatedAt": "datetime"
-}
-```
-
-#### VenuePhotoUploaded
-```csharp
-{
-    "VenueId": "guid",
-    "PhotoId": "guid",
-    "Url": "string",
-    "Caption": "string",
-    "IsPrimary": "bool",
-    "UploadedBy": "string",
-    "UploadedAt": "datetime"
-}
-```
-
-### 4.4 Venue History Events
-
-#### VenueUsedForEvent
-```csharp
-{
-    "VenueId": "guid",
-    "EventId": "guid",
-    "EventName": "string",
-    "EventDate": "datetime",
-    "RecordedBy": "string",
-    "RecordedAt": "datetime"
-}
-```
-
-#### VenueRatingRecorded
-```csharp
-{
-    "VenueId": "guid",
-    "EventId": "guid",
-    "Rating": "int",
-    "RatedBy": "string",
-    "RatedAt": "datetime"
-}
-```
-
-#### VenueFeedbackReceived
-```csharp
-{
-    "VenueId": "guid",
-    "EventId": "guid",
-    "Feedback": "string",
-    "SentimentScore": "decimal",
-    "ProvidedBy": "string",
-    "ProvidedAt": "datetime"
-}
-```
-
-### 4.5 Venue Status Events
-
-#### VenueIssueReported
-```csharp
-{
-    "VenueId": "guid",
-    "IssueId": "guid",
-    "IssueType": "enum",
-    "Severity": "enum",
-    "Description": "string",
-    "ReportedBy": "string",
-    "ReportedAt": "datetime"
-}
-```
-
-#### VenueBlacklisted
-```csharp
-{
-    "VenueId": "guid",
-    "Reason": "string",
-    "BlacklistedBy": "string",
-    "BlacklistedAt": "datetime"
-}
-```
-
-#### VenueWhitelisted
-```csharp
-{
-    "VenueId": "guid",
-    "WhitelistedBy": "string",
-    "WhitelistedAt": "datetime"
-}
-```
-
-## 5. API Endpoints
-
-### 5.1 Venue Management
-
-#### Create Venue
-```
-POST /api/v1/venues
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "name": "string",
-    "description": "string",
-    "venueType": "enum",
-    "address": {
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
-        "state": "string",
-        "country": "string",
-        "postalCode": "string"
-    },
-    "capacity": {
-        "maxCapacity": 0,
-        "seatedCapacity": 0,
-        "standingCapacity": 0
-    },
-    "amenities": ["string"],
-    "contacts": [
-        {
-            "contactType": "enum",
-            "firstName": "string",
-            "lastName": "string",
-            "email": "string",
-            "phone": "string",
-            "position": "string"
-        }
-    ]
-}
-
-Response: 201 Created
-{
-    "venueId": "guid",
-    "name": "string",
-    "createdAt": "datetime"
-}
-```
-
-#### Get Venue by ID
-```
-GET /api/v1/venues/{venueId}
-Authorization: Bearer {token}
-
-Response: 200 OK
-{
-    "venueId": "guid",
-    "name": "string",
-    "description": "string",
-    "status": "enum",
-    "venueType": "enum",
-    "address": { ... },
-    "capacity": { ... },
-    "amenities": [...],
-    "contacts": [...],
-    "photos": [...],
-    "rating": { ... },
-    "createdAt": "datetime",
-    "updatedAt": "datetime"
-}
-```
-
-#### Get All Venues
-```
-GET /api/v1/venues
-Authorization: Bearer {token}
-Query Parameters:
-- page (int, default: 1)
-- pageSize (int, default: 20, max: 100)
-- status (VenueStatus, optional)
-- venueType (VenueType, optional)
-- city (string, optional)
-- country (string, optional)
-- minCapacity (int, optional)
-- amenities (string[], optional)
-- searchTerm (string, optional)
-- sortBy (string, default: "name")
-- sortOrder (string, default: "asc")
-
-Response: 200 OK
-{
-    "items": [...],
-    "totalCount": 0,
-    "page": 1,
-    "pageSize": 20,
-    "totalPages": 0
-}
-```
-
-#### Update Venue
-```
-PUT /api/v1/venues/{venueId}
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body: (partial update supported)
-{
-    "name": "string",
-    "description": "string",
-    "venueType": "enum",
-    ...
-}
-
-Response: 200 OK
-{
-    "venueId": "guid",
-    "updatedAt": "datetime"
-}
-```
-
-#### Delete Venue
-```
-DELETE /api/v1/venues/{venueId}
-Authorization: Bearer {token}
-Query Parameters:
-- reason (string, optional)
-
-Response: 204 No Content
-```
-
-#### Activate Venue
-```
-POST /api/v1/venues/{venueId}/activate
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-#### Deactivate Venue
-```
-POST /api/v1/venues/{venueId}/deactivate
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "reason": "string"
-}
-
-Response: 200 OK
-```
-
-### 5.2 Venue Contacts
-
-#### Add Contact
-```
-POST /api/v1/venues/{venueId}/contacts
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "contactType": "enum",
-    "firstName": "string",
-    "lastName": "string",
-    "email": "string",
-    "phone": "string",
-    "position": "string",
-    "notes": "string"
-}
-
-Response: 201 Created
-{
-    "contactId": "guid"
-}
-```
-
-#### Update Contact
-```
-PUT /api/v1/venues/{venueId}/contacts/{contactId}
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-#### Remove Contact
-```
-DELETE /api/v1/venues/{venueId}/contacts/{contactId}
-Authorization: Bearer {token}
-
-Response: 204 No Content
-```
-
-### 5.3 Venue Details
-
-#### Update Address
-```
-PUT /api/v1/venues/{venueId}/address
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-#### Update Capacity
-```
-PUT /api/v1/venues/{venueId}/capacity
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-#### Update Amenities
-```
-PUT /api/v1/venues/{venueId}/amenities
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "amenities": ["WiFi", "Parking", "AC", "Projector", "Catering"]
-}
-
-Response: 200 OK
-```
-
-#### Update Access Instructions
-```
-PUT /api/v1/venues/{venueId}/access-instructions
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "instructions": "string"
-}
-
-Response: 200 OK
-```
-
-#### Update Parking Info
-```
-PUT /api/v1/venues/{venueId}/parking-info
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-### 5.4 Venue Photos
-
-#### Upload Photo
-```
-POST /api/v1/venues/{venueId}/photos
-Authorization: Bearer {token}
-Content-Type: multipart/form-data
-
-Request Body:
-- file (binary)
-- caption (string, optional)
-- isPrimary (bool, default: false)
-
-Response: 201 Created
-{
-    "photoId": "guid",
-    "url": "string",
-    "thumbnailUrl": "string"
-}
-```
-
-#### Get Photos
-```
-GET /api/v1/venues/{venueId}/photos
-Authorization: Bearer {token}
-
-Response: 200 OK
-[
-    {
-        "photoId": "guid",
-        "url": "string",
-        "thumbnailUrl": "string",
-        "caption": "string",
-        "isPrimary": bool,
-        "uploadedAt": "datetime"
-    }
-]
-```
-
-#### Delete Photo
-```
-DELETE /api/v1/venues/{venueId}/photos/{photoId}
-Authorization: Bearer {token}
-
-Response: 204 No Content
-```
-
-### 5.5 Venue History
-
-#### Record Venue Usage
-```
-POST /api/v1/venues/{venueId}/history
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "eventId": "guid",
-    "eventName": "string",
-    "eventDate": "datetime"
-}
-
-Response: 201 Created
-```
-
-#### Get Venue History
-```
-GET /api/v1/venues/{venueId}/history
-Authorization: Bearer {token}
-Query Parameters:
-- startDate (datetime, optional)
-- endDate (datetime, optional)
-
-Response: 200 OK
-[
-    {
-        "historyId": "guid",
-        "eventId": "guid",
-        "eventName": "string",
-        "eventDate": "datetime",
-        "rating": 0,
-        "feedback": "string"
-    }
-]
-```
-
-#### Record Rating
-```
-POST /api/v1/venues/{venueId}/ratings
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "eventId": "guid",
-    "rating": 0,  // 1-5
-    "feedback": "string"
-}
-
-Response: 201 Created
-```
-
-#### Submit Feedback
-```
-POST /api/v1/venues/{venueId}/feedback
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "eventId": "guid",
-    "feedback": "string"
-}
-
-Response: 201 Created
-{
-    "sentimentScore": 0.0  // -1.0 to 1.0
-}
-```
-
-### 5.6 Venue Issues
-
-#### Report Issue
-```
-POST /api/v1/venues/{venueId}/issues
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "issueType": "enum",
-    "severity": "enum",
-    "description": "string"
-}
-
-Response: 201 Created
-{
-    "issueId": "guid"
-}
-```
-
-#### Get Issues
-```
-GET /api/v1/venues/{venueId}/issues
-Authorization: Bearer {token}
-Query Parameters:
-- status (IssueStatus, optional)
-- severity (Severity, optional)
-
-Response: 200 OK
-```
-
-#### Update Issue Status
-```
-PUT /api/v1/venues/{venueId}/issues/{issueId}/status
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-### 5.7 Venue Status Management
-
-#### Blacklist Venue
-```
-POST /api/v1/venues/{venueId}/blacklist
-Authorization: Bearer {token}
-Content-Type: application/json
-
-Request Body:
-{
-    "reason": "string"
-}
-
-Response: 200 OK
-```
-
-#### Whitelist Venue
-```
-POST /api/v1/venues/{venueId}/whitelist
-Authorization: Bearer {token}
-
-Response: 200 OK
-```
-
-### 5.8 Search and Analytics
-
-#### Search Venues
-```
-GET /api/v1/venues/search
-Authorization: Bearer {token}
-Query Parameters:
-- q (string, required)
-- filters (JSON, optional)
-- location (string, optional)
-- radius (int, optional, in km)
-
-Response: 200 OK
-```
-
-#### Get Venue Analytics
-```
-GET /api/v1/venues/{venueId}/analytics
-Authorization: Bearer {token}
-Query Parameters:
-- startDate (datetime)
-- endDate (datetime)
-
-Response: 200 OK
-{
-    "totalEvents": 0,
-    "averageRating": 0.0,
-    "totalFeedback": 0,
-    "issueCount": 0,
-    "utilizationRate": 0.0
-}
-```
-
-#### Get Top Rated Venues
-```
-GET /api/v1/venues/top-rated
-Authorization: Bearer {token}
-Query Parameters:
-- limit (int, default: 10)
-- venueType (VenueType, optional)
-- city (string, optional)
-
-Response: 200 OK
-```
-
-## 6. Application Layer (CQRS)
-
-### 6.1 Commands
-
-```csharp
-// Venue Management
-CreateVenueCommand
-UpdateVenueCommand
-DeleteVenueCommand
-ActivateVenueCommand
-DeactivateVenueCommand
-
-// Contact Management
-AddVenueContactCommand
-UpdateVenueContactCommand
-RemoveVenueContactCommand
-
-// Details Management
-UpdateVenueAddressCommand
-UpdateVenueCapacityCommand
-UpdateVenueAmenitiesCommand
-UpdateAccessInstructionsCommand
-UpdateParkingInfoCommand
-
-// Photo Management
-UploadVenuePhotoCommand
-DeleteVenuePhotoCommand
-
-// History Management
-RecordVenueUsageCommand
-RecordVenueRatingCommand
-SubmitVenueFeedbackCommand
-
-// Issue Management
-ReportVenueIssueCommand
-UpdateIssueStatusCommand
-
-// Status Management
-BlacklistVenueCommand
-WhitelistVenueCommand
-```
-
-### 6.2 Queries
-
-```csharp
-GetVenueByIdQuery
-GetAllVenuesQuery
-SearchVenuesQuery
-GetVenuesByLocationQuery
-GetVenuesByTypeQuery
-GetVenueContactsQuery
-GetVenuePhotosQuery
-GetVenueHistoryQuery
-GetVenueIssuesQuery
-GetVenueAnalyticsQuery
-GetTopRatedVenuesQuery
-GetBlacklistedVenuesQuery
-```
-
-### 6.3 Command Handlers
-
-Each command handler should:
-1. Validate the command
-2. Load the aggregate (if updating)
-3. Execute business logic
-4. Persist changes
-5. Publish domain events
-6. Return result
-
-Example:
-```csharp
-public class CreateVenueCommandHandler : IRequestHandler<CreateVenueCommand, Result<Guid>>
-{
-    private readonly IVenueRepository _repository;
-    private readonly IEventBus _eventBus;
-    private readonly IValidator<CreateVenueCommand> _validator;
-
-    public async Task<Result<Guid>> Handle(CreateVenueCommand command, CancellationToken cancellationToken)
-    {
-        // Validate
-        var validationResult = await _validator.ValidateAsync(command, cancellationToken);
-        if (!validationResult.IsValid)
-            return Result<Guid>.Failure(validationResult.Errors);
-
-        // Create aggregate
-        var venue = Venue.Create(command.Name, command.VenueType, command.Address, command.Capacity);
-
-        // Persist
-        await _repository.AddAsync(venue, cancellationToken);
-
-        // Publish events
-        await _eventBus.PublishAsync(new VenueAdded { ... }, cancellationToken);
-
-        return Result<Guid>.Success(venue.Id);
-    }
-}
-```
-
-## 7. Infrastructure Layer
-
-### 7.1 Data Persistence
-
-#### Repository Interface
-```csharp
-public interface IVenueRepository
-{
-    Task<Venue> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<List<Venue>> GetAllAsync(VenueFilter filter, CancellationToken cancellationToken = default);
-    Task<PagedResult<Venue>> GetPagedAsync(VenueFilter filter, int page, int pageSize, CancellationToken cancellationToken = default);
-    Task AddAsync(Venue venue, CancellationToken cancellationToken = default);
-    Task UpdateAsync(Venue venue, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
-}
-```
-
-#### Database Schema (SQL)
-```sql
--- Venues Table
-CREATE TABLE Venues (
-    VenueId UNIQUEIDENTIFIER PRIMARY KEY,
-    Name NVARCHAR(200) NOT NULL,
-    Description NVARCHAR(2000),
-    Status NVARCHAR(50) NOT NULL,
-    VenueType NVARCHAR(50) NOT NULL,
-    Street1 NVARCHAR(100),
-    Street2 NVARCHAR(100),
-    City NVARCHAR(100),
-    State NVARCHAR(100),
-    Country NVARCHAR(100),
-    PostalCode NVARCHAR(20),
-    Latitude DECIMAL(9,6),
-    Longitude DECIMAL(9,6),
-    TimeZone NVARCHAR(50),
-    MaxCapacity INT,
-    SeatedCapacity INT,
-    StandingCapacity INT,
-    AccessInstructions NVARCHAR(1000),
-    HasParking BIT,
-    ParkingCapacity INT,
-    ParkingType NVARCHAR(50),
-    ParkingInstructions NVARCHAR(500),
-    AverageRating DECIMAL(3,2),
-    TotalRatings INT,
-    IsActive BIT NOT NULL DEFAULT 1,
-    CreatedAt DATETIME2 NOT NULL,
-    CreatedBy NVARCHAR(100) NOT NULL,
-    UpdatedAt DATETIME2,
-    UpdatedBy NVARCHAR(100),
-    CONSTRAINT CK_Rating CHECK (AverageRating >= 0 AND AverageRating <= 5)
-);
-
--- Venue Contacts Table
-CREATE TABLE VenueContacts (
-    ContactId UNIQUEIDENTIFIER PRIMARY KEY,
-    VenueId UNIQUEIDENTIFIER NOT NULL,
-    ContactType NVARCHAR(50) NOT NULL,
-    FirstName NVARCHAR(100) NOT NULL,
-    LastName NVARCHAR(100) NOT NULL,
-    Email NVARCHAR(255) NOT NULL,
-    Phone NVARCHAR(50) NOT NULL,
-    Position NVARCHAR(100),
-    Notes NVARCHAR(500),
-    CreatedAt DATETIME2 NOT NULL,
-    FOREIGN KEY (VenueId) REFERENCES Venues(VenueId) ON DELETE CASCADE
-);
-
--- Venue Amenities Table
-CREATE TABLE VenueAmenities (
-    VenueAmenityId UNIQUEIDENTIFIER PRIMARY KEY,
-    VenueId UNIQUEIDENTIFIER NOT NULL,
-    Amenity NVARCHAR(100) NOT NULL,
-    FOREIGN KEY (VenueId) REFERENCES Venues(VenueId) ON DELETE CASCADE
-);
-
--- Venue Photos Table
-CREATE TABLE VenuePhotos (
-    PhotoId UNIQUEIDENTIFIER PRIMARY KEY,
-    VenueId UNIQUEIDENTIFIER NOT NULL,
-    Url NVARCHAR(500) NOT NULL,
-    ThumbnailUrl NVARCHAR(500),
-    Caption NVARCHAR(200),
-    IsPrimary BIT NOT NULL DEFAULT 0,
-    AzureBlobPath NVARCHAR(500) NOT NULL,
-    UploadedAt DATETIME2 NOT NULL,
-    UploadedBy NVARCHAR(100) NOT NULL,
-    FOREIGN KEY (VenueId) REFERENCES Venues(VenueId) ON DELETE CASCADE
-);
-
--- Venue History Table
-CREATE TABLE VenueHistory (
-    HistoryId UNIQUEIDENTIFIER PRIMARY KEY,
-    VenueId UNIQUEIDENTIFIER NOT NULL,
-    EventId UNIQUEIDENTIFIER NOT NULL,
-    EventName NVARCHAR(200) NOT NULL,
-    EventDate DATETIME2 NOT NULL,
-    Rating INT,
-    Feedback NVARCHAR(2000),
-    Issues NVARCHAR(2000),
-    CreatedAt DATETIME2 NOT NULL,
-    FOREIGN KEY (VenueId) REFERENCES Venues(VenueId) ON DELETE CASCADE,
-    CONSTRAINT CK_HistoryRating CHECK (Rating IS NULL OR (Rating >= 1 AND Rating <= 5))
-);
-
--- Venue Issues Table
-CREATE TABLE VenueIssues (
-    IssueId UNIQUEIDENTIFIER PRIMARY KEY,
-    VenueId UNIQUEIDENTIFIER NOT NULL,
-    IssueType NVARCHAR(50) NOT NULL,
-    Description NVARCHAR(2000) NOT NULL,
-    Severity NVARCHAR(50) NOT NULL,
-    Status NVARCHAR(50) NOT NULL,
-    ReportedBy NVARCHAR(100) NOT NULL,
-    ReportedAt DATETIME2 NOT NULL,
-    ResolvedAt DATETIME2,
-    Resolution NVARCHAR(2000),
-    FOREIGN KEY (VenueId) REFERENCES Venues(VenueId) ON DELETE CASCADE
-);
-
--- Domain Events Table (Event Sourcing)
-CREATE TABLE VenueDomainEvents (
-    EventId UNIQUEIDENTIFIER PRIMARY KEY,
-    AggregateId UNIQUEIDENTIFIER NOT NULL,
-    EventType NVARCHAR(100) NOT NULL,
-    EventData NVARCHAR(MAX) NOT NULL,
-    Version INT NOT NULL,
-    OccurredAt DATETIME2 NOT NULL,
-    ProcessedAt DATETIME2
-);
-
--- Indexes
-CREATE INDEX IX_Venues_Status ON Venues(Status);
-CREATE INDEX IX_Venues_City ON Venues(City);
-CREATE INDEX IX_Venues_VenueType ON Venues(VenueType);
-CREATE INDEX IX_VenueHistory_VenueId ON VenueHistory(VenueId);
-CREATE INDEX IX_VenueHistory_EventDate ON VenueHistory(EventDate);
-CREATE INDEX IX_VenueIssues_Status ON VenueIssues(Status);
-CREATE INDEX IX_DomainEvents_AggregateId ON VenueDomainEvents(AggregateId);
-```
-
-### 7.2 Azure Services Integration
-
-#### Azure Blob Storage (Photo Management)
-```csharp
-public interface IVenuePhotoStorageService
-{
-    Task<string> UploadPhotoAsync(Stream photoStream, string fileName, CancellationToken cancellationToken);
-    Task<string> GenerateThumbnailAsync(string photoUrl, CancellationToken cancellationToken);
-    Task DeletePhotoAsync(string blobPath, CancellationToken cancellationToken);
-    Task<string> GetPhotoUrlAsync(string blobPath, CancellationToken cancellationToken);
-}
-
-Configuration:
-- Container Name: venue-photos
-- Blob Naming: {venueId}/{photoId}/{filename}
-- CDN Integration: Azure CDN for photo delivery
-- Thumbnail Generation: Azure Functions
-```
-
-#### Azure AI Services
-
-##### Computer Vision (Photo Analysis)
-```csharp
-public interface IPhotoAnalysisService
-{
-    Task<PhotoAnalysisResult> AnalyzePhotoAsync(string photoUrl, CancellationToken cancellationToken);
-}
-
-Features:
-- Image quality assessment
-- Inappropriate content detection
-- Automatic tagging
-- Dominant color extraction
-```
-
-##### Text Analytics (Sentiment Analysis)
-```csharp
-public interface ISentimentAnalysisService
-{
-    Task<SentimentResult> AnalyzeFeedbackAsync(string feedback, CancellationToken cancellationToken);
-}
-
-Features:
-- Sentiment scoring (-1.0 to 1.0)
-- Key phrase extraction
-- Language detection
-- Entity recognition
-```
-
-#### Azure Service Bus (Event Publishing)
-```csharp
-public interface IEventBus
-{
-    Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken) where T : IDomainEvent;
-    Task PublishBatchAsync<T>(IEnumerable<T> domainEvents, CancellationToken cancellationToken) where T : IDomainEvent;
-}
-
-Configuration:
-- Topic: venue-events
-- Subscriptions: venue-analytics, venue-notifications, event-integration
-- Message TTL: 14 days
-- Dead Letter Queue: Enabled
-```
-
-#### Azure Redis Cache
-```csharp
-public interface IVenueCacheService
-{
-    Task<Venue> GetVenueAsync(Guid venueId, CancellationToken cancellationToken);
-    Task SetVenueAsync(Venue venue, TimeSpan expiration, CancellationToken cancellationToken);
-    Task InvalidateVenueAsync(Guid venueId, CancellationToken cancellationToken);
-    Task<List<Venue>> GetTopRatedVenuesAsync(CancellationToken cancellationToken);
-}
-
-Cache Strategy:
-- Cache-Aside Pattern
-- TTL: 1 hour for venue details, 5 minutes for top-rated lists
-- Invalidation: On venue updates
-```
-
-#### Azure Cognitive Search (Search Functionality)
-```csharp
-public interface IVenueSearchService
-{
-    Task<SearchResult<Venue>> SearchAsync(VenueSearchRequest request, CancellationToken cancellationToken);
-    Task IndexVenueAsync(Venue venue, CancellationToken cancellationToken);
-    Task DeleteFromIndexAsync(Guid venueId, CancellationToken cancellationToken);
-}
-
-Search Index Schema:
-- venueId (Edm.String, key)
-- name (Edm.String, searchable, sortable)
-- description (Edm.String, searchable)
-- city (Edm.String, filterable, facetable)
-- country (Edm.String, filterable, facetable)
-- venueType (Edm.String, filterable, facetable)
-- amenities (Collection(Edm.String), filterable, facetable)
-- capacity (Edm.Int32, sortable, filterable)
-- rating (Edm.Double, sortable, filterable)
-- location (Edm.GeographyPoint, filterable)
-```
-
-### 7.3 External Integrations
-
-#### Geocoding Service
-```csharp
-public interface IGeocodingService
-{
-    Task<GeoLocation> GetCoordinatesAsync(VenueAddress address, CancellationToken cancellationToken);
-    Task<TimeZoneInfo> GetTimeZoneAsync(decimal latitude, decimal longitude, CancellationToken cancellationToken);
-}
-```
-
-#### Notification Service
-```csharp
-public interface INotificationService
-{
-    Task SendVenueBlacklistedNotificationAsync(Venue venue, string reason, CancellationToken cancellationToken);
-    Task SendIssueReportedNotificationAsync(VenueIssue issue, CancellationToken cancellationToken);
-    Task SendVenueRatingNotificationAsync(Venue venue, int rating, CancellationToken cancellationToken);
-}
-```
-
-## 8. Security
-
-### 8.1 Authentication
-- Azure AD B2C / Entra ID integration
-- JWT Bearer token authentication
-- Role-based access control (RBAC)
-
-### 8.2 Authorization
-
-#### Roles and Permissions
-```csharp
-Roles:
-- VenueAdmin: Full access to all venue operations
-- VenueManager: Create, update, view venues
-- VenueCoordinator: View venues, add contacts, upload photos
-- EventPlanner: View venues, submit feedback and ratings
-- Viewer: Read-only access
-
-Permissions:
-- venues.create
-- venues.update
-- venues.delete
-- venues.view
-- venues.activate
-- venues.deactivate
-- venues.blacklist
-- venues.whitelist
-- venues.contacts.manage
-- venues.photos.upload
-- venues.feedback.submit
-- venues.issues.report
-```
-
-### 8.3 Data Protection
-- Encryption at rest (Azure SQL TDE)
-- Encryption in transit (TLS 1.2+)
-- Sensitive data masking (contact information)
-- GDPR compliance for personal data
-
-### 8.4 API Security
-- Rate limiting (Azure API Management)
-- Request validation and sanitization
-- CORS policy configuration
-- API key management for service-to-service calls
-
-## 9. Validation Rules
-
-### 9.1 Venue Validation
-```csharp
-- Name: Required, 3-200 characters
-- Description: Optional, max 2000 characters
-- VenueType: Required, valid enum value
-- Address: Required, all fields validated
-- Capacity: MaxCapacity > 0, SeatedCapacity + StandingCapacity <= MaxCapacity
-- Email: Valid email format
-- Phone: Valid phone format
-- URL: Valid URL format
-```
-
-### 9.2 Business Rules
-```csharp
-- Cannot delete venue if it has upcoming events
-- Cannot blacklist venue if it has confirmed future bookings
-- Primary photo must exist before setting additional photos
-- Rating must be 1-5
-- Cannot have duplicate contacts with same email for same venue
-- Cannot activate already active venue
-- Cannot deactivate already inactive venue
-```
-
-## 10. Error Handling
-
-### 10.1 Error Response Format
-```json
-{
-    "type": "https://api.events.com/errors/validation",
-    "title": "One or more validation errors occurred",
-    "status": 400,
-    "traceId": "00-abc123-def456-00",
-    "errors": {
-        "Name": ["The Name field is required."],
-        "Capacity.MaxCapacity": ["MaxCapacity must be greater than 0"]
-    }
-}
-```
-
-### 10.2 HTTP Status Codes
-```
-200 OK - Successful GET, PUT
-201 Created - Successful POST
-204 No Content - Successful DELETE
-400 Bad Request - Validation errors
-401 Unauthorized - Missing or invalid authentication
-403 Forbidden - Insufficient permissions
-404 Not Found - Resource not found
-409 Conflict - Business rule violation
-429 Too Many Requests - Rate limit exceeded
-500 Internal Server Error - Unexpected error
-503 Service Unavailable - Temporary unavailability
-```
-
-### 10.3 Exception Handling
-```csharp
-Custom Exceptions:
-- VenueNotFoundException
-- VenueAlreadyExistsException
-- VenueBlacklistedException
-- InvalidVenueStateException
-- VenueValidationException
-- VenuePhotoUploadException
-```
-
-## 11. Performance and Scalability
-
-### 11.1 Performance Requirements
-- API response time: < 200ms (95th percentile)
-- Photo upload: < 5 seconds for 5MB image
-- Search queries: < 500ms
-- Concurrent users: 10,000+
-- Database query optimization with proper indexing
-
-### 11.2 Caching Strategy
-- Redis cache for frequently accessed venues
-- CDN for venue photos
-- Output caching for top-rated venues list
-- Query result caching with 5-minute TTL
-
-### 11.3 Scalability
-- Horizontal scaling with Azure App Service
-- Database read replicas for query operations
-- Azure Service Bus for async processing
-- Azure Functions for background tasks
-
-## 12. Monitoring and Logging
-
-### 12.1 Application Insights Integration
-```csharp
-Metrics:
-- API request count and duration
-- Failed requests and exceptions
-- Database query performance
-- Cache hit/miss ratio
-- Photo upload success rate
-- Domain event processing time
-
-Custom Events:
-- VenueCreated
-- VenueBlacklisted
-- HighSeverityIssueReported
-- PhotoUploadFailed
-```
-
-### 12.2 Structured Logging
-```csharp
-using Serilog;
-
-Log Levels:
-- Information: Normal operations, API calls
-- Warning: Validation failures, business rule violations
-- Error: Exceptions, external service failures
-- Critical: System failures, data corruption
-
-Log Enrichment:
-- CorrelationId
-- UserId
-- VenueId
-- Timestamp
-- Environment
-```
-
-### 12.3 Health Checks
-```csharp
-Health Check Endpoints:
-- /health - Overall health
-- /health/ready - Readiness probe
-- /health/live - Liveness probe
-
-Dependencies:
-- Database connectivity
-- Azure Storage availability
-- Service Bus connectivity
-- Redis cache availability
-- Azure AI Services status
-```
-
-## 13. Testing Strategy
-
-### 13.1 Unit Tests
-- Domain model tests
-- Command/Query handler tests
-- Validator tests
-- Business logic tests
-- Target: 80% code coverage
-
-### 13.2 Integration Tests
-- API endpoint tests
-- Repository tests
-- Event publishing tests
-- Azure service integration tests
-
-### 13.3 End-to-End Tests
-- Complete user flows
-- Multi-step scenarios
-- Error handling scenarios
-
-## 14. Deployment
-
-### 14.1 CI/CD Pipeline
-```yaml
-Pipeline Stages:
-1. Build
-   - Restore NuGet packages
-   - Compile code
-   - Run static code analysis
-
-2. Test
-   - Run unit tests
-   - Run integration tests
-   - Generate code coverage report
-
-3. Package
-   - Create deployment artifacts
-   - Version management
-
-4. Deploy to Dev
-   - Deploy to Azure App Service (Dev)
-   - Run smoke tests
-
-5. Deploy to Staging
-   - Deploy to Azure App Service (Staging)
-   - Run E2E tests
-
-6. Deploy to Production
-   - Manual approval required
-   - Blue-green deployment
-   - Automated rollback on failure
-```
-
-### 14.2 Infrastructure as Code
-```
-Tool: Azure Bicep / Terraform
-
-Resources:
-- Azure App Service Plan
-- Azure App Service
-- Azure SQL Database
-- Azure Storage Account
-- Azure Service Bus Namespace
-- Azure Redis Cache
-- Azure Cognitive Services
-- Azure Application Insights
-```
-
-## 15. Compliance and Audit
-
-### 15.1 Audit Trail
-```csharp
-All operations tracked:
-- Who performed the action
-- What action was performed
-- When it was performed
-- Original and new values (for updates)
-- IP address and user agent
-
-Storage: Azure Table Storage or SQL audit tables
-Retention: 7 years
-```
-
-### 15.2 GDPR Compliance
-- Right to access: Export venue contact data
-- Right to erasure: Anonymize personal data
-- Data portability: JSON export format
-- Consent management for contact data
-
-## 16. Documentation
-
-### 16.1 API Documentation
-- OpenAPI/Swagger specification
-- Interactive API explorer
-- Code samples in C#, JavaScript, Python
-- Postman collection
-
-### 16.2 Developer Documentation
-- Architecture decision records (ADR)
-- Domain model documentation
-- Integration guides
-- Troubleshooting guides
-
-## Appendix A: Domain Event Schema
-
-All domain events extend from base `DomainEvent`:
-```csharp
-public abstract class DomainEvent : IDomainEvent
-{
-    public Guid EventId { get; init; } = Guid.NewGuid();
-    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-    public string EventType { get; init; }
-    public int Version { get; init; } = 1;
-}
-```
-
-## Appendix B: Configuration
-
-### Application Settings
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=...",
-    "RedisCache": "..."
-  },
-  "AzureStorage": {
-    "ConnectionString": "...",
-    "ContainerName": "venue-photos"
-  },
-  "AzureServiceBus": {
-    "ConnectionString": "...",
-    "TopicName": "venue-events"
-  },
-  "AzureAI": {
-    "ComputerVision": {
-      "Endpoint": "...",
-      "Key": "..."
-    },
-    "TextAnalytics": {
-      "Endpoint": "...",
-      "Key": "..."
-    }
-  },
-  "CognitiveSearch": {
-    "ServiceName": "...",
-    "IndexName": "venues",
-    "ApiKey": "..."
-  },
-  "Authentication": {
-    "Authority": "...",
-    "ClientId": "...",
-    "Audience": "..."
-  }
-}
-```
+---
+
+## 2. Venue CRUD Requirements
+
+### REQ-VEN-001: Create Venue
+
+**Requirement:** The system shall allow authorized users to create a new venue with required and optional information including name, description, type, address, capacity, and amenities.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues endpoint accepts venue creation requests
+- [ ] Venue name is required and limited to 200 characters
+- [ ] Venue type is required and must be a valid enum value
+- [ ] Address information with street, city, state, country, and postal code is required
+- [ ] Capacity information with maximum capacity is required
+- [ ] Description is optional with maximum 2000 characters
+- [ ] Amenities list is optional
+- [ ] Contacts list can be included during creation
+- [ ] System generates unique VenueId (GUID)
+- [ ] System records CreatedAt timestamp and CreatedBy user
+- [ ] System publishes VenueAdded domain event
+- [ ] API returns 201 Created with venue details on success
+- [ ] API returns 400 Bad Request with validation errors on invalid data
+
+### REQ-VEN-002: Retrieve Venue by ID
+
+**Requirement:** The system shall allow authorized users to retrieve detailed information about a specific venue by its unique identifier.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/{venueId} endpoint retrieves venue details
+- [ ] Response includes all venue properties (name, description, status, type, address, capacity, amenities, contacts, photos, rating)
+- [ ] Response includes audit fields (createdAt, createdBy, updatedAt, updatedBy)
+- [ ] API returns 200 OK with venue data when venue exists
+- [ ] API returns 404 Not Found when venue does not exist
+- [ ] Response data is properly serialized as JSON
+- [ ] Latitude and longitude coordinates are included if available
+
+### REQ-VEN-003: Retrieve All Venues with Filtering
+
+**Requirement:** The system shall allow authorized users to retrieve a paginated list of venues with support for filtering, sorting, and searching.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues endpoint returns paginated venue list
+- [ ] Default page size is 20, maximum is 100
+- [ ] Supports filtering by status (Active, Inactive, Blacklisted, PendingApproval)
+- [ ] Supports filtering by venue type
+- [ ] Supports filtering by city and country
+- [ ] Supports filtering by minimum capacity
+- [ ] Supports filtering by amenities (multiple selection)
+- [ ] Supports text search across name and description fields
+- [ ] Supports sorting by name, city, capacity, rating (default: name)
+- [ ] Supports ascending and descending sort order (default: ascending)
+- [ ] Response includes items array, totalCount, page, pageSize, and totalPages
+- [ ] API returns 200 OK with results
+
+### REQ-VEN-004: Update Venue
+
+**Requirement:** The system shall allow authorized users to update existing venue information with support for partial updates.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId} endpoint accepts update requests
+- [ ] Supports partial updates (only provided fields are updated)
+- [ ] All validation rules from creation apply to updates
+- [ ] System updates UpdatedAt timestamp and UpdatedBy user
+- [ ] System publishes VenueDetailsUpdated domain event with changed fields
+- [ ] Cannot update VenueId or audit fields directly
+- [ ] API returns 200 OK with updated venue on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+- [ ] Cache is invalidated for updated venue
+
+### REQ-VEN-005: Delete Venue
+
+**Requirement:** The system shall allow authorized users to delete a venue with an optional reason, enforcing business rules for deletion.
+
+**Acceptance Criteria:**
+- [ ] DELETE /api/v1/venues/{venueId} endpoint accepts deletion requests
+- [ ] Optional reason parameter can be provided
+- [ ] System validates venue has no upcoming events before deletion
+- [ ] System publishes VenueRemoved domain event
+- [ ] All related data (contacts, photos, history) is handled appropriately
+- [ ] Photos are removed from Azure Blob Storage
+- [ ] API returns 204 No Content on successful deletion
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 409 Conflict if venue has upcoming events
+- [ ] Soft delete is implemented (venue marked as deleted, not physically removed)
+
+### REQ-VEN-006: Activate Venue
+
+**Requirement:** The system shall allow authorized users to activate an inactive venue.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/activate endpoint activates venue
+- [ ] Venue status is changed to Active
+- [ ] System publishes VenueActivated domain event
+- [ ] System records ActivatedBy user and ActivatedAt timestamp
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 409 Conflict if venue is already active
+- [ ] Cannot activate blacklisted venues
+
+### REQ-VEN-007: Deactivate Venue
+
+**Requirement:** The system shall allow authorized users to deactivate an active venue with a required reason.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/deactivate endpoint deactivates venue
+- [ ] Reason is required in request body
+- [ ] Venue status is changed to Inactive
+- [ ] System publishes VenueDeactivated domain event with reason
+- [ ] System records DeactivatedBy user and DeactivatedAt timestamp
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 409 Conflict if venue is already inactive
+- [ ] API returns 400 Bad Request if reason is missing
+
+---
+
+## 3. Venue Contact Requirements
+
+### REQ-VEN-010: Add Venue Contact
+
+**Requirement:** The system shall allow authorized users to add contact information to a venue with support for multiple contact types.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/contacts endpoint adds contact
+- [ ] Contact type is required (Primary, Booking, Technical, Catering, Emergency)
+- [ ] First name and last name are required
+- [ ] Email is required and must be valid format
+- [ ] Phone is required and must be valid format
+- [ ] Position is optional
+- [ ] Notes field is optional
+- [ ] System generates unique ContactId (GUID)
+- [ ] System validates no duplicate contacts with same email for same venue
+- [ ] System publishes VenueContactAdded domain event
+- [ ] API returns 201 Created with contactId
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+
+### REQ-VEN-011: Update Venue Contact
+
+**Requirement:** The system shall allow authorized users to update existing contact information for a venue.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/contacts/{contactId} endpoint updates contact
+- [ ] All validation rules from contact creation apply
+- [ ] Supports partial updates
+- [ ] System publishes VenueContactUpdated domain event
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue or contact does not exist
+- [ ] API returns 400 Bad Request for validation errors
+
+### REQ-VEN-012: Remove Venue Contact
+
+**Requirement:** The system shall allow authorized users to remove contact information from a venue.
+
+**Acceptance Criteria:**
+- [ ] DELETE /api/v1/venues/{venueId}/contacts/{contactId} endpoint removes contact
+- [ ] Contact is removed from venue's contact list
+- [ ] System publishes VenueContactRemoved domain event
+- [ ] API returns 204 No Content on success
+- [ ] API returns 404 Not Found if venue or contact does not exist
+
+---
+
+## 4. Venue Address/Location Requirements
+
+### REQ-VEN-020: Update Venue Address
+
+**Requirement:** The system shall allow authorized users to update venue address information with automatic geocoding.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/address endpoint updates address
+- [ ] Street1, city, state, country, and postal code are required
+- [ ] Street2 is optional
+- [ ] System validates address format
+- [ ] System automatically geocodes address to obtain latitude and longitude
+- [ ] System determines time zone from coordinates
+- [ ] System publishes VenueAddressUpdated domain event with old and new addresses
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+- [ ] Geocoding failures are logged but do not block address update
+
+---
+
+## 5. Venue Capacity Requirements
+
+### REQ-VEN-030: Update Venue Capacity
+
+**Requirement:** The system shall allow authorized users to update venue capacity information with validation of capacity constraints.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/capacity endpoint updates capacity
+- [ ] MaxCapacity is required and must be greater than 0
+- [ ] SeatedCapacity is optional
+- [ ] StandingCapacity is optional
+- [ ] System validates SeatedCapacity + StandingCapacity <= MaxCapacity
+- [ ] ConfigurableLayouts is optional array of layout types with capacities
+- [ ] System publishes VenueCapacityUpdated domain event
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+
+---
+
+## 6. Venue Amenities Requirements
+
+### REQ-VEN-040: Update Venue Amenities
+
+**Requirement:** The system shall allow authorized users to update the list of amenities available at a venue.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/amenities endpoint updates amenities
+- [ ] Request body contains array of amenity strings
+- [ ] System replaces existing amenities with new list
+- [ ] System identifies added and removed amenities
+- [ ] System publishes VenueAmenitiesUpdated domain event with additions and removals
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+
+### REQ-VEN-041: Update Access Instructions
+
+**Requirement:** The system shall allow authorized users to add or update venue access instructions.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/access-instructions endpoint updates instructions
+- [ ] Instructions field is limited to 1000 characters
+- [ ] System publishes VenueAccessInstructionsAdded domain event
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request if character limit exceeded
+
+### REQ-VEN-042: Update Parking Information
+
+**Requirement:** The system shall allow authorized users to update venue parking information.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/parking-info endpoint updates parking info
+- [ ] HasParking boolean is required
+- [ ] ParkingCapacity is optional integer
+- [ ] ParkingType is optional enum (Free, Paid, Valet, Street, None)
+- [ ] ParkingInstructions is optional string
+- [ ] System publishes VenueParkingInfoUpdated domain event
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+
+---
+
+## 7. Venue Photos Requirements
+
+### REQ-VEN-050: Upload Venue Photo
+
+**Requirement:** The system shall allow authorized users to upload photos to a venue with automatic storage in Azure Blob Storage and optional AI analysis.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/photos endpoint accepts multipart/form-data
+- [ ] File upload is required (supports JPEG, PNG formats)
+- [ ] Maximum file size is 5MB
+- [ ] Caption is optional
+- [ ] IsPrimary flag is optional (default: false)
+- [ ] System uploads photo to Azure Blob Storage in venue-photos container
+- [ ] System generates thumbnail using Azure Functions
+- [ ] System generates unique PhotoId (GUID)
+- [ ] System stores blob path for future reference
+- [ ] System optionally analyzes photo with Azure Computer Vision for quality and content
+- [ ] System publishes VenuePhotoUploaded domain event
+- [ ] API returns 201 Created with photoId, url, and thumbnailUrl
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for invalid file type or size
+
+### REQ-VEN-051: Get Venue Photos
+
+**Requirement:** The system shall allow authorized users to retrieve all photos associated with a venue.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/{venueId}/photos endpoint retrieves photos
+- [ ] Response includes array of photo objects with all fields
+- [ ] Photos are ordered with primary photo first, then by upload date
+- [ ] API returns 200 OK with photo array
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] URLs are CDN-enabled for optimized delivery
+
+### REQ-VEN-052: Delete Venue Photo
+
+**Requirement:** The system shall allow authorized users to delete a photo from a venue with removal from Azure Blob Storage.
+
+**Acceptance Criteria:**
+- [ ] DELETE /api/v1/venues/{venueId}/photos/{photoId} endpoint deletes photo
+- [ ] Photo is removed from venue's photo collection
+- [ ] Photo and thumbnail are deleted from Azure Blob Storage
+- [ ] System publishes VenuePhotoDeleted domain event
+- [ ] API returns 204 No Content on success
+- [ ] API returns 404 Not Found if venue or photo does not exist
+- [ ] Blob storage deletion errors are logged but do not prevent response
+
+---
+
+## 8. Venue History Requirements
+
+### REQ-VEN-060: Record Venue Usage
+
+**Requirement:** The system shall allow the recording of venue usage for events to maintain historical records.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/history endpoint records usage
+- [ ] EventId is required (GUID)
+- [ ] EventName is required
+- [ ] EventDate is required (datetime)
+- [ ] System generates unique HistoryId (GUID)
+- [ ] System publishes VenueUsedForEvent domain event
+- [ ] API returns 201 Created
+- [ ] API returns 404 Not Found if venue does not exist
+
+### REQ-VEN-061: Get Venue History
+
+**Requirement:** The system shall allow authorized users to retrieve the usage history of a venue with optional date filtering.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/{venueId}/history endpoint retrieves history
+- [ ] Optional startDate query parameter filters records after date
+- [ ] Optional endDate query parameter filters records before date
+- [ ] Response includes array of history records with all fields
+- [ ] Records are ordered by event date descending
+- [ ] API returns 200 OK with history array
+- [ ] API returns 404 Not Found if venue does not exist
+
+---
+
+## 9. Venue Rating/Feedback Requirements
+
+### REQ-VEN-070: Record Venue Rating
+
+**Requirement:** The system shall allow authorized users to record ratings for a venue after an event with automatic rating aggregation.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/ratings endpoint records rating
+- [ ] EventId is required (GUID)
+- [ ] Rating is required (integer 1-5)
+- [ ] Feedback is optional text field
+- [ ] System validates rating is between 1 and 5
+- [ ] System updates venue's average rating and total ratings count
+- [ ] System updates rating breakdown (count per rating value)
+- [ ] System publishes VenueRatingRecorded domain event
+- [ ] API returns 201 Created
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request if rating is out of range
+
+### REQ-VEN-071: Submit Venue Feedback
+
+**Requirement:** The system shall allow authorized users to submit feedback for a venue with automatic sentiment analysis using Azure AI.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/feedback endpoint accepts feedback
+- [ ] EventId is required (GUID)
+- [ ] Feedback text is required
+- [ ] System analyzes feedback sentiment using Azure Text Analytics
+- [ ] Sentiment score is calculated (-1.0 to 1.0)
+- [ ] System extracts key phrases from feedback
+- [ ] System publishes VenueFeedbackReceived domain event with sentiment score
+- [ ] API returns 201 Created with sentimentScore
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request if feedback is empty
+
+---
+
+## 10. Venue Issue Management Requirements
+
+### REQ-VEN-080: Report Venue Issue
+
+**Requirement:** The system shall allow authorized users to report issues with a venue for tracking and resolution.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/issues endpoint reports issue
+- [ ] IssueType is required enum (Facility, Equipment, Service, Safety, Cleanliness, Other)
+- [ ] Severity is required enum (Low, Medium, High, Critical)
+- [ ] Description is required text field
+- [ ] System generates unique IssueId (GUID)
+- [ ] Initial status is set to Open
+- [ ] System records ReportedBy user and ReportedAt timestamp
+- [ ] System publishes VenueIssueReported domain event
+- [ ] System sends notification for High and Critical severity issues
+- [ ] API returns 201 Created with issueId
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+
+### REQ-VEN-081: Get Venue Issues
+
+**Requirement:** The system shall allow authorized users to retrieve issues for a venue with optional filtering by status and severity.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/{venueId}/issues endpoint retrieves issues
+- [ ] Optional status query parameter filters by issue status
+- [ ] Optional severity query parameter filters by severity level
+- [ ] Response includes array of issue objects with all fields
+- [ ] Issues are ordered by reported date descending
+- [ ] API returns 200 OK with issues array
+- [ ] API returns 404 Not Found if venue does not exist
+
+### REQ-VEN-082: Update Issue Status
+
+**Requirement:** The system shall allow authorized users to update the status of a venue issue.
+
+**Acceptance Criteria:**
+- [ ] PUT /api/v1/venues/{venueId}/issues/{issueId}/status endpoint updates status
+- [ ] Status is required (Open, InProgress, Resolved, Closed)
+- [ ] Resolution text is required when status is Resolved or Closed
+- [ ] System records ResolvedAt timestamp when status changes to Resolved
+- [ ] System publishes VenueIssueStatusUpdated domain event
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue or issue does not exist
+- [ ] API returns 400 Bad Request for validation errors
+
+---
+
+## 11. Venue Status (Blacklist/Whitelist) Requirements
+
+### REQ-VEN-090: Blacklist Venue
+
+**Requirement:** The system shall allow authorized administrators to blacklist a venue with a required reason, preventing future bookings.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/blacklist endpoint blacklists venue
+- [ ] Reason is required in request body
+- [ ] System validates venue does not have confirmed future bookings
+- [ ] Venue status is changed to Blacklisted
+- [ ] System publishes VenueBlacklisted domain event with reason
+- [ ] System records BlacklistedBy user and BlacklistedAt timestamp
+- [ ] System sends notification to relevant stakeholders
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 409 Conflict if venue has confirmed future bookings
+- [ ] API returns 400 Bad Request if reason is missing
+
+### REQ-VEN-091: Whitelist Venue
+
+**Requirement:** The system shall allow authorized administrators to remove a venue from the blacklist.
+
+**Acceptance Criteria:**
+- [ ] POST /api/v1/venues/{venueId}/whitelist endpoint whitelists venue
+- [ ] Venue status is changed from Blacklisted to Active
+- [ ] System publishes VenueWhitelisted domain event
+- [ ] System records WhitelistedBy user and WhitelistedAt timestamp
+- [ ] API returns 200 OK on success
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 409 Conflict if venue is not blacklisted
+
+---
+
+## 12. Search and Analytics Requirements
+
+### REQ-VEN-100: Search Venues
+
+**Requirement:** The system shall provide advanced search functionality using Azure Cognitive Search with support for full-text search and geospatial queries.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/search endpoint performs search
+- [ ] Query parameter 'q' is required for search term
+- [ ] Supports full-text search across name, description, city, amenities
+- [ ] Optional filters parameter accepts JSON filter criteria
+- [ ] Optional location parameter for geographic search
+- [ ] Optional radius parameter (in km) for proximity search
+- [ ] Search index is updated when venues are created/updated/deleted
+- [ ] Results are ranked by relevance score
+- [ ] API returns 200 OK with search results array
+- [ ] API returns 400 Bad Request for invalid query
+
+### REQ-VEN-101: Get Venue Analytics
+
+**Requirement:** The system shall provide analytical data for a venue including usage statistics, ratings, and issues over a specified time period.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/{venueId}/analytics endpoint retrieves analytics
+- [ ] StartDate query parameter is required
+- [ ] EndDate query parameter is required
+- [ ] Response includes totalEvents count
+- [ ] Response includes averageRating for the period
+- [ ] Response includes totalFeedback count
+- [ ] Response includes issueCount by severity
+- [ ] Response includes utilizationRate calculation
+- [ ] API returns 200 OK with analytics data
+- [ ] API returns 404 Not Found if venue does not exist
+- [ ] API returns 400 Bad Request for invalid date range
+
+### REQ-VEN-102: Get Top Rated Venues
+
+**Requirement:** The system shall provide a list of top-rated venues with optional filtering by type and location.
+
+**Acceptance Criteria:**
+- [ ] GET /api/v1/venues/top-rated endpoint retrieves top venues
+- [ ] Default limit is 10 venues
+- [ ] Optional venueType query parameter filters by type
+- [ ] Optional city query parameter filters by location
+- [ ] Results are cached in Redis for 5 minutes
+- [ ] Only Active venues are included in results
+- [ ] Venues are ordered by average rating descending
+- [ ] API returns 200 OK with venue array
+
+---
+
+## 13. Validation Requirements
+
+### REQ-VEN-110: Venue Data Validation
+
+**Requirement:** The system shall validate all venue data according to specified business rules and constraints.
+
+**Acceptance Criteria:**
+- [ ] Venue name is 3-200 characters
+- [ ] Description is maximum 2000 characters
+- [ ] Email fields use valid email format validation
+- [ ] Phone fields use valid phone format validation
+- [ ] URL fields use valid URL format validation
+- [ ] Postal code format is validated based on country
+- [ ] All required fields are validated as non-empty
+- [ ] Numeric fields are validated for positive values where applicable
+- [ ] Enum values are validated against allowed values
+- [ ] Validation errors return clear, descriptive messages
+- [ ] Multiple validation errors are returned together
+
+### REQ-VEN-111: Business Rule Validation
+
+**Requirement:** The system shall enforce business rules for venue operations.
+
+**Acceptance Criteria:**
+- [ ] Cannot delete venue with upcoming events
+- [ ] Cannot blacklist venue with confirmed future bookings
+- [ ] Cannot have duplicate contacts with same email for same venue
+- [ ] Cannot activate already active venue
+- [ ] Cannot deactivate already inactive venue
+- [ ] Seated and standing capacity cannot exceed maximum capacity
+- [ ] Rating values must be between 1 and 5
+- [ ] Business rule violations return 409 Conflict status
+- [ ] Error messages clearly explain the violated rule
+
+---
+
+## 14. Authorization Requirements
+
+### REQ-VEN-120: Role-Based Access Control
+
+**Requirement:** The system shall implement role-based access control for all venue management operations.
+
+**Acceptance Criteria:**
+- [ ] VenueAdmin role has full access to all operations
+- [ ] VenueManager role can create, update, and view venues
+- [ ] VenueCoordinator role can view venues, add contacts, upload photos
+- [ ] EventPlanner role can view venues and submit feedback/ratings
+- [ ] Viewer role has read-only access
+- [ ] Authorization is validated on every API request
+- [ ] Insufficient permissions return 403 Forbidden status
+- [ ] Missing authentication returns 401 Unauthorized status
+
+### REQ-VEN-121: Permission-Based Operations
+
+**Requirement:** The system shall enforce specific permissions for sensitive operations.
+
+**Acceptance Criteria:**
+- [ ] venues.create permission required for creating venues
+- [ ] venues.update permission required for updating venues
+- [ ] venues.delete permission required for deleting venues
+- [ ] venues.activate permission required for activation
+- [ ] venues.deactivate permission required for deactivation
+- [ ] venues.blacklist permission required for blacklisting
+- [ ] venues.whitelist permission required for whitelisting
+- [ ] venues.contacts.manage permission required for contact management
+- [ ] venues.photos.upload permission required for photo uploads
+- [ ] venues.feedback.submit permission required for feedback submission
+- [ ] venues.issues.report permission required for issue reporting
+
+---
+
+## 15. Azure Integration Requirements
+
+### REQ-VEN-130: Azure Blob Storage Integration
+
+**Requirement:** The system shall integrate with Azure Blob Storage for venue photo management.
+
+**Acceptance Criteria:**
+- [ ] Photos are uploaded to venue-photos container
+- [ ] Blob naming follows pattern: {venueId}/{photoId}/{filename}
+- [ ] Azure CDN is configured for photo delivery
+- [ ] Thumbnail generation uses Azure Functions
+- [ ] Blob storage connection uses managed identity where possible
+- [ ] Storage operations include retry logic for transient failures
+- [ ] Blob deletion is performed when photos are removed
+- [ ] SAS tokens are generated for temporary access when needed
+
+### REQ-VEN-131: Azure AI Services Integration
+
+**Requirement:** The system shall integrate with Azure AI Services for photo analysis and sentiment analysis.
+
+**Acceptance Criteria:**
+- [ ] Computer Vision analyzes uploaded photos for quality and content
+- [ ] Inappropriate content detection blocks unsuitable images
+- [ ] Automatic tagging is applied to photos
+- [ ] Text Analytics performs sentiment analysis on feedback
+- [ ] Sentiment score is calculated between -1.0 and 1.0
+- [ ] Key phrase extraction identifies important terms
+- [ ] Language detection identifies feedback language
+- [ ] AI service failures are logged but do not block operations
+
+### REQ-VEN-132: Azure Service Bus Integration
+
+**Requirement:** The system shall publish domain events to Azure Service Bus for event-driven processing.
+
+**Acceptance Criteria:**
+- [ ] Domain events are published to venue-events topic
+- [ ] Messages include all required event data
+- [ ] Message TTL is set to 14 days
+- [ ] Dead letter queue is enabled
+- [ ] Subscriptions exist for venue-analytics, venue-notifications, event-integration
+- [ ] Publishing uses retry logic for transient failures
+- [ ] Failed publishes are logged for investigation
+- [ ] Event versioning is supported
+
+### REQ-VEN-133: Azure Redis Cache Integration
+
+**Requirement:** The system shall use Azure Redis Cache for performance optimization.
+
+**Acceptance Criteria:**
+- [ ] Cache-aside pattern is implemented for venue retrieval
+- [ ] Venue details are cached for 1 hour
+- [ ] Top-rated venue lists are cached for 5 minutes
+- [ ] Cache is invalidated when venues are updated
+- [ ] Cache keys follow consistent naming pattern
+- [ ] Cache failures fall back to database queries
+- [ ] Cache hit/miss metrics are tracked
+
+### REQ-VEN-134: Azure Cognitive Search Integration
+
+**Requirement:** The system shall integrate with Azure Cognitive Search for advanced search capabilities.
+
+**Acceptance Criteria:**
+- [ ] Search index includes all searchable venue fields
+- [ ] Index is updated when venues are created, updated, or deleted
+- [ ] Full-text search is enabled on name and description
+- [ ] Geospatial search is enabled using location coordinates
+- [ ] Facets are configured for filtering (city, country, type, amenities)
+- [ ] Search ranking considers multiple factors (relevance, rating, popularity)
+- [ ] Index updates are performed asynchronously
+- [ ] Search queries return results within 500ms
+
+---
+
+## 16. Performance Requirements
+
+### REQ-VEN-140: API Performance
+
+**Requirement:** The system shall meet specified performance benchmarks for API operations.
+
+**Acceptance Criteria:**
+- [ ] API response time is less than 200ms at 95th percentile
+- [ ] Photo upload completes in less than 5 seconds for 5MB image
+- [ ] Search queries return results in less than 500ms
+- [ ] System supports 10,000+ concurrent users
+- [ ] Database queries use proper indexing
+- [ ] N+1 query problems are avoided
+- [ ] Async operations are used for long-running tasks
+- [ ] Performance is monitored with Application Insights
+
+### REQ-VEN-141: Caching Strategy
+
+**Requirement:** The system shall implement caching strategies to optimize performance.
+
+**Acceptance Criteria:**
+- [ ] Redis cache is used for frequently accessed venues
+- [ ] CDN is used for venue photo delivery
+- [ ] Output caching is implemented for top-rated venues
+- [ ] Query result caching uses 5-minute TTL
+- [ ] Cache invalidation occurs on data updates
+- [ ] Cache warming is performed for popular queries
+- [ ] Cache hit ratio is monitored and optimized
+
+### REQ-VEN-142: Scalability
+
+**Requirement:** The system shall support horizontal scaling to handle increased load.
+
+**Acceptance Criteria:**
+- [ ] Application is stateless to support multiple instances
+- [ ] Azure App Service scaling rules are configured
+- [ ] Database read replicas are used for query operations
+- [ ] Azure Service Bus handles asynchronous processing
+- [ ] Azure Functions process background tasks
+- [ ] Connection pooling is optimized
+- [ ] Resource usage is monitored for scaling decisions
+
+---
+
+## 17. Monitoring and Logging Requirements
+
+### REQ-VEN-150: Application Insights Integration
+
+**Requirement:** The system shall integrate with Application Insights for comprehensive monitoring and telemetry.
+
+**Acceptance Criteria:**
+- [ ] API request count and duration are tracked
+- [ ] Failed requests and exceptions are logged
+- [ ] Database query performance is monitored
+- [ ] Cache hit/miss ratio is tracked
+- [ ] Photo upload success rate is monitored
+- [ ] Domain event processing time is measured
+- [ ] Custom events are logged for critical operations (VenueCreated, VenueBlacklisted, etc.)
+- [ ] Metrics are available in real-time dashboards
+
+### REQ-VEN-151: Structured Logging
+
+**Requirement:** The system shall implement structured logging using Serilog with appropriate log levels and enrichment.
+
+**Acceptance Criteria:**
+- [ ] Information level logs normal operations and API calls
+- [ ] Warning level logs validation failures and business rule violations
+- [ ] Error level logs exceptions and external service failures
+- [ ] Critical level logs system failures and data corruption
+- [ ] Logs are enriched with CorrelationId, UserId, VenueId, Timestamp
+- [ ] Environment information is included in logs
+- [ ] Logs are centralized in Azure Log Analytics
+- [ ] Sensitive data is not logged
+
+### REQ-VEN-152: Health Checks
+
+**Requirement:** The system shall expose health check endpoints for monitoring and orchestration.
+
+**Acceptance Criteria:**
+- [ ] /health endpoint returns overall system health
+- [ ] /health/ready endpoint provides readiness probe
+- [ ] /health/live endpoint provides liveness probe
+- [ ] Database connectivity is checked
+- [ ] Azure Storage availability is verified
+- [ ] Service Bus connectivity is tested
+- [ ] Redis cache availability is confirmed
+- [ ] Azure AI Services status is checked
+- [ ] Health checks return appropriate HTTP status codes
+
+---
+
+## 18. Testing Requirements
+
+### REQ-VEN-160: Unit Testing
+
+**Requirement:** The system shall have comprehensive unit test coverage for all business logic and handlers.
+
+**Acceptance Criteria:**
+- [ ] Domain model tests cover all entity behaviors
+- [ ] Command handler tests verify business logic
+- [ ] Query handler tests verify data retrieval
+- [ ] Validator tests cover all validation rules
+- [ ] Code coverage is at least 80%
+- [ ] Tests use mocking for external dependencies
+- [ ] Tests are isolated and independent
+- [ ] Tests run in CI/CD pipeline
+
+### REQ-VEN-161: Integration Testing
+
+**Requirement:** The system shall have integration tests covering API endpoints and external service interactions.
+
+**Acceptance Criteria:**
+- [ ] All API endpoints have integration tests
+- [ ] Repository tests verify database operations
+- [ ] Event publishing tests verify Service Bus integration
+- [ ] Azure service integration tests verify external dependencies
+- [ ] Tests use test containers or test instances
+- [ ] Tests clean up data after execution
+- [ ] Tests verify error handling scenarios
+
+### REQ-VEN-162: End-to-End Testing
+
+**Requirement:** The system shall have end-to-end tests covering complete user workflows.
+
+**Acceptance Criteria:**
+- [ ] Complete venue creation workflow is tested
+- [ ] Venue update and deletion workflows are tested
+- [ ] Photo upload and management workflows are tested
+- [ ] Contact management workflows are tested
+- [ ] Rating and feedback workflows are tested
+- [ ] Issue reporting workflows are tested
+- [ ] Blacklist/whitelist workflows are tested
+- [ ] Error handling scenarios are tested
+
+---
+
+## 19. Security Requirements
+
+### REQ-VEN-170: Authentication
+
+**Requirement:** The system shall implement secure authentication using Azure AD B2C/Entra ID with JWT tokens.
+
+**Acceptance Criteria:**
+- [ ] All API endpoints require authentication except health checks
+- [ ] JWT Bearer token authentication is implemented
+- [ ] Tokens are validated on every request
+- [ ] Token expiration is enforced
+- [ ] Invalid tokens return 401 Unauthorized
+- [ ] Token claims include user identity and roles
+
+### REQ-VEN-171: Data Protection
+
+**Requirement:** The system shall implement data protection measures for sensitive information.
+
+**Acceptance Criteria:**
+- [ ] Encryption at rest is enabled (Azure SQL TDE)
+- [ ] Encryption in transit uses TLS 1.2 or higher
+- [ ] Contact information is masked in logs
+- [ ] Personal data handling complies with GDPR
+- [ ] Sensitive configuration is stored in Azure Key Vault
+- [ ] Connection strings are not logged or exposed
+
+### REQ-VEN-172: API Security
+
+**Requirement:** The system shall implement API security best practices.
+
+**Acceptance Criteria:**
+- [ ] Rate limiting is configured via Azure API Management
+- [ ] Request validation sanitizes all inputs
+- [ ] SQL injection protection is implemented
+- [ ] XSS protection is enabled
+- [ ] CORS policy is properly configured
+- [ ] API keys are managed securely for service-to-service calls
+- [ ] Security headers are configured
+
+---
+
+## 20. Error Handling Requirements
+
+### REQ-VEN-180: Error Response Format
+
+**Requirement:** The system shall return standardized error responses following RFC 7807 problem details format.
+
+**Acceptance Criteria:**
+- [ ] Error responses include type, title, status, and traceId
+- [ ] Validation errors include field-level error details
+- [ ] Error type URIs reference API documentation
+- [ ] Stack traces are not exposed in production
+- [ ] Correlation IDs are included for tracking
+- [ ] Error messages are clear and actionable
+
+### REQ-VEN-181: HTTP Status Codes
+
+**Requirement:** The system shall use appropriate HTTP status codes for all API responses.
+
+**Acceptance Criteria:**
+- [ ] 200 OK for successful GET and PUT operations
+- [ ] 201 Created for successful POST operations
+- [ ] 204 No Content for successful DELETE operations
+- [ ] 400 Bad Request for validation errors
+- [ ] 401 Unauthorized for missing/invalid authentication
+- [ ] 403 Forbidden for insufficient permissions
+- [ ] 404 Not Found for missing resources
+- [ ] 409 Conflict for business rule violations
+- [ ] 429 Too Many Requests for rate limit exceeded
+- [ ] 500 Internal Server Error for unexpected errors
+- [ ] 503 Service Unavailable for temporary unavailability
+
+### REQ-VEN-182: Exception Handling
+
+**Requirement:** The system shall implement custom exception types for domain-specific errors.
+
+**Acceptance Criteria:**
+- [ ] VenueNotFoundException for missing venues
+- [ ] VenueAlreadyExistsException for duplicate venues
+- [ ] VenueBlacklistedException for blacklisted venue access
+- [ ] InvalidVenueStateException for invalid state transitions
+- [ ] VenueValidationException for validation failures
+- [ ] VenuePhotoUploadException for photo upload failures
+- [ ] All exceptions are properly logged
+- [ ] Exception handlers map exceptions to appropriate status codes
+
+---
+
+## 21. Deployment Requirements
+
+### REQ-VEN-190: CI/CD Pipeline
+
+**Requirement:** The system shall have an automated CI/CD pipeline for building, testing, and deploying the application.
+
+**Acceptance Criteria:**
+- [ ] Pipeline includes build stage (restore, compile, static analysis)
+- [ ] Pipeline includes test stage (unit, integration, coverage)
+- [ ] Pipeline includes package stage (artifacts, versioning)
+- [ ] Pipeline deploys to Dev environment automatically
+- [ ] Pipeline deploys to Staging with smoke tests
+- [ ] Pipeline deploys to Production with manual approval
+- [ ] Blue-green deployment strategy is used
+- [ ] Automated rollback occurs on deployment failure
+
+### REQ-VEN-191: Infrastructure as Code
+
+**Requirement:** The system infrastructure shall be defined and managed using Infrastructure as Code.
+
+**Acceptance Criteria:**
+- [ ] Azure resources are defined in Bicep or Terraform
+- [ ] Infrastructure includes App Service Plan and App Service
+- [ ] Infrastructure includes Azure SQL Database
+- [ ] Infrastructure includes Azure Storage Account
+- [ ] Infrastructure includes Azure Service Bus Namespace
+- [ ] Infrastructure includes Azure Redis Cache
+- [ ] Infrastructure includes Azure Cognitive Services
+- [ ] Infrastructure includes Application Insights
+- [ ] Infrastructure changes are version controlled
+
+---
+
+## 22. Compliance and Audit Requirements
+
+### REQ-VEN-200: Audit Trail
+
+**Requirement:** The system shall maintain a comprehensive audit trail of all venue management operations.
+
+**Acceptance Criteria:**
+- [ ] All create, update, delete operations are logged
+- [ ] Audit records include user identity (who)
+- [ ] Audit records include action performed (what)
+- [ ] Audit records include timestamp (when)
+- [ ] Audit records include original and new values for updates
+- [ ] Audit records include IP address and user agent
+- [ ] Audit data is stored in Azure Table Storage or SQL
+- [ ] Audit retention period is 7 years
+- [ ] Audit logs are tamper-proof
+
+### REQ-VEN-201: GDPR Compliance
+
+**Requirement:** The system shall comply with GDPR requirements for personal data handling.
+
+**Acceptance Criteria:**
+- [ ] Right to access: venue contact data can be exported
+- [ ] Right to erasure: personal data can be anonymized
+- [ ] Data portability: JSON export format is available
+- [ ] Consent management for contact data is implemented
+- [ ] Data processing agreements are in place
+- [ ] Privacy by design principles are followed
+- [ ] Data breach notification procedures are defined
+
+---
 
 ## Version History
 - v1.0.0 - Initial specification (2025-12-22)
+- v2.0.0 - Transformed to structured requirements format (2025-12-22)
