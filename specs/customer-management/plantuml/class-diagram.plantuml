@@ -1,0 +1,758 @@
+@startuml Customer Management Class Diagram
+
+title Customer Management Domain Model - Class Diagram
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor<<Aggregate>> LightBlue
+    BackgroundColor<<Entity>> LightYellow
+    BackgroundColor<<ValueObject>> LightGreen
+    BackgroundColor<<DomainEvent>> Pink
+    BackgroundColor<<Service>> Lavender
+    BorderColor Black
+    ArrowColor Black
+}
+
+' ===== AGGREGATES =====
+
+package "Aggregates" <<Rectangle>> {
+
+    class Customer <<Aggregate>> {
+        - id: Guid
+        - customerNumber: string
+        - profile: CustomerProfile
+        - contactInfo: CustomerContactInfo
+        - preferences: CustomerPreferences
+        - status: CustomerStatus
+        - contacts: List<Contact>
+        - communicationHistory: List<CommunicationHistory>
+        - complaints: List<Complaint>
+        - testimonials: List<Testimonial>
+        - createdAt: DateTime
+        - lastModifiedAt: DateTime?
+        - createdBy: string
+        - lastModifiedBy: string
+        --
+        + Register(profile, contactInfo): Customer
+        + UpdateProfile(profile): void
+        + UpdateContactInfo(contactInfo): void
+        + UpdatePreferences(preferences): void
+        + AddContact(contact): void
+        + RemoveContact(contactId): void
+        + UpdateContact(contactId, changes): void
+        + SendEmail(email): void
+        + SendSMS(sms): void
+        + LogPhoneCall(call): void
+        + ScheduleMeeting(meeting): void
+        + SubmitComplaint(complaint): void
+        + ResolveComplaint(complaintId, resolution): void
+        + AddTestimonial(testimonial): void
+        + Merge(targetCustomer): void
+        + Deactivate(reason): void
+        + Reactivate(reason): void
+    }
+}
+
+' ===== ENTITIES =====
+
+package "Entities" <<Rectangle>> {
+
+    class Contact <<Entity>> {
+        - id: Guid
+        - customerId: Guid
+        - firstName: string
+        - lastName: string
+        - email: string
+        - phone: string
+        - position: string
+        - isPrimary: bool
+        - tags: List<string>
+        - status: ContactStatus
+        - createdAt: DateTime
+        - lastModifiedAt: DateTime?
+        --
+        + Create(firstName, lastName, email): Contact
+        + Update(changes): void
+        + AddTag(tag): void
+        + RemoveTag(tag): void
+        + SetAsPrimary(): void
+        + Deactivate(): void
+    }
+
+    class CommunicationHistory <<Entity>> {
+        - id: Guid
+        - customerId: Guid
+        - type: CommunicationType
+        - subject: string
+        - content: string
+        - recipientEmail: string
+        - recipientPhone: string
+        - direction: Direction
+        - status: CommunicationStatus
+        - isDelivered: bool
+        - durationInSeconds: int?
+        - scheduledStart: DateTime?
+        - scheduledEnd: DateTime?
+        - location: string
+        - attendees: List<string>
+        - notes: string
+        - createdAt: DateTime
+        - createdBy: string
+        --
+        + CreateEmail(subject, body, recipient): CommunicationHistory
+        + CreateSMS(message, recipient): CommunicationHistory
+        + CreatePhoneCall(duration, summary): CommunicationHistory
+        + CreateMeeting(title, start, end, attendees): CommunicationHistory
+        + MarkAsDelivered(): void
+        + AddNotes(notes): void
+    }
+
+    class Complaint <<Entity>> {
+        - id: Guid
+        - complaintNumber: string
+        - customerId: Guid
+        - subject: string
+        - description: string
+        - category: string
+        - priority: ComplaintPriority
+        - status: ComplaintStatus
+        - relatedEventId: Guid?
+        - assignedTo: string
+        - resolution: string
+        - resolvedBy: string
+        - resolvedAt: DateTime?
+        - resolutionTimeInHours: int?
+        - compensationOffered: string
+        - customerSatisfied: bool?
+        - createdAt: DateTime
+        - lastModifiedAt: DateTime?
+        --
+        + Submit(subject, description, priority): Complaint
+        + Assign(userId): void
+        + UpdateStatus(status): void
+        + Escalate(): void
+        + Resolve(resolution, resolvedBy): void
+        + Close(): void
+    }
+
+    class Testimonial <<Entity>> {
+        - id: Guid
+        - customerId: Guid
+        - content: string
+        - rating: int
+        - relatedEventId: Guid?
+        - isPublic: bool
+        - isApproved: bool
+        - authorName: string
+        - approvedBy: string
+        - approvedAt: DateTime?
+        - createdAt: DateTime
+        --
+        + Create(content, rating, isPublic): Testimonial
+        + Approve(approvedBy): void
+        + Reject(): void
+        + MakePublic(): void
+        + MakePrivate(): void
+    }
+
+    class FollowUp <<Entity>> {
+        - id: Guid
+        - customerId: Guid
+        - subject: string
+        - description: string
+        - dueDate: DateTime
+        - priority: Priority
+        - status: FollowUpStatus
+        - assignedTo: string
+        - completedAt: DateTime?
+        - completedBy: string
+        - createdAt: DateTime
+        - createdBy: string
+        --
+        + Create(subject, description, dueDate): FollowUp
+        + Assign(userId): void
+        + Complete(completedBy): void
+        + Reschedule(newDueDate): void
+    }
+
+    class CustomerInsights <<Entity>> {
+        - id: Guid
+        - customerId: Guid
+        - sentimentScore: decimal
+        - engagementLevel: EngagementLevel
+        - churnRisk: decimal
+        - recommendedActions: List<string>
+        - keyInterests: List<string>
+        - preferredCommunicationTimes: List<string>
+        - lastInteractionDate: DateTime?
+        - totalInteractions: int
+        - generatedAt: DateTime
+        --
+        + Generate(customer, history): CustomerInsights
+        + Refresh(): void
+    }
+}
+
+' ===== VALUE OBJECTS =====
+
+package "Value Objects" <<Rectangle>> {
+
+    class CustomerProfile <<ValueObject>> {
+        - companyName: string
+        - industry: string
+        - type: CustomerType
+        - segment: CustomerSegment
+        - lifetimeValue: decimal
+        - totalEvents: int
+        - rating: CustomerRating
+        --
+        + Create(companyName, industry, type): CustomerProfile
+        + UpdateLifetimeValue(value): CustomerProfile
+        + IncrementEvents(): CustomerProfile
+        + UpdateRating(rating): CustomerProfile
+    }
+
+    class CustomerContactInfo <<ValueObject>> {
+        - primaryEmail: string
+        - secondaryEmail: string
+        - primaryPhone: string
+        - secondaryPhone: string
+        - billingAddress: Address
+        - shippingAddress: Address
+        - website: string
+        - socialMedia: SocialMediaLinks
+        --
+        + Create(primaryEmail, primaryPhone): CustomerContactInfo
+        + UpdateEmail(email): CustomerContactInfo
+        + UpdatePhone(phone): CustomerContactInfo
+        + UpdateAddress(address, type): CustomerContactInfo
+    }
+
+    class CustomerPreferences <<ValueObject>> {
+        - communication: CommunicationPreferences
+        - preferredEventTypes: List<string>
+        - interests: List<string>
+        - preferredLanguage: string
+        - timeZone: string
+        - notifications: NotificationSettings
+        --
+        + Create(language, timezone): CustomerPreferences
+        + UpdateCommunication(prefs): CustomerPreferences
+        + AddInterest(interest): CustomerPreferences
+        + RemoveInterest(interest): CustomerPreferences
+    }
+
+    class Address <<ValueObject>> {
+        - street: string
+        - city: string
+        - state: string
+        - zipCode: string
+        - country: string
+        --
+        + Create(street, city, state, zip, country): Address
+    }
+
+    class SocialMediaLinks <<ValueObject>> {
+        - linkedInUrl: string
+        - twitterHandle: string
+        - facebookUrl: string
+        - instagramHandle: string
+        --
+        + Create(): SocialMediaLinks
+        + UpdateLinkedIn(url): SocialMediaLinks
+    }
+
+    class CommunicationPreferences <<ValueObject>> {
+        - channels: List<CommunicationChannel>
+        - frequency: Frequency
+        - bestTimeToContact: TimeRange
+        --
+        + Create(channels): CommunicationPreferences
+        + AddChannel(channel): CommunicationPreferences
+    }
+
+    class NotificationSettings <<ValueObject>> {
+        - emailNotifications: bool
+        - smsNotifications: bool
+        - pushNotifications: bool
+        - marketingConsent: bool
+        - dataProcessingConsent: bool
+        --
+        + Create(): NotificationSettings
+        + EnableEmail(): NotificationSettings
+        + DisableEmail(): NotificationSettings
+    }
+}
+
+' ===== ENUMERATIONS =====
+
+package "Enumerations" <<Rectangle>> {
+
+    enum CustomerStatus {
+        Active
+        Inactive
+        Suspended
+        Archived
+    }
+
+    enum CustomerType {
+        Individual
+        SmallBusiness
+        Enterprise
+        NonProfit
+        Government
+    }
+
+    enum CustomerSegment {
+        Standard
+        Premium
+        VIP
+        Corporate
+    }
+
+    enum CustomerRating {
+        Unrated
+        Bronze
+        Silver
+        Gold
+        Platinum
+    }
+
+    enum ContactStatus {
+        Active
+        Inactive
+        Bounced
+    }
+
+    enum CommunicationType {
+        Email
+        SMS
+        PhoneCall
+        Meeting
+        InPerson
+        VideoCall
+    }
+
+    enum Direction {
+        Inbound
+        Outbound
+    }
+
+    enum CommunicationStatus {
+        Pending
+        Sent
+        Delivered
+        Failed
+        Scheduled
+    }
+
+    enum ComplaintStatus {
+        New
+        InProgress
+        Resolved
+        Closed
+        Escalated
+    }
+
+    enum ComplaintPriority {
+        Low
+        Medium
+        High
+        Critical
+    }
+
+    enum FollowUpStatus {
+        Pending
+        InProgress
+        Completed
+        Cancelled
+    }
+
+    enum Priority {
+        Low
+        Medium
+        High
+    }
+
+    enum EngagementLevel {
+        Low
+        Medium
+        High
+    }
+
+    enum CommunicationChannel {
+        Email
+        SMS
+        Phone
+        InPerson
+    }
+
+    enum Frequency {
+        Daily
+        Weekly
+        Monthly
+        Quarterly
+    }
+}
+
+' ===== DOMAIN EVENTS =====
+
+package "Domain Events" <<Rectangle>> {
+
+    abstract class DomainEvent <<DomainEvent>> {
+        # eventId: Guid
+        # occurredAt: DateTime
+        # userId: string
+        --
+        + {abstract} GetEventType(): string
+    }
+
+    class CustomerRegistered <<DomainEvent>> {
+        + customerId: Guid
+        + customerNumber: string
+        + companyName: string
+        + type: CustomerType
+        + primaryEmail: string
+        + registeredAt: DateTime
+        + registeredBy: string
+    }
+
+    class CustomerProfileUpdated <<DomainEvent>> {
+        + customerId: Guid
+        + changedFields: Dictionary<string, object>
+        + updatedAt: DateTime
+        + updatedBy: string
+    }
+
+    class CustomerContactInfoUpdated <<DomainEvent>> {
+        + customerId: Guid
+        + previousEmail: string
+        + newEmail: string
+        + previousPhone: string
+        + newPhone: string
+        + updatedAt: DateTime
+    }
+
+    class CustomerPreferencesUpdated <<DomainEvent>> {
+        + customerId: Guid
+        + updatedPreferences: CustomerPreferences
+        + updatedAt: DateTime
+    }
+
+    class CustomerMerged <<DomainEvent>> {
+        + sourceCustomerId: Guid
+        + targetCustomerId: Guid
+        + mergedEntities: List<string>
+        + mergedAt: DateTime
+        + mergedBy: string
+    }
+
+    class CustomerDeactivated <<DomainEvent>> {
+        + customerId: Guid
+        + reason: string
+        + deactivatedAt: DateTime
+        + deactivatedBy: string
+    }
+
+    class CustomerReactivated <<DomainEvent>> {
+        + customerId: Guid
+        + reason: string
+        + reactivatedAt: DateTime
+        + reactivatedBy: string
+    }
+
+    class ContactAdded <<DomainEvent>> {
+        + contactId: Guid
+        + customerId: Guid
+        + fullName: string
+        + email: string
+        + isPrimary: bool
+        + addedAt: DateTime
+    }
+
+    class ContactUpdated <<DomainEvent>> {
+        + contactId: Guid
+        + customerId: Guid
+        + changedFields: Dictionary<string, object>
+        + updatedAt: DateTime
+    }
+
+    class ContactRemoved <<DomainEvent>> {
+        + contactId: Guid
+        + customerId: Guid
+        + reason: string
+        + removedAt: DateTime
+    }
+
+    class ContactTagged <<DomainEvent>> {
+        + contactId: Guid
+        + tag: string
+        + taggedAt: DateTime
+    }
+
+    class ContactUntagged <<DomainEvent>> {
+        + contactId: Guid
+        + tag: string
+        + untaggedAt: DateTime
+    }
+
+    class ContactListImported <<DomainEvent>> {
+        + importId: Guid
+        + totalRecords: int
+        + successfulRecords: int
+        + failedRecords: int
+        + errors: List<string>
+        + importedAt: DateTime
+        + importedBy: string
+    }
+
+    class ContactListExported <<DomainEvent>> {
+        + exportId: Guid
+        + recordCount: int
+        + format: string
+        + blobUrl: string
+        + exportedAt: DateTime
+        + exportedBy: string
+    }
+
+    class CustomerEmailSent <<DomainEvent>> {
+        + communicationId: Guid
+        + customerId: Guid
+        + subject: string
+        + recipientEmail: string
+        + isDelivered: bool
+        + sentAt: DateTime
+        + sentBy: string
+    }
+
+    class CustomerSMSSent <<DomainEvent>> {
+        + communicationId: Guid
+        + customerId: Guid
+        + recipientPhone: string
+        + messagePreview: string
+        + isDelivered: bool
+        + sentAt: DateTime
+    }
+
+    class CustomerPhoneCallLogged <<DomainEvent>> {
+        + communicationId: Guid
+        + customerId: Guid
+        + phoneNumber: string
+        + durationInSeconds: int
+        + callType: string
+        + summary: string
+        + callTime: DateTime
+    }
+
+    class CustomerMeetingScheduled <<DomainEvent>> {
+        + meetingId: Guid
+        + customerId: Guid
+        + title: string
+        + scheduledStart: DateTime
+        + scheduledEnd: DateTime
+        + location: string
+        + attendees: List<string>
+        + scheduledAt: DateTime
+    }
+
+    class CustomerFollowUpCreated <<DomainEvent>> {
+        + followUpId: Guid
+        + customerId: Guid
+        + subject: string
+        + description: string
+        + dueDate: DateTime
+        + assignedTo: string
+        + createdAt: DateTime
+    }
+
+    class CustomerComplaintReceived <<DomainEvent>> {
+        + complaintId: Guid
+        + customerId: Guid
+        + subject: string
+        + description: string
+        + priority: ComplaintPriority
+        + category: string
+        + receivedAt: DateTime
+    }
+
+    class CustomerComplaintResolved <<DomainEvent>> {
+        + complaintId: Guid
+        + customerId: Guid
+        + resolution: string
+        + resolvedBy: string
+        + resolvedAt: DateTime
+        + resolutionTimeInHours: int
+    }
+
+    class CustomerTestimonialReceived <<DomainEvent>> {
+        + testimonialId: Guid
+        + customerId: Guid
+        + content: string
+        + rating: int
+        + relatedEventId: Guid?
+        + isPublic: bool
+        + receivedAt: DateTime
+    }
+}
+
+' ===== DOMAIN SERVICES =====
+
+package "Domain Services" <<Rectangle>> {
+
+    class CustomerDomainService <<Service>> {
+        --
+        + MergeCustomers(source, target): void
+        + CalculateLifetimeValue(customer): decimal
+        + DetermineSegment(customer): CustomerSegment
+        + ValidateCustomerData(customer): ValidationResult
+    }
+
+    class CommunicationDomainService <<Service>> {
+        --
+        + SendEmail(customer, email): void
+        + SendSMS(customer, sms): void
+        + ScheduleMeeting(customer, meeting): void
+        + ValidateContactInfo(contactInfo): bool
+    }
+
+    class ComplaintDomainService <<Service>> {
+        --
+        + CalculateResolutionTime(complaint): int
+        + DeterminePriority(complaint): ComplaintPriority
+        + ShouldEscalate(complaint): bool
+    }
+
+    class CustomerInsightService <<Service>> {
+        --
+        + GenerateInsights(customer): CustomerInsights
+        + CalculateSentimentScore(communications): decimal
+        + PredictChurnRisk(customer): decimal
+        + IdentifyKeyInterests(customer): List<string>
+    }
+}
+
+' ===== REPOSITORIES =====
+
+package "Repositories" <<Rectangle>> {
+
+    interface ICustomerRepository {
+        + GetByIdAsync(id): Task<Customer>
+        + GetByEmailAsync(email): Task<Customer>
+        + GetByCustomerNumberAsync(number): Task<Customer>
+        + AddAsync(customer): Task
+        + UpdateAsync(customer): Task
+        + DeleteAsync(id): Task
+        + SearchAsync(criteria): Task<List<Customer>>
+    }
+
+    interface IContactRepository {
+        + GetByIdAsync(id): Task<Contact>
+        + GetByCustomerIdAsync(customerId): Task<List<Contact>>
+        + AddAsync(contact): Task
+        + UpdateAsync(contact): Task
+        + DeleteAsync(id): Task
+    }
+
+    interface ICommunicationHistoryRepository {
+        + GetByIdAsync(id): Task<CommunicationHistory>
+        + GetByCustomerIdAsync(customerId): Task<List<CommunicationHistory>>
+        + AddAsync(communication): Task
+        + GetByDateRangeAsync(customerId, start, end): Task<List<CommunicationHistory>>
+    }
+
+    interface IComplaintRepository {
+        + GetByIdAsync(id): Task<Complaint>
+        + GetByCustomerIdAsync(customerId): Task<List<Complaint>>
+        + GetUnresolvedAsync(): Task<List<Complaint>>
+        + AddAsync(complaint): Task
+        + UpdateAsync(complaint): Task
+    }
+
+    interface ITestimonialRepository {
+        + GetByIdAsync(id): Task<Testimonial>
+        + GetByCustomerIdAsync(customerId): Task<List<Testimonial>>
+        + GetPublicTestimonialsAsync(): Task<List<Testimonial>>
+        + AddAsync(testimonial): Task
+        + UpdateAsync(testimonial): Task
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Customer Aggregate Relationships
+Customer "1" *-- "1" CustomerProfile : contains
+Customer "1" *-- "1" CustomerContactInfo : contains
+Customer "1" *-- "1" CustomerPreferences : contains
+Customer "1" o-- "0..*" Contact : has
+Customer "1" o-- "0..*" CommunicationHistory : has
+Customer "1" o-- "0..*" Complaint : has
+Customer "1" o-- "0..*" Testimonial : has
+Customer "1" -- "1" CustomerStatus : has
+Customer "1" -- "0..1" CustomerInsights : has
+
+' CustomerProfile Relationships
+CustomerProfile "1" -- "1" CustomerType : has
+CustomerProfile "1" -- "1" CustomerSegment : has
+CustomerProfile "1" -- "1" CustomerRating : has
+
+' CustomerContactInfo Relationships
+CustomerContactInfo "1" *-- "1" Address : billingAddress
+CustomerContactInfo "1" *-- "1" Address : shippingAddress
+CustomerContactInfo "1" *-- "1" SocialMediaLinks : has
+
+' CustomerPreferences Relationships
+CustomerPreferences "1" *-- "1" CommunicationPreferences : has
+CustomerPreferences "1" *-- "1" NotificationSettings : has
+
+' Entity Relationships
+Contact "1" -- "1" ContactStatus : has
+CommunicationHistory "1" -- "1" CommunicationType : has
+CommunicationHistory "1" -- "1" Direction : has
+CommunicationHistory "1" -- "1" CommunicationStatus : has
+Complaint "1" -- "1" ComplaintStatus : has
+Complaint "1" -- "1" ComplaintPriority : has
+FollowUp "1" -- "1" FollowUpStatus : has
+FollowUp "1" -- "1" Priority : has
+CustomerInsights "1" -- "1" EngagementLevel : has
+
+' Domain Events inherit from base
+CustomerRegistered --|> DomainEvent
+CustomerProfileUpdated --|> DomainEvent
+CustomerContactInfoUpdated --|> DomainEvent
+CustomerPreferencesUpdated --|> DomainEvent
+CustomerMerged --|> DomainEvent
+CustomerDeactivated --|> DomainEvent
+CustomerReactivated --|> DomainEvent
+ContactAdded --|> DomainEvent
+ContactUpdated --|> DomainEvent
+ContactRemoved --|> DomainEvent
+ContactTagged --|> DomainEvent
+ContactUntagged --|> DomainEvent
+ContactListImported --|> DomainEvent
+ContactListExported --|> DomainEvent
+CustomerEmailSent --|> DomainEvent
+CustomerSMSSent --|> DomainEvent
+CustomerPhoneCallLogged --|> DomainEvent
+CustomerMeetingScheduled --|> DomainEvent
+CustomerFollowUpCreated --|> DomainEvent
+CustomerComplaintReceived --|> DomainEvent
+CustomerComplaintResolved --|> DomainEvent
+CustomerTestimonialReceived --|> DomainEvent
+
+' Domain Services use Aggregates
+CustomerDomainService ..> Customer : uses
+CommunicationDomainService ..> Customer : uses
+CommunicationDomainService ..> CommunicationHistory : uses
+ComplaintDomainService ..> Complaint : uses
+CustomerInsightService ..> Customer : uses
+CustomerInsightService ..> CustomerInsights : creates
+
+' Repositories work with Aggregates
+ICustomerRepository ..> Customer : manages
+IContactRepository ..> Contact : manages
+ICommunicationHistoryRepository ..> CommunicationHistory : manages
+IComplaintRepository ..> Complaint : manages
+ITestimonialRepository ..> Testimonial : manages
+
+@enduml

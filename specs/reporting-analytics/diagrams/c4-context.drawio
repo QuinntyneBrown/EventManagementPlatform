@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="c4-context" name="C4 Context Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="C4 Context Diagram - Reporting &amp; Analytics Platform" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="250" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- People/Actors -->
+        <mxCell id="person-manager" value="Manager&#xa;[Person]&#xa;&#xa;Creates dashboards,&#xa;generates reports,&#xa;views analytics" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-staff" value="Staff Member&#xa;[Person]&#xa;&#xa;Views reports, exports&#xa;data, monitors dashboards" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="300" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-customer" value="Customer&#xa;[Person]&#xa;&#xa;Views event reports&#xa;and statistics" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="500" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Main System -->
+        <mxCell id="system-main" value="Reporting &amp; Analytics System&#xa;[Software System]&#xa;&#xa;Generates reports, manages&#xa;dashboards, calculates statistics,&#xa;and provides business intelligence" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#1e4d78;fillColor=#1168bd;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="260" width="280" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="system-event-mgmt" value="Event Management System&#xa;[External System]&#xa;&#xa;Provides event data&#xa;for reports" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="800" y="80" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-customer-mgmt" value="Customer Management&#xa;[External System]&#xa;&#xa;Provides customer data&#xa;for analytics" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="800" y="240" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-invoice-mgmt" value="Invoice Management&#xa;[External System]&#xa;&#xa;Provides revenue and&#xa;financial data" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="800" y="400" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-email" value="Email Service&#xa;[External System]&#xa;&#xa;Sends report notifications&#xa;and scheduled reports" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="800" y="560" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-azure-ai" value="Azure AI Services&#xa;[External System]&#xa;&#xa;Provides predictive analytics&#xa;and insights generation" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="560" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-manager" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-1-label" value="Creates reports,&#xa;builds dashboards" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-1" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-staff" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-2-label" value="Generates reports,&#xa;exports data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-2" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-customer" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-3-label" value="Views reports&#xa;and statistics" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-3" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-event-mgmt" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-4-label" value="Reads event data&#xa;[REST API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-customer-mgmt" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-5-label" value="Reads customer data&#xa;[REST API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-invoice-mgmt" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-6-label" value="Reads financial data&#xa;[REST API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-email" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-7-label" value="Sends reports&#xa;[SMTP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-7" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-8-label" value="Gets AI insights&#xa;[HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-8" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#999999;fillColor=#f5f5f5;" parent="1" vertex="1">
+          <mxGeometry x="40" y="730" width="300" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="740" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-person" value="" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="60" y="770" width="30" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-person-text" value="Person" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="100" y="770" width="80" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-system" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#1e4d78;" parent="1" vertex="1">
+          <mxGeometry x="200" y="770" width="30" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-system-text" value="Software System" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="240" y="770" width="100" height="30" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="c4-container" name="C4 Container Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title2" value="C4 Container Diagram - Reporting &amp; Analytics Platform" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="boundary" value="Reporting &amp; Analytics Platform [System Boundary]" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;strokeColor=#1168bd;fillColor=none;fontColor=#1168bd;align=left;verticalAlign=top;labelBackgroundColor=none;strokeWidth=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="280" y="80" width="900" height="640" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="container-webapp" value="Web Application&#xa;[Container: Angular]&#xa;&#xa;Provides reporting UI,&#xa;dashboard builder,&#xa;and data visualization" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="320" y="120" width="200" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-api" value="API Application&#xa;[Container: .NET 8 Web API]&#xa;&#xa;Provides reporting,&#xa;dashboard, and statistics&#xa;functionality via REST API" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="620" y="120" width="200" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-worker" value="Background Worker&#xa;[Container: .NET Worker]&#xa;&#xa;Generates scheduled reports,&#xa;calculates statistics,&#xa;sends email notifications" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="920" y="120" width="220" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-database" value="Database&#xa;[Container: Azure SQL]&#xa;&#xa;Stores reports, dashboards,&#xa;statistics snapshots" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="400" y="360" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-cache" value="Cache&#xa;[Container: Azure Redis]&#xa;&#xa;Caches dashboard data,&#xa;statistics results" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="640" y="360" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-storage" value="Blob Storage&#xa;[Container: Azure Blob]&#xa;&#xa;Stores generated reports&#xa;(PDF, Excel files)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="880" y="360" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-servicebus" value="Message Bus&#xa;[Container: Azure Service Bus]&#xa;&#xa;Queues report generation&#xa;and statistics calculation jobs" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="560" y="560" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="user" value="User&#xa;[Person]" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="120" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-azure-ai" value="Azure AI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-email" value="Email Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="200" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-event-system" value="Event Management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="crel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="user" target="container-webapp" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-1-label" value="Uses [HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-1" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-webapp" target="container-api" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-2-label" value="API Calls [REST/JSON]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-2" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-3-label" value="Reads/Writes [EF Core]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-3" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-cache" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-4-label" value="Caches [Redis]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-5-label" value="Queues Jobs [AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-worker" target="container-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-6-label" value="Processes Jobs [AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-worker" target="container-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-7-label" value="Stores Files [HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-7" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-worker" target="container-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-8-label" value="Reads Data [EF Core]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-8" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-api" target="ext-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-worker" target="ext-email" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-api" target="ext-event-system" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="c4-component" name="C4 Component Diagram - Reporting API">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title3" value="C4 Component Diagram - Reporting &amp; Analytics API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- API Boundary -->
+        <mxCell id="api-boundary" value="Reporting API Application [Container: .NET 8]" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;strokeColor=#1168bd;fillColor=none;fontColor=#1168bd;align=left;verticalAlign=top;labelBackgroundColor=none;strokeWidth=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="1000" height="600" as="geometry"/>
+        </mxCell>
+
+        <!-- Controllers -->
+        <mxCell id="comp-reports-controller" value="Reports Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles report CRUD,&#xa;generation, and export" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="240" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-dashboards-controller" value="Dashboards Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles dashboard and&#xa;widget operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="460" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-statistics-controller" value="Statistics Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles statistics&#xa;queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="680" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Handlers -->
+        <mxCell id="comp-generate-report" value="Generate Report Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Queues report&#xa;generation job" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="240" y="260" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-export-handler" value="Export Report Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Exports reports to&#xa;PDF/Excel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="460" y="260" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-calculate-stats" value="Calculate Statistics Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Calculates various&#xa;statistics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="680" y="260" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-get-dashboard" value="Get Dashboard Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Retrieves dashboard&#xa;with widget data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="900" y="260" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Services -->
+        <mxCell id="comp-report-service" value="Report Service&#xa;[Component: Domain Service]&#xa;&#xa;Business logic for&#xa;report operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="300" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-statistics-service" value="Statistics Service&#xa;[Component: Domain Service]&#xa;&#xa;Calculates and caches&#xa;statistics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="540" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-dashboard-service" value="Dashboard Service&#xa;[Component: Domain Service]&#xa;&#xa;Manages dashboard&#xa;and widget data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="780" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Data Access -->
+        <mxCell id="comp-dbcontext" value="ReportingDbContext&#xa;[Component: EF DbContext]&#xa;&#xa;Database access layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b85450;strokeColor=#a04944;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="520" y="560" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- External -->
+        <mxCell id="ext-webapp" value="Web App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="40" y="140" width="100" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-database" value="Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="560" y="720" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-servicebus" value="Service Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="560" width="100" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Simple Relationships -->
+        <mxCell id="comprel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="ext-webapp" target="comp-reports-controller" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-reports-controller" target="comp-generate-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-dashboards-controller" target="comp-get-dashboard" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-statistics-controller" target="comp-calculate-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-generate-report" target="comp-report-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-calculate-stats" target="comp-statistics-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-get-dashboard" target="comp-dashboard-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-report-service" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-statistics-service" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-dashboard-service" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-dbcontext" target="ext-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-generate-report" target="ext-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

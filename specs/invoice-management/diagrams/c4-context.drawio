@@ -1,0 +1,621 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T10:00:00.000Z" agent="5.0" version="22.1.0" etag="c4-diagrams" type="device" pages="3">
+  <diagram name="C4 Context Diagram" id="c4-context">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="context-title" value="C4 Context Diagram - Invoice &amp; Financial Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="30" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-box" value="Event Management Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;verticalAlign=top;fontSize=16;fontStyle=1;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="450" y="150" width="700" height="500" as="geometry" />
+        </mxCell>
+
+        <!-- Invoice & Financial Management System -->
+        <mxCell id="invoice-system" value="&lt;b&gt;Invoice &amp; Financial Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages invoices, payments, refunds, and financial reporting for events. Provides automated billing, payment processing, and financial analytics." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="600" y="350" width="400" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="customer-user" value="&lt;b&gt;Customer&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Event organizer or client who receives and pays invoices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="finance-user" value="&lt;b&gt;Finance Manager&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Creates and manages invoices, processes payments and refunds" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="admin-user" value="&lt;b&gt;Administrator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Views financial reports, analytics, and system configuration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="500" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="payment-gateway" value="&lt;b&gt;Payment Gateway&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Stripe/PayPal - Processes credit card and online payments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="200" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="email-system" value="&lt;b&gt;Email System&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Sends invoice notifications and payment reminders" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="350" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-ai" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Provides AI-powered invoice anomaly detection and payment predictions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="500" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-system" value="&lt;b&gt;Event Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides event and customer data for invoice creation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c8ebf;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="650" y="200" width="250" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="staff-system" value="&lt;b&gt;Staff Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides staff fees for invoices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c8ebf;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="500" y="560" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="equipment-system" value="&lt;b&gt;Equipment System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides rental fees" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c8ebf;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="750" y="560" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-customer-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="customer-user" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Views invoices, makes payments&lt;br&gt;[HTTPS/Web]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-customer-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-30" y="-15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-finance-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="finance-user" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Creates/manages invoices,&lt;br&gt;processes payments&lt;br&gt;[HTTPS/Web]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-finance-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-25" y="-20" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-admin-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="admin-user" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Views financial reports&lt;br&gt;[HTTPS/Web]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-admin-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-30" y="15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-payment" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="invoice-system" target="payment-gateway">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Processes payments&lt;br&gt;[HTTPS/REST API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-system-payment">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-20" y="-15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-email" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="invoice-system" target="email-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Sends invoice notifications&lt;br&gt;[SMTP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-system-email">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-20" y="-15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-ai" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="invoice-system" target="azure-ai">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Analyzes invoices, predicts payments&lt;br&gt;[HTTPS/REST API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-system-ai">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-30" y="15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-event-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="event-system" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Provides event data&lt;br&gt;[Internal API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-event-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="40" y="-5" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-staff-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="staff-system" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Provides staff fees&lt;br&gt;[Internal API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-staff-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-40" y="10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-equipment-system" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="equipment-system" target="invoice-system">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Provides rental fees&lt;br&gt;[Internal API]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="rel-equipment-system">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="40" y="10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="context-legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="700" width="500" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="context-legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="120" y="710" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="context-legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="750" width="80" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="context-legend-system" value="System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="220" y="750" width="80" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="context-legend-internal" value="Internal System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c8ebf;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="750" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="context-legend-external" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="440" y="750" width="100" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container Diagram" id="c4-container">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="container-title" value="C4 Container Diagram - Invoice &amp; Financial Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="30" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="container-system-box" value="Invoice &amp; Financial Management System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;verticalAlign=top;fontSize=16;fontStyle=1;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="300" y="120" width="1000" height="700" as="geometry" />
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="container-finance-user" value="&lt;b&gt;Finance Manager&lt;/b&gt;&lt;br&gt;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-customer-user" value="&lt;b&gt;Customer&lt;/b&gt;&lt;br&gt;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="450" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="container-spa" value="&lt;b&gt;Single Page Application&lt;/b&gt;&lt;br&gt;[Container: Angular 18]&lt;br&gt;&lt;br&gt;Provides invoice management UI, payment processing, and financial reporting dashboards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="180" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-api" value="&lt;b&gt;API Application&lt;/b&gt;&lt;br&gt;[Container: .NET 8 Web API]&lt;br&gt;&lt;br&gt;Provides REST API for invoice and payment operations, business logic, domain events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="670" y="180" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-database" value="&lt;b&gt;Invoice Database&lt;/b&gt;&lt;br&gt;[Container: Azure SQL Database]&lt;br&gt;&lt;br&gt;Stores invoices, items, payments, refunds, financial data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="380" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-eventstore" value="&lt;b&gt;Event Store&lt;/b&gt;&lt;br&gt;[Container: Azure Cosmos DB]&lt;br&gt;&lt;br&gt;Stores all domain events for audit trail and event sourcing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="670" y="380" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-servicebus" value="&lt;b&gt;Message Bus&lt;/b&gt;&lt;br&gt;[Container: Azure Service Bus]&lt;br&gt;&lt;br&gt;Handles asynchronous event publishing and integration events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="180" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-functions" value="&lt;b&gt;Background Workers&lt;/b&gt;&lt;br&gt;[Container: Azure Functions]&lt;br&gt;&lt;br&gt;Handles scheduled tasks: reminders, PDF generation, aging reports, payment retries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="380" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-blobstorage" value="&lt;b&gt;Document Storage&lt;/b&gt;&lt;br&gt;[Container: Azure Blob Storage]&lt;br&gt;&lt;br&gt;Stores generated invoice PDFs and attachments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="580" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-cache" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;[Container: Azure Redis Cache]&lt;br&gt;&lt;br&gt;Caches frequently accessed invoices and financial reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="670" y="580" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="container-stripe" value="&lt;b&gt;Stripe&lt;/b&gt;&lt;br&gt;[External: Payment Gateway]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="200" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-azure-ai" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;&lt;br&gt;[External: AI Service]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="400" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="container-rel-user-spa" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-finance-user" target="container-spa">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Manages invoices&lt;br&gt;[HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-user-spa">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-10" y="-12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-customer-spa" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-customer-user" target="container-spa">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Views invoices, pays&lt;br&gt;[HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-customer-spa">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-10" y="12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-spa-api" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-spa" target="container-api">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Makes API calls&lt;br&gt;[REST/HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-spa-api">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint y="-12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-api-db" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-api" target="container-database">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Reads/writes&lt;br&gt;[EF Core/SQL]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-api-db">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="15" y="-10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-api-eventstore" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-api" target="container-eventstore">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Stores events&lt;br&gt;[Cosmos SDK]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-api-eventstore">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="30" y="5" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-api-servicebus" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-api" target="container-servicebus">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Publishes events&lt;br&gt;[AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-api-servicebus">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint y="-12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-api-cache" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="container-api" target="container-cache">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Caches data&lt;br&gt;[Redis]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-api-cache">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="20" y="15" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-api-stripe" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-api" target="container-stripe">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Processes payments&lt;br&gt;[REST/HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-api-stripe">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-20" y="-12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-functions-servicebus" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-functions" target="container-servicebus">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Subscribes to events&lt;br&gt;[AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-functions-servicebus">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="35" y="5" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-functions-db" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="container-functions" target="container-database">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Reads data" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-functions-db">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint y="-10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-functions-blob" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-functions" target="container-blobstorage">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="Uploads PDFs&lt;br&gt;[Blob SDK]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-functions-blob">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="20" y="10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="container-rel-functions-ai" style="endArrow=block;endSize=16;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="container-functions" target="container-azure-ai">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="400" as="sourcePoint" />
+            <mxPoint x="860" y="400" as="targetPoint" />
+            <mxLabel value="AI analysis&lt;br&gt;[REST]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9;" vertex="1" connectable="0" parent="container-rel-functions-ai">
+              <mxGeometry x="0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="-5" y="-12" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Component Diagram" id="c4-component">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="component-title" value="C4 Component Diagram - API Application" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="30" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Container Boundary -->
+        <mxCell id="component-container-box" value="API Application [Container: .NET 8 Web API]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;verticalAlign=top;fontSize=14;fontStyle=1;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+          <mxGeometry x="250" y="120" width="1100" height="900" as="geometry" />
+        </mxCell>
+
+        <!-- External -->
+        <mxCell id="component-spa" value="&lt;b&gt;SPA&lt;/b&gt;&lt;br&gt;[Angular]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Components - Controllers -->
+        <mxCell id="component-invoice-controller" value="&lt;b&gt;Invoice Controller&lt;/b&gt;&lt;br&gt;[Component: Web API Controller]&lt;br&gt;&lt;br&gt;Handles invoice HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="180" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-payment-controller" value="&lt;b&gt;Payment Controller&lt;/b&gt;&lt;br&gt;[Component: Web API Controller]&lt;br&gt;&lt;br&gt;Handles payment HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="180" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-financial-controller" value="&lt;b&gt;Financial Controller&lt;/b&gt;&lt;br&gt;[Component: Web API Controller]&lt;br&gt;&lt;br&gt;Handles reporting requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="180" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Components - Command Handlers -->
+        <mxCell id="component-invoice-commands" value="&lt;b&gt;Invoice Command Handlers&lt;/b&gt;&lt;br&gt;[Component: MediatR Handlers]&lt;br&gt;&lt;br&gt;CreateInvoiceHandler&lt;br&gt;FinalizeInvoiceHandler&lt;br&gt;VoidInvoiceHandler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="320" width="180" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-payment-commands" value="&lt;b&gt;Payment Command Handlers&lt;/b&gt;&lt;br&gt;[Component: MediatR Handlers]&lt;br&gt;&lt;br&gt;ProcessPaymentHandler&lt;br&gt;RefundPaymentHandler&lt;br&gt;RetryPaymentHandler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="320" width="180" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Components - Query Handlers -->
+        <mxCell id="component-invoice-queries" value="&lt;b&gt;Invoice Query Handlers&lt;/b&gt;&lt;br&gt;[Component: MediatR Handlers]&lt;br&gt;&lt;br&gt;GetInvoiceHandler&lt;br&gt;ListInvoicesHandler&lt;br&gt;SearchInvoicesHandler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="320" width="180" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-financial-queries" value="&lt;b&gt;Financial Query Handlers&lt;/b&gt;&lt;br&gt;[Component: MediatR Handlers]&lt;br&gt;&lt;br&gt;GetDashboardHandler&lt;br&gt;GetAgingReportHandler&lt;br&gt;ExportDataHandler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="960" y="320" width="180" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Components - Domain Services -->
+        <mxCell id="component-invoice-service" value="&lt;b&gt;Invoice Service&lt;/b&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Business logic for invoice operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="480" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-payment-service" value="&lt;b&gt;Payment Service&lt;/b&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Business logic for payments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="480" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-tax-service" value="&lt;b&gt;Tax Calculation Service&lt;/b&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Calculates taxes for invoices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="480" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Components - Infrastructure -->
+        <mxCell id="component-invoice-repository" value="&lt;b&gt;Invoice Repository&lt;/b&gt;&lt;br&gt;[Component: Repository]&lt;br&gt;&lt;br&gt;Data access for invoices" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="620" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-payment-repository" value="&lt;b&gt;Payment Repository&lt;/b&gt;&lt;br&gt;[Component: Repository]&lt;br&gt;&lt;br&gt;Data access for payments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="620" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-event-publisher" value="&lt;b&gt;Event Publisher&lt;/b&gt;&lt;br&gt;[Component: Infrastructure]&lt;br&gt;&lt;br&gt;Publishes domain events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="620" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-payment-gateway" value="&lt;b&gt;Payment Gateway Client&lt;/b&gt;&lt;br&gt;[Component: Infrastructure]&lt;br&gt;&lt;br&gt;Integrates with Stripe/PayPal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="960" y="620" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-pdf-generator" value="&lt;b&gt;PDF Generator&lt;/b&gt;&lt;br&gt;[Component: Infrastructure]&lt;br&gt;&lt;br&gt;Generates invoice PDFs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="760" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-cache-service" value="&lt;b&gt;Cache Service&lt;/b&gt;&lt;br&gt;[Component: Infrastructure]&lt;br&gt;&lt;br&gt;Manages Redis cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="520" y="760" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-ai-service" value="&lt;b&gt;AI Analysis Service&lt;/b&gt;&lt;br&gt;[Component: Infrastructure]&lt;br&gt;&lt;br&gt;AI-powered analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="760" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- External Dependencies -->
+        <mxCell id="component-database" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;[Azure SQL]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="920" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-servicebus" value="&lt;b&gt;Service Bus&lt;/b&gt;&lt;br&gt;[Azure]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="770" y="920" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-stripe-ext" value="&lt;b&gt;Stripe API&lt;/b&gt;&lt;br&gt;[External]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="620" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="component-openai-ext" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;&lt;br&gt;[External]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="775" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="comp-rel-spa-controller" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-spa" target="component-invoice-controller">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-controller-command" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-invoice-controller" target="component-invoice-commands">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-payment-controller-command" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-payment-controller" target="component-payment-commands">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-financial-controller-query" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-financial-controller" target="component-financial-queries">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-command-service" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-invoice-commands" target="component-invoice-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-payment-command-service" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-payment-commands" target="component-payment-service">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-service-repository" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-invoice-service" target="component-invoice-repository">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-payment-service-repository" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-payment-service" target="component-payment-repository">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-repository-db" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-invoice-repository" target="component-database">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-service-event" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-invoice-service" target="component-event-publisher">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-event-servicebus" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-event-publisher" target="component-servicebus">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-payment-gateway-stripe" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-payment-gateway" target="component-stripe-ext">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="comp-rel-ai-service-openai" style="endArrow=block;endSize=12;endFill=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1.5;" edge="1" parent="1" source="component-ai-service" target="component-openai-ext">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="700" y="500" as="sourcePoint" />
+            <mxPoint x="860" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

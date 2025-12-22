@@ -1,0 +1,441 @@
+@startuml Event Management Sequence Diagrams
+
+title Event Management - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Create Event
+' ============================================
+
+newpage Create Event Sequence
+
+actor Customer as customer
+participant "Angular App" as webapp
+participant "EventsController" as controller
+participant "MediatR" as mediatr
+participant "CreateEventCommandHandler" as handler
+participant "EventService" as service
+participant "IEventManagementPlatformContext" as context
+database "Azure SQL" as db
+queue "Service Bus" as servicebus
+
+customer -> webapp : Fill event form
+activate webapp
+
+webapp -> webapp : Validate form inputs
+webapp -> controller : POST /api/events\n{title, date, venueId, ...}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(CreateEventCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> service : ValidateEventDateAsync(date, venueId)
+activate service
+service -> context : Query venue availability
+activate context
+context -> db : SELECT availability
+db --> context : availability data
+context --> service : availability result
+deactivate context
+service --> handler : validation result
+deactivate service
+
+alt Validation Failed
+    handler --> mediatr : throw ValidationException
+    mediatr --> controller : ValidationException
+    controller --> webapp : 400 Bad Request
+    webapp --> customer : Show validation errors
+else Validation Passed
+    handler -> handler : Create Event entity
+    handler -> handler : event.AddDomainEvent(EventCreated)
+
+    handler -> context : Events.Add(event)
+    activate context
+    handler -> context : SaveChangesAsync()
+    context -> db : INSERT event
+    db --> context : success
+    context -> servicebus : Publish EventCreated
+    context --> handler : saved
+    deactivate context
+
+    handler -> handler : Map to EventDetailDto
+    handler --> mediatr : EventDetailDto
+    deactivate handler
+
+    mediatr --> controller : EventDetailDto
+    deactivate mediatr
+
+    controller --> webapp : 201 Created\nEventDetailDto
+    deactivate controller
+
+    webapp --> customer : Show success message\nNavigate to event detail
+end
+
+deactivate webapp
+
+' ============================================
+' Sequence 2: Update Event
+' ============================================
+
+newpage Update Event Sequence
+
+actor Staff as staff
+participant "Angular App" as webapp2
+participant "EventsController" as controller2
+participant "MediatR" as mediatr2
+participant "UpdateEventCommandHandler" as handler2
+participant "IEventManagementPlatformContext" as context2
+database "Azure SQL" as db2
+queue "Service Bus" as servicebus2
+
+staff -> webapp2 : Edit event details
+activate webapp2
+
+webapp2 -> controller2 : PUT /api/events/{eventId}\n{title, date, venueId, ...}
+activate controller2
+
+controller2 -> mediatr2 : Send(UpdateEventCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> context2 : Events.FindAsync(eventId)
+activate context2
+context2 -> db2 : SELECT event
+db2 --> context2 : event data
+context2 --> handler2 : Event entity
+deactivate context2
+
+alt Event Not Found
+    handler2 --> mediatr2 : throw NotFoundException
+    mediatr2 --> controller2 : NotFoundException
+    controller2 --> webapp2 : 404 Not Found
+    webapp2 --> staff : Show not found error
+else Event Found
+    handler2 -> handler2 : Validate status allows update
+
+    alt Status is Archived or Cancelled
+        handler2 --> mediatr2 : throw ConflictException
+        mediatr2 --> controller2 : ConflictException
+        controller2 --> webapp2 : 409 Conflict
+        webapp2 --> staff : Show status error
+    else Update Allowed
+        handler2 -> handler2 : event.UpdateDetails(...)
+        handler2 -> handler2 : event.AddDomainEvent(EventDetailsUpdated)
+
+        handler2 -> context2 : SaveChangesAsync()
+        activate context2
+        context2 -> db2 : UPDATE event
+        db2 --> context2 : success
+        context2 -> servicebus2 : Publish EventDetailsUpdated
+        context2 --> handler2 : saved
+        deactivate context2
+
+        handler2 -> handler2 : Map to EventDetailDto
+        handler2 --> mediatr2 : EventDetailDto
+        deactivate handler2
+
+        mediatr2 --> controller2 : EventDetailDto
+        deactivate mediatr2
+
+        controller2 --> webapp2 : 200 OK\nEventDetailDto
+        deactivate controller2
+
+        webapp2 --> staff : Show success message\nRefresh event detail
+    end
+end
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Approve Event
+' ============================================
+
+newpage Approve Event Sequence
+
+actor Manager as manager
+participant "Angular App" as webapp3
+participant "EventsController" as controller3
+participant "MediatR" as mediatr3
+participant "ApproveEventCommandHandler" as handler3
+participant "NotificationService" as notifservice
+participant "IEventManagementPlatformContext" as context3
+database "Azure SQL" as db3
+queue "Service Bus" as servicebus3
+
+manager -> webapp3 : Click Approve button
+activate webapp3
+
+webapp3 -> controller3 : POST /api/events/{eventId}/approve
+activate controller3
+
+controller3 -> controller3 : Verify Manager role
+controller3 -> mediatr3 : Send(ApproveEventCommand)
+activate mediatr3
+
+mediatr3 -> handler3 : Handle(command)
+activate handler3
+
+handler3 -> context3 : Events.FindAsync(eventId)
+activate context3
+context3 -> db3 : SELECT event
+db3 --> context3 : event data
+context3 --> handler3 : Event entity
+deactivate context3
+
+handler3 -> handler3 : Validate status == PendingApproval
+
+alt Status is Not PendingApproval
+    handler3 --> mediatr3 : throw ConflictException
+    mediatr3 --> controller3 : ConflictException
+    controller3 --> webapp3 : 409 Conflict
+    webapp3 --> manager : Show status error
+else Status is PendingApproval
+    handler3 -> handler3 : event.Approve(managerId)
+    handler3 -> handler3 : event.AddDomainEvent(EventApproved)
+
+    handler3 -> context3 : SaveChangesAsync()
+    activate context3
+    context3 -> db3 : UPDATE event SET Status = 'Approved'
+    db3 --> context3 : success
+    context3 -> servicebus3 : Publish EventApproved
+    context3 --> handler3 : saved
+    deactivate context3
+
+    handler3 -> notifservice : NotifyCustomerEventApproved(eventId)
+    activate notifservice
+    notifservice -> servicebus3 : Queue notification email
+    notifservice --> handler3 : notification queued
+    deactivate notifservice
+
+    handler3 --> mediatr3 : success
+    deactivate handler3
+
+    mediatr3 --> controller3 : success
+    deactivate mediatr3
+
+    controller3 --> webapp3 : 200 OK
+    deactivate controller3
+
+    webapp3 --> manager : Show approval success\nRefresh event list
+end
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: Cancel Event
+' ============================================
+
+newpage Cancel Event Sequence
+
+actor Customer as customer4
+participant "Angular App" as webapp4
+participant "EventsController" as controller4
+participant "MediatR" as mediatr4
+participant "CancelEventCommandHandler" as handler4
+participant "EventService" as service4
+participant "NotificationService" as notifservice4
+participant "IEventManagementPlatformContext" as context4
+database "Azure SQL" as db4
+queue "Service Bus" as servicebus4
+
+customer4 -> webapp4 : Request cancellation\nwith reason
+activate webapp4
+
+webapp4 -> controller4 : POST /api/events/{eventId}/cancel\n{reason}
+activate controller4
+
+controller4 -> mediatr4 : Send(CancelEventCommand)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(command)
+activate handler4
+
+handler4 -> context4 : Events.FindAsync(eventId)
+activate context4
+context4 -> db4 : SELECT event
+db4 --> context4 : event data
+context4 --> handler4 : Event entity
+deactivate context4
+
+handler4 -> handler4 : Validate cancellation allowed
+
+handler4 -> service4 : CheckCancellationPolicy(event)
+activate service4
+service4 -> service4 : Calculate hours until event
+service4 --> handler4 : policy result (requiresApproval)
+deactivate service4
+
+alt Less than 24 hours before event
+    handler4 -> handler4 : event.Status = 'PendingCancellation'
+    handler4 -> notifservice4 : NotifyManagerCancellationRequest(eventId)
+    activate notifservice4
+    notifservice4 -> servicebus4 : Queue manager notification
+    notifservice4 --> handler4 : notification queued
+    deactivate notifservice4
+
+    handler4 -> context4 : SaveChangesAsync()
+    handler4 --> mediatr4 : {status: 'PendingApproval', message: 'Requires manager approval'}
+else Cancellation allowed
+    handler4 -> handler4 : event.Cancel(userId, reason)
+    handler4 -> handler4 : event.AddDomainEvent(EventCancelled)
+
+    handler4 -> context4 : SaveChangesAsync()
+    activate context4
+    context4 -> db4 : UPDATE event SET Status = 'Cancelled'
+    db4 --> context4 : success
+    context4 -> servicebus4 : Publish EventCancelled
+    context4 --> handler4 : saved
+    deactivate context4
+
+    handler4 -> notifservice4 : NotifyStakeholdersEventCancelled(eventId)
+    activate notifservice4
+    notifservice4 -> servicebus4 : Queue cancellation notifications
+    notifservice4 --> handler4 : notifications queued
+    deactivate notifservice4
+
+    handler4 --> mediatr4 : success
+    deactivate handler4
+end
+
+mediatr4 --> controller4 : result
+deactivate mediatr4
+
+controller4 --> webapp4 : 200 OK\nresult
+deactivate controller4
+
+webapp4 --> customer4 : Show cancellation result\nRefresh event status
+
+deactivate webapp4
+
+' ============================================
+' Sequence 5: Get Events List
+' ============================================
+
+newpage Get Events List Sequence
+
+actor Staff as staff5
+participant "Angular App" as webapp5
+participant "EventsController" as controller5
+participant "MediatR" as mediatr5
+participant "GetEventsQueryHandler" as handler5
+participant "IEventManagementPlatformContext" as context5
+database "Azure SQL" as db5
+
+staff5 -> webapp5 : Navigate to events list\nApply filters
+activate webapp5
+
+webapp5 -> controller5 : GET /api/events?pageNumber=1&pageSize=20&status=Confirmed
+activate controller5
+
+controller5 -> mediatr5 : Send(GetEventsQuery)
+activate mediatr5
+
+mediatr5 -> handler5 : Handle(query)
+activate handler5
+
+handler5 -> context5 : Events.AsQueryable()
+activate context5
+
+handler5 -> handler5 : Apply status filter
+handler5 -> handler5 : Apply search filter
+handler5 -> handler5 : Apply pagination
+handler5 -> handler5 : Include related entities
+
+context5 -> db5 : SELECT events\nWITH filtering and pagination
+db5 --> context5 : event records
+context5 --> handler5 : IQueryable<Event>
+deactivate context5
+
+handler5 -> handler5 : Project to EventListDto
+handler5 -> handler5 : Calculate total count
+handler5 -> handler5 : Create PagedResult
+
+handler5 --> mediatr5 : PagedResult<EventListDto>
+deactivate handler5
+
+mediatr5 --> controller5 : PagedResult<EventListDto>
+deactivate mediatr5
+
+controller5 --> webapp5 : 200 OK\n{items: [...], totalCount, pageNumber, pageSize}
+deactivate controller5
+
+webapp5 -> webapp5 : Update events state
+webapp5 -> webapp5 : Render event cards/table
+webapp5 --> staff5 : Display events list with pagination
+
+deactivate webapp5
+
+' ============================================
+' Sequence 6: Add Event Note
+' ============================================
+
+newpage Add Event Note Sequence
+
+actor Staff as staff6
+participant "Angular App" as webapp6
+participant "EventNotesController" as controller6
+participant "MediatR" as mediatr6
+participant "AddEventNoteCommandHandler" as handler6
+participant "IEventManagementPlatformContext" as context6
+database "Azure SQL" as db6
+queue "Service Bus" as servicebus6
+
+staff6 -> webapp6 : Open add note dialog\nEnter note content
+activate webapp6
+
+webapp6 -> controller6 : POST /api/events/{eventId}/notes\n{content, noteType}
+activate controller6
+
+controller6 -> mediatr6 : Send(AddEventNoteCommand)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(command)
+activate handler6
+
+handler6 -> context6 : Events.FindAsync(eventId)
+activate context6
+context6 -> db6 : SELECT event
+db6 --> context6 : event data
+context6 --> handler6 : Event entity
+deactivate context6
+
+alt Event Not Found
+    handler6 --> mediatr6 : throw NotFoundException
+    mediatr6 --> controller6 : NotFoundException
+    controller6 --> webapp6 : 404 Not Found
+    webapp6 --> staff6 : Show error message
+else Event Found
+    handler6 -> handler6 : event.AddNote(content, noteType, userId)
+    handler6 -> handler6 : event.AddDomainEvent(EventNoteAdded)
+
+    handler6 -> context6 : SaveChangesAsync()
+    activate context6
+    context6 -> db6 : INSERT event_note
+    db6 --> context6 : success
+    context6 -> servicebus6 : Publish EventNoteAdded
+    context6 --> handler6 : saved
+    deactivate context6
+
+    handler6 -> handler6 : Map to EventNoteDto
+    handler6 --> mediatr6 : EventNoteDto
+    deactivate handler6
+
+    mediatr6 --> controller6 : EventNoteDto
+    deactivate mediatr6
+
+    controller6 --> webapp6 : 201 Created\nEventNoteDto
+    deactivate controller6
+
+    webapp6 -> webapp6 : Close dialog
+    webapp6 -> webapp6 : Add note to list
+    webapp6 --> staff6 : Show success message\nDisplay new note
+end
+
+deactivate webapp6
+
+@enduml

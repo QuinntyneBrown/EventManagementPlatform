@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="scheduling-management-use-case" name="Scheduling &amp; Calendar Management Use Cases">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Scheduling &amp; Calendar Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=200;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="250" y="40" width="1000" height="880" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-event-planner" value="Event Planner" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-venue-manager" value="Venue Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="80" y="340" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-staff" value="Staff Member" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="80" y="520" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="400" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-customer" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="80" y="700" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Scheduling Use Cases -->
+        <mxCell id="uc-schedule-event" value="Schedule Event on&#xa;Calendar" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="320" y="100" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-reschedule-event" value="Reschedule Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="320" y="190" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-remove-event" value="Remove Event from&#xa;Calendar" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="320" y="280" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Calendar View Use Cases -->
+        <mxCell id="uc-view-calendar" value="View Calendar" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="520" y="100" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-daily" value="View Daily Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-weekly" value="View Weekly&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-monthly" value="View Monthly&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Export Use Cases -->
+        <mxCell id="uc-export-daily" value="Export Daily&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="920" y="100" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-export-weekly" value="Export Weekly&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="920" y="190" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-export-monthly" value="Export Monthly&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="920" y="280" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Conflict Management Use Cases -->
+        <mxCell id="uc-detect-conflicts" value="Detect Schedule&#xa;Conflicts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="320" y="400" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-resolve-conflict" value="Resolve Schedule&#xa;Conflict" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="520" y="400" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-escalate-conflict" value="Escalate Conflict" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="520" y="490" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-conflicts" value="View Conflict&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="400" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Overbooking Use Cases -->
+        <mxCell id="uc-check-capacity" value="Check Calendar&#xa;Capacity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="320" y="590" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-prevent-overbooking" value="Prevent Overbooking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="520" y="590" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-override-overbooking" value="Override Overbooking&#xa;Prevention" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="590" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-trigger-warning" value="Trigger Overbooking&#xa;Warning" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="920" y="590" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Resource Availability Use Cases -->
+        <mxCell id="uc-check-availability" value="Check Resource&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="320" y="740" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-check-multiple" value="Check Multiple&#xa;Resources" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="520" y="740" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-mark-unavailable" value="Mark Resource&#xa;Unavailable" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="740" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-mark-available" value="Mark Resource&#xa;Available" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="920" y="740" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-availability" value="View Resource&#xa;Availability Timeline" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="520" y="830" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Event Planner -->
+        <mxCell id="assoc-1" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-schedule-event" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-reschedule-event" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-remove-event" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-view-calendar" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-view-conflicts" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-6" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-event-planner" target="uc-check-availability" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Venue Manager -->
+        <mxCell id="assoc-7" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-view-calendar" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-resolve-conflict" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-9" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-escalate-conflict" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-override-overbooking" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-11" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-mark-unavailable" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-12" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-mark-available" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-export-daily" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-export-weekly" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-15" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-venue-manager" target="uc-export-monthly" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff Member -->
+        <mxCell id="assoc-16" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-staff" target="uc-view-calendar" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-17" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-staff" target="uc-mark-unavailable" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-staff" target="uc-view-availability" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Customer -->
+        <mxCell id="assoc-19" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-customer" target="uc-view-calendar" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-20" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-customer" target="uc-check-availability" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-21" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-system" target="uc-detect-conflicts" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-22" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-system" target="uc-check-capacity" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-23" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-system" target="uc-prevent-overbooking" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-24" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-system" target="uc-trigger-warning" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-view-calendar" target="uc-view-daily" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include-2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-view-calendar" target="uc-view-weekly" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="include-3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-view-calendar" target="uc-view-monthly" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-4" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-schedule-event" target="uc-check-availability" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-5" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="uc-schedule-event" target="uc-detect-conflicts" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-6" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="uc-reschedule-event" target="uc-detect-conflicts" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-7" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-check-availability" target="uc-check-multiple" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="uc-resolve-conflict" target="uc-detect-conflicts" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="extend-2" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="uc-escalate-conflict" target="uc-resolve-conflict" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="extend-3" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-override-overbooking" target="uc-prevent-overbooking" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

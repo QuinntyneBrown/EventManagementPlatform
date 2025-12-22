@@ -1,0 +1,578 @@
+@startuml Prize Management Class Diagram
+
+title Prize Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.PrizeAggregate" {
+
+    class PrizeItem <<AggregateRoot>> {
+        + PrizeItemId : Guid
+        + Name : string
+        + Description : string?
+        + SKU : string
+        + Category : string
+        + UnitCost : decimal
+        + CurrentStock : int
+        + MinimumStock : int
+        + IsActive : bool
+        + PhotoUrl : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + PrizeItem(name: string, sku: string, category: string, unitCost: decimal, currentStock: int, minimumStock: int, createdBy: Guid)
+        + UpdateDetails(name: string, description: string?, category: string, unitCost: decimal, minimumStock: int, modifiedBy: Guid) : void
+        + Activate() : void
+        + Deactivate() : void
+        + UploadPhoto(photoUrl: string) : void
+        + IncreaseStock(quantity: int) : void
+        + DecreaseStock(quantity: int) : void
+        + IsLowStock() : bool
+        + IsDepleted() : bool
+    }
+
+    class PrizePack <<AggregateRoot>> {
+        + PrizePackId : Guid
+        + Name : string
+        + Description : string?
+        + IsActive : bool
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + PrizePack(name: string, description: string?, createdBy: Guid)
+        + UpdateDetails(name: string, description: string?, modifiedBy: Guid) : void
+        + AddItem(prizeItemId: Guid, quantity: int) : PrizePackItem
+        + RemoveItem(prizePackItemId: Guid) : void
+        + UpdateItemQuantity(prizePackItemId: Guid, quantity: int) : void
+        + CalculateTotalCost() : decimal
+    }
+
+    class PrizePackItem <<Entity>> {
+        + PrizePackItemId : Guid
+        + PrizePackId : Guid
+        + PrizeItemId : Guid
+        + Quantity : int
+        --
+        + PrizePackItem(prizePackId: Guid, prizeItemId: Guid, quantity: int)
+        + UpdateQuantity(quantity: int) : void
+    }
+
+    class EventPrizeOrder <<AggregateRoot>> {
+        + EventPrizeOrderId : Guid
+        + EventId : Guid
+        + OrderStatus : OrderStatus
+        + OrderDate : DateTime
+        + RequiredByDate : DateTime
+        + PackedDate : DateTime?
+        + ShippedDate : DateTime?
+        + DeliveredDate : DateTime?
+        + DistributedDate : DateTime?
+        + Notes : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + EventPrizeOrder(eventId: Guid, requiredByDate: DateTime, createdBy: Guid)
+        + AddItem(prizeItemId: Guid, quantity: int) : EventPrizeOrderItem
+        + RemoveItem(orderItemId: Guid) : void
+        + UpdateItemQuantity(orderItemId: Guid, quantity: int) : void
+        + Submit() : void
+        + Cancel(reason: string) : void
+        + Pack(packedBy: Guid) : void
+        + Ship(trackingNumber: string?, shippedBy: Guid) : void
+        + Deliver(deliveredBy: Guid) : void
+        + Distribute(distributedBy: Guid) : void
+        + ReturnUnused(returnedBy: Guid) : void
+        + CalculateTotalCost() : decimal
+    }
+
+    class EventPrizeOrderItem <<Entity>> {
+        + EventPrizeOrderItemId : Guid
+        + EventPrizeOrderId : Guid
+        + PrizeItemId : Guid
+        + Quantity : int
+        + AllocatedQuantity : int
+        + DistributedQuantity : int
+        + ReturnedQuantity : int
+        --
+        + EventPrizeOrderItem(eventPrizeOrderId: Guid, prizeItemId: Guid, quantity: int)
+        + UpdateQuantity(quantity: int) : void
+        + Allocate(quantity: int) : void
+        + Deallocate(quantity: int) : void
+        + RecordDistribution(quantity: int) : void
+        + RecordReturn(quantity: int) : void
+    }
+
+    class InventoryTransaction <<Entity>> {
+        + InventoryTransactionId : Guid
+        + PrizeItemId : Guid
+        + TransactionType : TransactionType
+        + Quantity : int
+        + ReferenceId : Guid?
+        + TransactionDate : DateTime
+        + Notes : string?
+        + CreatedBy : Guid
+        --
+        + InventoryTransaction(prizeItemId: Guid, transactionType: TransactionType, quantity: int, createdBy: Guid)
+    }
+
+    enum OrderStatus <<Enumeration>> {
+        Draft = 0
+        Submitted = 1
+        Confirmed = 2
+        Allocated = 3
+        Packed = 4
+        Shipped = 5
+        Delivered = 6
+        Distributed = 7
+        Returned = 8
+        Cancelled = 9
+    }
+
+    enum TransactionType <<Enumeration>> {
+        Received = 0
+        Allocated = 1
+        Deallocated = 2
+        Adjustment = 3
+        Distributed = 4
+        Returned = 5
+        Damaged = 6
+        Lost = 7
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.PrizeAggregate.Events" {
+
+    abstract class PrizeDomainEvent <<DomainEvent>> {
+        + PrizeItemId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class PrizeItemAdded {
+        + Name : string
+        + SKU : string
+        + Category : string
+        + UnitCost : decimal
+    }
+
+    class PrizeItemUpdated {
+        + ChangedProperties : string[]
+    }
+
+    class PrizeItemRemoved {
+        + Name : string
+        + Reason : string
+    }
+
+    class PrizeItemActivated {
+        + ActivatedBy : Guid
+    }
+
+    class PrizeItemDeactivated {
+        + DeactivatedBy : Guid
+    }
+
+    class PrizeItemPhotoUploaded {
+        + PhotoUrl : string
+    }
+
+    class PrizePackCreated {
+        + PrizePackId : Guid
+        + Name : string
+    }
+
+    class PrizePackUpdated {
+        + PrizePackId : Guid
+        + ChangedProperties : string[]
+    }
+
+    class EventPrizesOrdered {
+        + EventPrizeOrderId : Guid
+        + EventId : Guid
+        + TotalItems : int
+        + TotalCost : decimal
+    }
+
+    class EventPrizeOrderUpdated {
+        + EventPrizeOrderId : Guid
+        + ChangedProperties : string[]
+    }
+
+    class EventPrizeOrderCancelled {
+        + EventPrizeOrderId : Guid
+        + Reason : string
+    }
+
+    class PrizeItemAddedToOrder {
+        + EventPrizeOrderId : Guid
+        + PrizeItemId : Guid
+        + Quantity : int
+    }
+
+    class PrizeItemRemovedFromOrder {
+        + EventPrizeOrderId : Guid
+        + PrizeItemId : Guid
+    }
+
+    class PrizeQuantityIncreased {
+        + Quantity : int
+        + NewTotal : int
+    }
+
+    class PrizeQuantityDecreased {
+        + Quantity : int
+        + NewTotal : int
+    }
+
+    class PrizeInventoryReceived {
+        + Quantity : int
+        + ReceivedBy : Guid
+    }
+
+    class PrizeInventoryAdjusted {
+        + OldQuantity : int
+        + NewQuantity : int
+        + Reason : string
+    }
+
+    class PrizeInventoryAllocated {
+        + EventPrizeOrderId : Guid
+        + Quantity : int
+    }
+
+    class PrizeInventoryDeallocated {
+        + EventPrizeOrderId : Guid
+        + Quantity : int
+    }
+
+    class PrizeStockDepleted {
+        + DepletedAt : DateTime
+    }
+
+    class PrizeLowStockWarningTriggered {
+        + CurrentStock : int
+        + MinimumStock : int
+    }
+
+    class PrizeInventoryReplenished {
+        + NewStock : int
+    }
+
+    class PrizesPackedForEvent {
+        + EventPrizeOrderId : Guid
+        + PackedDate : DateTime
+        + PackedBy : Guid
+    }
+
+    class PrizesShippedToEvent {
+        + EventPrizeOrderId : Guid
+        + ShippedDate : DateTime
+        + TrackingNumber : string?
+    }
+
+    class PrizesDeliveredToEvent {
+        + EventPrizeOrderId : Guid
+        + DeliveredDate : DateTime
+    }
+
+    class PrizesDistributedAtEvent {
+        + EventPrizeOrderId : Guid
+        + DistributedDate : DateTime
+        + DistributedQuantity : int
+    }
+
+    class UnusedPrizesReturned {
+        + EventPrizeOrderId : Guid
+        + ReturnedDate : DateTime
+        + ReturnedQuantity : int
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IPrizeManagementContext <<Interface>> {
+        + PrizeItems : DbSet<PrizeItem>
+        + PrizePacks : DbSet<PrizePack>
+        + PrizePackItems : DbSet<PrizePackItem>
+        + EventPrizeOrders : DbSet<EventPrizeOrder>
+        + EventPrizeOrderItems : DbSet<EventPrizeOrderItem>
+        + InventoryTransactions : DbSet<InventoryTransaction>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class PrizeService <<Service>> {
+        - _context : IPrizeManagementContext
+        --
+        + PrizeService(context: IPrizeManagementContext)
+        + ValidateUniqueSKUAsync(sku: string) : Task<bool>
+        + CheckStockAvailabilityAsync(prizeItemId: Guid, quantity: int) : Task<bool>
+        + GetPrizeStatisticsAsync() : Task<PrizeStatistics>
+    }
+
+    class InventoryService <<Service>> {
+        - _context : IPrizeManagementContext
+        --
+        + InventoryService(context: IPrizeManagementContext)
+        + AllocateInventoryAsync(prizeItemId: Guid, eventPrizeOrderId: Guid, quantity: int) : Task
+        + DeallocateInventoryAsync(prizeItemId: Guid, eventPrizeOrderId: Guid, quantity: int) : Task
+        + RecordTransactionAsync(prizeItemId: Guid, transactionType: TransactionType, quantity: int, notes: string?) : Task
+        + CheckLowStockAsync(prizeItemId: Guid) : Task<bool>
+    }
+
+    class OrderProcessingService <<Service>> {
+        - _context : IPrizeManagementContext
+        - _inventoryService : InventoryService
+        --
+        + OrderProcessingService(context: IPrizeManagementContext, inventoryService: InventoryService)
+        + ValidateOrderAsync(eventPrizeOrder: EventPrizeOrder) : Task<bool>
+        + ProcessPackingAsync(eventPrizeOrderId: Guid, packedBy: Guid) : Task
+        + ProcessShippingAsync(eventPrizeOrderId: Guid, trackingNumber: string?) : Task
+        + ProcessDistributionAsync(eventPrizeOrderId: Guid, distributedQuantities: Dictionary<Guid, int>) : Task
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Prizes" {
+
+    class CreatePrizeItemCommand <<Command>> {
+        + Name : string
+        + Description : string?
+        + SKU : string
+        + Category : string
+        + UnitCost : decimal
+        + CurrentStock : int
+        + MinimumStock : int
+    }
+
+    class CreatePrizeItemCommandHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        - _prizeService : PrizeService
+        --
+        + Handle(command: CreatePrizeItemCommand, cancellationToken: CancellationToken) : Task<PrizeItemDetailDto>
+    }
+
+    class CreateEventPrizeOrderCommand <<Command>> {
+        + EventId : Guid
+        + RequiredByDate : DateTime
+        + Items : IEnumerable<OrderItemDto>
+        + Notes : string?
+    }
+
+    class CreateEventPrizeOrderCommandHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        - _orderService : OrderProcessingService
+        --
+        + Handle(command: CreateEventPrizeOrderCommand, cancellationToken: CancellationToken) : Task<EventPrizeOrderDetailDto>
+    }
+
+    class PackPrizesCommand <<Command>> {
+        + EventPrizeOrderId : Guid
+        + PackedBy : Guid
+    }
+
+    class PackPrizesCommandHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        - _orderService : OrderProcessingService
+        --
+        + Handle(command: PackPrizesCommand, cancellationToken: CancellationToken) : Task
+    }
+
+    class ReceiveInventoryCommand <<Command>> {
+        + PrizeItemId : Guid
+        + Quantity : int
+        + Notes : string?
+    }
+
+    class ReceiveInventoryCommandHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        - _inventoryService : InventoryService
+        --
+        + Handle(command: ReceiveInventoryCommand, cancellationToken: CancellationToken) : Task
+    }
+
+    class GetPrizeItemsQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + Category : string?
+        + IsActive : bool?
+        + SearchTerm : string?
+    }
+
+    class GetPrizeItemsQueryHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        --
+        + Handle(query: GetPrizeItemsQuery, cancellationToken: CancellationToken) : Task<PagedResult<PrizeItemListDto>>
+    }
+
+    class GetLowStockItemsQuery <<Query>> {
+        --
+    }
+
+    class GetLowStockItemsQueryHandler <<Handler>> {
+        - _context : IPrizeManagementContext
+        --
+        + Handle(query: GetLowStockItemsQuery, cancellationToken: CancellationToken) : Task<IEnumerable<LowStockItemDto>>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Prizes.Dtos" {
+
+    class PrizeItemDetailDto <<DTO>> {
+        + PrizeItemId : Guid
+        + Name : string
+        + Description : string?
+        + SKU : string
+        + Category : string
+        + UnitCost : decimal
+        + CurrentStock : int
+        + MinimumStock : int
+        + IsActive : bool
+        + PhotoUrl : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+    }
+
+    class PrizeItemListDto <<DTO>> {
+        + PrizeItemId : Guid
+        + Name : string
+        + SKU : string
+        + Category : string
+        + UnitCost : decimal
+        + CurrentStock : int
+        + MinimumStock : int
+        + IsActive : bool
+        + PhotoUrl : string?
+        + IsLowStock : bool
+    }
+
+    class EventPrizeOrderDetailDto <<DTO>> {
+        + EventPrizeOrderId : Guid
+        + EventId : Guid
+        + EventTitle : string
+        + OrderStatus : string
+        + OrderDate : DateTime
+        + RequiredByDate : DateTime
+        + PackedDate : DateTime?
+        + ShippedDate : DateTime?
+        + DeliveredDate : DateTime?
+        + DistributedDate : DateTime?
+        + Notes : string?
+        + Items : IEnumerable<EventPrizeOrderItemDto>
+        + TotalCost : decimal
+    }
+
+    class EventPrizeOrderItemDto <<DTO>> {
+        + EventPrizeOrderItemId : Guid
+        + PrizeItemId : Guid
+        + PrizeItemName : string
+        + Quantity : int
+        + AllocatedQuantity : int
+        + DistributedQuantity : int
+        + ReturnedQuantity : int
+        + UnitCost : decimal
+    }
+
+    class InventoryTransactionDto <<DTO>> {
+        + InventoryTransactionId : Guid
+        + PrizeItemId : Guid
+        + PrizeItemName : string
+        + TransactionType : string
+        + Quantity : int
+        + TransactionDate : DateTime
+        + Notes : string?
+        + CreatedByName : string
+    }
+
+    class LowStockItemDto <<DTO>> {
+        + PrizeItemId : Guid
+        + Name : string
+        + SKU : string
+        + CurrentStock : int
+        + MinimumStock : int
+        + ReorderQuantity : int
+    }
+
+    class OrderItemDto <<DTO>> {
+        + PrizeItemId : Guid
+        + Quantity : int
+    }
+
+}
+
+' Relationships - Aggregates
+PrizePack "1" *-- "0..*" PrizePackItem : contains
+PrizePackItem --> PrizeItem : references
+EventPrizeOrder "1" *-- "0..*" EventPrizeOrderItem : contains
+EventPrizeOrderItem --> PrizeItem : references
+EventPrizeOrder --> OrderStatus : has
+InventoryTransaction --> PrizeItem : references
+InventoryTransaction --> TransactionType : has
+
+' Relationships - Events
+PrizeDomainEvent <|-- PrizeItemAdded
+PrizeDomainEvent <|-- PrizeItemUpdated
+PrizeDomainEvent <|-- PrizeItemRemoved
+PrizeDomainEvent <|-- PrizeItemActivated
+PrizeDomainEvent <|-- PrizeItemDeactivated
+PrizeDomainEvent <|-- PrizeItemPhotoUploaded
+PrizeDomainEvent <|-- PrizePackCreated
+PrizeDomainEvent <|-- PrizePackUpdated
+PrizeDomainEvent <|-- EventPrizesOrdered
+PrizeDomainEvent <|-- EventPrizeOrderUpdated
+PrizeDomainEvent <|-- EventPrizeOrderCancelled
+PrizeDomainEvent <|-- PrizeItemAddedToOrder
+PrizeDomainEvent <|-- PrizeItemRemovedFromOrder
+PrizeDomainEvent <|-- PrizeQuantityIncreased
+PrizeDomainEvent <|-- PrizeQuantityDecreased
+PrizeDomainEvent <|-- PrizeInventoryReceived
+PrizeDomainEvent <|-- PrizeInventoryAdjusted
+PrizeDomainEvent <|-- PrizeInventoryAllocated
+PrizeDomainEvent <|-- PrizeInventoryDeallocated
+PrizeDomainEvent <|-- PrizeStockDepleted
+PrizeDomainEvent <|-- PrizeLowStockWarningTriggered
+PrizeDomainEvent <|-- PrizeInventoryReplenished
+PrizeDomainEvent <|-- PrizesPackedForEvent
+PrizeDomainEvent <|-- PrizesShippedToEvent
+PrizeDomainEvent <|-- PrizesDeliveredToEvent
+PrizeDomainEvent <|-- PrizesDistributedAtEvent
+PrizeDomainEvent <|-- UnusedPrizesReturned
+
+' Relationships - Services
+PrizeService --> IPrizeManagementContext : uses
+InventoryService --> IPrizeManagementContext : uses
+OrderProcessingService --> IPrizeManagementContext : uses
+OrderProcessingService --> InventoryService : uses
+CreatePrizeItemCommandHandler --> IPrizeManagementContext : uses
+CreatePrizeItemCommandHandler --> PrizeService : uses
+CreateEventPrizeOrderCommandHandler --> IPrizeManagementContext : uses
+CreateEventPrizeOrderCommandHandler --> OrderProcessingService : uses
+PackPrizesCommandHandler --> IPrizeManagementContext : uses
+PackPrizesCommandHandler --> OrderProcessingService : uses
+ReceiveInventoryCommandHandler --> IPrizeManagementContext : uses
+ReceiveInventoryCommandHandler --> InventoryService : uses
+GetPrizeItemsQueryHandler --> IPrizeManagementContext : uses
+GetLowStockItemsQueryHandler --> IPrizeManagementContext : uses
+
+' Relationships - DTOs
+CreatePrizeItemCommandHandler ..> PrizeItemDetailDto : returns
+CreateEventPrizeOrderCommandHandler ..> EventPrizeOrderDetailDto : returns
+GetPrizeItemsQueryHandler ..> PrizeItemListDto : returns
+GetLowStockItemsQueryHandler ..> LowStockItemDto : returns
+
+@enduml

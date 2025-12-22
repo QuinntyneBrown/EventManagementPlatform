@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="reporting-analytics-use-case" name="Reporting &amp; Analytics Use Cases">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Reporting &amp; Analytics System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=180;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="240" y="40" width="1000" height="800" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-manager" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="80" y="180" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-staff" value="Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="80" y="360" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-customer" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="540" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System&#xa;Scheduler" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1320" y="360" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Report Management -->
+        <mxCell id="uc-create-report" value="Create Report&#xa;Definition" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-generate-report" value="Generate Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="300" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-report" value="View Report&#xa;Instances" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-schedule-report" value="Schedule Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-delete-report" value="Delete Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Summary Reports -->
+        <mxCell id="uc-daily-summary" value="Generate Daily&#xa;Summary" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="500" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-weekly-summary" value="Generate Weekly&#xa;Summary" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="500" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-monthly-summary" value="Generate Monthly&#xa;Summary" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="500" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-yearly-summary" value="Generate Yearly&#xa;Summary" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="500" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Export -->
+        <mxCell id="uc-export-pdf" value="Export Report&#xa;to PDF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="700" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-export-excel" value="Export Report&#xa;to Excel" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="700" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-email-report" value="Email Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="700" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-download-report" value="Download Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="700" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Dashboard -->
+        <mxCell id="uc-create-dashboard" value="Create Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="550" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-dashboard" value="View Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="640" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-refresh-dashboard" value="Refresh&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="730" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-add-widget" value="Add Widget to&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="500" y="550" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-remove-widget" value="Remove Widget" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="500" y="640" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-save-layout" value="Save Dashboard&#xa;Layout" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="500" y="730" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Statistics -->
+        <mxCell id="uc-event-stats" value="Calculate Event&#xa;Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-revenue-stats" value="Calculate Revenue&#xa;Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-staff-stats" value="Calculate Staff&#xa;Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-equipment-stats" value="Calculate Equipment&#xa;Utilization" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-customer-stats" value="Calculate Customer&#xa;Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-venue-stats" value="Calculate Venue&#xa;Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="900" y="530" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-stats" value="View Statistics&#xa;Overview" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Manager -->
+        <mxCell id="assoc-1" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-create-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-generate-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-schedule-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-delete-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-create-dashboard" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-6" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-add-widget" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-7" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-remove-widget" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-save-layout" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff -->
+        <mxCell id="assoc-9" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-generate-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-11" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-export-pdf" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-12" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-export-excel" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-email-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-dashboard" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-15" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-refresh-dashboard" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-16" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Customer -->
+        <mxCell id="assoc-17" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-view-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-download-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-19" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-view-dashboard" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-20" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-daily-summary" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-21" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-weekly-summary" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-22" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-monthly-summary" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-23" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-yearly-summary" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-24" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-event-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-25" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-revenue-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-26" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-staff-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-27" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-equipment-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-28" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-customer-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-29" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-venue-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-generate-report" target="uc-daily-summary" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-1" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-2" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-export-pdf" target="uc-download-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-2" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-3" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-export-excel" target="uc-download-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-3-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-3" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-4" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-refresh-dashboard" target="uc-event-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-4-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-4" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-5" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-view-stats" target="uc-revenue-stats" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-5-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-5" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-schedule-report" target="uc-generate-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-1" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="extend-2" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-email-report" target="uc-export-pdf" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-2-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-2" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

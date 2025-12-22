@@ -1,0 +1,589 @@
+@startuml Invitation Management Sequence Diagrams
+
+title Invitation Management - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Create Invitation Order
+' ============================================
+
+newpage Create Invitation Order Sequence
+
+actor Customer as customer
+participant "Angular App" as webapp
+participant "InvitationOrdersController" as controller
+participant "MediatR" as mediatr
+participant "CreateInvitationOrderCommandHandler" as handler
+participant "InvitationService" as invitationService
+participant "DesignService" as designService
+participant "IEventManagementPlatformContext" as context
+database "Azure SQL" as db
+participant "BlobStorageService" as blobStorage
+queue "Service Bus" as servicebus
+
+customer -> webapp : Select event, choose design type
+activate webapp
+
+webapp -> webapp : Select template OR upload custom design
+webapp -> webapp : Enter invitation text and quantity
+
+webapp -> controller : POST /api/invitations/orders\n{eventId, designType, templateId/customDesignUrl, text, quantity}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(CreateInvitationOrderCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> invitationService : ValidateOrderConstraintsAsync(eventId, quantity)
+activate invitationService
+invitationService -> context : Query event status
+activate context
+context -> db : SELECT event WHERE EventId = eventId
+db --> context : event data
+context --> invitationService : event details
+deactivate context
+
+alt Event not confirmed or less than 14 days away
+    invitationService --> handler : ValidationException
+    handler --> mediatr : ValidationException
+    mediatr --> controller : ValidationException
+    controller --> webapp : 400 Bad Request
+    webapp --> customer : Show validation error
+else Event is valid
+    invitationService --> handler : validation passed
+    deactivate invitationService
+
+    alt Design type is Custom
+        handler -> designService : ValidateCustomDesignAsync(customDesignUrl)
+        activate designService
+        designService -> blobStorage : AnalyzeFile(customDesignUrl)
+        activate blobStorage
+        blobStorage --> designService : file validation result
+        deactivate blobStorage
+
+        alt Design file invalid
+            designService --> handler : ValidationException
+            handler --> mediatr : ValidationException
+            mediatr --> controller : ValidationException
+            controller --> webapp : 400 Bad Request
+            webapp --> customer : Show design validation error
+        end
+        deactivate designService
+    end
+
+    handler -> invitationService : GenerateOrderNumberAsync()
+    activate invitationService
+    invitationService --> handler : orderNumber
+    deactivate invitationService
+
+    handler -> handler : Create InvitationOrder entity
+    handler -> handler : order.AddDomainEvent(InvitationOrderCreated)
+
+    alt Design type is Template
+        handler -> handler : order.AddDomainEvent(InvitationTemplateSelected)
+    else Design type is Custom
+        handler -> handler : order.AddDomainEvent(CustomInvitationDesignRequested)
+    end
+
+    handler -> context : InvitationOrders.Add(order)
+    activate context
+    handler -> context : SaveChangesAsync()
+    context -> db : INSERT invitation_order
+    db --> context : success
+    context -> servicebus : Publish InvitationOrderCreated
+    context -> servicebus : Publish Template/CustomDesignRequested event
+    context --> handler : saved
+    deactivate context
+
+    handler -> handler : Map to InvitationOrderDetailDto
+    handler --> mediatr : InvitationOrderDetailDto
+    deactivate handler
+
+    mediatr --> controller : InvitationOrderDetailDto
+    deactivate mediatr
+
+    controller --> webapp : 201 Created\nInvitationOrderDetailDto
+    deactivate controller
+
+    webapp --> customer : Show order confirmation\nNavigate to order detail
+end
+
+deactivate webapp
+
+' ============================================
+' Sequence 2: Approve Design
+' ============================================
+
+newpage Approve Design Sequence
+
+actor Customer as customer2
+participant "Angular App" as webapp2
+participant "InvitationOrdersController" as controller2
+participant "MediatR" as mediatr2
+participant "ApproveDesignCommandHandler" as handler2
+participant "DesignService" as designService2
+participant "IEventManagementPlatformContext" as context2
+database "Azure SQL" as db2
+participant "BlobStorageService" as blobStorage2
+queue "Service Bus" as servicebus2
+
+customer2 -> webapp2 : View design preview
+activate webapp2
+
+webapp2 -> webapp2 : Display design with text overlay
+customer2 -> webapp2 : Click Approve Design
+
+webapp2 -> controller2 : POST /api/invitations/orders/{orderId}/approve-design
+activate controller2
+
+controller2 -> controller2 : Verify customer owns order
+controller2 -> mediatr2 : Send(ApproveDesignCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> context2 : InvitationOrders.FindAsync(orderId)
+activate context2
+context2 -> db2 : SELECT order
+db2 --> context2 : order data
+context2 --> handler2 : InvitationOrder entity
+deactivate context2
+
+alt Order not found
+    handler2 --> mediatr2 : throw NotFoundException
+    mediatr2 --> controller2 : NotFoundException
+    controller2 --> webapp2 : 404 Not Found
+    webapp2 --> customer2 : Show not found error
+else Order found
+    handler2 -> handler2 : Validate status == PendingDesignApproval
+
+    alt Status is not PendingDesignApproval
+        handler2 --> mediatr2 : throw ConflictException
+        mediatr2 --> controller2 : ConflictException
+        controller2 --> webapp2 : 409 Conflict
+        webapp2 --> customer2 : Show status error
+    else Status is PendingDesignApproval
+        handler2 -> handler2 : order.ApproveDesign(customerId)
+        handler2 -> handler2 : order.AddDomainEvent(InvitationDesignApproved)
+
+        handler2 -> designService2 : GenerateDigitalVersionAsync(orderId)
+        activate designService2
+        designService2 -> context2 : Get order details
+        designService2 -> blobStorage2 : Generate digital PDF
+        activate blobStorage2
+        blobStorage2 --> designService2 : digital file URL
+        deactivate blobStorage2
+        designService2 --> handler2 : digitalFileUrl
+        deactivate designService2
+
+        handler2 -> handler2 : order.AddDomainEvent(InvitationDigitalVersionGenerated)
+
+        handler2 -> context2 : SaveChangesAsync()
+        activate context2
+        context2 -> db2 : UPDATE order SET Status = 'DesignApproved'
+        db2 --> context2 : success
+        context2 -> servicebus2 : Publish InvitationDesignApproved
+        context2 -> servicebus2 : Publish InvitationDigitalVersionGenerated
+        context2 --> handler2 : saved
+        deactivate context2
+
+        handler2 --> mediatr2 : success
+        deactivate handler2
+
+        mediatr2 --> controller2 : success
+        deactivate mediatr2
+
+        controller2 --> webapp2 : 200 OK
+        deactivate controller2
+
+        webapp2 --> customer2 : Show approval success\nOffer digital download\nNotify print job queued
+    end
+end
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Reject Design and Request Revision
+' ============================================
+
+newpage Reject Design Sequence
+
+actor Customer as customer3
+participant "Angular App" as webapp3
+participant "InvitationOrdersController" as controller3
+participant "MediatR" as mediatr3
+participant "RejectDesignCommandHandler" as handler3
+participant "NotificationService" as notifService3
+participant "IEventManagementPlatformContext" as context3
+database "Azure SQL" as db3
+queue "Service Bus" as servicebus3
+
+customer3 -> webapp3 : View design preview
+activate webapp3
+
+customer3 -> webapp3 : Click Reject Design\nEnter rejection reason
+
+webapp3 -> controller3 : POST /api/invitations/orders/{orderId}/reject-design\n{reason}
+activate controller3
+
+controller3 -> mediatr3 : Send(RejectDesignCommand)
+activate mediatr3
+
+mediatr3 -> handler3 : Handle(command)
+activate handler3
+
+handler3 -> context3 : InvitationOrders.FindAsync(orderId)
+activate context3
+context3 -> db3 : SELECT order
+db3 --> context3 : order data
+context3 --> handler3 : InvitationOrder entity
+deactivate context3
+
+handler3 -> handler3 : order.RejectDesign(customerId, reason)
+handler3 -> handler3 : order.AddDomainEvent(InvitationDesignRejected)
+
+handler3 -> handler3 : Check rejection count
+
+alt Rejection count >= 3
+    handler3 -> notifService3 : NotifyManagerManualReviewRequired(orderId)
+    activate notifService3
+    notifService3 -> servicebus3 : Queue manager notification
+    notifService3 --> handler3 : notification queued
+    deactivate notifService3
+end
+
+handler3 -> context3 : SaveChangesAsync()
+activate context3
+context3 -> db3 : UPDATE order SET Status = 'DesignRejected'
+db3 --> context3 : success
+context3 -> servicebus3 : Publish InvitationDesignRejected
+context3 --> handler3 : saved
+deactivate context3
+
+handler3 -> notifService3 : NotifyDesignerRevisionNeeded(orderId, reason)
+activate notifService3
+notifService3 -> servicebus3 : Queue designer notification
+notifService3 --> handler3 : notification queued
+deactivate notifService3
+
+handler3 --> mediatr3 : success
+deactivate handler3
+
+mediatr3 --> controller3 : success
+deactivate mediatr3
+
+controller3 --> webapp3 : 200 OK
+deactivate controller3
+
+webapp3 --> customer3 : Show rejection recorded\nNotify designer will revise
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: Create Print Job
+' ============================================
+
+newpage Create Print Job Sequence
+
+actor Staff as staff4
+participant "Angular App" as webapp4
+participant "PrintJobsController" as controller4
+participant "MediatR" as mediatr4
+participant "CreatePrintJobCommandHandler" as handler4
+participant "IEventManagementPlatformContext" as context4
+database "Azure SQL" as db4
+participant "PrinterService" as printerService4
+queue "Service Bus" as servicebus4
+
+staff4 -> webapp4 : View approved orders
+activate webapp4
+
+staff4 -> webapp4 : Select order, assign to printer
+
+webapp4 -> controller4 : POST /api/invitations/print-jobs\n{orderId, printerId}
+activate controller4
+
+controller4 -> mediatr4 : Send(CreatePrintJobCommand)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(command)
+activate handler4
+
+handler4 -> context4 : InvitationOrders.FindAsync(orderId)
+activate context4
+context4 -> db4 : SELECT order
+db4 --> context4 : order data
+context4 --> handler4 : InvitationOrder entity
+deactivate context4
+
+handler4 -> handler4 : Validate order status == DesignApproved
+
+handler4 -> handler4 : Create InvitationPrintJob entity
+handler4 -> handler4 : order.AssignToPrinter(printerId)
+handler4 -> handler4 : order.StartPrinting(printJobId)
+handler4 -> handler4 : order.AddDomainEvent(InvitationPrintJobCreated)
+
+handler4 -> context4 : InvitationPrintJobs.Add(printJob)
+activate context4
+handler4 -> context4 : SaveChangesAsync()
+context4 -> db4 : INSERT print_job
+context4 -> db4 : UPDATE order SET Status = 'PrintQueued'
+db4 --> context4 : success
+context4 -> servicebus4 : Publish InvitationPrintJobCreated
+context4 --> handler4 : saved
+deactivate context4
+
+handler4 -> printerService4 : NotifyPrinterNewJob(printJobId, printerId)
+activate printerService4
+printerService4 -> servicebus4 : Queue printer notification
+printerService4 --> handler4 : notification sent
+deactivate printerService4
+
+handler4 -> handler4 : Map to PrintJobDto
+handler4 --> mediatr4 : PrintJobDto
+deactivate handler4
+
+mediatr4 --> controller4 : PrintJobDto
+deactivate mediatr4
+
+controller4 --> webapp4 : 201 Created\nPrintJobDto
+deactivate controller4
+
+webapp4 --> staff4 : Show print job created\nNotify printer assigned
+
+deactivate webapp4
+
+' ============================================
+' Sequence 5: Record Quality Check
+' ============================================
+
+newpage Record Quality Check Sequence
+
+actor Printer as printer5
+participant "Angular App" as webapp5
+participant "PrintJobsController" as controller5
+participant "MediatR" as mediatr5
+participant "RecordQualityCheckCommandHandler" as handler5
+participant "IEventManagementPlatformContext" as context5
+database "Azure SQL" as db5
+queue "Service Bus" as servicebus5
+
+printer5 -> webapp5 : Complete printing
+activate webapp5
+
+printer5 -> webapp5 : Perform quality check
+printer5 -> webapp5 : Enter QC results (Pass/Fail)
+
+webapp5 -> controller5 : POST /api/invitations/print-jobs/{jobId}/quality-check\n{passed, issues?, notes?}
+activate controller5
+
+controller5 -> mediatr5 : Send(RecordQualityCheckCommand)
+activate mediatr5
+
+mediatr5 -> handler5 : Handle(command)
+activate handler5
+
+handler5 -> context5 : InvitationPrintJobs.FindAsync(jobId)
+activate context5
+context5 -> db5 : SELECT print_job WITH order
+db5 --> context5 : print job and order data
+context5 --> handler5 : InvitationPrintJob entity
+deactivate context5
+
+handler5 -> handler5 : Create InvitationQualityCheck entity
+handler5 -> handler5 : printJob.AddQualityCheck(qc)
+
+alt Quality Check Passed
+    handler5 -> handler5 : order.RecordQualityCheck(passed: true, null)
+    handler5 -> handler5 : order.AddDomainEvent(InvitationQualityCheckPassed)
+    handler5 -> handler5 : printJob.Complete()
+    handler5 -> handler5 : order.AddDomainEvent(InvitationPrintJobCompleted)
+else Quality Check Failed
+    handler5 -> handler5 : order.RecordQualityCheck(passed: false, issues)
+    handler5 -> handler5 : order.AddDomainEvent(InvitationQualityCheckFailed)
+    handler5 -> handler5 : printJob.Fail(issues)
+end
+
+handler5 -> context5 : SaveChangesAsync()
+activate context5
+context5 -> db5 : INSERT quality_check
+context5 -> db5 : UPDATE print_job status
+context5 -> db5 : UPDATE order status
+db5 --> context5 : success
+context5 -> servicebus5 : Publish QC events
+context5 --> handler5 : saved
+deactivate context5
+
+alt Quality Check Failed
+    handler5 -> handler5 : Create new print job for reprint
+    handler5 -> context5 : InvitationPrintJobs.Add(newPrintJob)
+    handler5 -> context5 : SaveChangesAsync()
+end
+
+handler5 --> mediatr5 : success
+deactivate handler5
+
+mediatr5 --> controller5 : success
+deactivate mediatr5
+
+controller5 --> webapp5 : 200 OK
+deactivate controller5
+
+alt Quality Check Passed
+    webapp5 --> printer5 : QC recorded, ready for packaging
+else Quality Check Failed
+    webapp5 --> printer5 : QC failed, reprint job created
+end
+
+deactivate webapp5
+
+' ============================================
+' Sequence 6: Ship Order
+' ============================================
+
+newpage Ship Order Sequence
+
+actor Shipper as shipper6
+participant "Angular App" as webapp6
+participant "DeliveryController" as controller6
+participant "MediatR" as mediatr6
+participant "MarkAsShippedCommandHandler" as handler6
+participant "IEventManagementPlatformContext" as context6
+database "Azure SQL" as db6
+participant "ShipperService" as shipperService6
+queue "Service Bus" as servicebus6
+
+shipper6 -> webapp6 : View orders ready for shipping
+activate webapp6
+
+shipper6 -> webapp6 : Package order, enter tracking number
+
+webapp6 -> controller6 : PUT /api/invitations/deliveries/{deliveryId}/ship\n{trackingNumber}
+activate controller6
+
+controller6 -> mediatr6 : Send(MarkAsShippedCommand)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(command)
+activate handler6
+
+handler6 -> context6 : InvitationDeliveries.FindAsync(deliveryId)
+activate context6
+context6 -> db6 : SELECT delivery WITH order
+db6 --> context6 : delivery and order data
+context6 --> handler6 : InvitationDelivery entity
+deactivate context6
+
+handler6 -> handler6 : delivery.MarkAsShipped()
+handler6 -> handler6 : order.MarkAsShipped()
+handler6 -> handler6 : order.AddDomainEvent(InvitationPackageShipped)
+
+handler6 -> context6 : SaveChangesAsync()
+activate context6
+context6 -> db6 : UPDATE delivery SET Status = 'Shipped', ShippedAt = NOW()
+context6 -> db6 : UPDATE order SET Status = 'Shipped'
+db6 --> context6 : success
+context6 -> servicebus6 : Publish InvitationPackageShipped
+context6 --> handler6 : saved
+deactivate context6
+
+handler6 -> shipperService6 : RegisterTrackingWithCarrier(trackingNumber, deliveryId)
+activate shipperService6
+shipperService6 -> shipperService6 : Call carrier API (FedEx, UPS, etc.)
+shipperService6 --> handler6 : tracking registered
+deactivate shipperService6
+
+handler6 --> mediatr6 : success
+deactivate handler6
+
+mediatr6 --> controller6 : success
+deactivate mediatr6
+
+controller6 --> webapp6 : 200 OK
+deactivate controller6
+
+webapp6 --> shipper6 : Show shipped successfully\nTracking link sent to customer
+
+deactivate webapp6
+
+' ============================================
+' Sequence 7: Update Invitation Text with AI Suggestions
+' ============================================
+
+newpage Update Text with AI Suggestions Sequence
+
+actor Customer as customer7
+participant "Angular App" as webapp7
+participant "InvitationOrdersController" as controller7
+participant "MediatR" as mediatr7
+participant "UpdateInvitationTextCommandHandler" as handler7
+participant "DesignService" as designService7
+participant "IEventManagementPlatformContext" as context7
+database "Azure SQL" as db7
+participant "AzureOpenAI" as azureAI7
+queue "Service Bus" as servicebus7
+
+customer7 -> webapp7 : View order in Draft status
+activate webapp7
+
+customer7 -> webapp7 : Click "Get AI Suggestions"
+
+webapp7 -> designService7 : GenerateTextSuggestionsAsync(eventType)
+activate designService7
+designService7 -> azureAI7 : Request text suggestions for event type
+activate azureAI7
+azureAI7 --> designService7 : List of suggested invitation texts
+deactivate azureAI7
+designService7 --> webapp7 : text suggestions
+deactivate designService7
+
+webapp7 -> webapp7 : Display suggestions to customer
+customer7 -> webapp7 : Select or edit suggestion
+
+webapp7 -> controller7 : PUT /api/invitations/orders/{orderId}/text\n{invitationText}
+activate controller7
+
+controller7 -> mediatr7 : Send(UpdateInvitationTextCommand)
+activate mediatr7
+
+mediatr7 -> handler7 : Handle(command)
+activate handler7
+
+handler7 -> context7 : InvitationOrders.FindAsync(orderId)
+activate context7
+context7 -> db7 : SELECT order
+db7 --> context7 : order data
+context7 --> handler7 : InvitationOrder entity
+deactivate context7
+
+handler7 -> handler7 : Validate status allows text update
+
+handler7 -> handler7 : oldText = order.InvitationText
+handler7 -> handler7 : order.UpdateText(newText, customerId)
+handler7 -> handler7 : order.AddDomainEvent(InvitationTextCustomized)
+
+handler7 -> context7 : SaveChangesAsync()
+activate context7
+context7 -> db7 : UPDATE order SET InvitationText = newText
+db7 --> context7 : success
+context7 -> servicebus7 : Publish InvitationTextCustomized
+context7 --> handler7 : saved
+deactivate context7
+
+handler7 --> mediatr7 : success
+deactivate handler7
+
+mediatr7 --> controller7 : success
+deactivate mediatr7
+
+controller7 --> webapp7 : 200 OK
+deactivate controller7
+
+webapp7 --> customer7 : Text updated successfully\nShow preview with new text
+
+deactivate webapp7
+
+@enduml

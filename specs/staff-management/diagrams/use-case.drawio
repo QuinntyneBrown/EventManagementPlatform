@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="staff-management-use-case" name="Staff Management Use Cases">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Staff Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=140;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="200" y="40" width="1000" height="780" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-staff" value="Staff Member" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="180" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-manager" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="60" y="420" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="60" y="640" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1280" y="380" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Profile Management -->
+        <mxCell id="uc-register-staff" value="Register Staff&#xa;Member" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="280" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-profile" value="View Staff&#xa;Profile" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-profile" value="Update Staff&#xa;Profile" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="280" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-upload-photo" value="Upload Staff&#xa;Photo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="280" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-activate-staff" value="Activate Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="280" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-deactivate-staff" value="Deactivate Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="280" y="480" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Availability Management -->
+        <mxCell id="uc-declare-availability" value="Declare&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="480" y="100" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-availability" value="Update&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="480" y="180" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-recurring-availability" value="Set Recurring&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="480" y="260" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-mark-unavailable" value="Mark&#xa;Unavailable Date" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="480" y="340" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-schedule" value="View Staff&#xa;Schedule" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="480" y="420" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Assignment Management -->
+        <mxCell id="uc-assign-to-event" value="Assign Staff&#xa;to Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="680" y="100" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-confirm-assignment" value="Confirm&#xa;Assignment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="680" y="180" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-decline-assignment" value="Decline&#xa;Assignment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="680" y="260" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-reassign-staff" value="Reassign Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="680" y="340" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-unassign-staff" value="Unassign Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="680" y="420" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-find-available" value="Find Available&#xa;Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="680" y="500" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Check-In/Out -->
+        <mxCell id="uc-check-in" value="Check In Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-check-out" value="Check Out Staff" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="200" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-mark-no-show" value="Mark as&#xa;No Show" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-timesheet" value="View Staff&#xa;Timesheet" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="880" y="360" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Performance Management -->
+        <mxCell id="uc-add-review" value="Add Performance&#xa;Review" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="460" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-submit-feedback" value="Submit&#xa;Feedback" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="540" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-file-complaint" value="File Complaint" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="620" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-give-compliment" value="Give Compliment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="700" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-ratings" value="View Staff&#xa;Ratings" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="460" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- System Use Cases -->
+        <mxCell id="uc-detect-double-booking" value="Detect Double&#xa;Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-prevent-double-booking" value="Prevent Double&#xa;Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="200" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-send-notifications" value="Send Assignment&#xa;Notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-auto-no-show" value="Auto Mark&#xa;No Show" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="360" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-publish-events" value="Publish Domain&#xa;Events" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="540" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff Member -->
+        <mxCell id="assoc-1" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-view-profile" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-declare-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-update-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-recurring-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-mark-unavailable" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-6" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-view-schedule" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-7" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-confirm-assignment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-decline-assignment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-9" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-view-timesheet" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-staff" target="uc-view-ratings" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Manager -->
+        <mxCell id="assoc-11" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-register-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-12" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-update-profile" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-upload-photo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-activate-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-15" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-deactivate-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-16" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-assign-to-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-17" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-reassign-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-unassign-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-19" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-find-available" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-20" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-check-in" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-21" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-check-out" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-22" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-mark-no-show" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-23" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-add-review" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-24" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-submit-feedback" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-25" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-file-complaint" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-26" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-give-compliment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Admin -->
+        <mxCell id="assoc-27" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-admin" target="uc-register-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-28" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-admin" target="uc-deactivate-staff" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-29" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-system" target="uc-detect-double-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-30" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-system" target="uc-prevent-double-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-31" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-system" target="uc-send-notifications" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-32" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-system" target="uc-auto-no-show" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-33" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-system" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-assign-to-event" target="uc-detect-double-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-2" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-assign-to-event" target="uc-prevent-double-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-2" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-3" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-confirm-assignment" target="uc-send-notifications" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-3-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-3" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-4" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-add-review" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-4-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-4" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-upload-photo" target="uc-update-profile" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="extend-2" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-recurring-availability" target="uc-declare-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-2-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-2" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

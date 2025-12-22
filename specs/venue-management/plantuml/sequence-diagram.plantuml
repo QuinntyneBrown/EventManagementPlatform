@@ -1,0 +1,641 @@
+@startuml Venue Management Sequence Diagrams
+
+!define C4_COLOR #438dd5
+!define USER_COLOR #08427b
+!define EXTERNAL_COLOR #999999
+
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor C4_COLOR
+skinparam ParticipantBorderColor #0D5EAF
+skinparam ActorBackgroundColor USER_COLOR
+skinparam ActorBorderColor #0D5EAF
+skinparam DatabaseBackgroundColor EXTERNAL_COLOR
+skinparam DatabaseBorderColor #666666
+
+title Venue Management - Key Sequence Diagrams
+
+' ============================================================
+' Sequence 1: Create Venue
+' ============================================================
+
+autonumber "<b>[0]"
+actor "Venue Manager" as Manager1
+participant "Angular SPA" as SPA1
+participant "API Gateway" as Gateway1
+participant "VenueController" as Controller1
+participant "MediatR" as Mediator1
+participant "CreateVenueCommandHandler" as Handler1
+participant "Venue Aggregate" as Aggregate1
+participant "VenueRepository" as Repo1
+participant "GeocodingService" as Geo1
+database "Database" as DB1
+participant "EventBus" as EventBus1
+participant "Azure Service Bus" as ServiceBus1
+
+Manager1 -> SPA1: Fill venue form and submit
+activate SPA1
+
+SPA1 -> SPA1: Validate form data
+SPA1 -> Gateway1: POST /api/v1/venues\n{venue data}
+activate Gateway1
+
+Gateway1 -> Gateway1: Authenticate & Authorize
+Gateway1 -> Controller1: CreateVenue(request)
+activate Controller1
+
+Controller1 -> Mediator1: Send(CreateVenueCommand)
+activate Mediator1
+
+Mediator1 -> Handler1: Handle(CreateVenueCommand)
+activate Handler1
+
+Handler1 -> Handler1: Validate command
+
+Handler1 -> Geo1: GetCoordinatesAsync(address)
+activate Geo1
+Geo1 --> Handler1: GeoLocation
+deactivate Geo1
+
+Handler1 -> Aggregate1: Create(name, type, address, capacity)
+activate Aggregate1
+
+Aggregate1 -> Aggregate1: Validate business rules
+Aggregate1 -> Aggregate1: RaiseEvent(VenueAdded)
+Aggregate1 --> Handler1: Venue created
+deactivate Aggregate1
+
+Handler1 -> Repo1: AddAsync(venue)
+activate Repo1
+Repo1 -> DB1: INSERT INTO Venues
+DB1 --> Repo1: Success
+Repo1 --> Handler1: Saved
+deactivate Repo1
+
+Handler1 -> EventBus1: PublishAsync(VenueAdded)
+activate EventBus1
+EventBus1 -> ServiceBus1: Send message
+ServiceBus1 --> EventBus1: Acknowledged
+EventBus1 --> Handler1: Published
+deactivate EventBus1
+
+Handler1 --> Mediator1: Result<VenueId>
+deactivate Handler1
+
+Mediator1 --> Controller1: VenueId
+deactivate Mediator1
+
+Controller1 --> Gateway1: 201 Created {venueId}
+deactivate Controller1
+
+Gateway1 --> SPA1: Response
+deactivate Gateway1
+
+SPA1 -> SPA1: Update state (NgRx)
+SPA1 --> Manager1: Show success message\nNavigate to venue details
+deactivate SPA1
+
+note right of EventBus1
+    **Domain Event Published:**
+    VenueAdded event is published to
+    Azure Service Bus for:
+    - Search index update
+    - Notification system
+    - Analytics processing
+end note
+
+' ============================================================
+' Sequence 2: Upload Venue Photo with AI Analysis
+' ============================================================
+
+newpage Upload Venue Photo with AI Analysis
+
+autonumber "<b>[0]"
+actor "Coordinator" as Coordinator2
+participant "Angular SPA" as SPA2
+participant "API Gateway" as Gateway2
+participant "VenueController" as Controller2
+participant "MediatR" as Mediator2
+participant "UploadVenuePhotoCommandHandler" as Handler2
+participant "Venue Aggregate" as Aggregate2
+participant "PhotoStorageService" as Storage2
+participant "Azure Blob Storage" as BlobStorage2
+participant "PhotoAnalysisService" as Analysis2
+participant "Azure Computer Vision" as AI2
+participant "VenueRepository" as Repo2
+database "Database" as DB2
+participant "EventBus" as EventBus2
+
+Coordinator2 -> SPA2: Select and upload photo
+activate SPA2
+
+SPA2 -> SPA2: Validate file\n(type, size, format)
+SPA2 -> Gateway2: POST /api/v1/venues/{id}/photos\n[multipart/form-data]
+activate Gateway2
+
+Gateway2 -> Controller2: UploadPhoto(venueId, file, caption)
+activate Controller2
+
+Controller2 -> Mediator2: Send(UploadVenuePhotoCommand)
+activate Mediator2
+
+Mediator2 -> Handler2: Handle(UploadVenuePhotoCommand)
+activate Handler2
+
+Handler2 -> Storage2: UploadPhotoAsync(stream, fileName)
+activate Storage2
+
+Storage2 -> BlobStorage2: Upload to container\nvenue-photos/{venueId}/{photoId}
+activate BlobStorage2
+BlobStorage2 --> Storage2: Blob URL
+deactivate BlobStorage2
+
+Storage2 -> Storage2: GenerateThumbnail
+Storage2 -> BlobStorage2: Upload thumbnail
+activate BlobStorage2
+BlobStorage2 --> Storage2: Thumbnail URL
+deactivate BlobStorage2
+
+Storage2 --> Handler2: Photo URLs
+deactivate Storage2
+
+Handler2 -> Analysis2: AnalyzePhotoAsync(photoUrl)
+activate Analysis2
+
+Analysis2 -> AI2: Analyze image
+activate AI2
+AI2 --> Analysis2: Analysis result\n(tags, quality, inappropriate content)
+deactivate AI2
+
+Analysis2 --> Handler2: PhotoAnalysisResult
+deactivate Analysis2
+
+Handler2 -> Handler2: Check for inappropriate content
+
+Handler2 -> Repo2: GetByIdAsync(venueId)
+activate Repo2
+Repo2 -> DB2: SELECT * FROM Venues
+DB2 --> Repo2: Venue data
+Repo2 --> Handler2: Venue aggregate
+deactivate Repo2
+
+Handler2 -> Aggregate2: UploadPhoto(photo)
+activate Aggregate2
+Aggregate2 -> Aggregate2: Add photo to collection
+Aggregate2 -> Aggregate2: RaiseEvent(VenuePhotoUploaded)
+Aggregate2 --> Handler2: Photo added
+deactivate Aggregate2
+
+Handler2 -> Repo2: UpdateAsync(venue)
+activate Repo2
+Repo2 -> DB2: INSERT INTO VenuePhotos\nUPDATE Venues
+DB2 --> Repo2: Success
+Repo2 --> Handler2: Saved
+deactivate Repo2
+
+Handler2 -> EventBus2: PublishAsync(VenuePhotoUploaded)
+activate EventBus2
+EventBus2 --> Handler2: Published
+deactivate EventBus2
+
+Handler2 --> Mediator2: Result<VenuePhoto>
+deactivate Handler2
+
+Mediator2 --> Controller2: VenuePhoto
+deactivate Mediator2
+
+Controller2 --> Gateway2: 201 Created {photo}
+deactivate Controller2
+
+Gateway2 --> SPA2: Response with photo URLs
+deactivate Gateway2
+
+SPA2 -> SPA2: Update state (NgRx)\nDisplay photo in gallery
+SPA2 --> Coordinator2: Show photo uploaded
+deactivate SPA2
+
+note right of Analysis2
+    **AI-Powered Photo Analysis:**
+    - Quality assessment
+    - Automatic tagging
+    - Inappropriate content detection
+    - Dominant color extraction
+end note
+
+' ============================================================
+' Sequence 3: Submit Venue Feedback with Sentiment Analysis
+' ============================================================
+
+newpage Submit Venue Feedback with Sentiment Analysis
+
+autonumber "<b>[0]"
+actor "Event Planner" as Planner3
+participant "Angular SPA" as SPA3
+participant "API Gateway" as Gateway3
+participant "VenueController" as Controller3
+participant "MediatR" as Mediator3
+participant "SubmitVenueFeedbackCommandHandler" as Handler3
+participant "SentimentAnalysisService" as Sentiment3
+participant "Azure Text Analytics" as TextAI3
+participant "Venue Aggregate" as Aggregate3
+participant "VenueRepository" as Repo3
+participant "VenueHistoryRepository" as HistoryRepo3
+database "Database" as DB3
+participant "EventBus" as EventBus3
+participant "NotificationService" as Notify3
+
+Planner3 -> SPA3: Enter feedback after event
+activate SPA3
+
+SPA3 -> Gateway3: POST /api/v1/venues/{id}/feedback\n{eventId, feedback}
+activate Gateway3
+
+Gateway3 -> Controller3: SubmitFeedback(venueId, eventId, feedback)
+activate Controller3
+
+Controller3 -> Mediator3: Send(SubmitVenueFeedbackCommand)
+activate Mediator3
+
+Mediator3 -> Handler3: Handle(SubmitVenueFeedbackCommand)
+activate Handler3
+
+Handler3 -> Sentiment3: AnalyzeFeedbackAsync(feedback)
+activate Sentiment3
+
+Sentiment3 -> TextAI3: Analyze sentiment
+activate TextAI3
+TextAI3 --> Sentiment3: Sentiment score (-1.0 to 1.0)\nKey phrases\nEntities
+deactivate TextAI3
+
+Sentiment3 --> Handler3: SentimentResult
+deactivate Sentiment3
+
+Handler3 -> Repo3: GetByIdAsync(venueId)
+activate Repo3
+Repo3 -> DB3: SELECT
+DB3 --> Repo3: Venue
+Repo3 --> Handler3: Venue aggregate
+deactivate Repo3
+
+Handler3 -> Aggregate3: ReceiveFeedback(eventId, feedback, sentimentScore)
+activate Aggregate3
+Aggregate3 -> Aggregate3: RaiseEvent(VenueFeedbackReceived)
+Aggregate3 --> Handler3: Feedback recorded
+deactivate Aggregate3
+
+Handler3 -> HistoryRepo3: GetByEventIdAsync(eventId)
+activate HistoryRepo3
+HistoryRepo3 -> DB3: SELECT
+DB3 --> HistoryRepo3: VenueHistory
+HistoryRepo3 --> Handler3: History record
+deactivate HistoryRepo3
+
+Handler3 -> HistoryRepo3: UpdateAsync(history with feedback)
+activate HistoryRepo3
+HistoryRepo3 -> DB3: UPDATE VenueHistory
+DB3 --> HistoryRepo3: Success
+HistoryRepo3 --> Handler3: Updated
+deactivate HistoryRepo3
+
+Handler3 -> EventBus3: PublishAsync(VenueFeedbackReceived)
+activate EventBus3
+EventBus3 --> Handler3: Published
+deactivate EventBus3
+
+alt Negative sentiment score < -0.5
+    Handler3 -> Notify3: SendNegativeFeedbackAlert(venue, feedback)
+    activate Notify3
+    Notify3 --> Handler3: Alert sent
+    deactivate Notify3
+end
+
+Handler3 --> Mediator3: Result<sentimentScore>
+deactivate Handler3
+
+Mediator3 --> Controller3: sentimentScore
+deactivate Mediator3
+
+Controller3 --> Gateway3: 201 Created {sentimentScore}
+deactivate Controller3
+
+Gateway3 --> SPA3: Response
+deactivate Gateway3
+
+SPA3 -> SPA3: Show sentiment analysis result
+SPA3 --> Planner3: Feedback submitted successfully
+deactivate SPA3
+
+note right of TextAI3
+    **Sentiment Analysis:**
+    - Detects positive/negative sentiment
+    - Extracts key phrases
+    - Identifies entities
+    - Triggers alerts for negative feedback
+end note
+
+' ============================================================
+' Sequence 4: Search Venues with Filters
+' ============================================================
+
+newpage Search Venues with Advanced Filters
+
+autonumber "<b>[0]"
+actor "Event Planner" as Planner4
+participant "Angular SPA" as SPA4
+participant "API Gateway" as Gateway4
+participant "VenueController" as Controller4
+participant "MediatR" as Mediator4
+participant "SearchVenuesQueryHandler" as Handler4
+participant "VenueCacheService" as Cache4
+participant "Azure Redis Cache" as Redis4
+participant "VenueSearchService" as Search4
+participant "Azure Cognitive Search" as CogSearch4
+participant "VenueRepository" as Repo4
+database "Database" as DB4
+
+Planner4 -> SPA4: Enter search criteria\n(location, capacity, amenities)
+activate SPA4
+
+SPA4 -> SPA4: Build search filters (NgRx)
+SPA4 -> Gateway4: GET /api/v1/venues/search\n?q=conference&city=Seattle&minCapacity=100
+activate Gateway4
+
+Gateway4 -> Controller4: SearchVenues(query, filters)
+activate Controller4
+
+Controller4 -> Mediator4: Send(SearchVenuesQuery)
+activate Mediator4
+
+Mediator4 -> Handler4: Handle(SearchVenuesQuery)
+activate Handler4
+
+Handler4 -> Cache4: GetSearchResultsAsync(searchKey)
+activate Cache4
+Cache4 -> Redis4: GET search:{hash}
+activate Redis4
+Redis4 --> Cache4: null (cache miss)
+deactivate Redis4
+Cache4 --> Handler4: null
+deactivate Cache4
+
+Handler4 -> Search4: SearchAsync(searchRequest)
+activate Search4
+
+Search4 -> CogSearch4: Search with filters
+activate CogSearch4
+
+note right of CogSearch4
+    **Search Query:**
+    - Full-text search on name, description
+    - Filter by city, capacity, amenities
+    - Geographic proximity search
+    - Faceted search results
+    - Sorting by relevance/rating
+end note
+
+CogSearch4 --> Search4: Search results with facets
+deactivate CogSearch4
+
+Search4 --> Handler4: List<VenueSearchResult>
+deactivate Search4
+
+Handler4 -> Handler4: Enrich results with ratings
+
+Handler4 -> Repo4: GetByIdsAsync(venueIds)
+activate Repo4
+Repo4 -> DB4: SELECT WHERE VenueId IN (...)
+DB4 --> Repo4: Venues with full details
+Repo4 --> Handler4: List<Venue>
+deactivate Repo4
+
+Handler4 -> Cache4: SetSearchResultsAsync(searchKey, results, TTL=5min)
+activate Cache4
+Cache4 -> Redis4: SETEX search:{hash}
+Redis4 --> Cache4: OK
+deactivate Redis4
+Cache4 --> Handler4: Cached
+deactivate Cache4
+
+Handler4 --> Mediator4: SearchResult<Venue>
+deactivate Handler4
+
+Mediator4 --> Controller4: Results with facets
+deactivate Mediator4
+
+Controller4 --> Gateway4: 200 OK {venues, facets, total}
+deactivate Controller4
+
+Gateway4 --> SPA4: Response
+deactivate Gateway4
+
+SPA4 -> SPA4: Update state (NgRx)\nDisplay results in grid\nShow facets in sidebar
+SPA4 --> Planner4: Display matching venues
+deactivate SPA4
+
+' ============================================================
+' Sequence 5: Report Venue Issue
+' ============================================================
+
+newpage Report Venue Issue
+
+autonumber "<b>[0]"
+actor "Coordinator" as Coord5
+participant "Angular SPA" as SPA5
+participant "API Gateway" as Gateway5
+participant "VenueController" as Controller5
+participant "MediatR" as Mediator5
+participant "ReportVenueIssueCommandHandler" as Handler5
+participant "Venue Aggregate" as Aggregate5
+participant "VenueRepository" as Repo5
+participant "VenueIssueRepository" as IssueRepo5
+database "Database" as DB5
+participant "EventBus" as EventBus5
+participant "NotificationService" as Notify5
+
+Coord5 -> SPA5: Fill issue report form
+activate SPA5
+
+SPA5 -> Gateway5: POST /api/v1/venues/{id}/issues\n{issueType, severity, description}
+activate Gateway5
+
+Gateway5 -> Controller5: ReportIssue(venueId, issue)
+activate Controller5
+
+Controller5 -> Mediator5: Send(ReportVenueIssueCommand)
+activate Mediator5
+
+Mediator5 -> Handler5: Handle(ReportVenueIssueCommand)
+activate Handler5
+
+Handler5 -> Repo5: GetByIdAsync(venueId)
+activate Repo5
+Repo5 -> DB5: SELECT
+DB5 --> Repo5: Venue
+Repo5 --> Handler5: Venue aggregate
+deactivate Repo5
+
+Handler5 -> Aggregate5: ReportIssue(issueType, severity, description)
+activate Aggregate5
+
+Aggregate5 -> Aggregate5: Create VenueIssue entity
+Aggregate5 -> Aggregate5: RaiseEvent(VenueIssueReported)
+
+alt Severity is Critical or High
+    Aggregate5 -> Aggregate5: Consider deactivating venue
+end
+
+Aggregate5 --> Handler5: Issue created
+deactivate Aggregate5
+
+Handler5 -> IssueRepo5: AddAsync(issue)
+activate IssueRepo5
+IssueRepo5 -> DB5: INSERT INTO VenueIssues
+DB5 --> IssueRepo5: Success
+IssueRepo5 --> Handler5: Saved
+deactivate IssueRepo5
+
+Handler5 -> EventBus5: PublishAsync(VenueIssueReported)
+activate EventBus5
+EventBus5 --> Handler5: Published
+deactivate EventBus5
+
+alt Severity is Critical or High
+    Handler5 -> Notify5: SendCriticalIssueAlert(venue, issue)
+    activate Notify5
+    Notify5 --> Handler5: Alert sent to venue managers
+    deactivate Notify5
+end
+
+Handler5 --> Mediator5: Result<IssueId>
+deactivate Handler5
+
+Mediator5 --> Controller5: IssueId
+deactivate Mediator5
+
+Controller5 --> Gateway5: 201 Created {issueId}
+deactivate Controller5
+
+Gateway5 --> SPA5: Response
+deactivate Gateway5
+
+SPA5 -> SPA5: Update state\nAdd issue to venue issues list
+SPA5 --> Coord5: Issue reported successfully
+deactivate SPA5
+
+note right of Notify5
+    **Issue Escalation:**
+    Critical and High severity issues
+    trigger immediate notifications to:
+    - Venue administrators
+    - Venue manager
+    - Event planners with upcoming events
+end note
+
+' ============================================================
+' Sequence 6: Blacklist Venue
+' ============================================================
+
+newpage Blacklist Venue (Admin Action)
+
+autonumber "<b>[0]"
+actor "Venue Admin" as Admin6
+participant "Angular SPA" as SPA6
+participant "API Gateway" as Gateway6
+participant "VenueController" as Controller6
+participant "MediatR" as Mediator6
+participant "BlacklistVenueCommandHandler" as Handler6
+participant "Venue Aggregate" as Aggregate6
+participant "VenueRepository" as Repo6
+database "Database" as DB6
+participant "EventBus" as EventBus6
+participant "EventManagementSystem" as EventSys6
+participant "NotificationService" as Notify6
+
+Admin6 -> SPA6: Click "Blacklist Venue"\nEnter reason
+activate SPA6
+
+SPA6 -> SPA6: Show confirmation dialog
+
+Admin6 -> SPA6: Confirm blacklist
+
+SPA6 -> Gateway6: POST /api/v1/venues/{id}/blacklist\n{reason}
+activate Gateway6
+
+Gateway6 -> Gateway6: Verify admin permissions
+
+Gateway6 -> Controller6: BlacklistVenue(venueId, reason)
+activate Controller6
+
+Controller6 -> Mediator6: Send(BlacklistVenueCommand)
+activate Mediator6
+
+Mediator6 -> Handler6: Handle(BlacklistVenueCommand)
+activate Handler6
+
+Handler6 -> Repo6: GetByIdAsync(venueId)
+activate Repo6
+Repo6 -> DB6: SELECT
+DB6 --> Repo6: Venue
+Repo6 --> Handler6: Venue aggregate
+deactivate Repo6
+
+Handler6 -> Aggregate6: Blacklist(reason)
+activate Aggregate6
+
+Aggregate6 -> Aggregate6: Validate can be blacklisted
+Aggregate6 -> Aggregate6: Set status to Blacklisted
+Aggregate6 -> Aggregate6: Set IsActive = false
+Aggregate6 -> Aggregate6: RaiseEvent(VenueBlacklisted)
+
+Aggregate6 --> Handler6: Venue blacklisted
+deactivate Aggregate6
+
+Handler6 -> Repo6: UpdateAsync(venue)
+activate Repo6
+Repo6 -> DB6: UPDATE Venues\nSET Status='Blacklisted', IsActive=0
+DB6 --> Repo6: Success
+Repo6 --> Handler6: Saved
+deactivate Repo6
+
+Handler6 -> EventBus6: PublishAsync(VenueBlacklisted)
+activate EventBus6
+EventBus6 --> Handler6: Published
+deactivate EventBus6
+
+' Notify affected systems
+Handler6 -> EventSys6: Cancel upcoming bookings\nfor this venue
+activate EventSys6
+EventSys6 --> Handler6: Bookings cancelled
+deactivate EventSys6
+
+Handler6 -> Notify6: SendBlacklistNotification(venue, reason)
+activate Notify6
+Notify6 --> Handler6: Notifications sent
+deactivate Notify6
+
+Handler6 --> Mediator6: Result.Success
+deactivate Handler6
+
+Mediator6 --> Controller6: Success
+deactivate Mediator6
+
+Controller6 --> Gateway6: 200 OK
+deactivate Controller6
+
+Gateway6 --> SPA6: Response
+deactivate Gateway6
+
+SPA6 -> SPA6: Update state\nShow blacklist badge\nRemove from active venues
+SPA6 --> Admin6: Venue blacklisted
+deactivate SPA6
+
+note right of EventSys6
+    **Blacklist Impact:**
+    - All upcoming bookings cancelled
+    - Venue removed from search results
+    - Event planners notified
+    - Venue manager notified with reason
+    - Venue contacts notified
+end note
+
+@enduml

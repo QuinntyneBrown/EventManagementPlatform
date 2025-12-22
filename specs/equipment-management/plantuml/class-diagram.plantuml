@@ -1,0 +1,708 @@
+@startuml Equipment Management Class Diagram
+
+title Equipment Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.EquipmentAggregate" {
+
+    class EquipmentItem <<AggregateRoot>> {
+        + EquipmentItemId : Guid
+        + Name : string
+        + Description : string?
+        + Category : EquipmentCategory
+        + Condition : EquipmentCondition
+        + Status : EquipmentStatus
+        + PurchaseDate : DateTime
+        + PurchasePrice : decimal
+        + CurrentValue : decimal?
+        + Manufacturer : string?
+        + Model : string?
+        + SerialNumber : string?
+        + WarehouseLocation : string?
+        + IsActive : bool
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + EquipmentItem(name: string, category: EquipmentCategory, purchaseDate: DateTime, purchasePrice: decimal, createdBy: Guid)
+        + UpdateDetails(name: string, description: string?, manufacturer: string?, model: string?, modifiedBy: Guid) : void
+        + UpdateCondition(condition: EquipmentCondition, reason: string, modifiedBy: Guid) : void
+        + Activate(activatedBy: Guid) : void
+        + Deactivate(deactivatedBy: Guid) : void
+        + AddPhoto(blobUrl: string, fileName: string, fileSize: long, uploadedBy: Guid) : EquipmentPhoto
+        + SetPrimaryPhoto(photoId: Guid) : void
+        + AddSpecification(key: string, value: string, unit: string?) : EquipmentSpecification
+        + UpdateSpecifications(specifications: List<EquipmentSpecification>, modifiedBy: Guid) : void
+        + Retire(reason: string, retiredBy: Guid) : void
+    }
+
+    class EquipmentPhoto <<Entity>> {
+        + PhotoId : Guid
+        + EquipmentItemId : Guid
+        + BlobUrl : string
+        + ThumbnailUrl : string?
+        + FileName : string
+        + FileSize : long
+        + IsPrimary : bool
+        + UploadedAt : DateTime
+        + UploadedBy : Guid
+        --
+        + EquipmentPhoto(equipmentItemId: Guid, blobUrl: string, fileName: string, fileSize: long, uploadedBy: Guid)
+        + SetAsPrimary() : void
+    }
+
+    class EquipmentSpecification <<Entity>> {
+        + SpecificationId : Guid
+        + EquipmentItemId : Guid
+        + SpecificationKey : string
+        + SpecificationValue : string
+        + Unit : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        --
+        + EquipmentSpecification(equipmentItemId: Guid, key: string, value: string, unit: string?)
+        + Update(value: string, unit: string?) : void
+    }
+
+    class EquipmentReservation <<Entity>> {
+        + ReservationId : Guid
+        + EquipmentItemId : Guid
+        + EventId : Guid
+        + Quantity : int
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + Status : ReservationStatus
+        + Notes : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + EquipmentReservation(equipmentItemId: Guid, eventId: Guid, quantity: int, startDate: DateTime, endDate: DateTime, createdBy: Guid)
+        + Update(quantity: int, startDate: DateTime, endDate: DateTime, notes: string?, modifiedBy: Guid) : void
+        + Confirm(confirmedBy: Guid) : void
+        + Cancel(reason: string, cancelledBy: Guid) : void
+        + CheckConflict(existingReservations: IEnumerable<EquipmentReservation>) : bool
+    }
+
+    class EquipmentLogistics <<Entity>> {
+        + LogisticsId : Guid
+        + ReservationId : Guid
+        + PackedAt : DateTime?
+        + LoadedAt : DateTime?
+        + DispatchedAt : DateTime?
+        + DeliveredAt : DateTime?
+        + SetupCompletedAt : DateTime?
+        + PickedUpAt : DateTime?
+        + ReturnedAt : DateTime?
+        + DeliveryTruckId : Guid?
+        + DeliveryDriverId : Guid?
+        + Notes : string?
+        --
+        + EquipmentLogistics(reservationId: Guid)
+        + MarkAsPacked(packedBy: Guid) : void
+        + MarkAsLoaded(truckId: Guid, loadedBy: Guid) : void
+        + MarkAsDispatched(driverId: Guid, dispatchedBy: Guid) : void
+        + MarkAsDelivered(deliveredBy: Guid) : void
+        + MarkSetupComplete(completedBy: Guid) : void
+        + MarkAsPickedUp(pickedUpBy: Guid) : void
+        + MarkAsReturned(returnedBy: Guid) : void
+        + GetCurrentStage() : LogisticsStage
+    }
+
+    class EquipmentMaintenance <<Entity>> {
+        + MaintenanceId : Guid
+        + EquipmentItemId : Guid
+        + MaintenanceType : MaintenanceType
+        + ScheduledDate : DateTime
+        + StartedAt : DateTime?
+        + CompletedAt : DateTime?
+        + Status : MaintenanceStatus
+        + Description : string
+        + Cost : decimal?
+        + TechnicianId : Guid?
+        + Notes : string?
+        + CreatedAt : DateTime
+        + CreatedBy : Guid
+        --
+        + EquipmentMaintenance(equipmentItemId: Guid, type: MaintenanceType, scheduledDate: DateTime, description: string, createdBy: Guid)
+        + Start(technicianId: Guid) : void
+        + Complete(cost: decimal?, notes: string?) : void
+        + Cancel(reason: string) : void
+    }
+
+    class EquipmentDamageReport <<Entity>> {
+        + DamageReportId : Guid
+        + EquipmentItemId : Guid
+        + EventId : Guid?
+        + ReportedAt : DateTime
+        + ReportedBy : Guid
+        + DamageSeverity : DamageSeverity
+        + Description : string
+        + PhotoUrls : string?
+        + RepairRequired : bool
+        + EstimatedRepairCost : decimal?
+        + Status : DamageStatus
+        --
+        + EquipmentDamageReport(equipmentItemId: Guid, severity: DamageSeverity, description: string, reportedBy: Guid)
+        + AddPhoto(photoUrl: string) : void
+        + Approve(estimatedCost: decimal?) : void
+        + ScheduleRepair(maintenanceId: Guid) : void
+        + MarkAsRepaired() : void
+        + WriteOff() : void
+    }
+
+    enum EquipmentCategory <<Enumeration>> {
+        Table = 0
+        Game = 1
+        AudioVisual = 2
+        Decoration = 3
+        Seating = 4
+        Lighting = 5
+        Other = 99
+    }
+
+    enum EquipmentCondition <<Enumeration>> {
+        Excellent = 0
+        Good = 1
+        Fair = 2
+        Poor = 3
+        NeedsRepair = 4
+        OutOfService = 5
+    }
+
+    enum EquipmentStatus <<Enumeration>> {
+        Available = 0
+        Reserved = 1
+        InTransit = 2
+        AtVenue = 3
+        InMaintenance = 4
+        Retired = 5
+    }
+
+    enum ReservationStatus <<Enumeration>> {
+        Requested = 0
+        Confirmed = 1
+        Cancelled = 2
+        Fulfilled = 3
+    }
+
+    enum MaintenanceType <<Enumeration>> {
+        Inspection = 0
+        PreventiveMaintenance = 1
+        Repair = 2
+        Cleaning = 3
+        Replacement = 4
+    }
+
+    enum MaintenanceStatus <<Enumeration>> {
+        Scheduled = 0
+        InProgress = 1
+        Completed = 2
+        Cancelled = 3
+    }
+
+    enum DamageSeverity <<Enumeration>> {
+        Minor = 0
+        Moderate = 1
+        Severe = 2
+        TotalLoss = 3
+    }
+
+    enum DamageStatus <<Enumeration>> {
+        Reported = 0
+        UnderReview = 1
+        Approved = 2
+        RepairScheduled = 3
+        Repaired = 4
+        WriteOff = 5
+    }
+
+    enum LogisticsStage <<Enumeration>> {
+        NotStarted = 0
+        Packed = 1
+        Loaded = 2
+        Dispatched = 3
+        Delivered = 4
+        SetupCompleted = 5
+        PickedUp = 6
+        Returned = 7
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.EquipmentAggregate.Events" {
+
+    abstract class EquipmentDomainEvent <<DomainEvent>> {
+        + EquipmentItemId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    ' Equipment Management Events
+    class EquipmentItemAdded {
+        + Name : string
+        + Category : EquipmentCategory
+    }
+
+    class EquipmentItemUpdated {
+        + ChangedProperties : string[]
+    }
+
+    class EquipmentItemRemoved {
+        + RemovedBy : Guid
+    }
+
+    class EquipmentItemActivated {
+        + ActivatedBy : Guid
+    }
+
+    class EquipmentItemDeactivated {
+        + DeactivatedBy : Guid
+    }
+
+    class EquipmentPhotoUploaded {
+        + PhotoId : Guid
+        + BlobUrl : string
+    }
+
+    class EquipmentSpecificationsUpdated {
+        + Specifications : Dictionary<string, string>
+    }
+
+    ' Reservation Events
+    class EquipmentBookingRequested {
+        + ReservationId : Guid
+        + EventId : Guid
+    }
+
+    class EquipmentReservedForEvent {
+        + ReservationId : Guid
+        + EventId : Guid
+    }
+
+    class EquipmentReservationUpdated {
+        + ReservationId : Guid
+        + ChangedProperties : string[]
+    }
+
+    class EquipmentReservationCancelled {
+        + ReservationId : Guid
+        + CancellationReason : string
+    }
+
+    class EquipmentDoubleBookingDetected {
+        + ReservationId : Guid
+        + ConflictingReservations : List<Guid>
+    }
+
+    class EquipmentDoubleBookingPrevented {
+        + RequestedPeriod : DateRange
+    }
+
+    class EquipmentDoubleBookingOverridden {
+        + ReservationId : Guid
+        + OverriddenBy : Guid
+        + Reason : string
+    }
+
+    class EquipmentAvailabilityChecked {
+        + DateRange : DateRange
+        + IsAvailable : bool
+    }
+
+    class EquipmentAlternativeSuggested {
+        + OriginalEquipmentId : Guid
+        + SuggestedEquipmentIds : List<Guid>
+    }
+
+    ' Logistics Events
+    class EquipmentPackedForShipment {
+        + LogisticsId : Guid
+        + PackedBy : Guid
+    }
+
+    class EquipmentLoadedOnTruck {
+        + LogisticsId : Guid
+        + TruckId : Guid
+        + LoadedBy : Guid
+    }
+
+    class EquipmentDispatchedToEvent {
+        + LogisticsId : Guid
+        + DispatchedAt : DateTime
+        + DriverId : Guid
+    }
+
+    class EquipmentDeliveredToVenue {
+        + LogisticsId : Guid
+        + VenueId : Guid
+        + DeliveredAt : DateTime
+    }
+
+    class EquipmentSetupCompleted {
+        + LogisticsId : Guid
+        + SetupCompletedAt : DateTime
+    }
+
+    class EquipmentPickedUpFromVenue {
+        + LogisticsId : Guid
+        + PickedUpAt : DateTime
+    }
+
+    class EquipmentReturnedToWarehouse {
+        + LogisticsId : Guid
+        + ReturnedAt : DateTime
+    }
+
+    ' Maintenance Events
+    class EquipmentMaintenanceScheduled {
+        + MaintenanceId : Guid
+        + ScheduledDate : DateTime
+    }
+
+    class EquipmentMaintenanceStarted {
+        + MaintenanceId : Guid
+        + StartedAt : DateTime
+        + TechnicianId : Guid
+    }
+
+    class EquipmentMaintenanceCompleted {
+        + MaintenanceId : Guid
+        + CompletedAt : DateTime
+        + Cost : decimal?
+    }
+
+    class EquipmentInspectionPassed {
+        + MaintenanceId : Guid
+    }
+
+    class EquipmentInspectionFailed {
+        + MaintenanceId : Guid
+        + Issues : string[]
+    }
+
+    class EquipmentDamageReported {
+        + DamageReportId : Guid
+        + Severity : DamageSeverity
+    }
+
+    class EquipmentRepairRequested {
+        + MaintenanceId : Guid
+        + Description : string
+    }
+
+    class EquipmentRepairCompleted {
+        + MaintenanceId : Guid
+        + Cost : decimal
+    }
+
+    class EquipmentReplacementRequired {
+        + Reason : string
+    }
+
+    class EquipmentConditionDowngraded {
+        + OldCondition : EquipmentCondition
+        + NewCondition : EquipmentCondition
+    }
+
+    class EquipmentConditionUpgraded {
+        + OldCondition : EquipmentCondition
+        + NewCondition : EquipmentCondition
+    }
+
+    class EquipmentRetired {
+        + RetiredBy : Guid
+        + Reason : string
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + EquipmentItems : DbSet<EquipmentItem>
+        + EquipmentPhotos : DbSet<EquipmentPhoto>
+        + EquipmentSpecifications : DbSet<EquipmentSpecification>
+        + EquipmentReservations : DbSet<EquipmentReservation>
+        + EquipmentLogistics : DbSet<EquipmentLogistics>
+        + EquipmentMaintenance : DbSet<EquipmentMaintenance>
+        + EquipmentDamageReports : DbSet<EquipmentDamageReport>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class EquipmentService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + EquipmentService(context: IEventManagementPlatformContext)
+        + ValidateEquipmentNameAsync(name: string, category: EquipmentCategory) : Task<bool>
+        + CheckAvailabilityAsync(equipmentId: Guid, startDate: DateTime, endDate: DateTime) : Task<AvailabilityResult>
+        + DetectConflictsAsync(equipmentId: Guid, startDate: DateTime, endDate: DateTime) : Task<List<EquipmentReservation>>
+        + SuggestAlternativesAsync(equipmentId: Guid, category: EquipmentCategory, startDate: DateTime, endDate: DateTime) : Task<List<EquipmentItem>>
+        + CalculateMaintenanceScheduleAsync(equipmentId: Guid) : Task<DateTime>
+        + GetEquipmentValueAsync(equipmentId: Guid) : Task<decimal>
+    }
+
+    class ReservationService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _equipmentService : EquipmentService
+        --
+        + ReservationService(context: IEventManagementPlatformContext, equipmentService: EquipmentService)
+        + ValidateReservationAsync(reservation: EquipmentReservation) : Task<ValidationResult>
+        + CheckDoubleBookingAsync(reservation: EquipmentReservation) : Task<bool>
+        + GetConflictingReservationsAsync(equipmentId: Guid, startDate: DateTime, endDate: DateTime) : Task<List<EquipmentReservation>>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Equipment" {
+
+    class CreateEquipmentItemCommand <<Command>> {
+        + Name : string
+        + Description : string?
+        + Category : EquipmentCategory
+        + PurchaseDate : DateTime
+        + PurchasePrice : decimal
+        + Manufacturer : string?
+        + Model : string?
+        + SerialNumber : string?
+        + WarehouseLocation : string?
+    }
+
+    class CreateEquipmentItemCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _equipmentService : EquipmentService
+        --
+        + Handle(command: CreateEquipmentItemCommand, cancellationToken: CancellationToken) : Task<EquipmentDetailDto>
+    }
+
+    class CreateReservationCommand <<Command>> {
+        + EquipmentItemId : Guid
+        + EventId : Guid
+        + Quantity : int
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + Notes : string?
+    }
+
+    class CreateReservationCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _reservationService : ReservationService
+        --
+        + Handle(command: CreateReservationCommand, cancellationToken: CancellationToken) : Task<ReservationDetailDto>
+    }
+
+    class ScheduleMaintenanceCommand <<Command>> {
+        + EquipmentItemId : Guid
+        + MaintenanceType : MaintenanceType
+        + ScheduledDate : DateTime
+        + Description : string
+    }
+
+    class ScheduleMaintenanceCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: ScheduleMaintenanceCommand, cancellationToken: CancellationToken) : Task<MaintenanceRecordDto>
+    }
+
+    class GetEquipmentItemsQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + Category : EquipmentCategory?
+        + Status : EquipmentStatus?
+        + Condition : EquipmentCondition?
+        + SearchTerm : string?
+    }
+
+    class GetEquipmentItemsQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetEquipmentItemsQuery, cancellationToken: CancellationToken) : Task<PagedResult<EquipmentListDto>>
+    }
+
+    class CheckAvailabilityQuery <<Query>> {
+        + EquipmentItemId : Guid
+        + StartDate : DateTime
+        + EndDate : DateTime
+    }
+
+    class CheckAvailabilityQueryHandler <<Handler>> {
+        - _equipmentService : EquipmentService
+        --
+        + Handle(query: CheckAvailabilityQuery, cancellationToken: CancellationToken) : Task<AvailabilityResultDto>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Equipment.Dtos" {
+
+    class EquipmentDetailDto <<DTO>> {
+        + EquipmentItemId : Guid
+        + Name : string
+        + Description : string?
+        + Category : string
+        + Condition : string
+        + Status : string
+        + PurchaseDate : DateTime
+        + PurchasePrice : decimal
+        + CurrentValue : decimal?
+        + Manufacturer : string?
+        + Model : string?
+        + SerialNumber : string?
+        + WarehouseLocation : string?
+        + IsActive : bool
+        + Photos : IEnumerable<EquipmentPhotoDto>
+        + Specifications : IEnumerable<EquipmentSpecificationDto>
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+    }
+
+    class EquipmentListDto <<DTO>> {
+        + EquipmentItemId : Guid
+        + Name : string
+        + Category : string
+        + Condition : string
+        + Status : string
+        + Manufacturer : string?
+        + Model : string?
+        + PrimaryPhotoUrl : string?
+        + IsAvailable : bool
+        + NextReservation : DateTime?
+    }
+
+    class ReservationDetailDto <<DTO>> {
+        + ReservationId : Guid
+        + EquipmentItemId : Guid
+        + EquipmentName : string
+        + EventId : Guid
+        + EventTitle : string
+        + Quantity : int
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + Status : string
+        + Notes : string?
+        + CreatedAt : DateTime
+        + CreatedByName : string
+    }
+
+    class AvailabilityResultDto <<DTO>> {
+        + EquipmentItemId : Guid
+        + IsAvailable : bool
+        + Conflicts : IEnumerable<ConflictingReservationDto>
+        + Alternatives : IEnumerable<AlternativeEquipmentDto>
+    }
+
+    class LogisticsDto <<DTO>> {
+        + LogisticsId : Guid
+        + ReservationId : Guid
+        + PackedAt : DateTime?
+        + LoadedAt : DateTime?
+        + DispatchedAt : DateTime?
+        + DeliveredAt : DateTime?
+        + SetupCompletedAt : DateTime?
+        + PickedUpAt : DateTime?
+        + ReturnedAt : DateTime?
+        + CurrentStage : string
+        + Notes : string?
+    }
+
+    class MaintenanceRecordDto <<DTO>> {
+        + MaintenanceId : Guid
+        + EquipmentItemId : Guid
+        + EquipmentName : string
+        + MaintenanceType : string
+        + ScheduledDate : DateTime
+        + StartedAt : DateTime?
+        + CompletedAt : DateTime?
+        + Status : string
+        + Description : string
+        + Cost : decimal?
+        + TechnicianName : string?
+        + Notes : string?
+    }
+
+}
+
+' Relationships - Aggregates
+EquipmentItem "1" *-- "0..*" EquipmentPhoto : contains
+EquipmentItem "1" *-- "0..*" EquipmentSpecification : contains
+EquipmentItem "1" -- "0..*" EquipmentReservation : has
+EquipmentItem "1" -- "0..*" EquipmentMaintenance : has
+EquipmentItem "1" -- "0..*" EquipmentDamageReport : has
+EquipmentReservation "1" -- "1" EquipmentLogistics : has
+EquipmentItem --> EquipmentCategory : has
+EquipmentItem --> EquipmentCondition : has
+EquipmentItem --> EquipmentStatus : has
+EquipmentReservation --> ReservationStatus : has
+EquipmentMaintenance --> MaintenanceType : has
+EquipmentMaintenance --> MaintenanceStatus : has
+EquipmentDamageReport --> DamageSeverity : has
+EquipmentDamageReport --> DamageStatus : has
+EquipmentLogistics --> LogisticsStage : has
+
+' Relationships - Events
+EquipmentDomainEvent <|-- EquipmentItemAdded
+EquipmentDomainEvent <|-- EquipmentItemUpdated
+EquipmentDomainEvent <|-- EquipmentItemRemoved
+EquipmentDomainEvent <|-- EquipmentItemActivated
+EquipmentDomainEvent <|-- EquipmentItemDeactivated
+EquipmentDomainEvent <|-- EquipmentPhotoUploaded
+EquipmentDomainEvent <|-- EquipmentSpecificationsUpdated
+EquipmentDomainEvent <|-- EquipmentBookingRequested
+EquipmentDomainEvent <|-- EquipmentReservedForEvent
+EquipmentDomainEvent <|-- EquipmentReservationUpdated
+EquipmentDomainEvent <|-- EquipmentReservationCancelled
+EquipmentDomainEvent <|-- EquipmentDoubleBookingDetected
+EquipmentDomainEvent <|-- EquipmentDoubleBookingPrevented
+EquipmentDomainEvent <|-- EquipmentDoubleBookingOverridden
+EquipmentDomainEvent <|-- EquipmentAvailabilityChecked
+EquipmentDomainEvent <|-- EquipmentAlternativeSuggested
+EquipmentDomainEvent <|-- EquipmentPackedForShipment
+EquipmentDomainEvent <|-- EquipmentLoadedOnTruck
+EquipmentDomainEvent <|-- EquipmentDispatchedToEvent
+EquipmentDomainEvent <|-- EquipmentDeliveredToVenue
+EquipmentDomainEvent <|-- EquipmentSetupCompleted
+EquipmentDomainEvent <|-- EquipmentPickedUpFromVenue
+EquipmentDomainEvent <|-- EquipmentReturnedToWarehouse
+EquipmentDomainEvent <|-- EquipmentMaintenanceScheduled
+EquipmentDomainEvent <|-- EquipmentMaintenanceStarted
+EquipmentDomainEvent <|-- EquipmentMaintenanceCompleted
+EquipmentDomainEvent <|-- EquipmentInspectionPassed
+EquipmentDomainEvent <|-- EquipmentInspectionFailed
+EquipmentDomainEvent <|-- EquipmentDamageReported
+EquipmentDomainEvent <|-- EquipmentRepairRequested
+EquipmentDomainEvent <|-- EquipmentRepairCompleted
+EquipmentDomainEvent <|-- EquipmentReplacementRequired
+EquipmentDomainEvent <|-- EquipmentConditionDowngraded
+EquipmentDomainEvent <|-- EquipmentConditionUpgraded
+EquipmentDomainEvent <|-- EquipmentRetired
+
+' Relationships - Services
+EquipmentService --> IEventManagementPlatformContext : uses
+ReservationService --> IEventManagementPlatformContext : uses
+ReservationService --> EquipmentService : uses
+CreateEquipmentItemCommandHandler --> IEventManagementPlatformContext : uses
+CreateEquipmentItemCommandHandler --> EquipmentService : uses
+CreateReservationCommandHandler --> IEventManagementPlatformContext : uses
+CreateReservationCommandHandler --> ReservationService : uses
+ScheduleMaintenanceCommandHandler --> IEventManagementPlatformContext : uses
+GetEquipmentItemsQueryHandler --> IEventManagementPlatformContext : uses
+CheckAvailabilityQueryHandler --> EquipmentService : uses
+
+' Relationships - DTOs
+CreateEquipmentItemCommandHandler ..> EquipmentDetailDto : returns
+CreateReservationCommandHandler ..> ReservationDetailDto : returns
+ScheduleMaintenanceCommandHandler ..> MaintenanceRecordDto : returns
+GetEquipmentItemsQueryHandler ..> EquipmentListDto : returns
+CheckAvailabilityQueryHandler ..> AvailabilityResultDto : returns
+
+@enduml

@@ -1,0 +1,605 @@
+@startuml Staff Management Class Diagram
+
+title Staff Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.StaffAggregate" {
+
+    class StaffMember <<AggregateRoot>> {
+        + StaffMemberId : Guid
+        + FirstName : string
+        + LastName : string
+        + Email : string
+        + PhoneNumber : string
+        + PhotoUrl : string?
+        + Status : StaffStatus
+        + HireDate : DateTime
+        + TerminationDate : DateTime?
+        + Role : StaffRole
+        + Skills : List<string>
+        + HourlyRate : decimal?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + StaffMember(firstName: string, lastName: string, email: string, phoneNumber: string, role: StaffRole, hireDate: DateTime, createdBy: Guid)
+        + UpdateProfile(firstName: string, lastName: string, phoneNumber: string, role: StaffRole, hourlyRate: decimal?, skills: List<string>, modifiedBy: Guid) : void
+        + UploadPhoto(photoUrl: string, uploadedBy: Guid) : void
+        + RemovePhoto(removedBy: Guid) : void
+        + Activate(activatedBy: Guid) : void
+        + Deactivate(deactivatedBy: Guid, reason: string) : void
+        + Terminate(terminatedBy: Guid, reason: string, terminationDate: DateTime) : void
+        + DeclareAvailability(dayOfWeek: DayOfWeek, startTime: TimeSpan, endTime: TimeSpan, isRecurring: bool) : StaffAvailability
+        + AddUnavailableDate(date: DateTime, reason: string, isAllDay: bool) : StaffUnavailableDate
+    }
+
+    class StaffAvailability <<Entity>> {
+        + StaffAvailabilityId : Guid
+        + StaffMemberId : Guid
+        + DayOfWeek : DayOfWeek
+        + StartTime : TimeSpan
+        + EndTime : TimeSpan
+        + IsRecurring : bool
+        + EffectiveFrom : DateTime
+        + EffectiveTo : DateTime?
+        --
+        + StaffAvailability(staffMemberId: Guid, dayOfWeek: DayOfWeek, startTime: TimeSpan, endTime: TimeSpan, isRecurring: bool, effectiveFrom: DateTime)
+        + Update(startTime: TimeSpan, endTime: TimeSpan, effectiveTo: DateTime?) : void
+    }
+
+    class StaffUnavailableDate <<Entity>> {
+        + StaffUnavailableDateId : Guid
+        + StaffMemberId : Guid
+        + Date : DateTime
+        + Reason : string?
+        + IsAllDay : bool
+        + StartTime : TimeSpan?
+        + EndTime : TimeSpan?
+        --
+        + StaffUnavailableDate(staffMemberId: Guid, date: DateTime, reason: string?, isAllDay: bool)
+    }
+
+    class StaffAssignment <<Entity>> {
+        + StaffAssignmentId : Guid
+        + StaffMemberId : Guid
+        + EventId : Guid
+        + AssignedRole : StaffRole
+        + AssignmentStatus : AssignmentStatus
+        + RequestedAt : DateTime
+        + ConfirmedAt : DateTime?
+        + AssignedBy : Guid
+        + Notes : string?
+        --
+        + StaffAssignment(staffMemberId: Guid, eventId: Guid, assignedRole: StaffRole, assignedBy: Guid)
+        + Confirm(confirmedBy: Guid) : void
+        + Decline(declinedBy: Guid, reason: string) : void
+        + Complete(completedBy: Guid) : void
+        + MarkNoShow(markedBy: Guid) : void
+        + Cancel(cancelledBy: Guid) : void
+    }
+
+    class StaffCheckInOut <<Entity>> {
+        + StaffCheckInOutId : Guid
+        + StaffAssignmentId : Guid
+        + CheckInTime : DateTime
+        + CheckOutTime : DateTime?
+        + CheckedInBy : Guid?
+        + CheckedOutBy : Guid?
+        + TotalHours : decimal?
+        --
+        + StaffCheckInOut(staffAssignmentId: Guid, checkInTime: DateTime, checkedInBy: Guid?)
+        + CheckOut(checkOutTime: DateTime, checkedOutBy: Guid?) : void
+        + CalculateTotalHours() : decimal
+    }
+
+    class StaffPerformanceReview <<Entity>> {
+        + StaffPerformanceReviewId : Guid
+        + StaffMemberId : Guid
+        + EventId : Guid?
+        + Rating : int
+        + Feedback : string?
+        + ReviewType : ReviewType
+        + ReviewedBy : Guid
+        + ReviewedAt : DateTime
+        --
+        + StaffPerformanceReview(staffMemberId: Guid, rating: int, reviewType: ReviewType, reviewedBy: Guid)
+        + Update(rating: int, feedback: string?) : void
+    }
+
+    enum StaffStatus <<Enumeration>> {
+        Active = 0
+        Inactive = 1
+        OnLeave = 2
+        Terminated = 3
+    }
+
+    enum StaffRole <<Enumeration>> {
+        EventCoordinator = 0
+        SetupCrew = 1
+        Server = 2
+        Bartender = 3
+        Chef = 4
+        Security = 5
+        Photographer = 6
+        DJ = 7
+        Manager = 8
+        Other = 9
+    }
+
+    enum AssignmentStatus <<Enumeration>> {
+        Requested = 0
+        Confirmed = 1
+        Declined = 2
+        Completed = 3
+        NoShow = 4
+        Cancelled = 5
+    }
+
+    enum ReviewType <<Enumeration>> {
+        Feedback = 0
+        Complaint = 1
+        Compliment = 2
+        PerformanceReview = 3
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.StaffAggregate.Events" {
+
+    abstract class StaffDomainEvent <<DomainEvent>> {
+        + StaffMemberId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class StaffMemberRegistered {
+        + FirstName : string
+        + LastName : string
+        + Email : string
+        + Role : StaffRole
+        + HireDate : DateTime
+    }
+
+    class StaffProfileUpdated {
+        + ChangedProperties : string[]
+    }
+
+    class StaffProfileActivated {
+        + ActivatedBy : Guid
+    }
+
+    class StaffProfileDeactivated {
+        + DeactivatedBy : Guid
+        + Reason : string
+    }
+
+    class StaffPhotoUploaded {
+        + PhotoUrl : string
+    }
+
+    class StaffPhotoRemoved {
+    }
+
+    class StaffMemberRemoved {
+        + TerminationDate : DateTime
+        + Reason : string
+    }
+
+    class StaffAvailabilityDeclared {
+        + StaffAvailabilityId : Guid
+        + DayOfWeek : DayOfWeek
+        + StartTime : TimeSpan
+        + EndTime : TimeSpan
+    }
+
+    class StaffAvailabilityUpdated {
+        + StaffAvailabilityId : Guid
+        + Changes : string[]
+    }
+
+    class StaffUnavailableDateAdded {
+        + StaffUnavailableDateId : Guid
+        + Date : DateTime
+        + Reason : string?
+    }
+
+    class StaffUnavailableDateRemoved {
+        + StaffUnavailableDateId : Guid
+        + Date : DateTime
+    }
+
+    class StaffRecurringAvailabilitySet {
+        + Pattern : string
+        + EffectiveFrom : DateTime
+    }
+
+    class StaffBookingRequested {
+        + StaffAssignmentId : Guid
+        + EventId : Guid
+        + AssignedRole : StaffRole
+    }
+
+    class StaffAssignedToEvent {
+        + StaffAssignmentId : Guid
+        + EventId : Guid
+    }
+
+    class StaffReassignedToEvent {
+        + OldEventId : Guid
+        + NewEventId : Guid
+    }
+
+    class StaffUnassignedFromEvent {
+        + StaffAssignmentId : Guid
+        + EventId : Guid
+        + Reason : string
+    }
+
+    class StaffBookingConfirmed {
+        + StaffAssignmentId : Guid
+        + ConfirmedAt : DateTime
+    }
+
+    class StaffBookingDeclined {
+        + StaffAssignmentId : Guid
+        + Reason : string
+    }
+
+    class StaffDoubleBookingDetected {
+        + ConflictingEventIds : List<Guid>
+    }
+
+    class StaffDoubleBookingPrevented {
+        + EventId : Guid
+        + Reason : string
+    }
+
+    class StaffCheckedIn {
+        + StaffAssignmentId : Guid
+        + CheckInTime : DateTime
+    }
+
+    class StaffCheckedOut {
+        + StaffAssignmentId : Guid
+        + CheckOutTime : DateTime
+        + TotalHours : decimal
+    }
+
+    class StaffNoShow {
+        + StaffAssignmentId : Guid
+        + EventId : Guid
+    }
+
+    class StaffRatingRecorded {
+        + Rating : int
+        + ReviewedBy : Guid
+    }
+
+    class StaffFeedbackReceived {
+        + Feedback : string
+        + ReviewType : ReviewType
+    }
+
+    class StaffComplaintReceived {
+        + Complaint : string
+        + FiledBy : Guid
+    }
+
+    class StaffComplimentReceived {
+        + Compliment : string
+        + GivenBy : Guid
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + StaffMembers : DbSet<StaffMember>
+        + StaffAvailabilities : DbSet<StaffAvailability>
+        + StaffUnavailableDates : DbSet<StaffUnavailableDate>
+        + StaffAssignments : DbSet<StaffAssignment>
+        + StaffCheckInOuts : DbSet<StaffCheckInOut>
+        + StaffPerformanceReviews : DbSet<StaffPerformanceReview>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class StaffAvailabilityService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + StaffAvailabilityService(context: IEventManagementPlatformContext)
+        + CheckAvailabilityAsync(staffId: Guid, eventDate: DateTime) : Task<bool>
+        + GetAvailableStaffAsync(eventDate: DateTime, role: StaffRole) : Task<List<StaffMember>>
+        + ValidateAvailabilityConflictAsync(staffId: Guid, startTime: TimeSpan, endTime: TimeSpan, dayOfWeek: DayOfWeek) : Task<bool>
+    }
+
+    class DoubleBookingService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + DoubleBookingService(context: IEventManagementPlatformContext)
+        + DetectDoubleBookingAsync(staffId: Guid, eventId: Guid, eventDate: DateTime) : Task<bool>
+        + GetConflictingAssignmentsAsync(staffId: Guid, eventDate: DateTime) : Task<List<StaffAssignment>>
+        + PreventDoubleBookingAsync(staffId: Guid, eventId: Guid) : Task<bool>
+    }
+
+    class StaffPerformanceService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + StaffPerformanceService(context: IEventManagementPlatformContext)
+        + GetAverageRatingAsync(staffId: Guid) : Task<decimal>
+        + GetPerformanceStatsAsync(staffId: Guid) : Task<PerformanceStats>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Staff" {
+
+    class RegisterStaffCommand <<Command>> {
+        + FirstName : string
+        + LastName : string
+        + Email : string
+        + PhoneNumber : string
+        + Role : StaffRole
+        + HireDate : DateTime
+        + HourlyRate : decimal?
+        + Skills : List<string>?
+    }
+
+    class RegisterStaffCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: RegisterStaffCommand, cancellationToken: CancellationToken) : Task<StaffDetailDto>
+    }
+
+    class UpdateStaffProfileCommand <<Command>> {
+        + StaffMemberId : Guid
+        + FirstName : string
+        + LastName : string
+        + PhoneNumber : string
+        + Role : StaffRole
+        + HourlyRate : decimal?
+        + Skills : List<string>?
+    }
+
+    class UpdateStaffProfileCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: UpdateStaffProfileCommand, cancellationToken: CancellationToken) : Task<StaffDetailDto>
+    }
+
+    class DeclareAvailabilityCommand <<Command>> {
+        + StaffMemberId : Guid
+        + DayOfWeek : DayOfWeek
+        + StartTime : TimeSpan
+        + EndTime : TimeSpan
+        + IsRecurring : bool
+        + EffectiveFrom : DateTime
+    }
+
+    class DeclareAvailabilityCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _availabilityService : StaffAvailabilityService
+        --
+        + Handle(command: DeclareAvailabilityCommand, cancellationToken: CancellationToken) : Task<StaffAvailabilityDto>
+    }
+
+    class AssignStaffToEventCommand <<Command>> {
+        + StaffMemberId : Guid
+        + EventId : Guid
+        + AssignedRole : StaffRole
+        + Notes : string?
+    }
+
+    class AssignStaffToEventCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _doubleBookingService : DoubleBookingService
+        - _availabilityService : StaffAvailabilityService
+        --
+        + Handle(command: AssignStaffToEventCommand, cancellationToken: CancellationToken) : Task<StaffAssignmentDto>
+    }
+
+    class CheckInStaffCommand <<Command>> {
+        + StaffAssignmentId : Guid
+        + CheckInTime : DateTime
+    }
+
+    class CheckInStaffCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: CheckInStaffCommand, cancellationToken: CancellationToken) : Task<CheckInOutDto>
+    }
+
+    class GetStaffQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + Status : StaffStatus?
+        + Role : StaffRole?
+        + SearchTerm : string?
+    }
+
+    class GetStaffQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetStaffQuery, cancellationToken: CancellationToken) : Task<PagedResult<StaffListDto>>
+    }
+
+    class GetStaffByIdQuery <<Query>> {
+        + StaffMemberId : Guid
+    }
+
+    class GetStaffByIdQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _performanceService : StaffPerformanceService
+        --
+        + Handle(query: GetStaffByIdQuery, cancellationToken: CancellationToken) : Task<StaffDetailDto>
+    }
+
+    class FindAvailableStaffQuery <<Query>> {
+        + EventId : Guid
+        + EventDate : DateTime
+        + Role : StaffRole
+    }
+
+    class FindAvailableStaffQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _availabilityService : StaffAvailabilityService
+        - _doubleBookingService : DoubleBookingService
+        --
+        + Handle(query: FindAvailableStaffQuery, cancellationToken: CancellationToken) : Task<List<AvailableStaffDto>>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Staff.Dtos" {
+
+    class StaffDetailDto <<DTO>> {
+        + StaffMemberId : Guid
+        + FirstName : string
+        + LastName : string
+        + Email : string
+        + PhoneNumber : string
+        + PhotoUrl : string?
+        + Status : StaffStatus
+        + Role : StaffRole
+        + HireDate : DateTime
+        + TerminationDate : DateTime?
+        + HourlyRate : decimal?
+        + Skills : List<string>
+        + AverageRating : decimal
+        + TotalAssignments : int
+        + CompletedAssignments : int
+        + CreatedAt : DateTime
+    }
+
+    class StaffListDto <<DTO>> {
+        + StaffMemberId : Guid
+        + FullName : string
+        + Email : string
+        + Status : StaffStatus
+        + Role : StaffRole
+        + AverageRating : decimal?
+        + PhotoUrl : string?
+    }
+
+    class StaffAvailabilityDto <<DTO>> {
+        + StaffAvailabilityId : Guid
+        + DayOfWeek : DayOfWeek
+        + StartTime : TimeSpan
+        + EndTime : TimeSpan
+        + IsRecurring : bool
+        + EffectiveFrom : DateTime
+        + EffectiveTo : DateTime?
+    }
+
+    class StaffAssignmentDto <<DTO>> {
+        + StaffAssignmentId : Guid
+        + StaffMemberId : Guid
+        + StaffName : string
+        + EventId : Guid
+        + EventTitle : string
+        + EventDate : DateTime
+        + AssignedRole : StaffRole
+        + Status : AssignmentStatus
+        + RequestedAt : DateTime
+        + ConfirmedAt : DateTime?
+    }
+
+    class CheckInOutDto <<DTO>> {
+        + StaffCheckInOutId : Guid
+        + StaffAssignmentId : Guid
+        + CheckInTime : DateTime
+        + CheckOutTime : DateTime?
+        + TotalHours : decimal?
+    }
+
+    class AvailableStaffDto <<DTO>> {
+        + StaffMemberId : Guid
+        + FullName : string
+        + Role : StaffRole
+        + AverageRating : decimal
+        + TotalCompletedAssignments : int
+        + PhotoUrl : string?
+    }
+
+}
+
+' Relationships - Aggregates
+StaffMember "1" *-- "0..*" StaffAvailability : has
+StaffMember "1" *-- "0..*" StaffUnavailableDate : has
+StaffMember "1" *-- "0..*" StaffAssignment : has
+StaffMember "1" *-- "0..*" StaffPerformanceReview : has
+StaffMember --> StaffStatus : has
+StaffMember --> StaffRole : has
+StaffAssignment "1" *-- "0..1" StaffCheckInOut : has
+StaffAssignment --> AssignmentStatus : has
+StaffPerformanceReview --> ReviewType : has
+
+' Relationships - Events
+StaffDomainEvent <|-- StaffMemberRegistered
+StaffDomainEvent <|-- StaffProfileUpdated
+StaffDomainEvent <|-- StaffProfileActivated
+StaffDomainEvent <|-- StaffProfileDeactivated
+StaffDomainEvent <|-- StaffPhotoUploaded
+StaffDomainEvent <|-- StaffPhotoRemoved
+StaffDomainEvent <|-- StaffMemberRemoved
+StaffDomainEvent <|-- StaffAvailabilityDeclared
+StaffDomainEvent <|-- StaffAvailabilityUpdated
+StaffDomainEvent <|-- StaffUnavailableDateAdded
+StaffDomainEvent <|-- StaffUnavailableDateRemoved
+StaffDomainEvent <|-- StaffRecurringAvailabilitySet
+StaffDomainEvent <|-- StaffBookingRequested
+StaffDomainEvent <|-- StaffAssignedToEvent
+StaffDomainEvent <|-- StaffReassignedToEvent
+StaffDomainEvent <|-- StaffUnassignedFromEvent
+StaffDomainEvent <|-- StaffBookingConfirmed
+StaffDomainEvent <|-- StaffBookingDeclined
+StaffDomainEvent <|-- StaffDoubleBookingDetected
+StaffDomainEvent <|-- StaffDoubleBookingPrevented
+StaffDomainEvent <|-- StaffCheckedIn
+StaffDomainEvent <|-- StaffCheckedOut
+StaffDomainEvent <|-- StaffNoShow
+StaffDomainEvent <|-- StaffRatingRecorded
+StaffDomainEvent <|-- StaffFeedbackReceived
+StaffDomainEvent <|-- StaffComplaintReceived
+StaffDomainEvent <|-- StaffComplimentReceived
+
+' Relationships - Services
+StaffAvailabilityService --> IEventManagementPlatformContext : uses
+DoubleBookingService --> IEventManagementPlatformContext : uses
+StaffPerformanceService --> IEventManagementPlatformContext : uses
+
+RegisterStaffCommandHandler --> IEventManagementPlatformContext : uses
+UpdateStaffProfileCommandHandler --> IEventManagementPlatformContext : uses
+DeclareAvailabilityCommandHandler --> IEventManagementPlatformContext : uses
+DeclareAvailabilityCommandHandler --> StaffAvailabilityService : uses
+AssignStaffToEventCommandHandler --> IEventManagementPlatformContext : uses
+AssignStaffToEventCommandHandler --> DoubleBookingService : uses
+AssignStaffToEventCommandHandler --> StaffAvailabilityService : uses
+CheckInStaffCommandHandler --> IEventManagementPlatformContext : uses
+GetStaffQueryHandler --> IEventManagementPlatformContext : uses
+GetStaffByIdQueryHandler --> IEventManagementPlatformContext : uses
+GetStaffByIdQueryHandler --> StaffPerformanceService : uses
+FindAvailableStaffQueryHandler --> IEventManagementPlatformContext : uses
+FindAvailableStaffQueryHandler --> StaffAvailabilityService : uses
+FindAvailableStaffQueryHandler --> DoubleBookingService : uses
+
+' Relationships - DTOs
+RegisterStaffCommandHandler ..> StaffDetailDto : returns
+UpdateStaffProfileCommandHandler ..> StaffDetailDto : returns
+DeclareAvailabilityCommandHandler ..> StaffAvailabilityDto : returns
+AssignStaffToEventCommandHandler ..> StaffAssignmentDto : returns
+CheckInStaffCommandHandler ..> CheckInOutDto : returns
+GetStaffQueryHandler ..> StaffListDto : returns
+GetStaffByIdQueryHandler ..> StaffDetailDto : returns
+FindAvailableStaffQueryHandler ..> AvailableStaffDto : returns
+
+@enduml

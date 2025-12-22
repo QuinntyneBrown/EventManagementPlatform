@@ -1,0 +1,531 @@
+@startuml Shipper Management Class Diagram
+!define ENTITY_COLOR #E1F5FE
+!define VALUE_OBJECT_COLOR #FFF9C4
+!define SERVICE_COLOR #F3E5F5
+!define REPOSITORY_COLOR #E8F5E9
+
+title Shipper & Logistics Management - Domain Class Diagram
+
+' ========================================
+' Aggregates and Entities
+' ========================================
+
+package "ShipperList Aggregate" <<Rectangle>> {
+    class ShipperList <<AggregateRoot>> {
+        -Guid Id
+        -Guid EventId
+        -string ListNumber
+        -ShipperListStatus Status
+        -DateTime GeneratedDate
+        -DateTime? FinalizedDate
+        -Guid GeneratedBy
+        -string Notes
+        -List<ShipperListItem> _items
+        +IReadOnlyCollection<ShipperListItem> Items
+        --
+        +AddItem(inventoryItemId, quantity, description)
+        +RemoveItem(itemId)
+        +UpdateItemQuantity(itemId, newQuantity)
+        +MarkItemAsPacked(itemId, packedBy)
+        +MarkItemAsLoaded(itemId, loadedBy)
+        +Finalize(finalizedBy)
+        +Export(format)
+        +Print()
+    }
+
+    class ShipperListItem <<Entity>> {
+        -Guid Id
+        -Guid ShipperListId
+        -Guid InventoryItemId
+        -string ItemName
+        -string ItemCode
+        -int QuantityOrdered
+        -int QuantityPacked
+        -bool IsPacked
+        -bool IsLoaded
+        -DateTime? PackedDate
+        -DateTime? LoadedDate
+        -Guid? PackedBy
+        -Guid? LoadedBy
+        -string Notes
+        --
+        +Pack(packedBy, quantity)
+        +Load(loadedBy)
+    }
+
+    enum ShipperListStatus {
+        Draft
+        InProgress
+        Finalized
+        Printed
+        Exported
+        Shipped
+    }
+
+    ShipperList "1" *-- "many" ShipperListItem : contains
+    ShipperList --> ShipperListStatus : has
+}
+
+package "Shipment Aggregate" <<Rectangle>> {
+    class Shipment <<AggregateRoot>> {
+        -Guid Id
+        -Guid EventId
+        -Guid ShipperListId
+        -TrackingNumber TrackingNumber
+        -ShipmentStatus Status
+        -Guid? DriverId
+        -Address OriginAddress
+        -Address DestinationAddress
+        -DateTime ScheduledDepartureDate
+        -DateTime? ActualDepartureDate
+        -DateTime ScheduledArrivalDate
+        -DateTime? ActualArrivalDate
+        -string VehicleId
+        -string Notes
+        -List<ShipmentItem> _items
+        +IReadOnlyCollection<ShipmentItem> Items
+        --
+        +AssignDriver(driverId)
+        +DepartWarehouse(departureTime)
+        +UpdateStatus(newStatus)
+        +ArriveAtVenue(arrivalTime)
+        +RecordException(exceptionType, description)
+    }
+
+    class ShipmentItem <<Entity>> {
+        -Guid Id
+        -Guid ShipmentId
+        -Guid InventoryItemId
+        -string ItemName
+        -int Quantity
+        -bool IsDelivered
+        -DateTime? DeliveredDate
+    }
+
+    enum ShipmentStatus {
+        Created
+        DriverAssigned
+        Departed
+        InTransit
+        ArrivedAtVenue
+        Delivering
+        Delivered
+        ReturningToWarehouse
+        Completed
+        Cancelled
+        ExceptionReported
+    }
+
+    Shipment "1" *-- "many" ShipmentItem : contains
+    Shipment --> ShipmentStatus : has
+    Shipment --> Address : origin
+    Shipment --> Address : destination
+    Shipment --> TrackingNumber : has
+}
+
+package "Delivery Aggregate" <<Rectangle>> {
+    class Delivery <<Entity>> {
+        -Guid Id
+        -Guid ShipmentId
+        -Guid EventId
+        -Address DeliveryAddress
+        -DeliveryWindow DeliveryWindow
+        -DeliveryStatus Status
+        -DateTime? DeliveredDate
+        -Signature RecipientSignature
+        -string RecipientName
+        -string RecipientTitle
+        -string DeliveryNotes
+        -string ExceptionReason
+        -DateTime? RescheduledDate
+        -List<DeliveryItem> _items
+        +IReadOnlyCollection<DeliveryItem> Items
+        --
+        +DeliverItem(itemId, quantity)
+        +CaptureSignature(signature, recipientName)
+        +ReportException(exceptionType, reason)
+        +Reschedule(newDeliveryDate)
+        +CompleteDelivery()
+    }
+
+    class DeliveryItem <<Entity>> {
+        -Guid Id
+        -Guid DeliveryId
+        -Guid InventoryItemId
+        -string ItemName
+        -int QuantityOrdered
+        -int QuantityDelivered
+        -DeliveryItemStatus Status
+    }
+
+    enum DeliveryStatus {
+        Scheduled
+        InProgress
+        PartiallyDelivered
+        Delivered
+        SignatureReceived
+        ExceptionReported
+        Rescheduled
+    }
+
+    enum DeliveryItemStatus {
+        Pending
+        Delivered
+        Damaged
+        Missing
+    }
+
+    Delivery "1" *-- "many" DeliveryItem : contains
+    Delivery --> DeliveryStatus : has
+    Delivery --> Address : deliveryAddress
+    Delivery --> DeliveryWindow : window
+    Delivery --> Signature : signature
+}
+
+package "Return Aggregate" <<Rectangle>> {
+    class ReturnItem <<Entity>> {
+        -Guid Id
+        -Guid EventId
+        -Guid InventoryItemId
+        -Guid ShipmentId
+        -ReturnStatus Status
+        -DateTime ScheduledPickupDate
+        -DateTime? ActualPickupDate
+        -DateTime? ReturnedToWarehouseDate
+        -int QuantityExpected
+        -int QuantityReturned
+        -bool IsDamaged
+        -bool IsLost
+        -string DamageDescription
+        -string DamagePhotos
+        -string Notes
+        --
+        +SchedulePickup(pickupDate)
+        +RecordPickup(pickupTime, quantity)
+        +ReturnToWarehouse(returnTime)
+        +RecordDamage(description, photoUrls)
+        +RecordLoss(reason)
+    }
+
+    enum ReturnStatus {
+        PickupScheduled
+        PickedUp
+        InTransit
+        ReturnedToWarehouse
+        Damaged
+        Lost
+        Completed
+    }
+
+    ReturnItem --> ReturnStatus : has
+}
+
+' ========================================
+' Value Objects
+' ========================================
+
+package "Value Objects" <<Rectangle>> {
+    class Address <<ValueObject>> {
+        +string Street
+        +string City
+        +string State
+        +string ZipCode
+        +string Country
+        +double? Latitude
+        +double? Longitude
+        --
+        +string GetFullAddress()
+        +bool IsValid()
+    }
+
+    class TrackingNumber <<ValueObject>> {
+        +string Value
+        --
+        +{static} TrackingNumber Generate()
+        +bool IsValid()
+    }
+
+    class DeliveryWindow <<ValueObject>> {
+        +DateTime StartTime
+        +DateTime EndTime
+        --
+        +bool IsWithinWindow(time)
+        +TimeSpan GetDuration()
+    }
+
+    class Signature <<ValueObject>> {
+        +string Base64Data
+        +string BlobStorageUrl
+        +DateTime CapturedAt
+        +string CapturedBy
+        --
+        +bool IsValid()
+    }
+}
+
+' ========================================
+' Domain Events
+' ========================================
+
+package "Domain Events" <<Rectangle>> {
+    abstract class DomainEvent {
+        +Guid Id
+        +Guid AggregateId
+        +DateTime Timestamp
+        +Guid UserId
+        +string CorrelationId
+    }
+
+    class ShipperListGenerated {
+        +Guid ShipperListId
+        +Guid EventId
+        +string ListNumber
+        +Guid GeneratedBy
+        +DateTime GeneratedDate
+    }
+
+    class ItemAddedToShipperList {
+        +Guid ShipperListId
+        +Guid ItemId
+        +Guid InventoryItemId
+        +int Quantity
+    }
+
+    class ItemMarkedAsPacked {
+        +Guid ShipperListId
+        +Guid ItemId
+        +Guid PackedBy
+        +int QuantityPacked
+        +DateTime PackedDate
+    }
+
+    class ShipmentCreatedForEvent {
+        +Guid ShipmentId
+        +Guid EventId
+        +string TrackingNumber
+        +DateTime ScheduledDepartureDate
+    }
+
+    class ShipmentAssignedToDriver {
+        +Guid ShipmentId
+        +Guid DriverId
+        +DateTime AssignedDate
+    }
+
+    class ShipmentDepartedWarehouse {
+        +Guid ShipmentId
+        +DateTime DepartureTime
+        +string VehicleId
+    }
+
+    class DeliverySignatureReceived {
+        +Guid DeliveryId
+        +string SignatureUrl
+        +string RecipientName
+        +DateTime CapturedAt
+    }
+
+    class ItemReturnedToWarehouse {
+        +Guid ReturnItemId
+        +DateTime ReturnTime
+        +int QuantityReceived
+    }
+
+    class ItemDamagedDuringReturn {
+        +Guid ReturnItemId
+        +string DamageDescription
+        +List<string> PhotoUrls
+    }
+
+    DomainEvent <|-- ShipperListGenerated
+    DomainEvent <|-- ItemAddedToShipperList
+    DomainEvent <|-- ItemMarkedAsPacked
+    DomainEvent <|-- ShipmentCreatedForEvent
+    DomainEvent <|-- ShipmentAssignedToDriver
+    DomainEvent <|-- ShipmentDepartedWarehouse
+    DomainEvent <|-- DeliverySignatureReceived
+    DomainEvent <|-- ItemReturnedToWarehouse
+    DomainEvent <|-- ItemDamagedDuringReturn
+}
+
+' ========================================
+' Repositories
+' ========================================
+
+package "Repositories" <<Rectangle>> {
+    interface IShipperListRepository {
+        +Task<ShipperList> GetByIdAsync(id)
+        +Task<List<ShipperList>> GetByEventIdAsync(eventId)
+        +Task<ShipperList> AddAsync(shipperList)
+        +Task UpdateAsync(shipperList)
+        +Task DeleteAsync(id)
+    }
+
+    interface IShipmentRepository {
+        +Task<Shipment> GetByIdAsync(id)
+        +Task<Shipment> GetByTrackingNumberAsync(trackingNumber)
+        +Task<List<Shipment>> GetActiveShipmentsAsync()
+        +Task<Shipment> AddAsync(shipment)
+        +Task UpdateAsync(shipment)
+    }
+
+    interface IDeliveryRepository {
+        +Task<Delivery> GetByIdAsync(id)
+        +Task<List<Delivery>> GetByShipmentIdAsync(shipmentId)
+        +Task<Delivery> AddAsync(delivery)
+        +Task UpdateAsync(delivery)
+    }
+
+    interface IReturnItemRepository {
+        +Task<ReturnItem> GetByIdAsync(id)
+        +Task<List<ReturnItem>> GetByEventIdAsync(eventId)
+        +Task<ReturnItem> AddAsync(returnItem)
+        +Task UpdateAsync(returnItem)
+    }
+
+    interface IEventPublisher {
+        +Task PublishAsync<T>(domainEvent)
+        +Task PublishBatchAsync<T>(domainEvents)
+    }
+
+    ShipperList .. IShipperListRepository : persisted by
+    Shipment .. IShipmentRepository : persisted by
+    Delivery .. IDeliveryRepository : persisted by
+    ReturnItem .. IReturnItemRepository : persisted by
+    DomainEvent .. IEventPublisher : published by
+}
+
+' ========================================
+' Application Services
+' ========================================
+
+package "Application Services" <<Rectangle>> {
+    class RouteOptimizationService <<Service>> {
+        -OpenAIClient _openAIClient
+        --
+        +Task<OptimizedRoute> OptimizeDeliveryRouteAsync(deliveries)
+        +Task<RouteInfo> CalculateBestRouteAsync(origin, destination)
+    }
+
+    class TrackingService <<Service>> {
+        -IShipmentRepository _shipmentRepository
+        -ISignalRHub _signalRHub
+        --
+        +Task UpdateLocationAsync(shipmentId, location)
+        +Task BroadcastStatusUpdateAsync(shipmentId, status)
+    }
+
+    class NotificationService <<Service>> {
+        -IEmailService _emailService
+        -ISMSService _smsService
+        --
+        +Task SendShipmentDepartedNotificationAsync(shipment)
+        +Task SendDeliveryCompletedNotificationAsync(delivery)
+        +Task SendExceptionAlertAsync(exception)
+    }
+
+    class GeolocationService <<Service>> {
+        -AzureMapsClient _mapsClient
+        --
+        +Task<Coordinates> GeocodeAddressAsync(address)
+        +Task<RouteInfo> CalculateRouteAsync(origin, destination)
+    }
+
+    Shipment ..> RouteOptimizationService : uses
+    Shipment ..> TrackingService : uses
+    Shipment ..> NotificationService : uses
+    Address ..> GeolocationService : uses
+}
+
+' ========================================
+' Command/Query Handlers (CQRS)
+' ========================================
+
+package "CQRS" <<Rectangle>> {
+    class CreateShipperListCommand {
+        +Guid EventId
+        +Guid GeneratedBy
+        +string Notes
+    }
+
+    class CreateShipperListCommandHandler {
+        -IShipperListRepository _repository
+        -IEventPublisher _eventPublisher
+        --
+        +Task<ShipperList> Handle(command)
+    }
+
+    class CreateShipmentCommand {
+        +Guid EventId
+        +Guid ShipperListId
+        +Address OriginAddress
+        +Address DestinationAddress
+    }
+
+    class CreateShipmentCommandHandler {
+        -IShipmentRepository _repository
+        -IEventPublisher _eventPublisher
+        --
+        +Task<Shipment> Handle(command)
+    }
+
+    class GetShipperListQuery {
+        +Guid Id
+    }
+
+    class GetShipperListQueryHandler {
+        -IShipperListRepository _repository
+        --
+        +Task<ShipperListDto> Handle(query)
+    }
+
+    class TrackShipmentQuery {
+        +Guid ShipmentId
+    }
+
+    class TrackShipmentQueryHandler {
+        -IShipmentRepository _repository
+        --
+        +Task<ShipmentTrackingDto> Handle(query)
+    }
+
+    CreateShipperListCommand ..> CreateShipperListCommandHandler : handled by
+    CreateShipperListCommandHandler ..> ShipperList : creates
+    CreateShipmentCommand ..> CreateShipmentCommandHandler : handled by
+    CreateShipmentCommandHandler ..> Shipment : creates
+    GetShipperListQuery ..> GetShipperListQueryHandler : handled by
+    TrackShipmentQuery ..> TrackShipmentQueryHandler : handled by
+}
+
+' ========================================
+' Relationships
+' ========================================
+
+ShipperList "1" -- "1" Shipment : creates
+Shipment "1" -- "1" Delivery : has
+Shipment "1" -- "many" ReturnItem : generates
+
+note right of ShipperList
+  ShipperList is the source of truth
+  for what needs to be shipped
+end note
+
+note right of Shipment
+  Shipment tracks the physical
+  movement of items from
+  warehouse to venue
+end note
+
+note right of Delivery
+  Delivery manages the handoff
+  of items to the venue with
+  signature capture
+end note
+
+note right of ReturnItem
+  ReturnItem tracks items
+  coming back from the event,
+  including damage reports
+end note
+
+@enduml

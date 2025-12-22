@@ -1,0 +1,865 @@
+@startuml Notification_Alert_Management_Sequence_Diagrams
+
+' ===================================
+' Diagram 1: Create and Deliver Notification
+' ===================================
+
+title Sequence Diagram 1: Create and Deliver Notification
+
+actor "User" as User
+participant "Web App\n(Angular)" as WebApp
+participant "API Gateway" as Gateway
+participant "Notification API" as NotifAPI
+participant "Notification Service" as NotifService
+participant "Preferences Service" as PrefService
+participant "Database" as DB
+participant "Azure Service Bus" as ServiceBus
+participant "Delivery Service" as DeliveryService
+participant "Azure Communication\nServices" as ACS
+participant "SignalR Hub" as SignalR
+participant "Azure SignalR\nService" as AzureSignalR
+
+User -> WebApp: Perform action that\ntriggers notification
+activate WebApp
+
+WebApp -> Gateway: POST /api/v1/notifications\n{notification data}
+activate Gateway
+
+Gateway -> NotifAPI: Forward request
+activate NotifAPI
+
+NotifAPI -> NotifService: CreateNotificationAsync(command)
+activate NotifService
+
+NotifService -> PrefService: ShouldSendNotificationAsync(userId, type, category, priority)
+activate PrefService
+
+PrefService -> DB: Get user preferences
+activate DB
+DB --> PrefService: NotificationPreferences
+deactivate DB
+
+PrefService --> NotifService: bool (should send)
+deactivate PrefService
+
+alt Should Send Notification
+
+    NotifService -> NotifService: Create Notification entity
+
+    NotifService -> DB: Save notification
+    activate DB
+    DB --> NotifService: Notification saved
+    deactivate DB
+
+    NotifService -> NotifService: Raise UserNotificationCreated event
+
+    NotifService -> ServiceBus: Publish notification message\nto notification queue
+    activate ServiceBus
+    ServiceBus --> NotifService: Message queued
+    deactivate ServiceBus
+
+    NotifService --> NotifAPI: NotificationDto
+    deactivate NotifService
+
+    NotifAPI --> Gateway: 201 Created\n{notification}
+    deactivate NotifAPI
+
+    Gateway --> WebApp: 201 Created
+    deactivate Gateway
+
+    WebApp --> User: Show success message
+    deactivate WebApp
+
+    ' Async processing
+    ServiceBus -> DeliveryService: Consume notification message
+    activate DeliveryService
+
+    DeliveryService -> PrefService: Get user channel preferences
+    activate PrefService
+    PrefService --> DeliveryService: Channel preferences
+    deactivate PrefService
+
+    par Email Delivery
+        DeliveryService -> ACS: SendEmailAsync(to, subject, body)
+        activate ACS
+        ACS --> DeliveryService: Email sent
+        deactivate ACS
+    and SMS Delivery (if enabled)
+        DeliveryService -> ACS: SendSmsAsync(phone, message)
+        activate ACS
+        ACS --> DeliveryService: SMS sent
+        deactivate ACS
+    and Push Notification (if enabled)
+        DeliveryService -> ACS: SendPushNotificationAsync(userId, title, body)
+        activate ACS
+        ACS --> DeliveryService: Push sent
+        deactivate ACS
+    and In-App Notification
+        DeliveryService -> SignalR: SendNotificationToUserAsync(userId, notification)
+        activate SignalR
+        SignalR -> AzureSignalR: Broadcast to user group
+        activate AzureSignalR
+        AzureSignalR --> WebApp: Real-time notification update
+        AzureSignalR --> SignalR: Broadcasted
+        deactivate AzureSignalR
+        SignalR --> DeliveryService: Sent
+        deactivate SignalR
+    end
+
+    DeliveryService -> DB: Update notification status\n(Delivered)
+    activate DB
+    DB --> DeliveryService: Status updated
+    deactivate DB
+
+    deactivate DeliveryService
+
+else Should Not Send (Muted/Quiet Hours)
+    NotifService --> NotifAPI: Notification blocked\nby preferences
+    NotifAPI --> Gateway: 200 OK\n{blocked: true}
+    Gateway --> WebApp: Notification blocked
+    WebApp --> User: (No notification)
+end
+
+@enduml
+
+' ===================================
+' Diagram 2: View and Manage Notifications
+' ===================================
+
+@startuml View_Manage_Notifications
+
+title Sequence Diagram 2: View and Manage Notifications
+
+actor "User" as User
+participant "Web App\n(Angular)" as WebApp
+participant "API Gateway" as Gateway
+participant "Notification API" as NotifAPI
+participant "Notification Service" as NotifService
+participant "Database" as DB
+participant "Redis Cache" as Cache
+participant "SignalR Hub" as SignalR
+
+User -> WebApp: Navigate to\nNotification Center
+activate WebApp
+
+WebApp -> Gateway: GET /api/v1/notifications\n?userId=xxx&status=Unread
+activate Gateway
+
+Gateway -> NotifAPI: Forward request
+activate NotifAPI
+
+NotifAPI -> NotifService: GetUserNotificationsAsync(query)
+activate NotifService
+
+NotifService -> Cache: Check cached notifications
+activate Cache
+Cache --> NotifService: Cache miss
+deactivate Cache
+
+NotifService -> DB: Query notifications\nwith filters
+activate DB
+DB --> NotifService: PagedResult<Notification>
+deactivate DB
+
+NotifService -> Cache: Cache result (5 min TTL)
+activate Cache
+Cache --> NotifService: Cached
+deactivate Cache
+
+NotifService --> NotifAPI: PagedResult<NotificationDto>
+deactivate NotifService
+
+NotifAPI --> Gateway: 200 OK\n{notifications}
+deactivate NotifAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> User: Display notifications
+deactivate WebApp
+
+' Mark as Read
+User -> WebApp: Click on notification
+activate WebApp
+
+WebApp -> Gateway: POST /api/v1/notifications/{id}/view
+activate Gateway
+
+Gateway -> NotifAPI: Forward request
+activate NotifAPI
+
+NotifAPI -> NotifService: MarkAsViewedAsync(notificationId, userId)
+activate NotifService
+
+NotifService -> DB: Get notification
+activate DB
+DB --> NotifService: Notification
+deactivate DB
+
+NotifService -> NotifService: notification.MarkAsViewed()
+
+NotifService -> DB: Update notification\n(IsRead = true, ViewedAt = now)
+activate DB
+DB --> NotifService: Updated
+deactivate DB
+
+NotifService -> NotifService: Raise UserNotificationViewed event
+
+NotifService -> Cache: Invalidate cache
+activate Cache
+Cache --> NotifService: Cache cleared
+deactivate Cache
+
+NotifService -> SignalR: UpdateNotificationStatusAsync(notificationId, status)
+activate SignalR
+SignalR --> WebApp: Real-time status update
+SignalR --> NotifService: Updated
+deactivate SignalR
+
+NotifService --> NotifAPI: Success
+deactivate NotifService
+
+NotifAPI --> Gateway: 200 OK
+deactivate NotifAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> User: Notification marked as read
+deactivate WebApp
+
+' Dismiss Notification
+User -> WebApp: Dismiss notification
+activate WebApp
+
+WebApp -> Gateway: POST /api/v1/notifications/{id}/dismiss
+activate Gateway
+
+Gateway -> NotifAPI: Forward request
+activate NotifAPI
+
+NotifAPI -> NotifService: DismissNotificationAsync(notificationId, userId)
+activate NotifService
+
+NotifService -> DB: Update notification\n(IsDismissed = true, DismissedAt = now)
+activate DB
+DB --> NotifService: Updated
+deactivate DB
+
+NotifService -> NotifService: Raise UserNotificationDismissed event
+
+NotifService -> Cache: Invalidate cache
+activate Cache
+Cache --> NotifService: Cache cleared
+deactivate Cache
+
+NotifService --> NotifAPI: Success
+deactivate NotifService
+
+NotifAPI --> Gateway: 200 OK
+deactivate NotifAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> User: Notification dismissed
+deactivate WebApp
+
+@enduml
+
+' ===================================
+' Diagram 3: Alert Management and Escalation
+' ===================================
+
+@startuml Alert_Management_Escalation
+
+title Sequence Diagram 3: Alert Management and Escalation
+
+participant "Event System" as EventSystem
+participant "Alert Service" as AlertService
+participant "Notification Service" as NotifService
+participant "Database" as DB
+participant "Background Job\n(Hangfire)" as BackgroundJob
+participant "Azure Service Bus" as ServiceBus
+participant "Delivery Service" as DeliveryService
+participant "Admin User" as Admin
+
+' System generates alert
+EventSystem -> AlertService: Detect overbooking\nCreateAlertAsync(command)
+activate AlertService
+
+AlertService -> AlertService: Create Alert entity\n(Status = Active)
+
+AlertService -> DB: Save alert
+activate DB
+DB --> AlertService: Alert saved
+deactivate DB
+
+AlertService -> AlertService: Raise OverbookingAlertSent event
+
+AlertService -> NotifService: Create notifications\nfor assigned users
+activate NotifService
+
+NotifService -> DB: Save notifications
+activate DB
+DB --> NotifService: Notifications saved
+deactivate DB
+
+NotifService -> ServiceBus: Queue notifications\nfor delivery
+activate ServiceBus
+ServiceBus --> NotifService: Queued
+deactivate ServiceBus
+
+NotifService --> AlertService: Notifications created
+deactivate NotifService
+
+AlertService --> EventSystem: AlertDto
+deactivate AlertService
+
+' Background job checks for escalation
+loop Every 15 minutes
+    BackgroundJob -> AlertService: CheckAndProcessAlertEscalationAsync()
+    activate AlertService
+
+    AlertService -> DB: GetUnacknowledgedAlertsAsync(olderThan: 30 min)
+    activate DB
+    DB --> AlertService: List<Alert>
+    deactivate DB
+
+    loop For each unacknowledged alert
+        AlertService -> AlertService: alert.Escalate(reason)
+
+        AlertService -> DB: Update alert\n(EscalationLevel++, Status = Escalated)
+        activate DB
+        DB --> AlertService: Updated
+        deactivate DB
+
+        AlertService -> AlertService: Raise IssueEscalated event
+
+        AlertService -> NotifService: Create urgent notifications\nfor escalation level
+        activate NotifService
+
+        NotifService -> DB: Save urgent notifications
+        activate DB
+        DB --> NotifService: Saved
+        deactivate DB
+
+        NotifService -> ServiceBus: Queue urgent notifications
+        activate ServiceBus
+        ServiceBus --> NotifService: Queued
+        deactivate ServiceBus
+
+        NotifService --> AlertService: Escalation notifications created
+        deactivate NotifService
+    end
+
+    AlertService --> BackgroundJob: Escalations processed
+    deactivate AlertService
+end
+
+' Admin acknowledges alert
+Admin -> AlertService: AcknowledgeAlertAsync(alertId, userId)
+activate AlertService
+
+AlertService -> DB: Get alert
+activate DB
+DB --> AlertService: Alert
+deactivate DB
+
+AlertService -> AlertService: alert.Acknowledge(userId)
+
+AlertService -> DB: Update alert\n(Status = Acknowledged, AcknowledgedAt = now)
+activate DB
+DB --> AlertService: Updated
+deactivate DB
+
+AlertService --> Admin: Alert acknowledged
+deactivate AlertService
+
+' Admin resolves alert
+Admin -> AlertService: ResolveAlertAsync(alertId, userId, notes, data)
+activate AlertService
+
+AlertService -> DB: Get alert
+activate DB
+DB --> AlertService: Alert
+deactivate DB
+
+AlertService -> AlertService: alert.Resolve(userId, notes)
+
+AlertService -> DB: Update alert\n(Status = Resolved, ResolvedAt = now)
+activate DB
+DB --> AlertService: Updated
+deactivate DB
+
+AlertService -> NotifService: Create resolution notification\nfor relevant users
+activate NotifService
+
+NotifService -> DB: Save notification
+activate DB
+DB --> NotifService: Saved
+deactivate DB
+
+NotifService -> ServiceBus: Queue notification
+activate ServiceBus
+ServiceBus --> NotifService: Queued
+deactivate ServiceBus
+
+NotifService --> AlertService: Resolution notification sent
+deactivate NotifService
+
+AlertService --> Admin: Alert resolved
+deactivate AlertService
+
+@enduml
+
+' ===================================
+' Diagram 4: Emergency Broadcast
+' ===================================
+
+@startuml Emergency_Broadcast
+
+title Sequence Diagram 4: Emergency Broadcast
+
+actor "Admin" as Admin
+participant "Web App\n(Angular)" as WebApp
+participant "API Gateway" as Gateway
+participant "Emergency Broadcast\nAPI" as BroadcastAPI
+participant "Emergency Broadcast\nService" as BroadcastService
+participant "Database" as DB
+participant "Azure Service Bus" as ServiceBus
+participant "Delivery Service" as DeliveryService
+participant "Azure Communication\nServices" as ACS
+participant "SignalR Hub" as SignalR
+participant "All Users" as Users
+
+Admin -> WebApp: Create emergency broadcast
+activate WebApp
+
+WebApp -> Admin: Confirm emergency broadcast\n(confirmation dialog)
+Admin -> WebApp: Confirm
+
+WebApp -> Gateway: POST /api/v1/emergency-broadcast\n{title, message, channels, targetUserIds}
+activate Gateway
+
+Gateway -> BroadcastAPI: Forward request
+activate BroadcastAPI
+
+BroadcastAPI -> BroadcastService: SendEmergencyBroadcastAsync(command)
+activate BroadcastService
+
+BroadcastService -> BroadcastService: Validate and create\nEmergencyBroadcast entity
+
+BroadcastService -> DB: Save emergency broadcast
+activate DB
+DB --> BroadcastService: Broadcast saved
+deactivate DB
+
+BroadcastService -> BroadcastService: Resolve target recipients\nfrom user IDs and groups
+
+BroadcastService -> BroadcastService: Raise EmergencyNotificationBroadcast event
+
+' Queue high-priority notifications for all recipients
+BroadcastService -> ServiceBus: Publish broadcast messages\nto high-priority queue
+activate ServiceBus
+ServiceBus --> BroadcastService: Messages queued
+deactivate ServiceBus
+
+BroadcastService --> BroadcastAPI: BroadcastResultDto\n{broadcastId, recipientCount}
+deactivate BroadcastService
+
+BroadcastAPI --> Gateway: 200 OK\n{broadcast result}
+deactivate BroadcastAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> Admin: Broadcast initiated
+deactivate WebApp
+
+' Parallel delivery to all users
+par Email Delivery
+    ServiceBus -> DeliveryService: Process broadcast messages\n(Email batch)
+    activate DeliveryService
+
+    loop For each recipient
+        DeliveryService -> ACS: SendEmailAsync(recipient, subject, body)
+        activate ACS
+        ACS --> DeliveryService: Email sent
+        deactivate ACS
+    end
+
+    DeliveryService -> DB: Update broadcast delivery stats
+    activate DB
+    DB --> DeliveryService: Stats updated
+    deactivate DB
+
+    deactivate DeliveryService
+
+and SMS Delivery
+    ServiceBus -> DeliveryService: Process broadcast messages\n(SMS batch)
+    activate DeliveryService
+
+    loop For each recipient
+        DeliveryService -> ACS: SendSmsAsync(recipient, message)
+        activate ACS
+        ACS --> DeliveryService: SMS sent
+        deactivate ACS
+    end
+
+    DeliveryService -> DB: Update broadcast delivery stats
+    activate DB
+    DB --> DeliveryService: Stats updated
+    deactivate DB
+
+    deactivate DeliveryService
+
+and Push Notification Delivery
+    ServiceBus -> DeliveryService: Process broadcast messages\n(Push batch)
+    activate DeliveryService
+
+    DeliveryService -> ACS: SendBulkPushNotificationsAsync(recipients, title, body)
+    activate ACS
+    ACS --> DeliveryService: Push notifications sent
+    deactivate ACS
+
+    DeliveryService -> DB: Update broadcast delivery stats
+    activate DB
+    DB --> DeliveryService: Stats updated
+    deactivate DB
+
+    deactivate DeliveryService
+
+and In-App Broadcast
+    ServiceBus -> SignalR: BroadcastEmergencyAsync(broadcast)
+    activate SignalR
+
+    SignalR -> Users: Broadcast emergency notification\nto all connected users
+    activate Users
+    Users --> SignalR: Notification received
+    deactivate Users
+
+    SignalR -> DB: Update broadcast delivery stats
+    activate DB
+    DB --> SignalR: Stats updated
+    deactivate DB
+
+    deactivate SignalR
+end
+
+' Admin checks broadcast status
+Admin -> WebApp: Check broadcast status
+activate WebApp
+
+WebApp -> Gateway: GET /api/v1/emergency-broadcast/{id}/status
+activate Gateway
+
+Gateway -> BroadcastAPI: Forward request
+activate BroadcastAPI
+
+BroadcastAPI -> BroadcastService: GetBroadcastStatusAsync(broadcastId)
+activate BroadcastService
+
+BroadcastService -> DB: Get broadcast with stats
+activate DB
+DB --> BroadcastService: EmergencyBroadcast
+deactivate DB
+
+BroadcastService --> BroadcastAPI: BroadcastStatusDto\n{sentCount, deliveredCount, failedCount, viewedCount}
+deactivate BroadcastService
+
+BroadcastAPI --> Gateway: 200 OK\n{broadcast status}
+deactivate BroadcastAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> Admin: Display broadcast statistics
+deactivate WebApp
+
+@enduml
+
+' ===================================
+' Diagram 5: AI-Powered Notification Intelligence
+' ===================================
+
+@startuml AI_Notification_Intelligence
+
+title Sequence Diagram 5: AI-Powered Notification Intelligence
+
+participant "Notification Service" as NotifService
+participant "AI Intelligence\nService" as AIService
+participant "Azure OpenAI\nService" as OpenAI
+participant "Database" as DB
+participant "Delivery Service" as DeliveryService
+
+' Analyze and prioritize notification
+NotifService -> AIService: AnalyzeAndPrioritizeAsync(notification)
+activate AIService
+
+AIService -> AIService: Build analysis prompt\nwith notification context
+
+AIService -> OpenAI: GetChatCompletionsAsync(prompt)
+activate OpenAI
+
+note right of OpenAI
+  Prompt: "Analyze this notification
+  and determine its urgency level:
+  Type: {type}
+  Category: {category}
+  Title: {title}
+  Message: {message}
+
+  Context: {metadata}
+
+  Respond with: Low, Normal, High,
+  Urgent, or Critical"
+end note
+
+OpenAI --> AIService: Response:\n"Urgent - Payment overdue\nrequires immediate attention"
+deactivate OpenAI
+
+AIService -> AIService: Parse priority from\nAI response
+
+AIService --> NotifService: NotificationPriority.Urgent
+deactivate AIService
+
+' Generate smart actions
+NotifService -> AIService: GenerateSmartActionsAsync(notification)
+activate AIService
+
+AIService -> OpenAI: GetChatCompletionsAsync(prompt)
+activate OpenAI
+
+note right of OpenAI
+  Prompt: "Based on this notification,
+  suggest 2-3 actionable items:
+  Type: {type}
+  Message: {message}
+
+  Return as JSON array of actions
+  with type and label."
+end note
+
+OpenAI --> AIService: Response:\n[{"type": "pay_now", "label": "Pay Now"},\n{"type": "view_invoice", "label": "View Invoice"}]
+deactivate OpenAI
+
+AIService -> AIService: Parse actions from\nAI response
+
+AIService --> NotifService: List<string> actions
+deactivate AIService
+
+NotifService -> NotifService: Attach smart actions\nto notification
+
+NotifService -> DB: Save notification with\nAI-enhanced priority and actions
+activate DB
+DB --> NotifService: Saved
+deactivate DB
+
+' Detect duplicate notifications
+NotifService -> AIService: DetectDuplicateNotificationAsync(notification)
+activate AIService
+
+AIService -> DB: Get recent similar notifications\n(same type, category, user)
+activate DB
+DB --> AIService: List<Notification>
+deactivate DB
+
+AIService -> AIService: Calculate similarity scores\nusing embeddings
+
+alt High similarity detected
+    AIService -> OpenAI: Generate embeddings\nfor comparison
+    activate OpenAI
+    OpenAI --> AIService: Embeddings
+    deactivate OpenAI
+
+    AIService -> AIService: Compare embeddings\nusing cosine similarity
+
+    AIService --> NotifService: true (duplicate detected)
+    deactivate AIService
+
+    NotifService -> NotifService: Mark as duplicate,\ndo not send
+else No duplicate
+    AIService --> NotifService: false (unique notification)
+    deactivate AIService
+
+    NotifService -> DeliveryService: Proceed with delivery
+end
+
+' Summarize notifications for digest
+NotifService -> AIService: SummarizeNotificationsAsync(notifications)
+activate AIService
+
+AIService -> AIService: Group notifications\nby category
+
+AIService -> OpenAI: GetChatCompletionsAsync(prompt)
+activate OpenAI
+
+note right of OpenAI
+  Prompt: "Summarize these notifications
+  into a concise digest:
+
+  [List of notifications with titles
+  and key information]
+
+  Provide a brief summary for each
+  category and highlight urgent items."
+end note
+
+OpenAI --> AIService: Response:\n"Payment Summary: 3 invoices due...\nEvent Updates: 2 upcoming events...\nAlerts: 1 critical inventory alert..."
+deactivate OpenAI
+
+AIService --> NotifService: Summary text
+deactivate AIService
+
+NotifService -> DeliveryService: SendDigestEmailAsync(userId, summary, notifications)
+activate DeliveryService
+DeliveryService --> NotifService: Digest sent
+deactivate DeliveryService
+
+' Predict potential alerts
+NotifService -> AIService: PredictPotentialAlertsAsync(contextType, contextId)
+activate AIService
+
+AIService -> DB: Get historical alert data\nfor context
+activate DB
+DB --> AIService: Historical alerts
+deactivate DB
+
+AIService -> OpenAI: Analyze patterns and\npredict potential issues
+activate OpenAI
+
+note right of OpenAI
+  Prompt: "Based on historical data,
+  predict potential alerts:
+
+  [Historical alert patterns]
+  [Current context data]
+
+  Identify risks and suggest
+  preventive actions."
+end note
+
+OpenAI --> AIService: Response:\n"High risk of overbooking\nwithin 48 hours...\nRecommend: Review capacity..."
+deactivate OpenAI
+
+AIService --> NotifService: List<PredictedAlert>
+deactivate AIService
+
+NotifService -> NotifService: Create proactive\nnotifications for predicted alerts
+
+@enduml
+
+' ===================================
+' Diagram 6: Update Notification Preferences
+' ===================================
+
+@startuml Update_Notification_Preferences
+
+title Sequence Diagram 6: Update Notification Preferences
+
+actor "User" as User
+participant "Web App\n(Angular)" as WebApp
+participant "API Gateway" as Gateway
+participant "Preferences API" as PrefAPI
+participant "Preferences Service" as PrefService
+participant "Database" as DB
+participant "Redis Cache" as Cache
+
+User -> WebApp: Navigate to\nNotification Preferences
+activate WebApp
+
+WebApp -> Gateway: GET /api/v1/notification-preferences/{userId}
+activate Gateway
+
+Gateway -> PrefAPI: Forward request
+activate PrefAPI
+
+PrefAPI -> PrefService: GetPreferencesAsync(userId)
+activate PrefService
+
+PrefService -> Cache: Check cached preferences
+activate Cache
+Cache --> PrefService: Cache miss
+deactivate Cache
+
+PrefService -> DB: Get preferences for user
+activate DB
+DB --> PrefService: NotificationPreferences
+deactivate DB
+
+PrefService -> Cache: Cache preferences (1 hour TTL)
+activate Cache
+Cache --> PrefService: Cached
+deactivate Cache
+
+PrefService --> PrefAPI: NotificationPreferencesDto
+deactivate PrefService
+
+PrefAPI --> Gateway: 200 OK\n{preferences}
+deactivate PrefAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> User: Display preference form
+deactivate WebApp
+
+' User updates preferences
+User -> WebApp: Update preferences\n(change channels, quiet hours, etc.)
+activate WebApp
+
+WebApp -> WebApp: Validate form input
+
+WebApp -> Gateway: PUT /api/v1/notification-preferences/{userId}\n{updated preferences}
+activate Gateway
+
+Gateway -> PrefAPI: Forward request
+activate PrefAPI
+
+PrefAPI -> PrefService: UpdatePreferencesAsync(userId, command)
+activate PrefService
+
+PrefService -> DB: Get current preferences
+activate DB
+DB --> PrefService: Current NotificationPreferences
+deactivate DB
+
+PrefService -> PrefService: Apply updates to preferences\nobject
+
+PrefService -> PrefService: Validate preferences\n(e.g., quiet hours time range)
+
+PrefService -> DB: Update preferences
+activate DB
+DB --> PrefService: Preferences updated
+deactivate DB
+
+PrefService -> PrefService: Raise NotificationPreferencesUpdated event
+
+PrefService -> Cache: Invalidate cached preferences
+activate Cache
+Cache --> PrefService: Cache cleared
+deactivate Cache
+
+PrefService --> PrefAPI: NotificationPreferencesDto\n(updated)
+deactivate PrefService
+
+PrefAPI --> Gateway: 200 OK\n{updated preferences}
+deactivate PrefAPI
+
+Gateway --> WebApp: 200 OK
+deactivate Gateway
+
+WebApp --> User: Show success message\n"Preferences updated"
+deactivate WebApp
+
+' Future notifications respect new preferences
+note over PrefService, DB
+  All future notifications will
+  respect the updated preferences
+  for this user
+end note
+
+@enduml
+
+@enduml

@@ -1,0 +1,615 @@
+@startuml Scheduling & Calendar Management Class Diagram
+
+title Scheduling & Calendar Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.SchedulingAggregate" {
+
+    class ScheduledEvent <<AggregateRoot>> {
+        + ScheduledEventId : Guid
+        + EventId : Guid
+        + CalendarId : Guid
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + TimeZone : string
+        + RecurrencePattern : RecurrencePattern?
+        + Status : ScheduleStatus
+        + ConflictLevel : ConflictLevel
+        + IsBlocked : bool
+        + BlockReason : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + ScheduledEvent(eventId: Guid, calendarId: Guid, startDateTime: DateTime, endDateTime: DateTime, timeZone: string, createdBy: Guid)
+        + Reschedule(newStartDateTime: DateTime, newEndDateTime: DateTime, modifiedBy: Guid) : void
+        + Confirm(confirmedBy: Guid) : void
+        + Cancel(cancelledBy: Guid) : void
+        + Block(reason: string, blockedBy: Guid) : void
+        + Unblock(unblockedBy: Guid) : void
+        + UpdateConflictLevel(level: ConflictLevel) : void
+        + SetRecurrence(pattern: RecurrencePattern, modifiedBy: Guid) : void
+    }
+
+    class Calendar <<Entity>> {
+        + CalendarId : Guid
+        + Name : string
+        + Description : string?
+        + CalendarType : CalendarType
+        + OwnerId : Guid
+        + OwnerType : OwnerType
+        + IsActive : bool
+        + AllowOverbooking : bool
+        + MaxConcurrentEvents : int
+        + TimeZone : string
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        --
+        + Calendar(name: string, calendarType: CalendarType, ownerId: Guid, ownerType: OwnerType, timeZone: string)
+        + Update(name: string, description: string?) : void
+        + SetOverbookingPolicy(allow: bool, maxConcurrent: int) : void
+        + Activate() : void
+        + Deactivate() : void
+    }
+
+    class ScheduleConflict <<Entity>> {
+        + ScheduleConflictId : Guid
+        + ScheduledEventId : Guid
+        + ConflictingEventId : Guid
+        + ConflictType : ConflictType
+        + ConflictLevel : ConflictLevel
+        + Status : ConflictStatus
+        + DetectedAt : DateTime
+        + ResolvedAt : DateTime?
+        + ResolutionMethod : ResolutionMethod?
+        + ResolvedBy : Guid?
+        + EscalatedAt : DateTime?
+        + EscalatedTo : Guid?
+        + Notes : string?
+        --
+        + ScheduleConflict(scheduledEventId: Guid, conflictingEventId: Guid, conflictType: ConflictType, conflictLevel: ConflictLevel)
+        + Resolve(method: ResolutionMethod, resolvedBy: Guid, notes: string?) : void
+        + Escalate(escalatedTo: Guid, reason: string) : void
+        + Dismiss(dismissedBy: Guid, reason: string) : void
+        + UpdateStatus(status: ConflictStatus) : void
+    }
+
+    class ResourceAvailability <<Entity>> {
+        + ResourceAvailabilityId : Guid
+        + ResourceId : Guid
+        + ResourceType : ResourceType
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + IsAvailable : bool
+        + UnavailableReason : string?
+        + MarkedAt : DateTime
+        + MarkedBy : Guid
+        + ModifiedAt : DateTime?
+        + ModifiedBy : Guid?
+        --
+        + ResourceAvailability(resourceId: Guid, resourceType: ResourceType, startDateTime: DateTime, endDateTime: DateTime, isAvailable: bool, markedBy: Guid)
+        + Update(startDateTime: DateTime, endDateTime: DateTime, isAvailable: bool, modifiedBy: Guid) : void
+        + MarkUnavailable(reason: string, modifiedBy: Guid) : void
+        + MarkAvailable(modifiedBy: Guid) : void
+    }
+
+    class RecurrencePattern <<ValueObject>> {
+        + Type : RecurrenceType
+        + Interval : int
+        + DaysOfWeek : DayOfWeek[]
+        + DayOfMonth : int?
+        + EndDate : DateTime?
+        + OccurrenceCount : int?
+        --
+        + RecurrencePattern(type: RecurrenceType, interval: int)
+        + WithDaysOfWeek(days: DayOfWeek[]) : RecurrencePattern
+        + WithDayOfMonth(day: int) : RecurrencePattern
+        + WithEndDate(endDate: DateTime) : RecurrencePattern
+        + WithOccurrenceCount(count: int) : RecurrencePattern
+    }
+
+    class TimeSlot <<ValueObject>> {
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + TimeZone : TimeZoneInfo
+        + Duration : TimeSpan <<property>>
+        --
+        + TimeSlot(startDateTime: DateTime, endDateTime: DateTime, timeZone: TimeZoneInfo)
+        + OverlapsWith(other: TimeSlot) : bool
+        + Contains(dateTime: DateTime) : bool
+        + ConvertToTimeZone(targetTimeZone: TimeZoneInfo) : TimeSlot
+    }
+
+    enum ScheduleStatus <<Enumeration>> {
+        Tentative = 0
+        Scheduled = 1
+        Confirmed = 2
+        Rescheduling = 3
+        Cancelled = 4
+    }
+
+    enum ConflictLevel <<Enumeration>> {
+        None = 0
+        Minor = 1
+        Moderate = 2
+        Severe = 3
+        Critical = 4
+    }
+
+    enum ConflictType <<Enumeration>> {
+        TimeOverlap = 0
+        ResourceConflict = 1
+        VenueConflict = 2
+        StaffConflict = 3
+        EquipmentConflict = 4
+    }
+
+    enum ConflictStatus <<Enumeration>> {
+        Detected = 0
+        UnderReview = 1
+        Resolved = 2
+        Escalated = 3
+        Dismissed = 4
+    }
+
+    enum ResolutionMethod <<Enumeration>> {
+        Rescheduled = 0
+        ResourceChanged = 1
+        EventCancelled = 2
+        OverrideApplied = 3
+        Split = 4
+    }
+
+    enum CalendarType <<Enumeration>> {
+        Venue = 0
+        Staff = 1
+        Equipment = 2
+        Master = 3
+        Department = 4
+    }
+
+    enum OwnerType <<Enumeration>> {
+        Venue = 0
+        Staff = 1
+        Equipment = 2
+        Department = 3
+        Organization = 4
+    }
+
+    enum ResourceType <<Enumeration>> {
+        Venue = 0
+        Staff = 1
+        Equipment = 2
+        Other = 3
+    }
+
+    enum RecurrenceType <<Enumeration>> {
+        None = 0
+        Daily = 1
+        Weekly = 2
+        Monthly = 3
+        Yearly = 4
+        Custom = 5
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.SchedulingAggregate.Events" {
+
+    abstract class SchedulingDomainEvent <<DomainEvent>> {
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class EventScheduledOnCalendar {
+        + ScheduledEventId : Guid
+        + EventId : Guid
+        + CalendarId : Guid
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + TimeZone : string
+    }
+
+    class EventRescheduled {
+        + ScheduledEventId : Guid
+        + OldStartDateTime : DateTime
+        + OldEndDateTime : DateTime
+        + NewStartDateTime : DateTime
+        + NewEndDateTime : DateTime
+        + RescheduledBy : Guid
+    }
+
+    class EventRemovedFromCalendar {
+        + ScheduledEventId : Guid
+        + EventId : Guid
+        + CalendarId : Guid
+        + RemovedBy : Guid
+        + Reason : string?
+    }
+
+    class CalendarViewGenerated {
+        + CalendarId : Guid
+        + ViewType : string
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + GeneratedAt : DateTime
+    }
+
+    class DailyScheduleExported {
+        + CalendarId : Guid
+        + Date : DateTime
+        + Format : string
+        + ExportedBy : Guid
+    }
+
+    class WeeklyScheduleExported {
+        + CalendarId : Guid
+        + WeekStartDate : DateTime
+        + Format : string
+        + ExportedBy : Guid
+    }
+
+    class MonthlyScheduleExported {
+        + CalendarId : Guid
+        + Month : int
+        + Year : int
+        + Format : string
+        + ExportedBy : Guid
+    }
+
+    class ScheduleConflictDetected {
+        + ScheduleConflictId : Guid
+        + ScheduledEventId : Guid
+        + ConflictingEventId : Guid
+        + ConflictType : ConflictType
+        + ConflictLevel : ConflictLevel
+    }
+
+    class ScheduleConflictResolved {
+        + ScheduleConflictId : Guid
+        + ResolutionMethod : ResolutionMethod
+        + ResolvedBy : Guid
+        + ResolvedAt : DateTime
+    }
+
+    class ScheduleConflictEscalated {
+        + ScheduleConflictId : Guid
+        + EscalatedTo : Guid
+        + EscalationReason : string
+        + EscalatedAt : DateTime
+    }
+
+    class OverbookingWarningTriggered {
+        + CalendarId : Guid
+        + CurrentCount : int
+        + MaxCapacity : int
+        + WarningThreshold : int
+    }
+
+    class OverbookingPreventedBySystem {
+        + CalendarId : Guid
+        + ScheduledEventId : Guid
+        + AttemptedBy : Guid
+        + PreventedAt : DateTime
+    }
+
+    class OverbookingAllowedByOverride {
+        + CalendarId : Guid
+        + ScheduledEventId : Guid
+        + OverriddenBy : Guid
+        + OverrideReason : string
+        + OverriddenAt : DateTime
+    }
+
+    class ResourceAvailabilityChecked {
+        + ResourceId : Guid
+        + ResourceType : ResourceType
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + IsAvailable : bool
+    }
+
+    class MultipleResourcesChecked {
+        + ResourceIds : Guid[]
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + AvailabilityResults : Dictionary<Guid, bool>
+    }
+
+    class ResourceMarkedUnavailable {
+        + ResourceAvailabilityId : Guid
+        + ResourceId : Guid
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + Reason : string
+        + MarkedBy : Guid
+    }
+
+    class ResourceMarkedAvailable {
+        + ResourceAvailabilityId : Guid
+        + ResourceId : Guid
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + MarkedBy : Guid
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + ScheduledEvents : DbSet<ScheduledEvent>
+        + Calendars : DbSet<Calendar>
+        + ScheduleConflicts : DbSet<ScheduleConflict>
+        + ResourceAvailabilities : DbSet<ResourceAvailability>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class ConflictDetectionService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + ConflictDetectionService(context: IEventManagementPlatformContext)
+        + DetectConflictsAsync(scheduledEvent: ScheduledEvent) : Task<IEnumerable<ScheduleConflict>>
+        + DetectTimeOverlapAsync(scheduledEvent: ScheduledEvent) : Task<IEnumerable<ScheduledEvent>>
+        + DetectResourceConflictsAsync(scheduledEvent: ScheduledEvent) : Task<IEnumerable<ScheduleConflict>>
+        + CalculateConflictLevel(conflictType: ConflictType, overlapDuration: TimeSpan) : ConflictLevel
+    }
+
+    class AvailabilityCheckService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + AvailabilityCheckService(context: IEventManagementPlatformContext)
+        + CheckResourceAvailabilityAsync(resourceId: Guid, resourceType: ResourceType, timeSlot: TimeSlot) : Task<bool>
+        + CheckMultipleResourcesAsync(resourceIds: Guid[], timeSlot: TimeSlot) : Task<Dictionary<Guid, bool>>
+        + GetAvailableSlotsAsync(resourceId: Guid, date: DateTime, duration: TimeSpan) : Task<IEnumerable<TimeSlot>>
+    }
+
+    class OverbookingGuardService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + OverbookingGuardService(context: IEventManagementPlatformContext)
+        + CheckCalendarCapacityAsync(calendarId: Guid, timeSlot: TimeSlot) : Task<bool>
+        + GetCurrentCapacityAsync(calendarId: Guid, timeSlot: TimeSlot) : Task<int>
+        + CanOverrideAsync(userId: Guid) : Task<bool>
+    }
+
+    class RecurrenceExpansionService <<Service>> {
+        --
+        + RecurrenceExpansionService()
+        + ExpandRecurrence(pattern: RecurrencePattern, startDate: DateTime, endDate: DateTime) : IEnumerable<DateTime>
+        + GetNextOccurrence(pattern: RecurrencePattern, afterDate: DateTime) : DateTime?
+        + ValidateRecurrencePattern(pattern: RecurrencePattern) : bool
+    }
+
+    class CalendarViewService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _cache : IDistributedCache
+        --
+        + CalendarViewService(context: IEventManagementPlatformContext, cache: IDistributedCache)
+        + GenerateDailyViewAsync(calendarId: Guid, date: DateTime) : Task<CalendarView>
+        + GenerateWeeklyViewAsync(calendarId: Guid, weekStart: DateTime) : Task<CalendarView>
+        + GenerateMonthlyViewAsync(calendarId: Guid, month: int, year: int) : Task<CalendarView>
+        + InvalidateCalendarCacheAsync(calendarId: Guid) : Task
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Scheduling" {
+
+    class ScheduleEventCommand <<Command>> {
+        + EventId : Guid
+        + CalendarId : Guid
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + TimeZone : string
+        + RecurrencePattern : RecurrencePattern?
+    }
+
+    class ScheduleEventCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _conflictDetectionService : ConflictDetectionService
+        - _availabilityCheckService : AvailabilityCheckService
+        - _overbookingGuardService : OverbookingGuardService
+        --
+        + Handle(command: ScheduleEventCommand, cancellationToken: CancellationToken) : Task<ScheduledEventDetailDto>
+    }
+
+    class RescheduleEventCommand <<Command>> {
+        + ScheduledEventId : Guid
+        + NewStartDateTime : DateTime
+        + NewEndDateTime : DateTime
+    }
+
+    class RescheduleEventCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _conflictDetectionService : ConflictDetectionService
+        --
+        + Handle(command: RescheduleEventCommand, cancellationToken: CancellationToken) : Task<ScheduledEventDetailDto>
+    }
+
+    class ResolveConflictCommand <<Command>> {
+        + ScheduleConflictId : Guid
+        + ResolutionMethod : ResolutionMethod
+        + Notes : string?
+    }
+
+    class ResolveConflictCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: ResolveConflictCommand, cancellationToken: CancellationToken) : Task
+    }
+
+    class GetCalendarViewQuery <<Query>> {
+        + CalendarId : Guid
+        + ViewType : string
+        + StartDate : DateTime
+        + EndDate : DateTime
+    }
+
+    class GetCalendarViewQueryHandler <<Handler>> {
+        - _calendarViewService : CalendarViewService
+        --
+        + Handle(query: GetCalendarViewQuery, cancellationToken: CancellationToken) : Task<CalendarViewDto>
+    }
+
+    class CheckResourceAvailabilityQuery <<Query>> {
+        + ResourceId : Guid
+        + ResourceType : ResourceType
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+    }
+
+    class CheckResourceAvailabilityQueryHandler <<Handler>> {
+        - _availabilityCheckService : AvailabilityCheckService
+        --
+        + Handle(query: CheckResourceAvailabilityQuery, cancellationToken: CancellationToken) : Task<ResourceAvailabilityDto>
+    }
+
+    class GetConflictsQuery <<Query>> {
+        + CalendarId : Guid?
+        + Status : ConflictStatus?
+        + ConflictLevel : ConflictLevel?
+        + PageNumber : int
+        + PageSize : int
+    }
+
+    class GetConflictsQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetConflictsQuery, cancellationToken: CancellationToken) : Task<PagedResult<ConflictListDto>>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Scheduling.Dtos" {
+
+    class ScheduledEventDetailDto <<DTO>> {
+        + ScheduledEventId : Guid
+        + EventId : Guid
+        + EventTitle : string
+        + CalendarId : Guid
+        + CalendarName : string
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + TimeZone : string
+        + Status : string
+        + ConflictLevel : string
+        + IsBlocked : bool
+        + BlockReason : string?
+        + RecurrencePattern : RecurrencePatternDto?
+        + Conflicts : IEnumerable<ConflictSummaryDto>
+    }
+
+    class CalendarViewDto <<DTO>> {
+        + CalendarId : Guid
+        + CalendarName : string
+        + ViewStartDate : DateTime
+        + ViewEndDate : DateTime
+        + ViewType : string
+        + Events : IEnumerable<ScheduledEventSummaryDto>
+        + EventCounts : Dictionary<DateTime, int>
+    }
+
+    class ConflictDetailDto <<DTO>> {
+        + ScheduleConflictId : Guid
+        + ScheduledEventId : Guid
+        + ScheduledEventTitle : string
+        + ConflictingEventId : Guid
+        + ConflictingEventTitle : string
+        + ConflictType : string
+        + ConflictLevel : string
+        + Status : string
+        + DetectedAt : DateTime
+        + ResolvedAt : DateTime?
+        + ResolutionMethod : string?
+        + SuggestedResolutions : IEnumerable<string>
+    }
+
+    class ResourceAvailabilityDto <<DTO>> {
+        + ResourceId : Guid
+        + ResourceName : string
+        + ResourceType : string
+        + CheckStartTime : DateTime
+        + CheckEndTime : DateTime
+        + IsAvailable : bool
+        + UnavailableReason : string?
+        + AvailableSlots : IEnumerable<TimeSlotDto>
+    }
+
+    class TimeSlotDto <<DTO>> {
+        + StartDateTime : DateTime
+        + EndDateTime : DateTime
+        + Duration : string
+        + IsAvailable : bool
+    }
+
+}
+
+' Relationships - Aggregates
+ScheduledEvent --> Calendar : references
+ScheduledEvent --> ScheduleStatus : has
+ScheduledEvent --> ConflictLevel : has
+ScheduledEvent *-- RecurrencePattern : contains
+ScheduledEvent --> TimeSlot : uses
+Calendar --> CalendarType : has
+Calendar --> OwnerType : has
+ScheduleConflict --> ConflictType : has
+ScheduleConflict --> ConflictLevel : has
+ScheduleConflict --> ConflictStatus : has
+ScheduleConflict --> ResolutionMethod : has
+ResourceAvailability --> ResourceType : has
+
+' Relationships - Events
+SchedulingDomainEvent <|-- EventScheduledOnCalendar
+SchedulingDomainEvent <|-- EventRescheduled
+SchedulingDomainEvent <|-- EventRemovedFromCalendar
+SchedulingDomainEvent <|-- CalendarViewGenerated
+SchedulingDomainEvent <|-- DailyScheduleExported
+SchedulingDomainEvent <|-- WeeklyScheduleExported
+SchedulingDomainEvent <|-- MonthlyScheduleExported
+SchedulingDomainEvent <|-- ScheduleConflictDetected
+SchedulingDomainEvent <|-- ScheduleConflictResolved
+SchedulingDomainEvent <|-- ScheduleConflictEscalated
+SchedulingDomainEvent <|-- OverbookingWarningTriggered
+SchedulingDomainEvent <|-- OverbookingPreventedBySystem
+SchedulingDomainEvent <|-- OverbookingAllowedByOverride
+SchedulingDomainEvent <|-- ResourceAvailabilityChecked
+SchedulingDomainEvent <|-- MultipleResourcesChecked
+SchedulingDomainEvent <|-- ResourceMarkedUnavailable
+SchedulingDomainEvent <|-- ResourceMarkedAvailable
+
+' Relationships - Services
+ConflictDetectionService --> IEventManagementPlatformContext : uses
+AvailabilityCheckService --> IEventManagementPlatformContext : uses
+OverbookingGuardService --> IEventManagementPlatformContext : uses
+CalendarViewService --> IEventManagementPlatformContext : uses
+
+' Relationships - Handlers
+ScheduleEventCommandHandler --> IEventManagementPlatformContext : uses
+ScheduleEventCommandHandler --> ConflictDetectionService : uses
+ScheduleEventCommandHandler --> AvailabilityCheckService : uses
+ScheduleEventCommandHandler --> OverbookingGuardService : uses
+RescheduleEventCommandHandler --> IEventManagementPlatformContext : uses
+RescheduleEventCommandHandler --> ConflictDetectionService : uses
+ResolveConflictCommandHandler --> IEventManagementPlatformContext : uses
+GetCalendarViewQueryHandler --> CalendarViewService : uses
+CheckResourceAvailabilityQueryHandler --> AvailabilityCheckService : uses
+GetConflictsQueryHandler --> IEventManagementPlatformContext : uses
+
+' Relationships - DTOs
+ScheduleEventCommandHandler ..> ScheduledEventDetailDto : returns
+RescheduleEventCommandHandler ..> ScheduledEventDetailDto : returns
+GetCalendarViewQueryHandler ..> CalendarViewDto : returns
+CheckResourceAvailabilityQueryHandler ..> ResourceAvailabilityDto : returns
+GetConflictsQueryHandler ..> ConflictDetailDto : returns
+
+@enduml

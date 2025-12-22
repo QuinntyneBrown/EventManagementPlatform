@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device" pages="3">
+
+  <!-- Page 1: Context Diagram -->
+  <diagram id="c4-context" name="C4 Context Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-context" value="Scheduling &amp; Calendar Management - C4 Context Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="450" y="20" width="500" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="system-scheduling" value="&lt;b&gt;Scheduling &amp; Calendar&lt;br&gt;Management System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages event scheduling,&lt;br&gt;calendar views, conflict&lt;br&gt;detection, and resource&lt;br&gt;availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="575" y="350" width="250" height="180" as="geometry"/>
+        </mxCell>
+
+        <!-- External Actors -->
+        <mxCell id="person-event-planner" value="&lt;b&gt;Event Planner&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Schedules and manages&lt;br&gt;events on calendars" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="120" y="100" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-venue-manager" value="&lt;b&gt;Venue Manager&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Manages calendars and&lt;br&gt;resolves scheduling conflicts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="100" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-staff" value="&lt;b&gt;Staff Member&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Views schedules and&lt;br&gt;manages own availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="120" y="650" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-customer" value="&lt;b&gt;Customer&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Views event schedules&lt;br&gt;and checks availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="650" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="system-event-mgmt" value="&lt;b&gt;Event Management&lt;br&gt;System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages event lifecycle&lt;br&gt;and details" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="120" y="370" width="180" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-notification" value="&lt;b&gt;Notification System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Sends conflict alerts and&lt;br&gt;schedule notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="370" width="180" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides intelligent conflict&lt;br&gt;resolution suggestions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="610" y="650" width="180" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-1" value="Schedules events,&lt;br&gt;views calendars,&lt;br&gt;checks conflicts" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="person-event-planner" target="system-scheduling" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-2" value="Manages calendars,&lt;br&gt;resolves conflicts,&lt;br&gt;exports schedules" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="person-venue-manager" target="system-scheduling" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-3" value="Views schedules,&lt;br&gt;marks availability" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="person-staff" target="system-scheduling" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-4" value="Views calendars,&lt;br&gt;checks availability" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="person-customer" target="system-scheduling" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-5" value="Gets event details&lt;br&gt;[JSON/HTTPS]" style="endArrow=classic;startArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" parent="1" source="system-event-mgmt" target="system-scheduling" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-6" value="Sends conflict alerts,&lt;br&gt;schedule updates&lt;br&gt;[Azure Service Bus]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" parent="1" source="system-scheduling" target="system-notification" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-7" value="Gets conflict&lt;br&gt;resolution suggestions&lt;br&gt;[HTTPS/REST]" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" parent="1" source="system-scheduling" target="system-azure-ai" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="450" y="400" as="sourcePoint"/>
+            <mxPoint x="610" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 2: Container Diagram -->
+  <diagram id="c4-container" name="C4 Container Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-container" value="Scheduling &amp; Calendar Management - C4 Container Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="600" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Scheduling &amp; Calendar Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=260;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=1;fillColor=#E1F5FE;strokeColor=#0D5EAF;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="1000" height="840" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="container-webapp" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Angular 18]&lt;br&gt;&lt;br&gt;Provides calendar views,&lt;br&gt;scheduling interface,&lt;br&gt;conflict dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="280" y="150" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-api" value="&lt;b&gt;API Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: .NET 8 WebAPI]&lt;br&gt;&lt;br&gt;Handles scheduling,&lt;br&gt;conflict detection,&lt;br&gt;availability checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="600" y="150" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-database" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Azure SQL]&lt;br&gt;&lt;br&gt;Stores schedules,&lt;br&gt;conflicts, calendars,&lt;br&gt;resource availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="920" y="150" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-cache" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Azure Redis]&lt;br&gt;&lt;br&gt;Caches calendar views,&lt;br&gt;availability data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="920" y="350" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-functions" value="&lt;b&gt;Background Jobs&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Azure Functions]&lt;br&gt;&lt;br&gt;Automatic conflict detection,&lt;br&gt;recurrence expansion,&lt;br&gt;cache warmup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="600" y="350" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-blob" value="&lt;b&gt;File Storage&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Azure Blob]&lt;br&gt;&lt;br&gt;Stores exported&lt;br&gt;schedules (PDF, Excel)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="280" y="350" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-servicebus" value="&lt;b&gt;Message Bus&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Container: Azure Service Bus]&lt;br&gt;&lt;br&gt;Publishes domain events&lt;br&gt;(conflicts, scheduling)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="280" y="550" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External User -->
+        <mxCell id="user-external" value="&lt;b&gt;Users&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Event planners, managers,&lt;br&gt;staff, customers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="40" y="170" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="600" y="750" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-notification" value="&lt;b&gt;Notification System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="280" y="750" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="crel-1" value="Uses&lt;br&gt;[HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="user-external" target="container-webapp" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-2" value="Makes API calls to&lt;br&gt;[JSON/HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-webapp" target="container-api" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-3" value="Reads/writes&lt;br&gt;[Entity Framework]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-api" target="container-database" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-4" value="Reads/writes cache&lt;br&gt;[StackExchange.Redis]" style="endArrow=classic;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-api" target="container-cache" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-5" value="Publishes events to&lt;br&gt;[Azure SDK]" style="endArrow=classic;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-api" target="container-servicebus" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-6" value="Generates exports to&lt;br&gt;[Azure SDK]" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-api" target="container-blob" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-7" value="Reads/writes&lt;br&gt;[Entity Framework]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-functions" target="container-database" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-8" value="Publishes events to" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-functions" target="container-servicebus" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-9" value="Sends messages to" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-servicebus" target="ext-notification" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-10" value="Gets AI suggestions&lt;br&gt;[HTTPS/REST]" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="container-functions" target="ext-azure-ai" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 3: Component Diagram -->
+  <diagram id="c4-component" name="C4 Component Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-component" value="Scheduling &amp; Calendar Management API - C4 Component Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="700" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- API Boundary -->
+        <mxCell id="api-boundary" value="API Application [.NET 8]" style="shape=umlFrame;whiteSpace=wrap;html=1;width=180;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=1;fillColor=#E3F2FD;strokeColor=#0D5EAF;" parent="1" vertex="1">
+          <mxGeometry x="150" y="80" width="1100" height="940" as="geometry"/>
+        </mxCell>
+
+        <!-- Components - Controllers -->
+        <mxCell id="comp-scheduling-controller" value="&lt;b&gt;Scheduling Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: WebAPI Controller]&lt;br&gt;&lt;br&gt;Handles scheduling requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="220" y="150" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-calendar-controller" value="&lt;b&gt;Calendar Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: WebAPI Controller]&lt;br&gt;&lt;br&gt;Handles calendar view requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="420" y="150" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-conflict-controller" value="&lt;b&gt;Conflict Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: WebAPI Controller]&lt;br&gt;&lt;br&gt;Handles conflict management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="620" y="150" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-availability-controller" value="&lt;b&gt;Availability Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: WebAPI Controller]&lt;br&gt;&lt;br&gt;Handles availability checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="820" y="150" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Components - Command Handlers -->
+        <mxCell id="comp-schedule-handler" value="&lt;b&gt;Schedule Event Handler&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Schedules events on calendar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="220" y="320" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-reschedule-handler" value="&lt;b&gt;Reschedule Handler&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Handles event rescheduling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="420" y="320" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-resolve-handler" value="&lt;b&gt;Resolve Conflict Handler&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Resolves schedule conflicts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="620" y="320" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-availability-handler" value="&lt;b&gt;Check Availability Handler&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Checks resource availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="820" y="320" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Components - Query Handlers -->
+        <mxCell id="comp-calendar-query" value="&lt;b&gt;Calendar View Query&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Retrieves calendar views" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="220" y="490" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-conflict-query" value="&lt;b&gt;Conflict Query&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR Handler]&lt;br&gt;&lt;br&gt;Retrieves conflict data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="420" y="490" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Components - Domain Services -->
+        <mxCell id="comp-conflict-detector" value="&lt;b&gt;Conflict Detector&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Detects scheduling conflicts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="220" y="660" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-availability-checker" value="&lt;b&gt;Availability Checker&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Checks resource availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="420" y="660" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-overbooking-guard" value="&lt;b&gt;Overbooking Guard&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;Prevents calendar overbooking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="620" y="660" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-ai-suggester" value="&lt;b&gt;AI Conflict Resolver&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Domain Service]&lt;br&gt;&lt;br&gt;AI-powered resolution suggestions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="820" y="660" width="160" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Components - Repository -->
+        <mxCell id="comp-repository" value="&lt;b&gt;Scheduling Repository&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Repository]&lt;br&gt;&lt;br&gt;Data access for scheduling entities" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BBF0;strokeColor=#0D5EAF;fontColor=#000000;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="320" y="830" width="360" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- External Components -->
+        <mxCell id="ext-database-comp" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure SQL Database]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="750" y="850" width="160" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-cache-comp" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Redis Cache]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="960" y="850" width="160" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-servicebus-comp" value="&lt;b&gt;Service Bus&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Service Bus]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="660" width="160" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- External User -->
+        <mxCell id="user-webapp-comp" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Angular SPA]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;align=center;verticalAlign=middle;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="180" width="160" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Component Relationships -->
+        <mxCell id="comprel-1" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-scheduling-controller" target="comp-schedule-handler" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-2" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-calendar-controller" target="comp-calendar-query" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-3" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-conflict-controller" target="comp-resolve-handler" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-4" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-availability-controller" target="comp-availability-handler" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-5" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-schedule-handler" target="comp-conflict-detector" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-6" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-availability-handler" target="comp-availability-checker" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-7" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-conflict-detector" target="comp-repository" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-8" value="Uses" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-availability-checker" target="comp-repository" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-9" value="Queries" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-repository" target="ext-database-comp" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-10" value="Calls" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="user-webapp-comp" target="comp-calendar-controller" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-11" value="Uses cache" style="endArrow=classic;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;dashed=1;" parent="1" source="comp-calendar-query" target="ext-cache-comp" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-12" value="Publishes events" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;" parent="1" source="comp-resolve-handler" target="ext-servicebus-comp" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-13" value="Gets suggestions" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;fontSize=9;dashed=1;" parent="1" source="comp-resolve-handler" target="comp-ai-suggester" edge="1">
+          <mxGeometry width="160" relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+</mxfile>

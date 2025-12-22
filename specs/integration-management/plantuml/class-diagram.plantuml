@@ -1,0 +1,498 @@
+@startuml Integration Management Class Diagram
+
+!define ENTITY_COLOR #FFE6CC
+!define VALUE_OBJECT_COLOR #E1D5E7
+!define ENUM_COLOR #D5E8D4
+!define SERVICE_COLOR #DAE8FC
+
+title Integration & External System Management - Class Diagram
+
+' ==================== Enumerations ====================
+
+enum IntegrationType <<enumeration>> ENUM_COLOR {
+  PaymentGateway = 0
+  EmailService = 1
+  SMSService = 2
+  CalendarSync = 3
+  CustomAPI = 4
+  CRM = 5
+  Analytics = 6
+  Storage = 7
+}
+
+enum IntegrationStatus <<enumeration>> ENUM_COLOR {
+  Draft = 0
+  PendingValidation = 1
+  Active = 2
+  Suspended = 3
+  Disconnected = 4
+  Error = 5
+}
+
+enum HealthStatus <<enumeration>> ENUM_COLOR {
+  Healthy = 0
+  Degraded = 1
+  Unhealthy = 2
+  Unknown = 3
+}
+
+enum DeliveryStatus <<enumeration>> ENUM_COLOR {
+  Pending = 0
+  Sending = 1
+  Delivered = 2
+  Failed = 3
+  Retrying = 4
+  Expired = 5
+}
+
+enum SyncType <<enumeration>> ENUM_COLOR {
+  Full = 0
+  Incremental = 1
+  Differential = 2
+}
+
+enum SyncDirection <<enumeration>> ENUM_COLOR {
+  Import = 0
+  Export = 1
+  Bidirectional = 2
+}
+
+enum SyncStatus <<enumeration>> ENUM_COLOR {
+  Scheduled = 0
+  Running = 1
+  Completed = 2
+  Failed = 3
+  Cancelled = 4
+  PartialSuccess = 5
+}
+
+enum LogLevel <<enumeration>> ENUM_COLOR {
+  Trace = 0
+  Debug = 1
+  Information = 2
+  Warning = 3
+  Error = 4
+  Critical = 5
+}
+
+' ==================== Main Aggregate: Integration ====================
+
+class Integration <<aggregate root>> ENTITY_COLOR {
+  - IntegrationId : Guid <<PK>>
+  - Name : string
+  - IntegrationType : IntegrationType
+  - Provider : string
+  - Status : IntegrationStatus
+  - Configuration : string <<encrypted JSON>>
+  - IsEnabled : bool
+  - HealthStatus : HealthStatus
+  - LastHealthCheck : DateTime?
+  - LastSyncTime : DateTime?
+  - CreatedAt : DateTime
+  - ModifiedAt : DateTime?
+  - CreatedBy : Guid
+  - ModifiedBy : Guid?
+  --
+  + Activate() : void
+  + Suspend() : void
+  + Disconnect() : void
+  + UpdateConfiguration(config : string) : void
+  + UpdateHealthStatus(status : HealthStatus) : void
+  + TestConnection() : ConnectionTestResult
+  + RecordSync(syncTime : DateTime) : void
+  --
+  <<Domain Events>>
+  + PaymentGatewayConnected
+  + PaymentGatewayDisconnected
+  + EmailServiceConnected
+  + SMSServiceConnected
+  + CalendarSyncEnabled
+  + CalendarSyncDisabled
+}
+
+' ==================== API Key Entity ====================
+
+class APIKey <<entity>> ENTITY_COLOR {
+  - APIKeyId : Guid <<PK>>
+  - KeyName : string
+  - KeyHash : string <<SHA256>>
+  - KeyPrefix : string
+  - Scopes : string <<JSON array>>
+  - ExpiresAt : DateTime?
+  - IsActive : bool
+  - LastUsedAt : DateTime?
+  - UsageCount : long
+  - RateLimitPerHour : int
+  - CreatedAt : DateTime
+  - CreatedBy : Guid
+  - RevokedAt : DateTime?
+  - RevokedBy : Guid?
+  --
+  + Revoke(revokedBy : Guid, reason : string) : void
+  + RecordUsage() : void
+  + IsExpired() : bool
+  + IsRateLimitExceeded() : bool
+  + ValidateScope(requiredScope : string) : bool
+  --
+  <<Domain Events>>
+  + APIKeyGenerated
+  + APIKeyRevoked
+}
+
+' ==================== Webhook Aggregate ====================
+
+class Webhook <<aggregate root>> ENTITY_COLOR {
+  - WebhookId : Guid <<PK>>
+  - IntegrationId : Guid? <<FK>>
+  - Url : string
+  - EventTypes : string <<JSON array>>
+  - Secret : string <<encrypted>>
+  - IsActive : bool
+  - RetryPolicy : string <<JSON>>
+  - MaxRetries : int
+  - TimeoutSeconds : int
+  - LastTriggeredAt : DateTime?
+  - SuccessCount : long
+  - FailureCount : long
+  - CreatedAt : DateTime
+  - CreatedBy : Guid
+  - ModifiedAt : DateTime?
+  --
+  + Activate() : void
+  + Deactivate() : void
+  + UpdateRetryPolicy(policy : RetryPolicy) : void
+  + RecordSuccess() : void
+  + RecordFailure() : void
+  + IsSubscribedTo(eventType : string) : bool
+  + GenerateSignature(payload : string) : string
+}
+
+class WebhookDelivery <<entity>> ENTITY_COLOR {
+  - WebhookDeliveryId : Guid <<PK>>
+  - WebhookId : Guid <<FK>>
+  - EventType : string
+  - Payload : string <<JSON>>
+  - HttpStatusCode : int?
+  - ResponseBody : string?
+  - AttemptCount : int
+  - DeliveryStatus : DeliveryStatus
+  - ErrorMessage : string?
+  - ScheduledAt : DateTime
+  - DeliveredAt : DateTime?
+  - NextRetryAt : DateTime?
+  --
+  + MarkAsDelivered(statusCode : int, response : string) : void
+  + MarkAsFailed(errorMessage : string) : void
+  + ScheduleRetry(retryAt : DateTime) : void
+  + IncrementAttempt() : void
+  + IsExpired() : bool
+  --
+  <<Domain Events>>
+  + WebhookReceived
+  + WebhookSent
+  + WebhookDeliveryFailed
+}
+
+' ==================== Data Sync Aggregate ====================
+
+class DataSyncJob <<aggregate root>> ENTITY_COLOR {
+  - DataSyncJobId : Guid <<PK>>
+  - IntegrationId : Guid <<FK>>
+  - SyncType : SyncType
+  - Direction : SyncDirection
+  - Status : SyncStatus
+  - RecordsTotal : int
+  - RecordsProcessed : int
+  - RecordsFailed : int
+  - ErrorLog : string? <<JSON>>
+  - StartedAt : DateTime?
+  - CompletedAt : DateTime?
+  - ScheduledAt : DateTime
+  - CreatedAt : DateTime
+  - CreatedBy : Guid
+  --
+  + Start() : void
+  + Complete() : void
+  + Fail(errorMessage : string) : void
+  + Cancel() : void
+  + UpdateProgress(processed : int, failed : int) : void
+  + AddError(error : SyncError) : void
+  + GetProgress() : decimal
+  --
+  <<Domain Events>>
+  + DataSyncInitiated
+  + DataSyncCompleted
+  + DataSyncFailed
+}
+
+' ==================== Logging Entity ====================
+
+class IntegrationLog <<entity>> ENTITY_COLOR {
+  - IntegrationLogId : Guid <<PK>>
+  - IntegrationId : Guid <<FK>>
+  - LogLevel : LogLevel
+  - Message : string
+  - Details : string? <<JSON>>
+  - Exception : string?
+  - RequestId : Guid?
+  - CreatedAt : DateTime
+  --
+  + {static} CreateInfo(message : string) : IntegrationLog
+  + {static} CreateWarning(message : string) : IntegrationLog
+  + {static} CreateError(message : string, exception : Exception) : IntegrationLog
+}
+
+' ==================== Value Objects ====================
+
+class RetryPolicy <<value object>> VALUE_OBJECT_COLOR {
+  - MaxRetries : int
+  - BackoffMultiplier : double
+  - InitialDelaySeconds : int
+  --
+  + CalculateNextRetryDelay(attemptNumber : int) : TimeSpan
+  + ShouldRetry(attemptCount : int) : bool
+}
+
+class IntegrationConfiguration <<value object>> VALUE_OBJECT_COLOR {
+  - ApiKey : string?
+  - ApiSecret : string?
+  - WebhookUrl : string?
+  - CustomSettings : Dictionary<string, object>
+  --
+  + Encrypt() : string
+  + {static} Decrypt(encrypted : string) : IntegrationConfiguration
+  + Validate() : ValidationResult
+}
+
+class SyncError <<value object>> VALUE_OBJECT_COLOR {
+  - RecordId : string
+  - ErrorMessage : string
+  - ErrorCode : string?
+  - Timestamp : DateTime
+  --
+  + ToString() : string
+}
+
+class ConnectionTestResult <<value object>> VALUE_OBJECT_COLOR {
+  - Success : bool
+  - Message : string
+  - ResponseTime : TimeSpan
+  - StatusCode : int?
+  --
+  + IsSuccessful() : bool
+}
+
+class IntegrationHealth <<value object>> VALUE_OBJECT_COLOR {
+  - HealthStatus : HealthStatus
+  - LastCheckTime : DateTime
+  - ResponseTime : double
+  - ErrorMessage : string?
+  - Uptime : double
+  - SuccessRate : double
+  - AverageResponseTime : double
+  --
+  + IsDegraded() : bool
+  + IsUnhealthy() : bool
+}
+
+' ==================== Domain Services ====================
+
+class IntegrationService <<service>> SERVICE_COLOR {
+  --
+  + ValidateCredentials(integration : Integration) : ValidationResult
+  + TestConnection(integrationId : Guid) : ConnectionTestResult
+  + EncryptConfiguration(config : IntegrationConfiguration) : string
+  + DecryptConfiguration(encrypted : string) : IntegrationConfiguration
+  + GetProviderMetadata(provider : string) : ProviderMetadata
+}
+
+class WebhookService <<service>> SERVICE_COLOR {
+  --
+  + DeliverWebhook(delivery : WebhookDelivery) : DeliveryResult
+  + ValidateWebhookSignature(payload : string, signature : string, secret : string) : bool
+  + GenerateWebhookPayload(eventType : string, data : object) : string
+  + ScheduleRetry(delivery : WebhookDelivery) : DateTime
+}
+
+class DataSyncService <<service>> SERVICE_COLOR {
+  --
+  + ExecuteSync(job : DataSyncJob) : SyncResult
+  + ImportData(job : DataSyncJob) : void
+  + ExportData(job : DataSyncJob) : void
+  + TransformData(sourceData : object, targetFormat : string) : object
+  + ValidateRecord(record : object) : ValidationResult
+}
+
+class APIKeyService <<service>> SERVICE_COLOR {
+  --
+  + GenerateKey(keyName : string, scopes : string[]) : APIKeyResponse
+  + HashKey(plainKey : string) : string
+  + ValidateKey(keyPrefix : string, plainKey : string) : APIKey?
+  + CheckRateLimit(apiKeyId : Guid) : bool
+  + RotateKey(apiKeyId : Guid) : APIKeyResponse
+}
+
+class HealthCheckService <<service>> SERVICE_COLOR {
+  --
+  + PerformHealthCheck(integration : Integration) : IntegrationHealth
+  + MonitorHealth(integrationId : Guid) : void
+  + CalculateUptime(integrationId : Guid, period : TimeSpan) : double
+  + CalculateSuccessRate(integrationId : Guid, period : TimeSpan) : double
+  + DetectAnomalies(integrationId : Guid) : AnomalyReport
+}
+
+' ==================== Repositories ====================
+
+interface IIntegrationRepository <<interface>> {
+  + GetById(id : Guid) : Integration?
+  + GetAll() : IEnumerable<Integration>
+  + GetByType(type : IntegrationType) : IEnumerable<Integration>
+  + GetByProvider(provider : string) : Integration?
+  + Add(integration : Integration) : void
+  + Update(integration : Integration) : void
+  + Delete(id : Guid) : void
+}
+
+interface IAPIKeyRepository <<interface>> {
+  + GetById(id : Guid) : APIKey?
+  + GetByHash(hash : string) : APIKey?
+  + GetByPrefix(prefix : string) : IEnumerable<APIKey>
+  + GetActive() : IEnumerable<APIKey>
+  + Add(apiKey : APIKey) : void
+  + Update(apiKey : APIKey) : void
+}
+
+interface IWebhookRepository <<interface>> {
+  + GetById(id : Guid) : Webhook?
+  + GetByIntegrationId(integrationId : Guid) : IEnumerable<Webhook>
+  + GetSubscribedTo(eventType : string) : IEnumerable<Webhook>
+  + GetActive() : IEnumerable<Webhook>
+  + Add(webhook : Webhook) : void
+  + Update(webhook : Webhook) : void
+  + Delete(id : Guid) : void
+}
+
+interface IWebhookDeliveryRepository <<interface>> {
+  + GetById(id : Guid) : WebhookDelivery?
+  + GetByWebhookId(webhookId : Guid) : IEnumerable<WebhookDelivery>
+  + GetPendingRetries() : IEnumerable<WebhookDelivery>
+  + Add(delivery : WebhookDelivery) : void
+  + Update(delivery : WebhookDelivery) : void
+}
+
+interface IDataSyncJobRepository <<interface>> {
+  + GetById(id : Guid) : DataSyncJob?
+  + GetByIntegrationId(integrationId : Guid) : IEnumerable<DataSyncJob>
+  + GetScheduled() : IEnumerable<DataSyncJob>
+  + GetRunning() : IEnumerable<DataSyncJob>
+  + Add(job : DataSyncJob) : void
+  + Update(job : DataSyncJob) : void
+}
+
+interface IIntegrationLogRepository <<interface>> {
+  + GetByIntegrationId(integrationId : Guid) : IEnumerable<IntegrationLog>
+  + GetByDateRange(from : DateTime, to : DateTime) : IEnumerable<IntegrationLog>
+  + GetByLogLevel(level : LogLevel) : IEnumerable<IntegrationLog>
+  + Add(log : IntegrationLog) : void
+}
+
+' ==================== Relationships ====================
+
+' Integration relationships
+Integration "1" *-- "many" IntegrationLog : logs
+Integration "1" o-- "1" IntegrationConfiguration : configuration
+Integration --> IntegrationType
+Integration --> IntegrationStatus
+Integration --> HealthStatus
+
+' Webhook relationships
+Webhook "1" *-- "many" WebhookDelivery : deliveries
+Webhook "1" o-- "1" RetryPolicy : retryPolicy
+Webhook "0..1" --> "1" Integration : optional integration
+WebhookDelivery --> DeliveryStatus
+
+' Data Sync relationships
+DataSyncJob "many" --> "1" Integration : syncs from/to
+DataSyncJob "1" *-- "many" SyncError : errors
+DataSyncJob --> SyncType
+DataSyncJob --> SyncDirection
+DataSyncJob --> SyncStatus
+
+' Service relationships
+IntegrationService --> Integration
+IntegrationService --> IntegrationConfiguration
+IntegrationService --> ConnectionTestResult
+
+WebhookService --> Webhook
+WebhookService --> WebhookDelivery
+
+DataSyncService --> DataSyncJob
+DataSyncService --> SyncError
+
+APIKeyService --> APIKey
+
+HealthCheckService --> Integration
+HealthCheckService --> IntegrationHealth
+
+' Repository relationships
+IIntegrationRepository ..> Integration : manages
+IAPIKeyRepository ..> APIKey : manages
+IWebhookRepository ..> Webhook : manages
+IWebhookDeliveryRepository ..> WebhookDelivery : manages
+IDataSyncJobRepository ..> DataSyncJob : manages
+IIntegrationLogRepository ..> IntegrationLog : manages
+
+' Additional value object relationships
+Integration --> IntegrationHealth : has current
+APIKey --> LogLevel : uses for logging
+
+note right of Integration
+  Aggregate Root for Integration context.
+  Manages external system connections,
+  credentials, and health status.
+
+  Key responsibilities:
+  - Connection lifecycle management
+  - Credential encryption/decryption
+  - Health monitoring
+  - Configuration validation
+end note
+
+note right of Webhook
+  Aggregate Root for Webhook context.
+  Manages webhook subscriptions and
+  delivery tracking.
+
+  Key responsibilities:
+  - Event subscription management
+  - Webhook signature generation
+  - Delivery retry logic
+  - Success/failure tracking
+end note
+
+note right of DataSyncJob
+  Aggregate Root for Data Sync context.
+  Orchestrates data synchronization
+  between systems.
+
+  Key responsibilities:
+  - Sync execution management
+  - Progress tracking
+  - Error handling
+  - Record validation
+end note
+
+note bottom of APIKey
+  Entity for API authentication.
+  Keys are hashed (SHA256) for security.
+  Includes rate limiting and scope
+  management capabilities.
+end note
+
+note bottom of IntegrationService
+  Domain Service for integration operations.
+  Handles credential management, connection
+  testing, and provider-specific logic.
+end note
+
+@enduml

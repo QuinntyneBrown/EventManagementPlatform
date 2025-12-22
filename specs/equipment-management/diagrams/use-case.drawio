@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="equipment-management-use-case" name="Equipment Management Use Cases">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Equipment Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=180;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="250" y="40" width="900" height="880" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-warehouse-manager" value="Warehouse&#xa;Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="150" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-staff" value="Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="80" y="350" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-maintenance-tech" value="Maintenance&#xa;Technician" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="80" y="550" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-manager" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="80" y="750" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="450" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Equipment Management Use Cases -->
+        <mxCell id="uc-add-equipment" value="Add Equipment&#xa;Item" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-equipment" value="Update Equipment&#xa;Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-equipment" value="View Equipment&#xa;Items" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="300" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-upload-photo" value="Upload Equipment&#xa;Photos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-specs" value="Update&#xa;Specifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="300" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Reservation Use Cases -->
+        <mxCell id="uc-create-reservation" value="Create&#xa;Reservation" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="100" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-check-availability" value="Check Equipment&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="190" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-reservation" value="Update&#xa;Reservation" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="280" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-cancel-reservation" value="Cancel&#xa;Reservation" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="370" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-override-conflict" value="Override Double&#xa;Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="500" y="460" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-suggest-alternatives" value="Suggest&#xa;Alternatives" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="500" y="550" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Logistics Use Cases -->
+        <mxCell id="uc-pack-equipment" value="Mark as Packed&#xa;for Shipment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-load-equipment" value="Mark as Loaded&#xa;on Truck" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-dispatch-equipment" value="Mark as&#xa;Dispatched" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-deliver-equipment" value="Mark as&#xa;Delivered" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-setup-complete" value="Mark Setup&#xa;Completed" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-pickup-equipment" value="Mark as&#xa;Picked Up" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="530" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-return-equipment" value="Mark as&#xa;Returned" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="720" y="620" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Maintenance Use Cases -->
+        <mxCell id="uc-schedule-maintenance" value="Schedule&#xa;Maintenance" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="960" y="120" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-start-maintenance" value="Start&#xa;Maintenance" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="960" y="210" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-complete-maintenance" value="Complete&#xa;Maintenance" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="960" y="300" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-inspect-equipment" value="Inspect&#xa;Equipment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="960" y="390" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-report-damage" value="Report&#xa;Damage" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="960" y="480" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-repair-equipment" value="Request&#xa;Repair" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="960" y="570" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Management Use Cases -->
+        <mxCell id="uc-activate-equipment" value="Activate&#xa;Equipment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="300" y="720" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-deactivate-equipment" value="Deactivate&#xa;Equipment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="300" y="810" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-retire-equipment" value="Retire&#xa;Equipment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="960" y="720" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- System Use Cases -->
+        <mxCell id="uc-detect-conflict" value="Detect Double&#xa;Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="960" y="820" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-track-condition" value="Track Equipment&#xa;Condition" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="720" y="800" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Warehouse Manager -->
+        <mxCell id="assoc-1" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse-manager" target="uc-add-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse-manager" target="uc-update-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse-manager" target="uc-view-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse-manager" target="uc-upload-photo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse-manager" target="uc-update-specs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff -->
+        <mxCell id="assoc-6" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-7" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-create-reservation" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-check-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-9" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-update-reservation" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-cancel-reservation" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-11" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-pack-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-12" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-load-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-dispatch-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-deliver-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-15" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-setup-complete" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-16" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-pickup-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-17" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-return-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-report-damage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Maintenance Technician -->
+        <mxCell id="assoc-19" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-maintenance-tech" target="uc-schedule-maintenance" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-20" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-maintenance-tech" target="uc-start-maintenance" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-21" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-maintenance-tech" target="uc-complete-maintenance" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-22" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-maintenance-tech" target="uc-inspect-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-23" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-maintenance-tech" target="uc-repair-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Manager -->
+        <mxCell id="assoc-24" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-manager" target="uc-override-conflict" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-25" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-manager" target="uc-activate-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-26" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-manager" target="uc-deactivate-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-27" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-manager" target="uc-retire-equipment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-28" style="endArrow=none;html=1;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-suggest-alternatives" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-29" style="endArrow=none;html=1;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-detect-conflict" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-30" style="endArrow=none;html=1;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-track-condition" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-create-reservation" target="uc-check-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-1" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-2" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-check-availability" target="uc-detect-conflict" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-2" vertex="1" connectable="0">
+            <mxGeometry x="0.15" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-3" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-inspect-equipment" target="uc-track-condition" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-3-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-3" vertex="1" connectable="0">
+            <mxGeometry x="0.1" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-suggest-alternatives" target="uc-check-availability" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-1" vertex="1" connectable="0">
+            <mxGeometry x="0.15" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="extend-2" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-override-conflict" target="uc-create-reservation" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-2-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-2" vertex="1" connectable="0">
+            <mxGeometry x="0.15" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="extend-3" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-repair-equipment" target="uc-report-damage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-3-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-3" vertex="1" connectable="0">
+            <mxGeometry x="0.15" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

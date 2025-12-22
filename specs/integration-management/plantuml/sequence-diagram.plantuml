@@ -1,0 +1,595 @@
+@startuml Integration Management Sequence Diagrams
+
+title Integration & External System Management - Sequence Diagrams
+
+' ==================== Diagram 1: Configure Payment Gateway Integration ====================
+
+== Configure Payment Gateway Integration ==
+
+actor Administrator
+participant "Angular UI" as UI
+participant "API Controller" as API
+participant "Integration Service" as IntService
+participant "Azure Key Vault" as KeyVault
+participant Database
+participant "Service Bus" as ServiceBus
+participant "External Gateway" as Gateway
+
+Administrator -> UI : Select payment gateway provider
+activate UI
+
+UI -> UI : Display configuration form
+Administrator -> UI : Enter credentials & settings
+UI -> API : POST /api/integrations
+activate API
+
+API -> IntService : ValidateCredentials(integration)
+activate IntService
+
+IntService -> Gateway : Test API connection
+activate Gateway
+Gateway --> IntService : 200 OK (success)
+deactivate Gateway
+
+IntService --> API : ValidationResult (valid)
+deactivate IntService
+
+API -> KeyVault : Store credentials
+activate KeyVault
+KeyVault --> API : Credentials stored
+deactivate KeyVault
+
+API -> Database : Save integration record
+activate Database
+Database --> API : Integration saved
+deactivate Database
+
+API -> ServiceBus : Publish PaymentGatewayConnected event
+activate ServiceBus
+ServiceBus --> API : Event published
+deactivate ServiceBus
+
+API --> UI : 201 Created (Integration)
+deactivate API
+
+UI --> Administrator : Display success message
+deactivate UI
+
+note right of KeyVault
+  All sensitive credentials are
+  encrypted and stored in
+  Azure Key Vault for security
+end note
+
+|||
+
+' ==================== Diagram 2: Generate API Key ====================
+
+== Generate API Key ==
+
+actor Developer
+participant "Angular UI" as UI2
+participant "API Controller" as API2
+participant "API Key Service" as KeyService
+participant Database as DB2
+
+Developer -> UI2 : Click "Generate API Key"
+activate UI2
+
+UI2 -> UI2 : Display key generation dialog
+Developer -> UI2 : Enter key name, scopes, rate limit
+UI2 -> API2 : POST /api/apikeys
+activate API2
+
+API2 -> KeyService : GenerateKey(keyName, scopes)
+activate KeyService
+
+KeyService -> KeyService : Generate cryptographically\nsecure random key (32 chars)
+KeyService -> KeyService : Hash key with SHA256
+KeyService -> KeyService : Extract key prefix (first 8 chars)
+
+KeyService -> DB2 : Save APIKey record\n(with hash, not plain key)
+activate DB2
+DB2 --> KeyService : APIKey saved
+deactivate DB2
+
+KeyService -> ServiceBus : Publish APIKeyGenerated event
+activate ServiceBus
+ServiceBus --> KeyService : Event published
+deactivate ServiceBus
+
+KeyService --> API2 : APIKeyResponse\n(includes plain key)
+deactivate KeyService
+
+API2 --> UI2 : 201 Created\n(with plain key - shown once)
+deactivate API2
+
+UI2 -> UI2 : Display warning:\n"Save this key now!"
+UI2 --> Developer : Show plain text key\nwith copy button
+deactivate UI2
+
+note right of KeyService
+  Plain text key is ONLY returned
+  once during generation.
+  Only the hash is stored in database.
+end note
+
+|||
+
+' ==================== Diagram 3: Webhook Delivery ====================
+
+== Webhook Delivery Process ==
+
+participant "Event System" as EventSys
+participant "API Controller" as API3
+participant "Service Bus" as SB2
+participant "Background Worker" as Worker
+participant "Webhook Service" as WebhookSvc
+participant Database as DB3
+participant "External System" as ExtSys
+participant "SignalR Hub" as SignalR
+
+EventSys -> API3 : Domain event raised\n(e.g., EventCreated)
+activate API3
+
+API3 -> DB3 : Query subscribed webhooks\nfor EventCreated
+activate DB3
+DB3 --> API3 : List of active webhooks
+deactivate DB3
+
+loop For each webhook
+  API3 -> SB2 : Queue webhook delivery
+  activate SB2
+  SB2 --> API3 : Message queued
+  deactivate SB2
+end
+
+API3 --> EventSys : Event handled
+deactivate API3
+
+|||
+
+Worker -> SB2 : Dequeue message
+activate Worker
+activate SB2
+SB2 --> Worker : WebhookDelivery message
+deactivate SB2
+
+Worker -> DB3 : Get webhook details
+activate DB3
+DB3 --> Worker : Webhook configuration
+deactivate DB3
+
+Worker -> WebhookSvc : DeliverWebhook(delivery)
+activate WebhookSvc
+
+WebhookSvc -> WebhookSvc : Generate payload JSON
+WebhookSvc -> WebhookSvc : Sign payload with\nHMAC-SHA256
+
+WebhookSvc -> ExtSys : POST webhook.url\n(with signature header)
+activate ExtSys
+
+alt Successful delivery
+  ExtSys --> WebhookSvc : 200 OK
+  WebhookSvc -> DB3 : Update delivery status:\nDelivered
+  activate DB3
+  DB3 --> WebhookSvc : Updated
+  deactivate DB3
+
+  WebhookSvc -> SB2 : Publish WebhookSent event
+  activate SB2
+  SB2 --> WebhookSvc : Published
+  deactivate SB2
+
+else Failed delivery (5xx, timeout, etc.)
+  ExtSys --> WebhookSvc : 500 Internal Server Error
+  WebhookSvc -> DB3 : Update delivery status:\nFailed, increment attempt
+  activate DB3
+  DB3 --> WebhookSvc : Updated
+  deactivate DB3
+
+  WebhookSvc -> WebhookSvc : Calculate retry delay\n(exponential backoff)
+
+  alt Retries remaining
+    WebhookSvc -> SB2 : Schedule retry\n(delayed message)
+    activate SB2
+    SB2 --> WebhookSvc : Retry scheduled
+    deactivate SB2
+
+    WebhookSvc -> SB2 : Publish WebhookDeliveryFailed event
+    activate SB2
+    SB2 --> WebhookSvc : Published
+    deactivate SB2
+  else Max retries exceeded
+    WebhookSvc -> DB3 : Mark as Expired
+    activate DB3
+    DB3 --> WebhookSvc : Updated
+    deactivate DB3
+  end
+end
+
+deactivate ExtSys
+WebhookSvc --> Worker : Delivery result
+deactivate WebhookSvc
+
+Worker -> SignalR : Push real-time update
+activate SignalR
+SignalR --> Worker : Update sent to clients
+deactivate SignalR
+
+Worker --> SB2 : Message complete
+deactivate Worker
+
+note right of WebhookSvc
+  Retry policy uses exponential
+  backoff: 1min, 2min, 4min, 8min, 16min
+
+  Maximum 5 retry attempts before
+  marking as permanently failed
+end note
+
+|||
+
+' ==================== Diagram 4: Data Synchronization ====================
+
+== Data Synchronization Process ==
+
+actor Administrator as Admin2
+participant "Angular UI" as UI4
+participant "API Controller" as API4
+participant "Service Bus" as SB3
+participant "Background Worker" as Worker2
+participant "Data Sync Service" as SyncSvc
+participant Database as DB4
+participant "Azure Key Vault" as KV2
+participant "External System" as ExtSys2
+participant "SignalR Hub" as SignalR2
+
+Admin2 -> UI4 : Initiate sync job
+activate UI4
+
+UI4 -> API4 : POST /api/datasyncs
+activate API4
+
+API4 -> DB4 : Create DataSyncJob record
+activate DB4
+DB4 --> API4 : Job created
+deactivate DB4
+
+API4 -> SB3 : Publish DataSyncInitiated event
+activate SB3
+SB3 --> API4 : Event published
+deactivate SB3
+
+API4 -> SB3 : Queue sync job
+SB3 --> API4 : Job queued
+
+API4 --> UI4 : 202 Accepted (Job ID)
+deactivate API4
+
+UI4 -> SignalR2 : Subscribe to job updates
+activate SignalR2
+SignalR2 --> UI4 : Subscribed
+deactivate SignalR2
+
+UI4 --> Admin2 : Show sync progress UI
+deactivate UI4
+
+|||
+
+Worker2 -> SB3 : Dequeue sync job message
+activate Worker2
+activate SB3
+SB3 --> Worker2 : DataSyncJob message
+deactivate SB3
+
+Worker2 -> DB4 : Get job details & integration
+activate DB4
+DB4 --> Worker2 : Job & Integration data
+deactivate DB4
+
+Worker2 -> DB4 : Update status: Running
+activate DB4
+DB4 --> Worker2 : Updated
+deactivate DB4
+
+Worker2 -> SyncSvc : ExecuteSync(job)
+activate SyncSvc
+
+SyncSvc -> KV2 : Get integration credentials
+activate KV2
+KV2 --> SyncSvc : Decrypted credentials
+deactivate KV2
+
+SyncSvc -> ExtSys2 : Authenticate & connect
+activate ExtSys2
+ExtSys2 --> SyncSvc : Auth token
+deactivate ExtSys2
+
+SyncSvc -> ExtSys2 : Fetch data (paginated)
+activate ExtSys2
+
+loop For each page of data
+  ExtSys2 --> SyncSvc : Data page (100 records)
+
+  SyncSvc -> SyncSvc : Transform data format
+  SyncSvc -> SyncSvc : Validate records
+
+  loop For each record
+    alt Valid record
+      SyncSvc -> DB4 : Import/Update record
+      activate DB4
+      DB4 --> SyncSvc : Record saved
+      deactivate DB4
+      SyncSvc -> SyncSvc : Increment processed count
+    else Invalid record
+      SyncSvc -> SyncSvc : Log error
+      SyncSvc -> SyncSvc : Increment failed count
+    end
+  end
+
+  SyncSvc -> DB4 : Update job progress
+  activate DB4
+  DB4 --> SyncSvc : Progress updated
+  deactivate DB4
+
+  SyncSvc -> SignalR2 : Push progress update
+  activate SignalR2
+  SignalR2 -> UI4 : Update progress bar
+  SignalR2 --> SyncSvc : Update sent
+  deactivate SignalR2
+end
+
+deactivate ExtSys2
+
+alt Sync completed successfully
+  SyncSvc -> DB4 : Update status: Completed
+  activate DB4
+  DB4 --> SyncSvc : Updated
+  deactivate DB4
+
+  SyncSvc -> SB3 : Publish DataSyncCompleted event
+  activate SB3
+  SB3 --> SyncSvc : Published
+  deactivate SB3
+
+else Sync failed
+  SyncSvc -> DB4 : Update status: Failed
+  activate DB4
+  DB4 --> SyncSvc : Updated
+  deactivate DB4
+
+  SyncSvc -> SB3 : Publish DataSyncFailed event
+  activate SB3
+  SB3 --> SyncSvc : Published
+  deactivate SB3
+end
+
+SyncSvc --> Worker2 : Sync result
+deactivate SyncSvc
+
+Worker2 -> SignalR2 : Push completion notification
+activate SignalR2
+SignalR2 -> UI4 : Display completion message
+deactivate SignalR2
+
+Worker2 --> SB3 : Message complete
+deactivate Worker2
+
+note right of SyncSvc
+  Sync supports:
+  - Full sync (all records)
+  - Incremental (changes since last sync)
+  - Differential (specific date range)
+
+  Progress updates sent in real-time
+  via SignalR for responsive UI
+end note
+
+|||
+
+' ==================== Diagram 5: Integration Health Check ====================
+
+== Integration Health Check (Scheduled) ==
+
+participant "Scheduled Job" as Scheduler
+participant "Health Check Service" as HealthSvc
+participant Database as DB5
+participant "Azure Key Vault" as KV3
+participant "External Integration" as ExtInt
+participant "Azure AI Services" as AI
+participant "Service Bus" as SB4
+participant "Notification System" as NotifSys
+
+activate Scheduler
+Scheduler -> Scheduler : Timer triggered\n(every 5 minutes)
+
+Scheduler -> DB5 : Get all active integrations
+activate DB5
+DB5 --> Scheduler : List of integrations
+deactivate DB5
+
+loop For each integration
+  Scheduler -> HealthSvc : PerformHealthCheck(integration)
+  activate HealthSvc
+
+  HealthSvc -> KV3 : Get integration credentials
+  activate KV3
+  KV3 --> HealthSvc : Credentials
+  deactivate KV3
+
+  HealthSvc -> ExtInt : Send health check request
+  activate ExtInt
+
+  alt Integration healthy
+    ExtInt --> HealthSvc : 200 OK (response time: 120ms)
+    deactivate ExtInt
+
+    HealthSvc -> HealthSvc : Calculate metrics:\n- Uptime\n- Success rate\n- Avg response time
+
+    HealthSvc -> DB5 : Update health status: Healthy
+    activate DB5
+    DB5 --> HealthSvc : Updated
+    deactivate DB5
+
+  else Integration degraded (slow)
+    ExtInt --> HealthSvc : 200 OK (response time: 3500ms)
+    deactivate ExtInt
+
+    HealthSvc -> HealthSvc : Mark as Degraded\n(response > 3s)
+
+    HealthSvc -> DB5 : Update health status: Degraded
+    activate DB5
+    DB5 --> HealthSvc : Updated
+    deactivate DB5
+
+    HealthSvc -> AI : Detect anomaly pattern
+    activate AI
+    AI --> HealthSvc : Anomaly detected:\nIncreasing latency
+    deactivate AI
+
+    HealthSvc -> SB4 : Publish health degraded alert
+    activate SB4
+    SB4 -> NotifSys : Trigger notification
+    activate NotifSys
+    NotifSys -> NotifSys : Send alert to admins
+    deactivate NotifSys
+    SB4 --> HealthSvc : Alert published
+    deactivate SB4
+
+  else Integration unhealthy (error)
+    ExtInt --> HealthSvc : 500 Server Error
+    deactivate ExtInt
+
+    HealthSvc -> HealthSvc : Increment failure count
+
+    alt First or second failure
+      HealthSvc -> DB5 : Update last failure time
+      activate DB5
+      DB5 --> HealthSvc : Updated
+      deactivate DB5
+      note right: Don't alert yet,\nwait for 3rd failure
+
+    else Third consecutive failure
+      HealthSvc -> DB5 : Update health status: Unhealthy
+      activate DB5
+      DB5 --> HealthSvc : Updated
+      deactivate DB5
+
+      HealthSvc -> SB4 : Publish critical alert
+      activate SB4
+      SB4 -> NotifSys : Trigger urgent notification
+      activate NotifSys
+      NotifSys -> NotifSys : Send critical alert\nto admins (email + SMS)
+      deactivate NotifSys
+      SB4 --> HealthSvc : Alert published
+      deactivate SB4
+    end
+  end
+
+  HealthSvc --> Scheduler : Health check complete
+  deactivate HealthSvc
+end
+
+Scheduler -> Scheduler : Schedule next check\n(in 5 minutes)
+deactivate Scheduler
+
+note right of HealthSvc
+  Health check criteria:
+  - Response time < 3s: Healthy
+  - Response time 3-10s: Degraded
+  - Error or timeout: Unhealthy
+
+  3 consecutive failures trigger
+  critical alerts and admin notification
+end note
+
+|||
+
+' ==================== Diagram 6: Incoming Webhook (from external system) ====================
+
+== Receive Incoming Webhook ==
+
+participant "External System" as ExtSys3
+participant "API Controller" as API5
+participant "Webhook Service" as WebhookSvc2
+participant Database as DB6
+participant "Service Bus" as SB5
+participant "Event System" as EventSys2
+
+ExtSys3 -> API5 : POST /api/webhooks/incoming/{integrationId}\n(with signature header)
+activate API5
+activate ExtSys3
+
+API5 -> DB6 : Get integration by ID
+activate DB6
+DB6 --> API5 : Integration details
+deactivate DB6
+
+API5 -> WebhookSvc2 : ValidateWebhookSignature(\npayload, signature, secret)
+activate WebhookSvc2
+
+WebhookSvc2 -> WebhookSvc2 : Compute HMAC-SHA256\nof payload with secret
+WebhookSvc2 -> WebhookSvc2 : Compare with\nprovided signature
+
+alt Signature valid
+  WebhookSvc2 --> API5 : Valid (true)
+  deactivate WebhookSvc2
+
+  API5 -> DB6 : Log incoming webhook
+  activate DB6
+  DB6 --> API5 : Logged
+  deactivate DB6
+
+  API5 -> SB5 : Publish WebhookReceived event
+  activate SB5
+  SB5 --> API5 : Published
+  deactivate SB5
+
+  API5 -> API5 : Parse webhook payload
+
+  alt Payment webhook
+    API5 -> EventSys2 : Trigger PaymentProcessed event
+    activate EventSys2
+    EventSys2 --> API5 : Event handled
+    deactivate EventSys2
+
+  else Email delivery webhook
+    API5 -> EventSys2 : Trigger EmailDelivered event
+    activate EventSys2
+    EventSys2 --> API5 : Event handled
+    deactivate EventSys2
+
+  else Other webhook type
+    API5 -> EventSys2 : Trigger appropriate domain event
+    activate EventSys2
+    EventSys2 --> API5 : Event handled
+    deactivate EventSys2
+  end
+
+  API5 --> ExtSys3 : 200 OK\n{"status": "accepted"}
+  deactivate API5
+
+else Signature invalid
+  WebhookSvc2 --> API5 : Invalid (false)
+  deactivate WebhookSvc2
+
+  API5 -> DB6 : Log failed validation\n(potential security issue)
+  activate DB6
+  DB6 --> API5 : Logged
+  deactivate DB6
+
+  API5 --> ExtSys3 : 401 Unauthorized\n{"error": "Invalid signature"}
+  deactivate API5
+end
+
+deactivate ExtSys3
+
+note right of API5
+  Webhook signature validation
+  ensures requests are from
+  legitimate external systems
+  and haven't been tampered with
+end note
+
+@enduml

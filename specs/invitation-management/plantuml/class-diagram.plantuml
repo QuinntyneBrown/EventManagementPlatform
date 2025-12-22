@@ -1,0 +1,543 @@
+@startuml Invitation Management Class Diagram
+
+title Invitation Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.InvitationAggregate" {
+
+    class InvitationOrder <<AggregateRoot>> {
+        + InvitationOrderId : Guid
+        + EventId : Guid
+        + CustomerId : Guid
+        + OrderNumber : string
+        + OrderDate : DateTime
+        + DesignType : DesignType
+        + TemplateId : Guid?
+        + CustomDesignUrl : string?
+        + InvitationText : string
+        + Quantity : int
+        + Status : InvitationOrderStatus
+        + DesignApprovedAt : DateTime?
+        + DesignApprovedBy : Guid?
+        + PrinterId : Guid?
+        + PrintJobId : Guid?
+        + ShipperId : Guid?
+        + TrackingNumber : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + InvitationOrder(eventId: Guid, customerId: Guid, designType: DesignType, invitationText: string, quantity: int, createdBy: Guid)
+        + UpdateDetails(invitationText: string, quantity: int, modifiedBy: Guid) : void
+        + SelectTemplate(templateId: Guid, modifiedBy: Guid) : void
+        + UploadCustomDesign(designUrl: string, modifiedBy: Guid) : void
+        + UpdateText(text: string, modifiedBy: Guid) : void
+        + UpdateQuantity(quantity: int, modifiedBy: Guid) : void
+        + ApproveDesign(approvedBy: Guid) : void
+        + RejectDesign(rejectedBy: Guid, reason: string) : void
+        + RequestRevision(requestedBy: Guid, notes: string) : void
+        + AssignToPrinter(printerId: Guid) : void
+        + StartPrinting(printJobId: Guid) : void
+        + CompletePrinting() : void
+        + RecordQualityCheck(passed: bool, issues: string?) : void
+        + AssignToShipper(shipperId: Guid, trackingNumber: string) : void
+        + MarkAsShipped() : void
+        + MarkAsDelivered() : void
+        + Cancel(cancelledBy: Guid, reason: string) : void
+        + ApplyFreePromo(promoCode: string) : void
+    }
+
+    class InvitationTemplate <<Entity>> {
+        + InvitationTemplateId : Guid
+        + Name : string
+        + Description : string?
+        + PreviewImageUrl : string
+        + DesignFileUrl : string
+        + Category : string
+        + IsActive : bool
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        --
+        + InvitationTemplate(name: string, previewImageUrl: string, designFileUrl: string, category: string)
+        + Update(name: string, description: string?, category: string) : void
+        + UpdateDesignFile(designFileUrl: string) : void
+        + Activate() : void
+        + Deactivate() : void
+    }
+
+    class InvitationPrintJob <<Entity>> {
+        + InvitationPrintJobId : Guid
+        + InvitationOrderId : Guid
+        + PrinterId : Guid
+        + StartedAt : DateTime?
+        + CompletedAt : DateTime?
+        + Status : PrintJobStatus
+        + Notes : string?
+        --
+        + InvitationPrintJob(invitationOrderId: Guid, printerId: Guid)
+        + Start() : void
+        + Complete() : void
+        + Fail(reason: string) : void
+        + AddNotes(notes: string) : void
+    }
+
+    class InvitationQualityCheck <<Entity>> {
+        + InvitationQualityCheckId : Guid
+        + InvitationPrintJobId : Guid
+        + CheckedBy : Guid
+        + CheckedAt : DateTime
+        + Passed : bool
+        + Issues : string?
+        + Notes : string?
+        --
+        + InvitationQualityCheck(printJobId: Guid, checkedBy: Guid, passed: bool)
+        + RecordIssues(issues: string) : void
+        + AddNotes(notes: string) : void
+    }
+
+    class InvitationDelivery <<Entity>> {
+        + InvitationDeliveryId : Guid
+        + InvitationOrderId : Guid
+        + ShipperId : Guid
+        + TrackingNumber : string
+        + ShippedAt : DateTime?
+        + DeliveredAt : DateTime?
+        + DeliveryAddress : string
+        + Status : DeliveryStatus
+        + Notes : string?
+        --
+        + InvitationDelivery(invitationOrderId: Guid, shipperId: Guid, trackingNumber: string, deliveryAddress: string)
+        + MarkAsShipped() : void
+        + UpdateStatus(status: DeliveryStatus) : void
+        + MarkAsDelivered() : void
+        + AddNotes(notes: string) : void
+    }
+
+    enum InvitationOrderStatus <<Enumeration>> {
+        Draft = 0
+        PendingDesignApproval = 1
+        DesignApproved = 2
+        DesignRejected = 3
+        PrintQueued = 4
+        Printing = 5
+        QualityCheck = 6
+        QualityCheckPassed = 7
+        QualityCheckFailed = 8
+        Packaging = 9
+        Shipped = 10
+        Delivered = 11
+        Cancelled = 12
+    }
+
+    enum DesignType <<Enumeration>> {
+        Template = 0
+        Custom = 1
+    }
+
+    enum PrintJobStatus <<Enumeration>> {
+        Queued = 0
+        InProgress = 1
+        Completed = 2
+        Failed = 3
+    }
+
+    enum DeliveryStatus <<Enumeration>> {
+        Pending = 0
+        Shipped = 1
+        InTransit = 2
+        OutForDelivery = 3
+        Delivered = 4
+        Failed = 5
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.InvitationAggregate.Events" {
+
+    abstract class InvitationDomainEvent <<DomainEvent>> {
+        + InvitationOrderId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class InvitationOrderCreated {
+        + EventId : Guid
+        + CustomerId : Guid
+        + Quantity : int
+        + DesignType : DesignType
+    }
+
+    class InvitationOrderUpdated {
+        + ChangedProperties : string[]
+    }
+
+    class InvitationOrderCancelled {
+        + Reason : string
+        + CancelledBy : Guid
+    }
+
+    class InvitationTemplateSelected {
+        + TemplateId : Guid
+    }
+
+    class CustomInvitationDesignRequested {
+        + DesignUrl : string
+    }
+
+    class InvitationDesignApproved {
+        + ApprovedBy : Guid
+        + ApprovedAt : DateTime
+    }
+
+    class InvitationDesignRejected {
+        + RejectedBy : Guid
+        + Reason : string
+    }
+
+    class InvitationDesignRevisionRequested {
+        + RequestedBy : Guid
+        + RevisionNotes : string
+    }
+
+    class InvitationTextCustomized {
+        + OldText : string
+        + NewText : string
+    }
+
+    class InvitationQuantityChanged {
+        + OldQuantity : int
+        + NewQuantity : int
+    }
+
+    class InvitationPrintJobCreated {
+        + PrintJobId : Guid
+        + PrinterId : Guid
+    }
+
+    class InvitationPrintJobCompleted {
+        + PrintJobId : Guid
+        + CompletedAt : DateTime
+    }
+
+    class InvitationQualityCheckPassed {
+        + QualityCheckId : Guid
+        + CheckedBy : Guid
+    }
+
+    class InvitationQualityCheckFailed {
+        + QualityCheckId : Guid
+        + Issues : string
+    }
+
+    class InvitationPackageShipped {
+        + DeliveryId : Guid
+        + TrackingNumber : string
+        + ShipperId : Guid
+    }
+
+    class InvitationPackageDelivered {
+        + DeliveryId : Guid
+        + DeliveredAt : DateTime
+    }
+
+    class InvitationFreePromoApplied {
+        + PromoCode : string
+    }
+
+    class InvitationDigitalVersionGenerated {
+        + DigitalFileUrl : string
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + InvitationOrders : DbSet<InvitationOrder>
+        + InvitationTemplates : DbSet<InvitationTemplate>
+        + InvitationPrintJobs : DbSet<InvitationPrintJob>
+        + InvitationQualityChecks : DbSet<InvitationQualityCheck>
+        + InvitationDeliveries : DbSet<InvitationDelivery>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class InvitationService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _blobStorageService : IBlobStorageService
+        --
+        + InvitationService(context: IEventManagementPlatformContext, blobStorage: IBlobStorageService)
+        + ValidateOrderConstraintsAsync(eventId: Guid, quantity: int) : Task<bool>
+        + ValidateDesignFileAsync(fileUrl: string) : Task<bool>
+        + GenerateOrderNumberAsync() : Task<string>
+        + CalculatePricingAsync(quantity: int, designType: DesignType) : Task<decimal>
+    }
+
+    class DesignService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _azureAIService : IAzureAIService
+        - _blobStorageService : IBlobStorageService
+        --
+        + DesignService(context: IEventManagementPlatformContext, azureAI: IAzureAIService, blobStorage: IBlobStorageService)
+        + ValidateCustomDesignAsync(fileUrl: string) : Task<ValidationResult>
+        + GenerateTextSuggestionsAsync(eventType: string) : Task<string[]>
+        + GenerateDigitalVersionAsync(orderId: Guid) : Task<string>
+        + AnalyzeDesignQualityAsync(fileUrl: string) : Task<QualityScore>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Invitations" {
+
+    class CreateInvitationOrderCommand <<Command>> {
+        + EventId : Guid
+        + CustomerId : Guid
+        + DesignType : DesignType
+        + TemplateId : Guid?
+        + CustomDesignUrl : string?
+        + InvitationText : string
+        + Quantity : int
+    }
+
+    class CreateInvitationOrderCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _invitationService : InvitationService
+        - _designService : DesignService
+        --
+        + Handle(command: CreateInvitationOrderCommand, cancellationToken: CancellationToken) : Task<InvitationOrderDetailDto>
+    }
+
+    class ApproveDesignCommand <<Command>> {
+        + InvitationOrderId : Guid
+        + ApprovedBy : Guid
+    }
+
+    class ApproveDesignCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _designService : DesignService
+        --
+        + Handle(command: ApproveDesignCommand, cancellationToken: CancellationToken) : Task<Unit>
+    }
+
+    class UpdateInvitationTextCommand <<Command>> {
+        + InvitationOrderId : Guid
+        + InvitationText : string
+        + ModifiedBy : Guid
+    }
+
+    class UpdateInvitationTextCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: UpdateInvitationTextCommand, cancellationToken: CancellationToken) : Task<Unit>
+    }
+
+    class GetInvitationOrdersQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + Status : InvitationOrderStatus?
+        + EventId : Guid?
+        + CustomerId : Guid?
+        + SearchTerm : string?
+    }
+
+    class GetInvitationOrdersQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetInvitationOrdersQuery, cancellationToken: CancellationToken) : Task<PagedResult<InvitationOrderListDto>>
+    }
+
+    class GetInvitationOrderByIdQuery <<Query>> {
+        + InvitationOrderId : Guid
+    }
+
+    class GetInvitationOrderByIdQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetInvitationOrderByIdQuery, cancellationToken: CancellationToken) : Task<InvitationOrderDetailDto>
+    }
+
+    class GetInvitationTemplatesQuery <<Query>> {
+        + Category : string?
+        + SearchTerm : string?
+    }
+
+    class GetInvitationTemplatesQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetInvitationTemplatesQuery, cancellationToken: CancellationToken) : Task<List<InvitationTemplateDto>>
+    }
+
+    class CreatePrintJobCommand <<Command>> {
+        + InvitationOrderId : Guid
+        + PrinterId : Guid
+    }
+
+    class CreatePrintJobCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: CreatePrintJobCommand, cancellationToken: CancellationToken) : Task<PrintJobDto>
+    }
+
+    class RecordQualityCheckCommand <<Command>> {
+        + PrintJobId : Guid
+        + CheckedBy : Guid
+        + Passed : bool
+        + Issues : string?
+        + Notes : string?
+    }
+
+    class RecordQualityCheckCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: RecordQualityCheckCommand, cancellationToken: CancellationToken) : Task<Unit>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Invitations.Dtos" {
+
+    class InvitationOrderDetailDto <<DTO>> {
+        + InvitationOrderId : Guid
+        + OrderNumber : string
+        + EventId : Guid
+        + EventTitle : string
+        + CustomerId : Guid
+        + CustomerName : string
+        + OrderDate : DateTime
+        + DesignType : DesignType
+        + TemplateId : Guid?
+        + TemplateName : string?
+        + CustomDesignUrl : string?
+        + InvitationText : string
+        + Quantity : int
+        + Status : InvitationOrderStatus
+        + DesignApprovedAt : DateTime?
+        + PrinterName : string?
+        + TrackingNumber : string?
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+    }
+
+    class InvitationOrderListDto <<DTO>> {
+        + InvitationOrderId : Guid
+        + OrderNumber : string
+        + EventTitle : string
+        + CustomerName : string
+        + Quantity : int
+        + Status : InvitationOrderStatus
+        + OrderDate : DateTime
+    }
+
+    class InvitationTemplateDto <<DTO>> {
+        + InvitationTemplateId : Guid
+        + Name : string
+        + Description : string?
+        + PreviewImageUrl : string
+        + Category : string
+        + IsActive : bool
+    }
+
+    class CreateInvitationOrderDto <<DTO>> {
+        + EventId : Guid
+        + CustomerId : Guid
+        + DesignType : DesignType
+        + TemplateId : Guid?
+        + CustomDesignUrl : string?
+        + InvitationText : string
+        + Quantity : int
+    }
+
+    class PrintJobDto <<DTO>> {
+        + InvitationPrintJobId : Guid
+        + InvitationOrderId : Guid
+        + OrderNumber : string
+        + PrinterId : Guid
+        + PrinterName : string
+        + StartedAt : DateTime?
+        + CompletedAt : DateTime?
+        + Status : PrintJobStatus
+        + Notes : string?
+    }
+
+    class DeliveryTrackingDto <<DTO>> {
+        + InvitationDeliveryId : Guid
+        + InvitationOrderId : Guid
+        + OrderNumber : string
+        + TrackingNumber : string
+        + ShipperName : string
+        + ShippedAt : DateTime?
+        + DeliveredAt : DateTime?
+        + DeliveryAddress : string
+        + Status : DeliveryStatus
+    }
+
+    class QualityCheckDto <<DTO>> {
+        + Passed : bool
+        + Issues : string?
+        + Notes : string?
+    }
+
+}
+
+' Relationships - Aggregates
+InvitationOrder "1" --> "0..1" InvitationTemplate : references
+InvitationOrder "1" *-- "0..*" InvitationPrintJob : contains
+InvitationOrder "1" *-- "0..1" InvitationDelivery : contains
+InvitationOrder --> InvitationOrderStatus : has
+InvitationOrder --> DesignType : has
+InvitationPrintJob --> PrintJobStatus : has
+InvitationPrintJob "1" *-- "0..*" InvitationQualityCheck : contains
+InvitationDelivery --> DeliveryStatus : has
+
+' Relationships - Events
+InvitationDomainEvent <|-- InvitationOrderCreated
+InvitationDomainEvent <|-- InvitationOrderUpdated
+InvitationDomainEvent <|-- InvitationOrderCancelled
+InvitationDomainEvent <|-- InvitationTemplateSelected
+InvitationDomainEvent <|-- CustomInvitationDesignRequested
+InvitationDomainEvent <|-- InvitationDesignApproved
+InvitationDomainEvent <|-- InvitationDesignRejected
+InvitationDomainEvent <|-- InvitationDesignRevisionRequested
+InvitationDomainEvent <|-- InvitationTextCustomized
+InvitationDomainEvent <|-- InvitationQuantityChanged
+InvitationDomainEvent <|-- InvitationPrintJobCreated
+InvitationDomainEvent <|-- InvitationPrintJobCompleted
+InvitationDomainEvent <|-- InvitationQualityCheckPassed
+InvitationDomainEvent <|-- InvitationQualityCheckFailed
+InvitationDomainEvent <|-- InvitationPackageShipped
+InvitationDomainEvent <|-- InvitationPackageDelivered
+InvitationDomainEvent <|-- InvitationFreePromoApplied
+InvitationDomainEvent <|-- InvitationDigitalVersionGenerated
+
+' Relationships - Services
+InvitationService --> IEventManagementPlatformContext : uses
+DesignService --> IEventManagementPlatformContext : uses
+CreateInvitationOrderCommandHandler --> IEventManagementPlatformContext : uses
+CreateInvitationOrderCommandHandler --> InvitationService : uses
+CreateInvitationOrderCommandHandler --> DesignService : uses
+ApproveDesignCommandHandler --> IEventManagementPlatformContext : uses
+ApproveDesignCommandHandler --> DesignService : uses
+UpdateInvitationTextCommandHandler --> IEventManagementPlatformContext : uses
+GetInvitationOrdersQueryHandler --> IEventManagementPlatformContext : uses
+GetInvitationOrderByIdQueryHandler --> IEventManagementPlatformContext : uses
+GetInvitationTemplatesQueryHandler --> IEventManagementPlatformContext : uses
+CreatePrintJobCommandHandler --> IEventManagementPlatformContext : uses
+RecordQualityCheckCommandHandler --> IEventManagementPlatformContext : uses
+
+' Relationships - DTOs
+CreateInvitationOrderCommandHandler ..> InvitationOrderDetailDto : returns
+ApproveDesignCommandHandler ..> InvitationOrderDetailDto : returns
+GetInvitationOrdersQueryHandler ..> InvitationOrderListDto : returns
+GetInvitationOrderByIdQueryHandler ..> InvitationOrderDetailDto : returns
+GetInvitationTemplatesQueryHandler ..> InvitationTemplateDto : returns
+CreatePrintJobCommandHandler ..> PrintJobDto : returns
+
+@enduml

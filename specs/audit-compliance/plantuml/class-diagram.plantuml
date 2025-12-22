@@ -1,0 +1,478 @@
+@startuml Audit & Compliance Class Diagram
+
+title Audit & Compliance - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.AuditAggregate" {
+
+    class AuditLog <<AggregateRoot>> {
+        + AuditLogId : Guid
+        + EntityType : string
+        + EntityId : Guid
+        + OperationType : AuditOperationType
+        + UserId : Guid
+        + Timestamp : DateTime
+        + Changes : string?
+        + IpAddress : string?
+        + UserAgent : string?
+        + CorrelationId : Guid
+        + Metadata : string?
+        --
+        + AuditLog(entityType: string, entityId: Guid, operationType: AuditOperationType, userId: Guid)
+        + static CreateEntityCreated(entityType: string, entityId: Guid, userId: Guid, data: object) : AuditLog
+        + static CreateEntityUpdated(entityType: string, entityId: Guid, userId: Guid, changes: object) : AuditLog
+        + static CreateEntityDeleted(entityType: string, entityId: Guid, userId: Guid) : AuditLog
+        + static CreateBulkOperation(entityType: string, operationType: string, userId: Guid, affectedCount: int) : AuditLog
+        + AddMetadata(key: string, value: object) : void
+    }
+
+    enum AuditOperationType <<Enumeration>> {
+        Created = 0
+        Updated = 1
+        Deleted = 2
+        BulkOperation = 3
+        Accessed = 4
+        Exported = 5
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.DataExportAggregate" {
+
+    class DataExport <<AggregateRoot>> {
+        + DataExportId : Guid
+        + RequestedBy : Guid
+        + RequestedAt : DateTime
+        + ExportType : ExportType
+        + EntityType : string?
+        + FilterCriteria : string?
+        + Status : ExportStatus
+        + FileUrl : string?
+        + FileSize : long?
+        + RecordCount : int?
+        + CompletedAt : DateTime?
+        + ExpiresAt : DateTime?
+        + ErrorMessage : string?
+        --
+        + DataExport(requestedBy: Guid, exportType: ExportType, entityType: string?, filterCriteria: string?)
+        + StartProcessing() : void
+        + Complete(fileUrl: string, fileSize: long, recordCount: int) : void
+        + Fail(errorMessage: string) : void
+        + Expire() : void
+        + CanDownload() : bool
+        + CanDelete() : bool
+    }
+
+    enum ExportType <<Enumeration>> {
+        AuditLogs = 0
+        CustomerData = 1
+        EventData = 2
+        ComplianceReport = 3
+        FullSystemExport = 4
+    }
+
+    enum ExportStatus <<Enumeration>> {
+        Pending = 0
+        InProgress = 1
+        Completed = 2
+        Failed = 3
+        Expired = 4
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.DataImportAggregate" {
+
+    class DataImport <<AggregateRoot>> {
+        + DataImportId : Guid
+        + UploadedBy : Guid
+        + UploadedAt : DateTime
+        + ImportType : ImportType
+        + FileUrl : string
+        + FileSize : long
+        + Status : ImportStatus
+        + RecordCount : int?
+        + SuccessCount : int?
+        + FailureCount : int?
+        + CompletedAt : DateTime?
+        + ErrorLog : string?
+        + ValidationErrors : string?
+        --
+        + DataImport(uploadedBy: Guid, importType: ImportType, fileUrl: string, fileSize: long)
+        + StartValidation() : void
+        + CompleteValidation(validationErrors: List<string>) : void
+        + StartImport() : void
+        + UpdateProgress(successCount: int, failureCount: int) : void
+        + Complete() : void
+        + Fail(errorLog: string) : void
+        + HasValidationErrors() : bool
+    }
+
+    enum ImportType <<Enumeration>> {
+        CustomerData = 0
+        EventData = 1
+        ConfigurationData = 2
+    }
+
+    enum ImportStatus <<Enumeration>> {
+        Uploaded = 0
+        Validating = 1
+        Validated = 2
+        Importing = 3
+        Completed = 4
+        Failed = 5
+        PartiallyCompleted = 6
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.BackupAggregate" {
+
+    class SystemBackup <<AggregateRoot>> {
+        + BackupId : Guid
+        + BackupType : BackupType
+        + InitiatedBy : Guid
+        + StartedAt : DateTime
+        + CompletedAt : DateTime?
+        + Status : BackupStatus
+        + BackupUrl : string?
+        + BackupSize : long?
+        + DatabaseSnapshot : string?
+        + RetentionUntil : DateTime
+        + ErrorMessage : string?
+        + IsAutomated : bool
+        --
+        + SystemBackup(backupType: BackupType, initiatedBy: Guid, retentionDays: int, isAutomated: bool)
+        + Start() : void
+        + Complete(backupUrl: string, backupSize: long, databaseSnapshot: string) : void
+        + Fail(errorMessage: string) : void
+        + Verify() : void
+        + IsExpired() : bool
+        + CanRestore() : bool
+    }
+
+    class DataRestore <<AggregateRoot>> {
+        + RestoreId : Guid
+        + BackupId : Guid
+        + InitiatedBy : Guid
+        + RequestedAt : DateTime
+        + RestoreType : RestoreType
+        + TargetPointInTime : DateTime?
+        + Status : RestoreStatus
+        + StartedAt : DateTime?
+        + CompletedAt : DateTime?
+        + ErrorMessage : string?
+        + ApprovalRequired : bool
+        + ApprovedBy : Guid?
+        + ApprovedAt : DateTime?
+        --
+        + DataRestore(backupId: Guid, initiatedBy: Guid, restoreType: RestoreType, approvalRequired: bool)
+        + Approve(approvedBy: Guid) : void
+        + Reject(reason: string) : void
+        + Start() : void
+        + Complete() : void
+        + Fail(errorMessage: string) : void
+        + RequiresApproval() : bool
+    }
+
+    enum BackupType <<Enumeration>> {
+        Full = 0
+        Differential = 1
+        TransactionLog = 2
+    }
+
+    enum BackupStatus <<Enumeration>> {
+        Initiated = 0
+        InProgress = 1
+        Completed = 2
+        Failed = 3
+        Verified = 4
+    }
+
+    enum RestoreType <<Enumeration>> {
+        FullRestore = 0
+        PartialRestore = 1
+        PointInTimeRestore = 2
+    }
+
+    enum RestoreStatus <<Enumeration>> {
+        PendingApproval = 0
+        Approved = 1
+        InProgress = 2
+        Completed = 3
+        Failed = 4
+        Rejected = 5
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.GDPRAggregate" {
+
+    class CustomerDataAccessLog <<AggregateRoot>> {
+        + AccessLogId : Guid
+        + CustomerId : Guid
+        + AccessedBy : Guid
+        + AccessedAt : DateTime
+        + AccessType : DataAccessType
+        + DataCategory : string
+        + Purpose : string
+        + IpAddress : string?
+        + LegalBasis : string?
+        + RetentionPeriod : int
+        --
+        + CustomerDataAccessLog(customerId: Guid, accessedBy: Guid, accessType: DataAccessType, dataCategory: string, purpose: string)
+        + SetLegalBasis(legalBasis: string) : void
+        + IsRetentionExpired() : bool
+    }
+
+    class ConsentRecord <<AggregateRoot>> {
+        + ConsentId : Guid
+        + CustomerId : Guid
+        + ConsentType : ConsentType
+        + Status : ConsentStatus
+        + Version : string
+        + GrantedAt : DateTime
+        + RevokedAt : DateTime?
+        + ExpiresAt : DateTime?
+        + IpAddress : string?
+        + UserAgent : string?
+        + ConsentText : string
+        + Metadata : string?
+        --
+        + ConsentRecord(customerId: Guid, consentType: ConsentType, version: string, consentText: string)
+        + Revoke() : void
+        + Expire() : void
+        + Supersede(newConsentId: Guid) : void
+        + IsActive() : bool
+        + IsExpired() : bool
+    }
+
+    class CustomerDataDeletion <<AggregateRoot>> {
+        + DeletionRequestId : Guid
+        + CustomerId : Guid
+        + RequestedAt : DateTime
+        + RequestedBy : Guid
+        + Status : DeletionStatus
+        + ScheduledFor : DateTime
+        + CompletedAt : DateTime?
+        + DeletedBy : Guid?
+        + DeletionScope : string
+        + RetentionOverrides : string?
+        + ApprovalRequired : bool
+        + ApprovedBy : Guid?
+        + ApprovedAt : DateTime?
+        + VerificationHash : string?
+        --
+        + CustomerDataDeletion(customerId: Guid, requestedBy: Guid, deletionScope: List<string>, approvalRequired: bool)
+        + Approve(approvedBy: Guid) : void
+        + Reject(reason: string) : void
+        + Schedule(scheduledFor: DateTime) : void
+        + Execute(deletedBy: Guid) : void
+        + Complete(verificationHash: string) : void
+        + Fail(errorMessage: string) : void
+        + AddRetentionOverride(category: string, reason: string) : void
+    }
+
+    enum DataAccessType <<Enumeration>> {
+        View = 0
+        Export = 1
+        Modify = 2
+        Delete = 3
+    }
+
+    enum ConsentType <<Enumeration>> {
+        PrivacyPolicy = 0
+        TermsOfService = 1
+        MarketingCommunications = 2
+        DataProcessing = 3
+        ThirdPartySharing = 4
+        Analytics = 5
+    }
+
+    enum ConsentStatus <<Enumeration>> {
+        Active = 0
+        Revoked = 1
+        Expired = 2
+        Superseded = 3
+    }
+
+    enum DeletionStatus <<Enumeration>> {
+        Requested = 0
+        PendingApproval = 1
+        Approved = 2
+        Scheduled = 3
+        InProgress = 4
+        Completed = 5
+        Failed = 6
+        Rejected = 7
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.AuditAggregate.Events" {
+
+    abstract class AuditDomainEvent <<DomainEvent>> {
+        + EventId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class EntityCreated extends AuditDomainEvent {
+        + EntityType : string
+        + EntityId : Guid
+        + Data : string
+    }
+
+    class EntityUpdated extends AuditDomainEvent {
+        + EntityType : string
+        + EntityId : Guid
+        + Changes : string
+    }
+
+    class EntityDeleted extends AuditDomainEvent {
+        + EntityType : string
+        + EntityId : Guid
+        + IsHardDelete : bool
+    }
+
+    class BulkOperationPerformed extends AuditDomainEvent {
+        + OperationType : string
+        + EntityType : string
+        + AffectedCount : int
+    }
+
+    class DataExported extends AuditDomainEvent {
+        + DataExportId : Guid
+        + ExportType : string
+        + RecordCount : int
+    }
+
+    class DataImported extends AuditDomainEvent {
+        + DataImportId : Guid
+        + ImportType : string
+        + SuccessCount : int
+        + FailureCount : int
+    }
+
+    class SystemBackupCompleted extends AuditDomainEvent {
+        + BackupId : Guid
+        + BackupType : string
+        + BackupSize : long
+        + Duration : TimeSpan
+    }
+
+    class SystemBackupFailed extends AuditDomainEvent {
+        + BackupId : Guid
+        + BackupType : string
+        + ErrorMessage : string
+    }
+
+    class DataRestorePerformed extends AuditDomainEvent {
+        + RestoreId : Guid
+        + BackupId : Guid
+        + RestoreType : string
+    }
+
+    class CustomerDataAccessLogged extends AuditDomainEvent {
+        + CustomerId : Guid
+        + AccessType : string
+        + DataCategory : string
+    }
+
+    class CustomerDataExported extends AuditDomainEvent {
+        + CustomerId : Guid
+        + ExportId : Guid
+        + DataScope : string
+    }
+
+    class CustomerDataDeleted extends AuditDomainEvent {
+        + CustomerId : Guid
+        + DeletionRequestId : Guid
+        + Scope : string
+    }
+
+    class PrivacyPolicyAccepted extends AuditDomainEvent {
+        + ConsentId : Guid
+        + CustomerId : Guid
+        + Version : string
+        + IpAddress : string?
+    }
+
+    class TermsOfServiceAccepted extends AuditDomainEvent {
+        + ConsentId : Guid
+        + CustomerId : Guid
+        + Version : string
+        + IpAddress : string?
+    }
+
+    class ConsentRecorded extends AuditDomainEvent {
+        + ConsentId : Guid
+        + CustomerId : Guid
+        + ConsentType : string
+    }
+
+    class ConsentRevoked extends AuditDomainEvent {
+        + ConsentId : Guid
+        + CustomerId : Guid
+        + ConsentType : string
+        + RevokedAt : DateTime
+    }
+
+}
+
+' Relationships
+AuditLog --> AuditOperationType
+DataExport --> ExportType
+DataExport --> ExportStatus
+DataImport --> ImportType
+DataImport --> ImportStatus
+SystemBackup --> BackupType
+SystemBackup --> BackupStatus
+DataRestore --> RestoreType
+DataRestore --> RestoreStatus
+DataRestore --> SystemBackup : "restores from"
+CustomerDataAccessLog --> DataAccessType
+ConsentRecord --> ConsentType
+ConsentRecord --> ConsentStatus
+CustomerDataDeletion --> DeletionStatus
+
+' Domain Events
+AuditLog ..> EntityCreated : "raises"
+AuditLog ..> EntityUpdated : "raises"
+AuditLog ..> EntityDeleted : "raises"
+AuditLog ..> BulkOperationPerformed : "raises"
+DataExport ..> DataExported : "raises"
+DataImport ..> DataImported : "raises"
+SystemBackup ..> SystemBackupCompleted : "raises"
+SystemBackup ..> SystemBackupFailed : "raises"
+DataRestore ..> DataRestorePerformed : "raises"
+CustomerDataAccessLog ..> CustomerDataAccessLogged : "raises"
+CustomerDataDeletion ..> CustomerDataExported : "raises"
+CustomerDataDeletion ..> CustomerDataDeleted : "raises"
+ConsentRecord ..> PrivacyPolicyAccepted : "raises"
+ConsentRecord ..> TermsOfServiceAccepted : "raises"
+ConsentRecord ..> ConsentRecorded : "raises"
+ConsentRecord ..> ConsentRevoked : "raises"
+
+note right of AuditLog
+  Immutable audit trail of all
+  entity operations in the system.
+  Supports compliance and forensics.
+end note
+
+note right of ConsentRecord
+  Tracks customer consent for
+  GDPR compliance. Consents can
+  be revoked at any time.
+end note
+
+note right of CustomerDataDeletion
+  Implements GDPR "Right to be Forgotten".
+  Requires approval and scheduling.
+end note
+
+@enduml

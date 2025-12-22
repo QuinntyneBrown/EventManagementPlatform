@@ -1,0 +1,539 @@
+@startuml Staff Management Sequence Diagrams
+
+title Staff Management - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Register Staff Member
+' ============================================
+
+newpage Register Staff Member Sequence
+
+actor Manager as manager
+participant "Angular App" as webapp
+participant "StaffController" as controller
+participant "MediatR" as mediatr
+participant "RegisterStaffCommandHandler" as handler
+participant "IEventManagementPlatformContext" as context
+database "Azure SQL" as db
+queue "Service Bus" as servicebus
+
+manager -> webapp : Fill staff registration form
+activate webapp
+
+webapp -> webapp : Validate form inputs
+webapp -> controller : POST /api/staff\n{firstName, lastName, email, ...}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(RegisterStaffCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> context : StaffMembers.AnyAsync(email)
+activate context
+context -> db : SELECT COUNT WHERE Email = ?
+db --> context : count
+context --> handler : email exists check
+deactivate context
+
+alt Email Already Exists
+    handler --> mediatr : throw ValidationException
+    mediatr --> controller : ValidationException
+    controller --> webapp : 400 Bad Request
+    webapp --> manager : Show email exists error
+else Email Available
+    handler -> handler : Create StaffMember entity
+    handler -> handler : staff.AddDomainEvent(StaffMemberRegistered)
+
+    handler -> context : StaffMembers.Add(staff)
+    activate context
+    handler -> context : SaveChangesAsync()
+    context -> db : INSERT staff_member
+    db --> context : success
+    context -> servicebus : Publish StaffMemberRegistered
+    context --> handler : saved
+    deactivate context
+
+    handler -> handler : Map to StaffDetailDto
+    handler --> mediatr : StaffDetailDto
+    deactivate handler
+
+    mediatr --> controller : StaffDetailDto
+    deactivate mediatr
+
+    controller --> webapp : 201 Created\nStaffDetailDto
+    deactivate controller
+
+    webapp --> manager : Show success message\nNavigate to staff detail
+end
+
+deactivate webapp
+
+' ============================================
+' Sequence 2: Declare Availability
+' ============================================
+
+newpage Declare Availability Sequence
+
+actor Staff as staff
+participant "Angular App" as webapp2
+participant "AvailabilityController" as controller2
+participant "MediatR" as mediatr2
+participant "DeclareAvailabilityCommandHandler" as handler2
+participant "StaffAvailabilityService" as service2
+participant "IEventManagementPlatformContext" as context2
+database "Azure SQL" as db2
+queue "Service Bus" as servicebus2
+
+staff -> webapp2 : Open availability calendar\nAdd availability slot
+activate webapp2
+
+webapp2 -> controller2 : POST /api/staff/{staffId}/availability\n{dayOfWeek, startTime, endTime, ...}
+activate controller2
+
+controller2 -> mediatr2 : Send(DeclareAvailabilityCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> context2 : StaffMembers.FindAsync(staffId)
+activate context2
+context2 -> db2 : SELECT staff_member
+db2 --> context2 : staff data
+context2 --> handler2 : StaffMember entity
+deactivate context2
+
+alt Staff Not Found
+    handler2 --> mediatr2 : throw NotFoundException
+    mediatr2 --> controller2 : NotFoundException
+    controller2 --> webapp2 : 404 Not Found
+    webapp2 --> staff : Show error message
+else Staff Found
+    handler2 -> service2 : ValidateAvailabilityConflictAsync(staffId, startTime, endTime, dayOfWeek)
+    activate service2
+    service2 -> context2 : Query existing availability
+    activate context2
+    context2 -> db2 : SELECT availability conflicts
+    db2 --> context2 : availability data
+    context2 --> service2 : conflict check result
+    deactivate context2
+    service2 --> handler2 : validation result
+    deactivate service2
+
+    alt Conflict Detected
+        handler2 --> mediatr2 : throw ConflictException
+        mediatr2 --> controller2 : ConflictException
+        controller2 --> webapp2 : 409 Conflict
+        webapp2 --> staff : Show conflict error
+    else No Conflict
+        handler2 -> handler2 : staff.DeclareAvailability(...)
+        handler2 -> handler2 : staff.AddDomainEvent(StaffAvailabilityDeclared)
+
+        handler2 -> context2 : SaveChangesAsync()
+        activate context2
+        context2 -> db2 : INSERT staff_availability
+        db2 --> context2 : success
+        context2 -> servicebus2 : Publish StaffAvailabilityDeclared
+        context2 --> handler2 : saved
+        deactivate context2
+
+        handler2 -> handler2 : Map to StaffAvailabilityDto
+        handler2 --> mediatr2 : StaffAvailabilityDto
+        deactivate handler2
+
+        mediatr2 --> controller2 : StaffAvailabilityDto
+        deactivate mediatr2
+
+        controller2 --> webapp2 : 201 Created\nStaffAvailabilityDto
+        deactivate controller2
+
+        webapp2 -> webapp2 : Update availability calendar
+        webapp2 --> staff : Show success message\nDisplay new availability
+    end
+end
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Assign Staff to Event
+' ============================================
+
+newpage Assign Staff to Event Sequence
+
+actor Manager as manager3
+participant "Angular App" as webapp3
+participant "AssignmentController" as controller3
+participant "MediatR" as mediatr3
+participant "AssignStaffToEventCommandHandler" as handler3
+participant "DoubleBookingService" as doubleBooking
+participant "StaffAvailabilityService" as availService
+participant "NotificationService" as notifService
+participant "IEventManagementPlatformContext" as context3
+database "Azure SQL" as db3
+queue "Service Bus" as servicebus3
+
+manager3 -> webapp3 : Select staff for event\nAssign role
+activate webapp3
+
+webapp3 -> controller3 : POST /api/staff/assignments\n{staffId, eventId, assignedRole}
+activate controller3
+
+controller3 -> mediatr3 : Send(AssignStaffToEventCommand)
+activate mediatr3
+
+mediatr3 -> handler3 : Handle(command)
+activate handler3
+
+handler3 -> context3 : StaffMembers.FindAsync(staffId)
+activate context3
+context3 -> db3 : SELECT staff_member
+db3 --> context3 : staff data
+context3 --> handler3 : StaffMember entity
+deactivate context3
+
+handler3 -> context3 : Events.FindAsync(eventId)
+activate context3
+context3 -> db3 : SELECT event
+db3 --> context3 : event data
+context3 --> handler3 : Event entity
+deactivate context3
+
+alt Staff or Event Not Found
+    handler3 --> mediatr3 : throw NotFoundException
+    mediatr3 --> controller3 : NotFoundException
+    controller3 --> webapp3 : 404 Not Found
+    webapp3 --> manager3 : Show error message
+else Found
+    handler3 -> handler3 : Validate staff is Active
+
+    alt Staff Not Active
+        handler3 --> mediatr3 : throw ConflictException
+        mediatr3 --> controller3 : ConflictException
+        controller3 --> webapp3 : 409 Conflict
+        webapp3 --> manager3 : Show status error
+    else Staff Active
+        handler3 -> doubleBooking : DetectDoubleBookingAsync(staffId, eventId, eventDate)
+        activate doubleBooking
+        doubleBooking -> context3 : Query conflicting assignments
+        activate context3
+        context3 -> db3 : SELECT assignments for date
+        db3 --> context3 : assignment data
+        context3 --> doubleBooking : assignments
+        deactivate context3
+        doubleBooking --> handler3 : conflict detection result
+        deactivate doubleBooking
+
+        alt Double Booking Detected
+            handler3 -> handler3 : AddDomainEvent(StaffDoubleBookingDetected)
+            handler3 -> handler3 : AddDomainEvent(StaffDoubleBookingPrevented)
+            handler3 --> mediatr3 : throw ConflictException("Double booking detected")
+            mediatr3 --> controller3 : ConflictException
+            controller3 --> webapp3 : 409 Conflict with details
+            webapp3 --> manager3 : Show double booking warning
+        else No Conflict
+            handler3 -> availService : CheckAvailabilityAsync(staffId, eventDate)
+            activate availService
+            availService -> context3 : Query staff availability
+            activate context3
+            context3 -> db3 : SELECT availability and unavailable dates
+            db3 --> context3 : availability data
+            context3 --> availService : availability
+            deactivate context3
+            availService --> handler3 : availability result
+            deactivate availService
+
+            alt Not Available
+                handler3 --> mediatr3 : throw ConflictException("Staff not available")
+                mediatr3 --> controller3 : ConflictException
+                controller3 --> webapp3 : 409 Conflict
+                webapp3 --> manager3 : Show availability error
+            else Available
+                handler3 -> handler3 : Create StaffAssignment entity
+                handler3 -> handler3 : assignment.AddDomainEvent(StaffAssignedToEvent)
+
+                handler3 -> context3 : StaffAssignments.Add(assignment)
+                activate context3
+                handler3 -> context3 : SaveChangesAsync()
+                context3 -> db3 : INSERT staff_assignment
+                db3 --> context3 : success
+                context3 -> servicebus3 : Publish StaffAssignedToEvent
+                context3 --> handler3 : saved
+                deactivate context3
+
+                handler3 -> notifService : NotifyStaffAssignment(assignmentId)
+                activate notifService
+                notifService -> servicebus3 : Queue notification email
+                notifService --> handler3 : notification queued
+                deactivate notifService
+
+                handler3 -> handler3 : Map to StaffAssignmentDto
+                handler3 --> mediatr3 : StaffAssignmentDto
+                deactivate handler3
+
+                mediatr3 --> controller3 : StaffAssignmentDto
+                deactivate mediatr3
+
+                controller3 --> webapp3 : 201 Created\nStaffAssignmentDto
+                deactivate controller3
+
+                webapp3 --> manager3 : Show success message\nAssignment created
+            end
+        end
+    end
+end
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: Confirm Assignment
+' ============================================
+
+newpage Confirm Assignment Sequence
+
+actor Staff as staff4
+participant "Angular App" as webapp4
+participant "AssignmentController" as controller4
+participant "MediatR" as mediatr4
+participant "ConfirmAssignmentCommandHandler" as handler4
+participant "NotificationService" as notifService4
+participant "IEventManagementPlatformContext" as context4
+database "Azure SQL" as db4
+queue "Service Bus" as servicebus4
+
+staff4 -> webapp4 : View pending assignment\nClick Confirm
+activate webapp4
+
+webapp4 -> controller4 : POST /api/staff/assignments/{assignmentId}/confirm
+activate controller4
+
+controller4 -> mediatr4 : Send(ConfirmAssignmentCommand)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(command)
+activate handler4
+
+handler4 -> context4 : StaffAssignments.FindAsync(assignmentId)
+activate context4
+context4 -> db4 : SELECT staff_assignment
+db4 --> context4 : assignment data
+context4 --> handler4 : StaffAssignment entity
+deactivate context4
+
+alt Assignment Not Found
+    handler4 --> mediatr4 : throw NotFoundException
+    mediatr4 --> controller4 : NotFoundException
+    controller4 --> webapp4 : 404 Not Found
+    webapp4 --> staff4 : Show error message
+else Assignment Found
+    handler4 -> handler4 : Validate status == Requested
+
+    alt Status Not Requested
+        handler4 --> mediatr4 : throw ConflictException
+        mediatr4 --> controller4 : ConflictException
+        controller4 --> webapp4 : 409 Conflict
+        webapp4 --> staff4 : Show status error
+    else Status is Requested
+        handler4 -> handler4 : assignment.Confirm(staffId)
+        handler4 -> handler4 : assignment.AddDomainEvent(StaffBookingConfirmed)
+
+        handler4 -> context4 : SaveChangesAsync()
+        activate context4
+        context4 -> db4 : UPDATE staff_assignment SET Status = 'Confirmed'
+        db4 --> context4 : success
+        context4 -> servicebus4 : Publish StaffBookingConfirmed
+        context4 --> handler4 : saved
+        deactivate context4
+
+        handler4 -> notifService4 : NotifyManagerStaffConfirmed(assignmentId)
+        activate notifService4
+        notifService4 -> servicebus4 : Queue notification email
+        notifService4 --> handler4 : notification queued
+        deactivate notifService4
+
+        handler4 --> mediatr4 : success
+        deactivate handler4
+
+        mediatr4 --> controller4 : success
+        deactivate mediatr4
+
+        controller4 --> webapp4 : 200 OK
+        deactivate controller4
+
+        webapp4 --> staff4 : Show confirmation success\nUpdate assignment status
+    end
+end
+
+deactivate webapp4
+
+' ============================================
+' Sequence 5: Check In Staff
+' ============================================
+
+newpage Check In Staff Sequence
+
+actor Manager as manager5
+participant "Angular App" as webapp5
+participant "CheckInController" as controller5
+participant "MediatR" as mediatr5
+participant "CheckInStaffCommandHandler" as handler5
+participant "IEventManagementPlatformContext" as context5
+database "Azure SQL" as db5
+queue "Service Bus" as servicebus5
+
+manager5 -> webapp5 : Scan staff QR code or\nSelect from list
+activate webapp5
+
+webapp5 -> controller5 : POST /api/staff/assignments/{assignmentId}/check-in\n{checkInTime}
+activate controller5
+
+controller5 -> mediatr5 : Send(CheckInStaffCommand)
+activate mediatr5
+
+mediatr5 -> handler5 : Handle(command)
+activate handler5
+
+handler5 -> context5 : StaffAssignments.FindAsync(assignmentId)
+activate context5
+context5 -> db5 : SELECT staff_assignment
+db5 --> context5 : assignment data
+context5 --> handler5 : StaffAssignment entity
+deactivate context5
+
+alt Assignment Not Found
+    handler5 --> mediatr5 : throw NotFoundException
+    mediatr5 --> controller5 : NotFoundException
+    controller5 --> webapp5 : 404 Not Found
+    webapp5 --> manager5 : Show error message
+else Assignment Found
+    handler5 -> handler5 : Validate status == Confirmed
+    handler5 -> handler5 : Validate not already checked in
+
+    alt Invalid Check-In
+        handler5 --> mediatr5 : throw ConflictException
+        mediatr5 --> controller5 : ConflictException
+        controller5 --> webapp5 : 409 Conflict
+        webapp5 --> manager5 : Show validation error
+    else Valid Check-In
+        handler5 -> handler5 : Create StaffCheckInOut entity
+        handler5 -> handler5 : AddDomainEvent(StaffCheckedIn)
+
+        handler5 -> context5 : StaffCheckInOuts.Add(checkIn)
+        activate context5
+        handler5 -> context5 : SaveChangesAsync()
+        context5 -> db5 : INSERT staff_check_in_out
+        db5 --> context5 : success
+        context5 -> servicebus5 : Publish StaffCheckedIn
+        context5 --> handler5 : saved
+        deactivate context5
+
+        handler5 -> handler5 : Map to CheckInOutDto
+        handler5 --> mediatr5 : CheckInOutDto
+        deactivate handler5
+
+        mediatr5 --> controller5 : CheckInOutDto
+        deactivate mediatr5
+
+        controller5 --> webapp5 : 201 Created\nCheckInOutDto
+        deactivate controller5
+
+        webapp5 --> manager5 : Show check-in success\nDisplay check-in time
+    end
+end
+
+deactivate webapp5
+
+' ============================================
+' Sequence 6: Find Available Staff
+' ============================================
+
+newpage Find Available Staff Sequence
+
+actor Manager as manager6
+participant "Angular App" as webapp6
+participant "AssignmentController" as controller6
+participant "MediatR" as mediatr6
+participant "FindAvailableStaffQueryHandler" as handler6
+participant "StaffAvailabilityService" as availService6
+participant "DoubleBookingService" as doubleBooking6
+participant "IEventManagementPlatformContext" as context6
+database "Azure SQL" as db6
+
+manager6 -> webapp6 : Navigate to event\nClick "Find Available Staff"
+activate webapp6
+
+webapp6 -> controller6 : GET /api/staff/available?eventId={eventId}&role={role}
+activate controller6
+
+controller6 -> mediatr6 : Send(FindAvailableStaffQuery)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(query)
+activate handler6
+
+handler6 -> context6 : Events.FindAsync(eventId)
+activate context6
+context6 -> db6 : SELECT event
+db6 --> context6 : event data
+context6 --> handler6 : Event entity
+deactivate context6
+
+handler6 -> availService6 : GetAvailableStaffAsync(eventDate, role)
+activate availService6
+
+availService6 -> context6 : Query staff with matching role and active status
+activate context6
+context6 -> db6 : SELECT staff_members WHERE Role = ? AND Status = 'Active'
+db6 --> context6 : staff list
+context6 --> availService6 : staff members
+deactivate context6
+
+availService6 -> availService6 : Filter by availability for event date/time
+availService6 -> context6 : Query availability and unavailable dates
+activate context6
+context6 -> db6 : SELECT availabilities and unavailable dates
+db6 --> context6 : availability data
+context6 --> availService6 : availability data
+deactivate context6
+
+availService6 --> handler6 : available staff list
+deactivate availService6
+
+handler6 -> doubleBooking6 : Filter out double bookings for each staff
+activate doubleBooking6
+doubleBooking6 -> context6 : Query existing assignments
+activate context6
+context6 -> db6 : SELECT assignments for event date
+db6 --> context6 : assignment data
+context6 --> doubleBooking6 : assignments
+deactivate context6
+doubleBooking6 --> handler6 : filtered staff list
+deactivate doubleBooking6
+
+handler6 -> handler6 : Get performance data for ranking
+handler6 -> context6 : Query ratings and completed assignments
+activate context6
+context6 -> db6 : SELECT performance data
+db6 --> context6 : performance data
+context6 --> handler6 : performance data
+deactivate context6
+
+handler6 -> handler6 : Sort by average rating and experience
+handler6 -> handler6 : Map to AvailableStaffDto
+handler6 --> mediatr6 : List<AvailableStaffDto>
+deactivate handler6
+
+mediatr6 --> controller6 : List<AvailableStaffDto>
+deactivate mediatr6
+
+controller6 --> webapp6 : 200 OK\n{availableStaff: [...]}
+deactivate controller6
+
+webapp6 -> webapp6 : Display available staff ranked by rating
+webapp6 --> manager6 : Show list of available staff\nwith ratings and experience
+
+deactivate webapp6
+
+@enduml

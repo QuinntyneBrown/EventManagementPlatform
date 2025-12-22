@@ -1,0 +1,306 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="5.0" version="24.0.0">
+  <diagram name="Integration Management Use Cases" id="integration-use-cases">
+    <mxGraphModel dx="1434" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Integration &amp; External System Management" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=10;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="80" width="1000" height="1000" as="geometry" />
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-admin" value="Administrator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="120" y="250" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-developer" value="Developer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="120" y="500" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-system" value="External System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="400" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-scheduler" value="System Scheduler" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="120" y="800" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Integration Management -->
+        <mxCell id="uc-configure-payment" value="Configure Payment&#xa;Gateway Integration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="140" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-configure-email" value="Configure Email&#xa;Service Integration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="240" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-configure-sms" value="Configure SMS&#xa;Service Integration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="340" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-enable-calendar" value="Enable Calendar&#xa;Synchronization" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="440" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-monitor-health" value="Monitor Integration&#xa;Health" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="640" y="140" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-test-connection" value="Test Integration&#xa;Connection" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="640" y="240" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-disconnect" value="Disconnect&#xa;Integration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="640" y="340" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - API Key Management -->
+        <mxCell id="uc-generate-key" value="Generate API Key" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-revoke-key" value="Revoke API Key" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="660" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-rotate-key" value="Rotate API Key" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="760" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-monitor-usage" value="Monitor API Key&#xa;Usage" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="560" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Webhook Management -->
+        <mxCell id="uc-create-webhook" value="Create Webhook&#xa;Subscription" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="140" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-process-webhook" value="Process Webhook&#xa;Delivery" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="240" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-retry-webhook" value="Retry Failed&#xa;Webhook" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="340" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-receive-webhook" value="Receive Incoming&#xa;Webhook" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="240" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-monitor-delivery" value="Monitor Webhook&#xa;Deliveries" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="440" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Data Synchronization -->
+        <mxCell id="uc-initiate-sync" value="Initiate Data&#xa;Synchronization" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="400" y="880" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-execute-sync" value="Execute Data&#xa;Sync Job" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="640" y="760" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-monitor-sync" value="Monitor Sync&#xa;Progress" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="640" y="880" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-schedule-sync" value="Schedule Automatic&#xa;Sync" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="400" y="980" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-handle-errors" value="Handle Sync&#xa;Errors" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="640" y="980" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Security & Validation -->
+        <mxCell id="uc-validate-creds" value="Validate&#xa;Credentials" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fad9d5;strokeColor=#ae4132;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="600" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-encrypt-config" value="Encrypt&#xa;Configuration" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fad9d5;strokeColor=#ae4132;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="700" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-enforce-rate" value="Enforce Rate&#xa;Limits" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fad9d5;strokeColor=#ae4132;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="560" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-audit-log" value="Audit Logging" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fad9d5;strokeColor=#ae4132;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="800" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Administrator -->
+        <mxCell id="rel-admin-payment" edge="1" parent="1" source="actor-admin" target="uc-configure-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-email" edge="1" parent="1" source="actor-admin" target="uc-configure-email">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-sms" edge="1" parent="1" source="actor-admin" target="uc-configure-sms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-calendar" edge="1" parent="1" source="actor-admin" target="uc-enable-calendar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-health" edge="1" parent="1" source="actor-admin" target="uc-monitor-health">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-test" edge="1" parent="1" source="actor-admin" target="uc-test-connection">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-disconnect" edge="1" parent="1" source="actor-admin" target="uc-disconnect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-webhook" edge="1" parent="1" source="actor-admin" target="uc-create-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-monitor-delivery" edge="1" parent="1" source="actor-admin" target="uc-monitor-delivery">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Developer -->
+        <mxCell id="rel-dev-generate" edge="1" parent="1" source="actor-developer" target="uc-generate-key">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-revoke" edge="1" parent="1" source="actor-developer" target="uc-revoke-key">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-rotate" edge="1" parent="1" source="actor-developer" target="uc-rotate-key">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-usage" edge="1" parent="1" source="actor-developer" target="uc-monitor-usage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-webhook" edge="1" parent="1" source="actor-developer" target="uc-create-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-sync" edge="1" parent="1" source="actor-developer" target="uc-initiate-sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-monitor-sync" edge="1" parent="1" source="actor-developer" target="uc-monitor-sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - External System -->
+        <mxCell id="rel-ext-receive" edge="1" parent="1" source="actor-system" target="uc-receive-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-ext-process" edge="1" parent="1" source="actor-system" target="uc-process-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Scheduler -->
+        <mxCell id="rel-sched-health" edge="1" parent="1" source="actor-scheduler" target="uc-monitor-health">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-sched-sync" edge="1" parent="1" source="actor-scheduler" target="uc-schedule-sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-sched-execute" edge="1" parent="1" source="actor-scheduler" target="uc-execute-sync">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-sched-retry" edge="1" parent="1" source="actor-scheduler" target="uc-retry-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="inc-payment-validate" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="uc-configure-payment" target="uc-validate-creds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc-payment-encrypt" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="uc-configure-email" target="uc-encrypt-config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc-generate-enforce" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="uc-generate-key" target="uc-enforce-rate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc-webhook-audit" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="uc-process-webhook" target="uc-audit-log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc-sync-errors" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=1;exitY=1;entryX=0;entryY=0;" edge="1" parent="1" source="uc-execute-sync" target="uc-handle-errors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="ext-retry-process" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="uc-retry-webhook" target="uc-process-webhook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="80" width="200" height="260" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1360" y="85" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-integration" value="Integration Management" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="120" width="80" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-apikey" value="API Key" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="120" width="70" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-webhook" value="Webhook" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="170" width="70" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-sync" value="Data Sync" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="170" width="80" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-security" value="Security" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fad9d5;strokeColor=#ae4132;dashed=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="220" width="70" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-include" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry x="1460" y="235" as="geometry">
+            <mxPoint x="1470" y="235" as="sourcePoint" />
+            <mxPoint x="1530" y="235" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-extend" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;dashed=1;fontSize=10;" edge="1" parent="1">
+          <mxGeometry x="1460" y="255" as="geometry">
+            <mxPoint x="1470" y="255" as="sourcePoint" />
+            <mxPoint x="1530" y="255" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-association" value="Association" style="edgeStyle=none;html=1;endArrow=none;fontSize=10;" edge="1" parent="1">
+          <mxGeometry x="1460" y="285" as="geometry">
+            <mxPoint x="1470" y="285" as="sourcePoint" />
+            <mxPoint x="1530" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

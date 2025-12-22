@@ -1,0 +1,615 @@
+@startuml Equipment Management Sequence Diagrams
+
+title Equipment Management - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Create Equipment Item
+' ============================================
+
+newpage Create Equipment Item Sequence
+
+actor "Warehouse Manager" as manager
+participant "Angular App" as webapp
+participant "EquipmentController" as controller
+participant "MediatR" as mediatr
+participant "CreateEquipmentItemCommandHandler" as handler
+participant "EquipmentService" as service
+participant "IEventManagementPlatformContext" as context
+database "Azure SQL" as db
+participant "Azure Blob Storage" as blob
+queue "Service Bus" as servicebus
+
+manager -> webapp : Fill equipment form
+activate webapp
+
+webapp -> webapp : Validate form inputs
+webapp -> controller : POST /api/equipment\n{name, category, purchaseDate, ...}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(CreateEquipmentItemCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> service : ValidateEquipmentNameAsync(name, category)
+activate service
+service -> context : Query equipment by name
+activate context
+context -> db : SELECT equipment
+db --> context : existing equipment
+context --> service : validation result
+deactivate context
+service --> handler : name is unique
+deactivate service
+
+alt Name Already Exists
+    handler --> mediatr : throw ValidationException
+    mediatr --> controller : ValidationException
+    controller --> webapp : 400 Bad Request
+    webapp --> manager : Show validation error
+else Name is Unique
+    handler -> handler : Create EquipmentItem entity
+    handler -> handler : equipment.AddDomainEvent(EquipmentItemAdded)
+
+    handler -> context : EquipmentItems.Add(equipment)
+    activate context
+    handler -> context : SaveChangesAsync()
+    context -> db : INSERT equipment_item
+    db --> context : success
+    context -> servicebus : Publish EquipmentItemAdded
+    context --> handler : saved
+    deactivate context
+
+    handler -> handler : Map to EquipmentDetailDto
+    handler --> mediatr : EquipmentDetailDto
+    deactivate handler
+
+    mediatr --> controller : EquipmentDetailDto
+    deactivate mediatr
+
+    controller --> webapp : 201 Created\nEquipmentDetailDto
+    deactivate controller
+
+    webapp --> manager : Show success message\nNavigate to equipment detail
+end
+
+deactivate webapp
+
+' ============================================
+' Sequence 2: Upload Equipment Photo
+' ============================================
+
+newpage Upload Equipment Photo Sequence
+
+actor "Warehouse Manager" as manager2
+participant "Angular App" as webapp2
+participant "EquipmentController" as controller2
+participant "MediatR" as mediatr2
+participant "UploadEquipmentPhotoCommandHandler" as handler2
+participant "IEventManagementPlatformContext" as context2
+database "Azure SQL" as db2
+participant "Azure Blob Storage" as blob2
+queue "Service Bus" as servicebus2
+
+manager2 -> webapp2 : Drag and drop photo
+activate webapp2
+
+webapp2 -> webapp2 : Validate file (type, size)
+webapp2 -> controller2 : POST /api/equipment/{id}/photos\n[file upload]
+activate controller2
+
+controller2 -> controller2 : Validate file
+controller2 -> mediatr2 : Send(UploadEquipmentPhotoCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> context2 : EquipmentItems.FindAsync(equipmentId)
+activate context2
+context2 -> db2 : SELECT equipment
+db2 --> context2 : equipment data
+context2 --> handler2 : EquipmentItem entity
+deactivate context2
+
+alt Equipment Not Found
+    handler2 --> mediatr2 : throw NotFoundException
+    mediatr2 --> controller2 : NotFoundException
+    controller2 --> webapp2 : 404 Not Found
+    webapp2 --> manager2 : Show not found error
+else Equipment Found
+    handler2 -> blob2 : Upload file to blob storage
+    activate blob2
+    blob2 --> handler2 : blobUrl, thumbnailUrl
+    deactivate blob2
+
+    handler2 -> handler2 : equipment.AddPhoto(blobUrl, fileName, fileSize, userId)
+    handler2 -> handler2 : equipment.AddDomainEvent(EquipmentPhotoUploaded)
+
+    handler2 -> context2 : SaveChangesAsync()
+    activate context2
+    context2 -> db2 : INSERT equipment_photo
+    db2 --> context2 : success
+    context2 -> servicebus2 : Publish EquipmentPhotoUploaded
+    context2 --> handler2 : saved
+    deactivate context2
+
+    handler2 -> handler2 : Map to EquipmentPhotoDto
+    handler2 --> mediatr2 : EquipmentPhotoDto
+    deactivate handler2
+
+    mediatr2 --> controller2 : EquipmentPhotoDto
+    deactivate mediatr2
+
+    controller2 --> webapp2 : 201 Created\nEquipmentPhotoDto
+    deactivate controller2
+
+    webapp2 -> webapp2 : Add photo to gallery
+    webapp2 --> manager2 : Show success message\nDisplay photo
+end
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Create Reservation with Availability Check
+' ============================================
+
+newpage Create Equipment Reservation Sequence
+
+actor Staff as staff3
+participant "Angular App" as webapp3
+participant "EquipmentController" as controller3
+participant "MediatR" as mediatr3
+participant "CreateReservationCommandHandler" as handler3
+participant "ReservationService" as resservice
+participant "EquipmentService" as eqservice
+participant "IEventManagementPlatformContext" as context3
+database "Azure SQL" as db3
+queue "Service Bus" as servicebus3
+
+staff3 -> webapp3 : Select equipment and dates
+activate webapp3
+
+webapp3 -> controller3 : GET /api/equipment/check-availability\n{equipmentId, startDate, endDate}
+activate controller3
+
+controller3 -> mediatr3 : Send(CheckAvailabilityQuery)
+activate mediatr3
+
+mediatr3 -> eqservice : CheckAvailabilityAsync(equipmentId, startDate, endDate)
+activate eqservice
+
+eqservice -> context3 : Query reservations for equipment
+activate context3
+context3 -> db3 : SELECT reservations WHERE overlapping dates
+db3 --> context3 : reservation records
+context3 --> eqservice : existing reservations
+deactivate context3
+
+eqservice -> eqservice : Check for date overlaps
+eqservice -> eqservice : Detect conflicts
+
+alt Conflicts Found
+    eqservice -> eqservice : SuggestAlternativesAsync(equipmentId, category, dates)
+    eqservice -> context3 : Query similar equipment
+    activate context3
+    context3 -> db3 : SELECT available equipment in category
+    db3 --> context3 : alternative equipment
+    context3 --> eqservice : alternatives
+    deactivate context3
+end
+
+eqservice --> mediatr3 : AvailabilityResult(isAvailable, conflicts, alternatives)
+deactivate eqservice
+
+mediatr3 --> controller3 : AvailabilityResultDto
+deactivate mediatr3
+
+controller3 --> webapp3 : 200 OK\nAvailabilityResultDto
+deactivate controller3
+
+alt Equipment Not Available
+    webapp3 --> staff3 : Show conflicts and alternatives
+
+    staff3 -> webapp3 : Select alternative equipment
+    webapp3 -> webapp3 : Update selected equipment
+else Equipment Available
+    staff3 -> webapp3 : Confirm reservation
+    activate webapp3
+
+    webapp3 -> controller3 : POST /api/equipment/reservations\n{equipmentId, eventId, dates, ...}
+    activate controller3
+
+    controller3 -> mediatr3 : Send(CreateReservationCommand)
+    activate mediatr3
+
+    mediatr3 -> handler3 : Handle(command)
+    activate handler3
+
+    handler3 -> resservice : ValidateReservationAsync(reservation)
+    activate resservice
+    resservice -> resservice : Validate date range
+    resservice -> resservice : Validate quantity > 0
+    resservice --> handler3 : validation passed
+    deactivate resservice
+
+    handler3 -> resservice : CheckDoubleBookingAsync(reservation)
+    activate resservice
+    resservice -> context3 : Query overlapping reservations
+    activate context3
+    context3 -> db3 : SELECT conflicting reservations
+    db3 --> context3 : no conflicts
+    context3 --> resservice : no conflicts found
+    deactivate context3
+    resservice --> handler3 : no double booking
+    deactivate resservice
+
+    handler3 -> handler3 : Create EquipmentReservation entity
+    handler3 -> handler3 : Create EquipmentLogistics entity
+    handler3 -> handler3 : reservation.AddDomainEvent(EquipmentReservedForEvent)
+
+    handler3 -> context3 : EquipmentReservations.Add(reservation)
+    handler3 -> context3 : EquipmentLogistics.Add(logistics)
+    activate context3
+    handler3 -> context3 : SaveChangesAsync()
+    context3 -> db3 : INSERT reservation, logistics
+    db3 --> context3 : success
+    context3 -> servicebus3 : Publish EquipmentReservedForEvent
+    context3 --> handler3 : saved
+    deactivate context3
+
+    handler3 -> handler3 : Map to ReservationDetailDto
+    handler3 --> mediatr3 : ReservationDetailDto
+    deactivate handler3
+
+    mediatr3 --> controller3 : ReservationDetailDto
+    deactivate mediatr3
+
+    controller3 --> webapp3 : 201 Created\nReservationDetailDto
+    deactivate controller3
+
+    webapp3 --> staff3 : Show success message\nDisplay reservation
+    deactivate webapp3
+end
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: Update Logistics Status
+' ============================================
+
+newpage Update Logistics Status Sequence
+
+actor Staff as staff4
+participant "Angular App" as webapp4
+participant "EquipmentController" as controller4
+participant "MediatR" as mediatr4
+participant "UpdateLogisticsCommandHandler" as handler4
+participant "IEventManagementPlatformContext" as context4
+database "Azure SQL" as db4
+queue "Service Bus" as servicebus4
+
+staff4 -> webapp4 : Click "Mark as Packed" button
+activate webapp4
+
+webapp4 -> controller4 : POST /api/equipment/logistics/{reservationId}/pack
+activate controller4
+
+controller4 -> mediatr4 : Send(MarkAsPackedCommand)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(command)
+activate handler4
+
+handler4 -> context4 : EquipmentLogistics.FindByReservationAsync(reservationId)
+activate context4
+context4 -> db4 : SELECT logistics
+db4 --> context4 : logistics data
+context4 --> handler4 : EquipmentLogistics entity
+deactivate context4
+
+alt Logistics Not Found
+    handler4 --> mediatr4 : throw NotFoundException
+    mediatr4 --> controller4 : NotFoundException
+    controller4 --> webapp4 : 404 Not Found
+    webapp4 --> staff4 : Show error message
+else Logistics Found
+    handler4 -> handler4 : logistics.MarkAsPacked(userId)
+    handler4 -> handler4 : logistics.AddDomainEvent(EquipmentPackedForShipment)
+
+    handler4 -> context4 : SaveChangesAsync()
+    activate context4
+    context4 -> db4 : UPDATE logistics SET PackedAt = NOW()
+    db4 --> context4 : success
+    context4 -> servicebus4 : Publish EquipmentPackedForShipment
+    context4 --> handler4 : saved
+    deactivate context4
+
+    handler4 --> mediatr4 : success
+    deactivate handler4
+
+    mediatr4 --> controller4 : success
+    deactivate mediatr4
+
+    controller4 --> webapp4 : 200 OK
+    deactivate controller4
+
+    webapp4 -> webapp4 : Update timeline UI
+    webapp4 -> webapp4 : Enable "Mark as Loaded" button
+    webapp4 --> staff4 : Show packed status\nUpdate timeline
+end
+
+deactivate webapp4
+
+note over staff4,servicebus4
+    The same pattern repeats for other logistics stages:
+    - Mark as Loaded (EquipmentLoadedOnTruck)
+    - Mark as Dispatched (EquipmentDispatchedToEvent)
+    - Mark as Delivered (EquipmentDeliveredToVenue)
+    - Mark Setup Complete (EquipmentSetupCompleted)
+    - Mark as Picked Up (EquipmentPickedUpFromVenue)
+    - Mark as Returned (EquipmentReturnedToWarehouse)
+end note
+
+' ============================================
+' Sequence 5: Schedule Maintenance
+' ============================================
+
+newpage Schedule Maintenance Sequence
+
+actor "Maintenance Technician" as tech5
+participant "Angular App" as webapp5
+participant "EquipmentController" as controller5
+participant "MediatR" as mediatr5
+participant "ScheduleMaintenanceCommandHandler" as handler5
+participant "EquipmentService" as service5
+participant "IEventManagementPlatformContext" as context5
+database "Azure SQL" as db5
+queue "Service Bus" as servicebus5
+
+tech5 -> webapp5 : Open schedule maintenance form
+activate webapp5
+
+webapp5 -> service5 : CalculateMaintenanceScheduleAsync(equipmentId)
+activate service5
+service5 -> context5 : Get last maintenance date
+service5 -> service5 : Calculate recommended date (last + 6 months)
+service5 --> webapp5 : recommendedDate
+deactivate service5
+
+webapp5 -> webapp5 : Pre-fill scheduled date
+tech5 -> webapp5 : Fill maintenance details\nSelect type, date, description
+
+webapp5 -> controller5 : POST /api/equipment/{id}/maintenance\n{type, scheduledDate, description}
+activate controller5
+
+controller5 -> mediatr5 : Send(ScheduleMaintenanceCommand)
+activate mediatr5
+
+mediatr5 -> handler5 : Handle(command)
+activate handler5
+
+handler5 -> context5 : EquipmentItems.FindAsync(equipmentId)
+activate context5
+context5 -> db5 : SELECT equipment
+db5 --> context5 : equipment data
+context5 --> handler5 : EquipmentItem entity
+deactivate context5
+
+alt Equipment Not Found
+    handler5 --> mediatr5 : throw NotFoundException
+    mediatr5 --> controller5 : NotFoundException
+    controller5 --> webapp5 : 404 Not Found
+    webapp5 --> tech5 : Show error message
+else Equipment Found
+    handler5 -> handler5 : Create EquipmentMaintenance entity
+    handler5 -> handler5 : maintenance.AddDomainEvent(EquipmentMaintenanceScheduled)
+
+    handler5 -> context5 : EquipmentMaintenance.Add(maintenance)
+    activate context5
+    handler5 -> context5 : SaveChangesAsync()
+    context5 -> db5 : INSERT equipment_maintenance
+    db5 --> context5 : success
+    context5 -> servicebus5 : Publish EquipmentMaintenanceScheduled
+    context5 --> handler5 : saved
+    deactivate context5
+
+    handler5 -> handler5 : Map to MaintenanceRecordDto
+    handler5 --> mediatr5 : MaintenanceRecordDto
+    deactivate handler5
+
+    mediatr5 --> controller5 : MaintenanceRecordDto
+    deactivate mediatr5
+
+    controller5 --> webapp5 : 201 Created\nMaintenanceRecordDto
+    deactivate controller5
+
+    webapp5 --> tech5 : Show success message\nDisplay in maintenance calendar
+end
+
+deactivate webapp5
+
+' ============================================
+' Sequence 6: Report Equipment Damage
+' ============================================
+
+newpage Report Equipment Damage Sequence
+
+actor Staff as staff6
+participant "Angular App" as webapp6
+participant "EquipmentController" as controller6
+participant "MediatR" as mediatr6
+participant "ReportDamageCommandHandler" as handler6
+participant "IEventManagementPlatformContext" as context6
+database "Azure SQL" as db6
+participant "Azure Blob Storage" as blob6
+participant "Azure Computer Vision" as vision
+queue "Service Bus" as servicebus6
+
+staff6 -> webapp6 : Open damage report dialog
+activate webapp6
+
+staff6 -> webapp6 : Fill damage details\nUpload photos, describe damage
+
+webapp6 -> controller6 : POST /api/equipment/{id}/damage-report\n{severity, description, photos}
+activate controller6
+
+controller6 -> controller6 : Validate request
+controller6 -> mediatr6 : Send(ReportDamageCommand)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(command)
+activate handler6
+
+handler6 -> context6 : EquipmentItems.FindAsync(equipmentId)
+activate context6
+context6 -> db6 : SELECT equipment
+db6 --> context6 : equipment data
+context6 --> handler6 : EquipmentItem entity
+deactivate context6
+
+alt Equipment Not Found
+    handler6 --> mediatr6 : throw NotFoundException
+    mediatr6 --> controller6 : NotFoundException
+    controller6 --> webapp6 : 404 Not Found
+    webapp6 --> staff6 : Show error message
+else Equipment Found
+    loop For each photo
+        handler6 -> blob6 : Upload damage photo
+        activate blob6
+        blob6 --> handler6 : photoUrl
+        deactivate blob6
+
+        handler6 -> vision : Analyze image for damage
+        activate vision
+        vision -> vision : Detect damage severity
+        vision --> handler6 : analysis result
+        deactivate vision
+    end
+
+    handler6 -> handler6 : Create EquipmentDamageReport entity
+    handler6 -> handler6 : damageReport.AddDomainEvent(EquipmentDamageReported)
+
+    alt Severe Damage or Total Loss
+        handler6 -> handler6 : equipment.UpdateCondition(NeedsRepair, reason, userId)
+        handler6 -> handler6 : equipment.UpdateStatus(OutOfService, userId)
+        handler6 -> handler6 : equipment.AddDomainEvent(EquipmentConditionDowngraded)
+    end
+
+    handler6 -> context6 : EquipmentDamageReports.Add(damageReport)
+    activate context6
+    handler6 -> context6 : SaveChangesAsync()
+    context6 -> db6 : INSERT damage_report\nUPDATE equipment IF needed
+    db6 --> context6 : success
+    context6 -> servicebus6 : Publish EquipmentDamageReported
+    context6 --> handler6 : saved
+    deactivate context6
+
+    handler6 -> handler6 : Map to DamageReportDto
+    handler6 --> mediatr6 : DamageReportDto
+    deactivate handler6
+
+    mediatr6 --> controller6 : DamageReportDto
+    deactivate mediatr6
+
+    controller6 --> webapp6 : 201 Created\nDamageReportDto
+    deactivate controller6
+
+    webapp6 -> webapp6 : Close dialog
+    webapp6 -> webapp6 : Update equipment status badge
+    webapp6 --> staff6 : Show success message\nDamage report submitted
+end
+
+deactivate webapp6
+
+' ============================================
+' Sequence 7: Override Double Booking (Manager)
+' ============================================
+
+newpage Override Double Booking Sequence
+
+actor Manager as manager7
+participant "Angular App" as webapp7
+participant "EquipmentController" as controller7
+participant "MediatR" as mediatr7
+participant "OverrideDoubleBookingCommandHandler" as handler7
+participant "ReservationService" as resservice7
+participant "IEventManagementPlatformContext" as context7
+database "Azure SQL" as db7
+queue "Service Bus" as servicebus7
+
+note over manager7,servicebus7
+    This occurs when a Staff member tries to create a reservation
+    that conflicts with an existing one, and escalates to Manager.
+end note
+
+manager7 -> webapp7 : Review conflict details
+activate webapp7
+
+webapp7 -> webapp7 : Display conflicting reservations
+manager7 -> webapp7 : Enter override reason\nClick "Override Conflict"
+
+webapp7 -> controller7 : POST /api/equipment/reservations/{id}/override-conflict\n{reason}
+activate controller7
+
+controller7 -> controller7 : Verify Manager role
+controller7 -> mediatr7 : Send(OverrideDoubleBookingCommand)
+activate mediatr7
+
+mediatr7 -> handler7 : Handle(command)
+activate handler7
+
+handler7 -> context7 : EquipmentReservations.FindAsync(reservationId)
+activate context7
+context7 -> db7 : SELECT reservation
+db7 --> context7 : reservation data
+context7 --> handler7 : EquipmentReservation entity
+deactivate context7
+
+handler7 -> resservice7 : GetConflictingReservationsAsync(equipmentId, dates)
+activate resservice7
+resservice7 -> context7 : Query conflicts
+activate context7
+context7 -> db7 : SELECT overlapping reservations
+db7 --> context7 : conflicting reservations
+context7 --> resservice7 : conflicts
+deactivate context7
+resservice7 --> handler7 : list of conflicts
+deactivate resservice7
+
+alt No Conflicts Found
+    handler7 --> mediatr7 : throw ConflictException("No conflicts to override")
+    mediatr7 --> controller7 : ConflictException
+    controller7 --> webapp7 : 409 Conflict
+    webapp7 --> manager7 : Show error message
+else Conflicts Exist
+    handler7 -> handler7 : reservation.Confirm(managerId)
+    handler7 -> handler7 : reservation.AddDomainEvent(EquipmentDoubleBookingOverridden)
+    handler7 -> handler7 : Log override action with reason
+
+    handler7 -> context7 : SaveChangesAsync()
+    activate context7
+    context7 -> db7 : UPDATE reservation\nINSERT audit_log
+    db7 --> context7 : success
+    context7 -> servicebus7 : Publish EquipmentDoubleBookingOverridden
+    context7 --> handler7 : saved
+    deactivate context7
+
+    handler7 --> mediatr7 : success
+    deactivate handler7
+
+    mediatr7 --> controller7 : success
+    deactivate mediatr7
+
+    controller7 --> webapp7 : 200 OK
+    deactivate controller7
+
+    webapp7 -> webapp7 : Update reservation status
+    webapp7 --> manager7 : Show override success\nReservation confirmed
+end
+
+deactivate webapp7
+
+@enduml

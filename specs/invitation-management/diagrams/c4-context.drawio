@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="c4-context" name="C4 Context Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="C4 Context Diagram - Invitation Management" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- People/Actors -->
+        <mxCell id="person-customer" value="Customer&#xa;[Person]&#xa;&#xa;Orders invitations, approves&#xa;designs, tracks delivery" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="100" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-staff" value="Staff Member&#xa;[Person]&#xa;&#xa;Manages orders, coordinates&#xa;printing and delivery" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="300" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-printer" value="Printer&#xa;[Person]&#xa;&#xa;Prints invitations, performs&#xa;quality checks" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="500" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-shipper" value="Shipper&#xa;[Person]&#xa;&#xa;Ships packages, updates&#xa;delivery status" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="700" width="160" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Main System -->
+        <mxCell id="system-main" value="Invitation Management System&#xa;[Software System]&#xa;&#xa;Manages invitation orders,&#xa;design approval, printing,&#xa;quality control, and delivery&#xa;tracking" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#1e4d78;fillColor=#1168bd;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="320" width="300" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="system-azure-ai" value="Azure AI Services&#xa;[External System]&#xa;&#xa;Generates text suggestions,&#xa;validates design quality,&#xa;analyzes images" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="860" y="100" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-blob-storage" value="Azure Blob Storage&#xa;[External System]&#xa;&#xa;Stores invitation designs,&#xa;templates, and digital&#xa;versions" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="860" y="280" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-printer-service" value="Printer Service&#xa;[External System]&#xa;&#xa;External printing&#xa;coordination service" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="860" y="460" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-shipper-service" value="Shipper Service&#xa;[External System]&#xa;&#xa;Shipping and tracking&#xa;integration (FedEx, UPS)" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="860" y="640" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="system-email" value="Email Service&#xa;[External System]&#xa;&#xa;Sends order confirmations,&#xa;status updates, delivery&#xa;notifications" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#666666;fillColor=#999999;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="490" y="700" width="220" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-customer" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-1-label" value="Creates orders,&#xa;approves designs" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-1" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-staff" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-2-label" value="Manages orders,&#xa;coordinates workflow" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-2" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-printer" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-3-label" value="Updates print jobs,&#xa;records QC results" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-3" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;dashed=0;" parent="1" source="person-shipper" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-4-label" value="Updates delivery&#xa;status" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-5-label" value="Uses AI for text&#xa;suggestions, validation" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-blob-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-6-label" value="Stores/retrieves&#xa;designs" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-printer-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-7-label" value="Coordinates&#xa;printing" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-7" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-shipper-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-8-label" value="Tracks&#xa;deliveries" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-8" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="system-main" target="system-email" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-9-label" value="Sends&#xa;notifications" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="rel-9" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#999999;fillColor=#f5f5f5;" parent="1" vertex="1">
+          <mxGeometry x="40" y="60" width="160" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="70" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-person" value="" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="60" y="100" width="30" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-person-text" value="Person" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="80" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-system" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#1e4d78;" parent="1" vertex="1">
+          <mxGeometry x="60" y="140" width="30" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-system-text" value="System" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="100" y="140" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="c4-container" name="C4 Container Diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title2" value="C4 Container Diagram - Invitation Management" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="boundary" value="Invitation Management System [System Boundary]" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;strokeColor=#1168bd;fillColor=none;fontColor=#1168bd;align=left;verticalAlign=top;labelBackgroundColor=none;strokeWidth=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="280" y="80" width="900" height="640" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="container-webapp" value="Web Application&#xa;[Container: Angular]&#xa;&#xa;Provides invitation ordering&#xa;and management UI" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="320" y="120" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-api" value="API Application&#xa;[Container: .NET 8 Web API]&#xa;&#xa;Provides invitation&#xa;management API" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="600" y="120" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-worker" value="Background Worker&#xa;[Container: .NET Worker]&#xa;&#xa;Processes print jobs,&#xa;delivery tracking, notifications" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="920" y="120" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-database" value="Database&#xa;[Container: Azure SQL]&#xa;&#xa;Stores orders, print jobs,&#xa;deliveries, templates" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="440" y="340" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-cache" value="Cache&#xa;[Container: Azure Redis]&#xa;&#xa;Caches templates,&#xa;order data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="680" y="340" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-storage" value="Blob Storage&#xa;[Container: Azure Blob]&#xa;&#xa;Stores designs, templates,&#xa;digital versions" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="960" y="340" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="container-servicebus" value="Message Bus&#xa;[Container: Azure Service Bus]&#xa;&#xa;Coordinates printing,&#xa;shipping, notifications" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="560" y="560" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="user" value="User&#xa;[Person]" style="shape=mxgraph.c4.person2;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;strokeColor=#3d85c6;fillColor=#4a90d9;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="120" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-azure-ai" value="Azure AI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-printer" value="Printer Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="200" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-shipper" value="Shipper Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-email" value="Email Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1240" y="360" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="crel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="user" target="container-webapp" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-1-label" value="Uses [HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-1" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-webapp" target="container-api" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-2-label" value="Calls [HTTPS/JSON]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-2" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-3-label" value="Reads/Writes [EF Core]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-3" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-cache" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-4-label" value="Caches [Redis]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-4" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-5-label" value="Stores [HTTPS]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-api" target="container-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-6-label" value="Publishes [AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-worker" target="container-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="crel-7-label" value="Subscribes [AMQP]" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;" parent="crel-7" vertex="1" connectable="0">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="crel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="container-worker" target="container-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-api" target="ext-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-worker" target="ext-printer" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-worker" target="ext-shipper" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crel-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#999999;strokeWidth=2;dashed=1;" parent="1" source="container-worker" target="ext-email" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="c4-component" name="C4 Component Diagram - API">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title3" value="C4 Component Diagram - Invitation Management API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- API Boundary -->
+        <mxCell id="api-boundary" value="API Application [Container: .NET 8]" style="shape=mxgraph.c4.webBrowserContainer2;whiteSpace=wrap;html=1;container=0;collapsible=0;recursiveResize=0;strokeColor=#1168bd;fillColor=none;fontColor=#1168bd;align=left;verticalAlign=top;labelBackgroundColor=none;strokeWidth=2;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="1000" height="600" as="geometry"/>
+        </mxCell>
+
+        <!-- Controllers -->
+        <mxCell id="comp-orders-controller" value="Invitation Orders&#xa;Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles order CRUD and&#xa;lifecycle operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="240" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-templates-controller" value="Templates Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles template browsing&#xa;and selection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="460" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-printjobs-controller" value="Print Jobs Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles print job&#xa;operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="680" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-delivery-controller" value="Delivery Controller&#xa;[Component: API Controller]&#xa;&#xa;Handles delivery tracking&#xa;and updates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="900" y="120" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Commands/Queries -->
+        <mxCell id="comp-create-order" value="Create Order Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Handles order creation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="240" y="260" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-approve-design" value="Approve Design Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Handles design approval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="460" y="260" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-create-printjob" value="Create Print Job Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Handles print job creation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="680" y="260" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-get-orders" value="Get Orders Handler&#xa;[Component: MediatR Handler]&#xa;&#xa;Handles order queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#82b366;strokeColor=#6d9a5b;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="900" y="260" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Services -->
+        <mxCell id="comp-invitation-service" value="Invitation Service&#xa;[Component: Core Service]&#xa;&#xa;Business logic for&#xa;invitation orders" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="320" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-design-service" value="Design Service&#xa;[Component: Core Service]&#xa;&#xa;Design validation and&#xa;generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="560" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-notification-service" value="Notification Service&#xa;[Component: Core Service]&#xa;&#xa;Handles order&#xa;notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d79b00;strokeColor=#c68d00;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="800" y="400" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Data Access -->
+        <mxCell id="comp-dbcontext" value="InvitationManagementContext&#xa;[Component: EF DbContext]&#xa;&#xa;Database access layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b85450;strokeColor=#a04944;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="520" y="560" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- External Containers -->
+        <mxCell id="ext-webapp" value="Web App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="40" y="140" width="100" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-database" value="Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="590" y="720" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-servicebus" value="Service Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="900" y="560" width="100" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-blob" value="Blob Storage" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#4a90d9;strokeColor=#3d85c6;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1080" y="400" width="100" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="comprel-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="ext-webapp" target="comp-orders-controller" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-orders-controller" target="comp-create-order" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-orders-controller" target="comp-approve-design" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-printjobs-controller" target="comp-create-printjob" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-delivery-controller" target="comp-get-orders" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-create-order" target="comp-invitation-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-approve-design" target="comp-design-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-invitation-service" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-design-service" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-get-orders" target="comp-dbcontext" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-dbcontext" target="ext-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-notification-service" target="ext-servicebus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comprel-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1168bd;strokeWidth=2;" parent="1" source="comp-design-service" target="ext-blob" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

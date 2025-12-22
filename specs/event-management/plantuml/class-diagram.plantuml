@@ -1,0 +1,354 @@
+@startuml Event Management Class Diagram
+
+title Event Management - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.EventAggregate" {
+
+    class Event <<AggregateRoot>> {
+        + EventId : Guid
+        + Title : string
+        + Description : string?
+        + EventDate : DateTime
+        + VenueId : Guid
+        + EventTypeId : Guid
+        + CustomerId : Guid
+        + Status : EventStatus
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + CreatedBy : Guid
+        + ModifiedBy : Guid?
+        --
+        + Event(title: string, eventDate: DateTime, venueId: Guid, eventTypeId: Guid, customerId: Guid, createdBy: Guid)
+        + UpdateDetails(title: string, description: string?, eventDate: DateTime, venueId: Guid, eventTypeId: Guid, modifiedBy: Guid) : void
+        + ChangeDate(newDate: DateTime, modifiedBy: Guid) : void
+        + ChangeVenue(newVenueId: Guid, modifiedBy: Guid) : void
+        + ChangeType(newTypeId: Guid, modifiedBy: Guid) : void
+        + SubmitForApproval(submittedBy: Guid) : void
+        + Approve(approvedBy: Guid) : void
+        + Reject(rejectedBy: Guid, reason: string) : void
+        + Confirm(confirmedBy: Guid) : void
+        + Cancel(cancelledBy: Guid, reason: string) : void
+        + Reinstate(reinstatedBy: Guid) : void
+        + Complete(completedBy: Guid) : void
+        + Archive(archivedBy: Guid) : void
+        + AddNote(content: string, noteType: NoteType, createdBy: Guid) : EventNote
+    }
+
+    class EventNote <<Entity>> {
+        + EventNoteId : Guid
+        + EventId : Guid
+        + Content : string
+        + NoteType : NoteType
+        + CreatedAt : DateTime
+        + CreatedBy : Guid
+        + ModifiedAt : DateTime?
+        + ModifiedBy : Guid?
+        --
+        + EventNote(eventId: Guid, content: string, noteType: NoteType, createdBy: Guid)
+        + Update(content: string, modifiedBy: Guid) : void
+    }
+
+    class EventType <<Entity>> {
+        + EventTypeId : Guid
+        + Name : string
+        + Description : string?
+        + IsActive : bool
+        --
+        + EventType(name: string, description: string?)
+        + Update(name: string, description: string?) : void
+        + Activate() : void
+        + Deactivate() : void
+    }
+
+    enum EventStatus <<Enumeration>> {
+        Draft = 0
+        PendingApproval = 1
+        Approved = 2
+        Confirmed = 3
+        InProgress = 4
+        Completed = 5
+        Cancelled = 6
+        Archived = 7
+    }
+
+    enum NoteType <<Enumeration>> {
+        Internal = 0
+        CustomerComment = 1
+        SystemGenerated = 2
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.EventAggregate.Events" {
+
+    abstract class EventDomainEvent <<DomainEvent>> {
+        + EventId : Guid
+        + OccurredAt : DateTime
+        + UserId : Guid
+    }
+
+    class EventCreated {
+        + Title : string
+        + EventDate : DateTime
+        + VenueId : Guid
+        + EventTypeId : Guid
+        + CustomerId : Guid
+    }
+
+    class EventDetailsUpdated {
+        + ChangedProperties : string[]
+    }
+
+    class EventDateChanged {
+        + OldDate : DateTime
+        + NewDate : DateTime
+    }
+
+    class EventVenueChanged {
+        + OldVenueId : Guid
+        + NewVenueId : Guid
+    }
+
+    class EventTypeChanged {
+        + OldTypeId : Guid
+        + NewTypeId : Guid
+    }
+
+    class EventCancelled {
+        + Reason : string
+        + CancelledBy : Guid
+    }
+
+    class EventReinstated {
+        + ReinstatedBy : Guid
+    }
+
+    class EventCompleted {
+        + CompletedAt : DateTime
+    }
+
+    class EventArchived {
+        + ArchivedAt : DateTime
+    }
+
+    class EventDraftCreated {
+        + CustomerId : Guid
+    }
+
+    class EventConfirmed {
+        + ConfirmedBy : Guid
+    }
+
+    class EventPendingApproval {
+        + SubmittedBy : Guid
+    }
+
+    class EventApproved {
+        + ApprovedBy : Guid
+    }
+
+    class EventRejected {
+        + RejectedBy : Guid
+        + Reason : string
+    }
+
+    class EventNoteAdded {
+        + EventNoteId : Guid
+        + Content : string
+        + NoteType : NoteType
+    }
+
+    class EventNoteUpdated {
+        + EventNoteId : Guid
+        + OldContent : string
+        + NewContent : string
+    }
+
+    class EventNoteDeleted {
+        + EventNoteId : Guid
+    }
+
+    class CustomerCommentRecorded {
+        + CustomerId : Guid
+        + Comment : string
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + Events : DbSet<Event>
+        + EventNotes : DbSet<EventNote>
+        + EventTypes : DbSet<EventType>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class EventService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + EventService(context: IEventManagementPlatformContext)
+        + ValidateEventDateAsync(eventDate: DateTime, venueId: Guid) : Task<bool>
+        + CheckVenueAvailabilityAsync(venueId: Guid, eventDate: DateTime) : Task<bool>
+        + GetEventStatisticsAsync(customerId: Guid) : Task<EventStatistics>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Events" {
+
+    class CreateEventCommand <<Command>> {
+        + Title : string
+        + Description : string?
+        + EventDate : DateTime
+        + VenueId : Guid
+        + EventTypeId : Guid
+        + CustomerId : Guid
+    }
+
+    class CreateEventCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _eventService : EventService
+        --
+        + Handle(command: CreateEventCommand, cancellationToken: CancellationToken) : Task<EventDetailDto>
+    }
+
+    class UpdateEventCommand <<Command>> {
+        + EventId : Guid
+        + Title : string
+        + Description : string?
+        + EventDate : DateTime
+        + VenueId : Guid
+        + EventTypeId : Guid
+    }
+
+    class UpdateEventCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: UpdateEventCommand, cancellationToken: CancellationToken) : Task<EventDetailDto>
+    }
+
+    class GetEventsQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + Status : EventStatus?
+        + CustomerId : Guid?
+        + SearchTerm : string?
+    }
+
+    class GetEventsQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetEventsQuery, cancellationToken: CancellationToken) : Task<PagedResult<EventListDto>>
+    }
+
+    class GetEventByIdQuery <<Query>> {
+        + EventId : Guid
+    }
+
+    class GetEventByIdQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetEventByIdQuery, cancellationToken: CancellationToken) : Task<EventDetailDto>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Events.Dtos" {
+
+    class EventDetailDto <<DTO>> {
+        + EventId : Guid
+        + Title : string
+        + Description : string?
+        + EventDate : DateTime
+        + VenueId : Guid
+        + VenueName : string
+        + EventTypeId : Guid
+        + EventTypeName : string
+        + Status : string
+        + CustomerId : Guid
+        + CustomerName : string
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + Notes : IEnumerable<EventNoteDto>
+    }
+
+    class EventListDto <<DTO>> {
+        + EventId : Guid
+        + Title : string
+        + EventDate : DateTime
+        + VenueName : string
+        + EventTypeName : string
+        + Status : string
+        + CustomerName : string
+    }
+
+    class EventNoteDto <<DTO>> {
+        + EventNoteId : Guid
+        + Content : string
+        + NoteType : string
+        + CreatedAt : DateTime
+        + CreatedByName : string
+    }
+
+    class CreateEventDto <<DTO>> {
+        + Title : string
+        + Description : string?
+        + EventDate : DateTime
+        + VenueId : Guid
+        + EventTypeId : Guid
+        + CustomerId : Guid
+    }
+
+}
+
+' Relationships - Aggregates
+Event "1" *-- "0..*" EventNote : contains
+Event --> EventStatus : has
+Event --> EventType : references
+EventNote --> NoteType : has
+
+' Relationships - Events
+EventDomainEvent <|-- EventCreated
+EventDomainEvent <|-- EventDetailsUpdated
+EventDomainEvent <|-- EventDateChanged
+EventDomainEvent <|-- EventVenueChanged
+EventDomainEvent <|-- EventTypeChanged
+EventDomainEvent <|-- EventCancelled
+EventDomainEvent <|-- EventReinstated
+EventDomainEvent <|-- EventCompleted
+EventDomainEvent <|-- EventArchived
+EventDomainEvent <|-- EventDraftCreated
+EventDomainEvent <|-- EventConfirmed
+EventDomainEvent <|-- EventPendingApproval
+EventDomainEvent <|-- EventApproved
+EventDomainEvent <|-- EventRejected
+EventDomainEvent <|-- EventNoteAdded
+EventDomainEvent <|-- EventNoteUpdated
+EventDomainEvent <|-- EventNoteDeleted
+EventDomainEvent <|-- CustomerCommentRecorded
+
+' Relationships - Services
+EventService --> IEventManagementPlatformContext : uses
+CreateEventCommandHandler --> IEventManagementPlatformContext : uses
+CreateEventCommandHandler --> EventService : uses
+UpdateEventCommandHandler --> IEventManagementPlatformContext : uses
+GetEventsQueryHandler --> IEventManagementPlatformContext : uses
+GetEventByIdQueryHandler --> IEventManagementPlatformContext : uses
+
+' Relationships - DTOs
+CreateEventCommandHandler ..> EventDetailDto : returns
+UpdateEventCommandHandler ..> EventDetailDto : returns
+GetEventsQueryHandler ..> EventListDto : returns
+GetEventByIdQueryHandler ..> EventDetailDto : returns
+
+@enduml

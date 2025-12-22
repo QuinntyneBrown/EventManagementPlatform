@@ -1,0 +1,290 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="5.0" version="21.0.0" etag="venue-c4-diagram" type="device">
+  <diagram name="C4 Context Diagram" id="c4-context">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Venue Management System - C4 Context Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="venue-system" value="&lt;b&gt;Venue Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages venue directory, contacts, details, ratings, and history. Provides search and analytics capabilities for event planning." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=14;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="400" width="300" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Users/Actors -->
+        <mxCell id="venue-admin" value="&lt;b&gt;Venue Administrator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Manages venue lifecycle, activates/deactivates venues, handles blacklisting." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="150" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="venue-manager" value="&lt;b&gt;Venue Manager&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Creates and updates venues, manages contacts and venue details." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="event-planner" value="&lt;b&gt;Event Planner&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Searches venues, views details, submits ratings and feedback." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="490" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="coordinator" value="&lt;b&gt;Venue Coordinator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Uploads photos, updates amenities, reports and tracks issues." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="660" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="azure-storage" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Stores venue photos and documents." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="150" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Provides image analysis and sentiment analysis for feedback." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="280" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="azure-servicebus" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Publishes domain events for integration with other systems." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="410" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="azure-search" value="&lt;b&gt;Azure Cognitive Search&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Provides advanced search and filtering capabilities." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="540" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="maps-service" value="&lt;b&gt;Maps Service&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Provides geocoding and location services." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="670" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="event-system" value="&lt;b&gt;Event Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Uses venue data for event planning and booking." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="670" width="300" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="notification-system" value="&lt;b&gt;Notification System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Sends notifications about venue changes and issues." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="550" y="150" width="300" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships - Users to System -->
+        <mxCell id="rel-admin-system" value="Manages venues, blacklists/whitelists&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-admin" target="venue-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-manager-system" value="Creates/updates venues and contacts&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-manager" target="venue-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-planner-system" value="Searches, views, rates venues&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="event-planner" target="venue-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-coord-system" value="Uploads photos, reports issues&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="coordinator" target="venue-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relationships - System to External Systems -->
+        <mxCell id="rel-system-storage" value="Stores and retrieves photos&lt;br&gt;[Azure SDK]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="azure-storage">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-ai" value="Analyzes images and feedback&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="azure-ai">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-servicebus" value="Publishes domain events&lt;br&gt;[AMQP]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="azure-servicebus">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-search" value="Indexes and searches venues&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="azure-search">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-maps" value="Geocodes addresses&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="maps-service">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-event" value="Provides venue data&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="event-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-notification" value="Triggers notifications&lt;br&gt;[HTTPS/REST API]" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="venue-system" target="notification-system">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-container" value="Legend" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="830" width="400" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="legend-container">
+          <mxGeometry x="10" y="30" width="80" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-system-internal" value="System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="legend-container">
+          <mxGeometry x="110" y="30" width="80" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-system-external" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="legend-container">
+          <mxGeometry x="210" y="30" width="80" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-relationship" value="Relationship" style="endArrow=block;html=1;fontSize=11;strokeWidth=2;endFill=1;" edge="1" parent="legend-container">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="50" as="sourcePoint"/>
+            <mxPoint x="380" y="50" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-note" value="C4 Context Level - Shows how the Venue Management System&lt;br&gt;fits into the overall Event Management Platform ecosystem" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="legend-container">
+          <mxGeometry x="10" y="75" width="380" height="35" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container Diagram" id="c4-container">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-container" value="Venue Management System - C4 Container Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary-container" value="Venue Management System [Software System]" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="150" width="1000" height="900" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="spa-app" value="&lt;b&gt;Single Page Application&lt;/b&gt;&lt;br&gt;[Container: Angular 18+]&lt;br&gt;&lt;br&gt;Provides venue management UI with search, CRUD, photo upload, and analytics." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="350" y="50" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="web-api" value="&lt;b&gt;Web API&lt;/b&gt;&lt;br&gt;[Container: ASP.NET Core 8]&lt;br&gt;&lt;br&gt;Exposes RESTful API for venue operations. Handles authentication and authorization." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="350" y="220" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="application-layer" value="&lt;b&gt;Application Layer&lt;/b&gt;&lt;br&gt;[Container: .NET 8 Library]&lt;br&gt;&lt;br&gt;Implements CQRS with MediatR. Handles commands, queries, and business logic." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="350" y="390" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="domain-layer" value="&lt;b&gt;Domain Layer&lt;/b&gt;&lt;br&gt;[Container: .NET 8 Library]&lt;br&gt;&lt;br&gt;Contains domain entities, value objects, aggregates, and domain events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="50" y="390" width="250" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="infrastructure-layer" value="&lt;b&gt;Infrastructure Layer&lt;/b&gt;&lt;br&gt;[Container: .NET 8 Library]&lt;br&gt;&lt;br&gt;Implements repositories, external service integrations, and data access." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="350" y="560" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="database" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;[Container: Azure SQL/Cosmos DB]&lt;br&gt;&lt;br&gt;Stores venue data, contacts, history, issues, and domain events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="50" y="730" width="250" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cache" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;[Container: Azure Redis Cache]&lt;br&gt;&lt;br&gt;Caches frequently accessed venue data for performance." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="350" y="730" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="event-processor" value="&lt;b&gt;Event Processor&lt;/b&gt;&lt;br&gt;[Container: Azure Functions]&lt;br&gt;&lt;br&gt;Processes domain events asynchronously. Updates search index and triggers notifications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="system-boundary-container">
+          <mxGeometry x="700" y="560" width="250" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="users-container" value="&lt;b&gt;Users&lt;/b&gt;&lt;br&gt;[People]&lt;br&gt;&lt;br&gt;Admins, Managers, Planners, Coordinators" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="blob-storage-container" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="300" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ai-services-container" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="410" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="service-bus-container" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="520" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="search-container" value="&lt;b&gt;Azure Cognitive Search&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="630" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships within System -->
+        <mxCell id="rel-spa-api" value="Makes API calls&lt;br&gt;[HTTPS/JSON]" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="spa-app" target="web-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-api-app" value="Routes requests&lt;br&gt;[In-process]" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="web-api" target="application-layer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-app-domain" value="Uses" style="endArrow=block;html=1;fontSize=11;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="application-layer" target="domain-layer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-app-infra" value="Uses" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="application-layer" target="infrastructure-layer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-db" value="Reads/Writes&lt;br&gt;[SQL/NoSQL]" style="endArrow=block;html=1;fontSize=11;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="infrastructure-layer" target="database">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-cache" value="Reads/Writes&lt;br&gt;[Redis Protocol]" style="endArrow=block;html=1;fontSize=11;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="system-boundary-container" source="infrastructure-layer" target="cache">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- External Relationships -->
+        <mxCell id="rel-users-spa" value="Uses&lt;br&gt;[HTTPS]" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="users-container" target="spa-app">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-blob" value="Stores/retrieves photos" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="infrastructure-layer" target="blob-storage-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-ai" value="Analyzes content" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.4;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="infrastructure-layer" target="ai-services-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-bus" value="Publishes events" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.6;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="infrastructure-layer" target="service-bus-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-processor-bus" value="Subscribes to events" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;dashed=1;" edge="1" parent="1" source="event-processor" target="service-bus-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-processor-search" value="Updates search index" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;" edge="1" parent="1" source="event-processor" target="search-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-infra-search" value="Queries" style="endArrow=block;html=1;fontSize=11;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;endFill=1;dashed=1;" edge="1" parent="1" source="infrastructure-layer" target="search-container">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

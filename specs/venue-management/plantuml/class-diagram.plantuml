@@ -1,0 +1,538 @@
+@startuml Venue Management Class Diagram
+
+!define ENTITY_COLOR #FFE6CC
+!define VALUE_OBJECT_COLOR #D5E8D4
+!define AGGREGATE_COLOR #DAE8FC
+!define ENUM_COLOR #F8CECC
+
+skinparam class {
+    BackgroundColor<<Entity>> ENTITY_COLOR
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_COLOR
+    BackgroundColor<<AggregateRoot>> AGGREGATE_COLOR
+    BackgroundColor<<Enum>> ENUM_COLOR
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam packageStyle rectangle
+
+title Venue Management - Domain Model Class Diagram
+
+package "Aggregates" {
+    class Venue <<AggregateRoot>> {
+        - VenueId: Guid {id}
+        - Name: string
+        - Description: string
+        - Status: VenueStatus
+        - VenueType: VenueType
+        - Address: VenueAddress
+        - Capacity: VenueCapacity
+        - Amenities: List<Amenity>
+        - Contacts: List<VenueContact>
+        - AccessInstructions: string
+        - ParkingInfo: ParkingInfo
+        - Photos: List<VenuePhoto>
+        - Rating: VenueRating
+        - IsActive: bool
+        - CreatedAt: DateTime
+        - CreatedBy: string
+        - UpdatedAt: DateTime
+        - UpdatedBy: string
+        --
+        + Create(name, type, address, capacity): Venue
+        + UpdateDetails(details): void
+        + UpdateAddress(address): void
+        + UpdateCapacity(capacity): void
+        + AddContact(contact): void
+        + UpdateContact(contactId, contact): void
+        + RemoveContact(contactId): void
+        + AddAmenity(amenity): void
+        + RemoveAmenity(amenity): void
+        + UploadPhoto(photo): void
+        + DeletePhoto(photoId): void
+        + UpdateParkingInfo(parkingInfo): void
+        + UpdateAccessInstructions(instructions): void
+        + Activate(): void
+        + Deactivate(reason): void
+        + Blacklist(reason): void
+        + Whitelist(): void
+        + RecordUsage(eventId, eventName, date): void
+        + RecordRating(eventId, rating, feedback): void
+        + ReceiveFeedback(eventId, feedback): void
+        + ReportIssue(issueType, severity, description): void
+        - RaiseEvent(domainEvent): void
+    }
+}
+
+package "Entities" {
+    class VenueContact <<Entity>> {
+        - ContactId: Guid {id}
+        - ContactType: ContactType
+        - FirstName: string
+        - LastName: string
+        - Email: string
+        - Phone: string
+        - Position: string
+        - Notes: string
+        --
+        + Create(type, firstName, lastName, email, phone): VenueContact
+        + Update(changes): void
+        + GetFullName(): string
+    }
+
+    class VenuePhoto <<Entity>> {
+        - PhotoId: Guid {id}
+        - Url: string
+        - ThumbnailUrl: string
+        - Caption: string
+        - IsPrimary: bool
+        - UploadedAt: DateTime
+        - UploadedBy: string
+        - AzureBlobPath: string
+        --
+        + Create(url, thumbnailUrl, caption, isPrimary): VenuePhoto
+        + SetAsPrimary(): void
+        + UpdateCaption(caption): void
+    }
+
+    class VenueHistory <<Entity>> {
+        - HistoryId: Guid {id}
+        - VenueId: Guid
+        - EventId: Guid
+        - EventName: string
+        - EventDate: DateTime
+        - Rating: int
+        - Feedback: string
+        - Issues: string
+        - CreatedAt: DateTime
+        --
+        + Create(venueId, eventId, eventName, date): VenueHistory
+        + AddRating(rating): void
+        + AddFeedback(feedback): void
+        + ReportIssues(issues): void
+    }
+
+    class VenueIssue <<Entity>> {
+        - IssueId: Guid {id}
+        - VenueId: Guid
+        - IssueType: IssueType
+        - Description: string
+        - Severity: Severity
+        - Status: IssueStatus
+        - ReportedBy: string
+        - ReportedAt: DateTime
+        - ResolvedAt: DateTime
+        - Resolution: string
+        --
+        + Create(venueId, issueType, severity, description): VenueIssue
+        + UpdateStatus(status): void
+        + Resolve(resolution): void
+        + Close(): void
+    }
+
+    class Amenity <<Entity>> {
+        - AmenityId: Guid {id}
+        - Name: string
+        - Category: string
+        - Description: string
+        --
+        + Create(name, category): Amenity
+    }
+}
+
+package "Value Objects" {
+    class VenueAddress <<ValueObject>> {
+        - Street1: string
+        - Street2: string
+        - City: string
+        - State: string
+        - Country: string
+        - PostalCode: string
+        - Latitude: decimal
+        - Longitude: decimal
+        - TimeZone: string
+        --
+        + Create(street1, city, state, country, postalCode): VenueAddress
+        + WithCoordinates(lat, lon): VenueAddress
+        + GetFullAddress(): string
+        + Equals(other): bool
+    }
+
+    class VenueCapacity <<ValueObject>> {
+        - MaxCapacity: int
+        - SeatedCapacity: int
+        - StandingCapacity: int
+        - ConfigurableLayouts: List<LayoutCapacity>
+        --
+        + Create(maxCapacity): VenueCapacity
+        + WithSeatedCapacity(capacity): VenueCapacity
+        + WithStandingCapacity(capacity): VenueCapacity
+        + AddLayout(layout): VenueCapacity
+        + IsValid(): bool
+        + Equals(other): bool
+    }
+
+    class LayoutCapacity <<ValueObject>> {
+        - LayoutType: string
+        - Capacity: int
+        - Description: string
+        --
+        + Create(layoutType, capacity): LayoutCapacity
+        + Equals(other): bool
+    }
+
+    class ParkingInfo <<ValueObject>> {
+        - HasParking: bool
+        - ParkingCapacity: int
+        - ParkingType: ParkingType
+        - ParkingInstructions: string
+        --
+        + Create(hasParking, type, capacity): ParkingInfo
+        + WithInstructions(instructions): ParkingInfo
+        + Equals(other): bool
+    }
+
+    class VenueRating <<ValueObject>> {
+        - AverageRating: decimal
+        - TotalRatings: int
+        - RatingBreakdown: Dictionary<int, int>
+        --
+        + Create(): VenueRating
+        + AddRating(rating): VenueRating
+        + GetAverageRating(): decimal
+        + GetRatingBreakdown(): Dictionary<int, int>
+        + Equals(other): bool
+    }
+}
+
+package "Enumerations" {
+    enum VenueStatus <<Enum>> {
+        Active
+        Inactive
+        Blacklisted
+        PendingApproval
+    }
+
+    enum VenueType <<Enum>> {
+        ConferenceCenter
+        Hotel
+        ConventionCenter
+        Outdoor
+        Restaurant
+        Theater
+        Stadium
+        Other
+    }
+
+    enum ContactType <<Enum>> {
+        Primary
+        Booking
+        Technical
+        Catering
+        Emergency
+    }
+
+    enum ParkingType <<Enum>> {
+        Free
+        Paid
+        Valet
+        Street
+        None
+    }
+
+    enum IssueType <<Enum>> {
+        Facility
+        Equipment
+        Service
+        Safety
+        Cleanliness
+        Other
+    }
+
+    enum Severity <<Enum>> {
+        Low
+        Medium
+        High
+        Critical
+    }
+
+    enum IssueStatus <<Enum>> {
+        Open
+        InProgress
+        Resolved
+        Closed
+    }
+}
+
+package "Domain Events" {
+    abstract class DomainEvent {
+        - EventId: Guid
+        - OccurredAt: DateTime
+        - EventType: string
+        - Version: int
+        --
+        + GetEventType(): string
+    }
+
+    class VenueAdded extends DomainEvent {
+        - VenueId: Guid
+        - Name: string
+        - VenueType: VenueType
+        - CreatedBy: string
+    }
+
+    class VenueDetailsUpdated extends DomainEvent {
+        - VenueId: Guid
+        - UpdatedFields: Dictionary<string, object>
+        - UpdatedBy: string
+    }
+
+    class VenueRemoved extends DomainEvent {
+        - VenueId: Guid
+        - RemovedBy: string
+        - Reason: string
+    }
+
+    class VenueActivated extends DomainEvent {
+        - VenueId: Guid
+        - ActivatedBy: string
+    }
+
+    class VenueDeactivated extends DomainEvent {
+        - VenueId: Guid
+        - DeactivatedBy: string
+        - Reason: string
+    }
+
+    class VenueContactAdded extends DomainEvent {
+        - VenueId: Guid
+        - ContactId: Guid
+        - ContactType: ContactType
+        - FullName: string
+    }
+
+    class VenueContactUpdated extends DomainEvent {
+        - VenueId: Guid
+        - ContactId: Guid
+        - UpdatedFields: Dictionary<string, object>
+    }
+
+    class VenueContactRemoved extends DomainEvent {
+        - VenueId: Guid
+        - ContactId: Guid
+    }
+
+    class VenueAddressUpdated extends DomainEvent {
+        - VenueId: Guid
+        - OldAddress: VenueAddress
+        - NewAddress: VenueAddress
+    }
+
+    class VenueCapacityUpdated extends DomainEvent {
+        - VenueId: Guid
+        - OldCapacity: VenueCapacity
+        - NewCapacity: VenueCapacity
+    }
+
+    class VenueAmenitiesUpdated extends DomainEvent {
+        - VenueId: Guid
+        - AddedAmenities: List<string>
+        - RemovedAmenities: List<string>
+    }
+
+    class VenuePhotoUploaded extends DomainEvent {
+        - VenueId: Guid
+        - PhotoId: Guid
+        - Url: string
+        - IsPrimary: bool
+    }
+
+    class VenueUsedForEvent extends DomainEvent {
+        - VenueId: Guid
+        - EventId: Guid
+        - EventName: string
+        - EventDate: DateTime
+    }
+
+    class VenueRatingRecorded extends DomainEvent {
+        - VenueId: Guid
+        - EventId: Guid
+        - Rating: int
+    }
+
+    class VenueFeedbackReceived extends DomainEvent {
+        - VenueId: Guid
+        - EventId: Guid
+        - Feedback: string
+        - SentimentScore: decimal
+    }
+
+    class VenueIssueReported extends DomainEvent {
+        - VenueId: Guid
+        - IssueId: Guid
+        - IssueType: IssueType
+        - Severity: Severity
+    }
+
+    class VenueBlacklisted extends DomainEvent {
+        - VenueId: Guid
+        - Reason: string
+        - BlacklistedBy: string
+    }
+
+    class VenueWhitelisted extends DomainEvent {
+        - VenueId: Guid
+        - WhitelistedBy: string
+    }
+}
+
+package "Repositories" {
+    interface IVenueRepository {
+        + GetByIdAsync(venueId): Task<Venue>
+        + GetAllAsync(filter): Task<List<Venue>>
+        + GetPagedAsync(filter, page, pageSize): Task<PagedResult<Venue>>
+        + AddAsync(venue): Task
+        + UpdateAsync(venue): Task
+        + DeleteAsync(venueId): Task
+        + ExistsAsync(venueId): Task<bool>
+        + SearchAsync(query, filters): Task<List<Venue>>
+    }
+
+    interface IVenueHistoryRepository {
+        + GetByVenueIdAsync(venueId): Task<List<VenueHistory>>
+        + GetByEventIdAsync(eventId): Task<VenueHistory>
+        + AddAsync(history): Task
+        + UpdateAsync(history): Task
+    }
+
+    interface IVenueIssueRepository {
+        + GetByVenueIdAsync(venueId, filter): Task<List<VenueIssue>>
+        + GetByIdAsync(issueId): Task<VenueIssue>
+        + AddAsync(issue): Task
+        + UpdateAsync(issue): Task
+    }
+
+    interface IEventBus {
+        + PublishAsync(domainEvent): Task
+        + PublishBatchAsync(domainEvents): Task
+    }
+}
+
+package "Services" {
+    interface IVenuePhotoStorageService {
+        + UploadPhotoAsync(stream, fileName): Task<string>
+        + GenerateThumbnailAsync(photoUrl): Task<string>
+        + DeletePhotoAsync(blobPath): Task
+        + GetPhotoUrlAsync(blobPath): Task<string>
+    }
+
+    interface IPhotoAnalysisService {
+        + AnalyzePhotoAsync(photoUrl): Task<PhotoAnalysisResult>
+    }
+
+    interface ISentimentAnalysisService {
+        + AnalyzeFeedbackAsync(feedback): Task<SentimentResult>
+    }
+
+    interface IGeocodingService {
+        + GetCoordinatesAsync(address): Task<GeoLocation>
+        + GetTimeZoneAsync(lat, lon): Task<TimeZoneInfo>
+    }
+
+    interface IVenueSearchService {
+        + SearchAsync(request): Task<SearchResult<Venue>>
+        + IndexVenueAsync(venue): Task
+        + DeleteFromIndexAsync(venueId): Task
+    }
+}
+
+' Relationships - Composition
+Venue *-- "1" VenueAddress : has
+Venue *-- "1" VenueCapacity : has
+Venue *-- "0..*" VenueContact : contains
+Venue *-- "0..*" VenuePhoto : contains
+Venue *-- "0..*" Amenity : has
+Venue *-- "0..1" ParkingInfo : has
+Venue *-- "1" VenueRating : has
+
+VenueCapacity *-- "0..*" LayoutCapacity : contains
+
+' Relationships - Association
+Venue ..> VenueStatus : uses
+Venue ..> VenueType : uses
+VenueContact ..> ContactType : uses
+ParkingInfo ..> ParkingType : uses
+VenueIssue ..> IssueType : uses
+VenueIssue ..> Severity : uses
+VenueIssue ..> IssueStatus : uses
+
+' Relationships - Repository Dependencies
+IVenueRepository ..> Venue : manages
+IVenueHistoryRepository ..> VenueHistory : manages
+IVenueIssueRepository ..> VenueIssue : manages
+
+' Relationships - Service Dependencies
+Venue ..> IVenuePhotoStorageService : uses
+Venue ..> IPhotoAnalysisService : uses
+Venue ..> ISentimentAnalysisService : uses
+Venue ..> IGeocodingService : uses
+Venue ..> IVenueSearchService : uses
+Venue ..> IEventBus : publishes events to
+
+' Relationships - Event Publishing
+Venue ..> DomainEvent : raises
+DomainEvent <|-- VenueAdded
+DomainEvent <|-- VenueDetailsUpdated
+DomainEvent <|-- VenueRemoved
+DomainEvent <|-- VenueActivated
+DomainEvent <|-- VenueDeactivated
+DomainEvent <|-- VenueContactAdded
+DomainEvent <|-- VenueContactUpdated
+DomainEvent <|-- VenueContactRemoved
+DomainEvent <|-- VenueAddressUpdated
+DomainEvent <|-- VenueCapacityUpdated
+DomainEvent <|-- VenueAmenitiesUpdated
+DomainEvent <|-- VenuePhotoUploaded
+DomainEvent <|-- VenueUsedForEvent
+DomainEvent <|-- VenueRatingRecorded
+DomainEvent <|-- VenueFeedbackReceived
+DomainEvent <|-- VenueIssueReported
+DomainEvent <|-- VenueBlacklisted
+DomainEvent <|-- VenueWhitelisted
+
+' External relationship
+VenueHistory --> Venue : records history for
+VenueIssue --> Venue : reported for
+
+note right of Venue
+    **Venue Aggregate Root**
+
+    The Venue is the main aggregate root
+    that ensures consistency within its
+    boundaries. All modifications to
+    contacts, photos, and amenities must
+    go through the Venue aggregate.
+
+    Domain events are raised for all
+    state changes to enable event sourcing
+    and integration with other bounded contexts.
+end note
+
+note left of VenueAddress
+    **Value Objects**
+
+    Value objects are immutable and
+    compared by value rather than identity.
+    They encapsulate business logic and
+    validation rules.
+end note
+
+note bottom of DomainEvent
+    **Domain Events (17 total)**
+
+    All domain events extend the base
+    DomainEvent class and are published
+    to Azure Service Bus for async processing.
+end note
+
+@enduml

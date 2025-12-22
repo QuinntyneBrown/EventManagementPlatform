@@ -1,0 +1,432 @@
+<mxfile host="app.diagrams.net" modified="2025-01-15T10:00:00.000Z" agent="5.0" version="22.1.0" etag="draw.io" type="device" pages="3">
+  <diagram name="C4 Context" id="c4-context">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="context-title" value="C4 Context Diagram - User &amp; Access Management" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System -->
+        <mxCell id="system-event-platform" value="&lt;b&gt;Event Management Platform&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Comprehensive platform for managing events, attendees, user accounts, roles, and permissions with authentication and authorization capabilities." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=14;align=center;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320" width="400" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- External Users/Actors -->
+        <mxCell id="person-event-attendee" value="&lt;b&gt;Event Attendee&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;A user who registers for and attends events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="120" y="160" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="person-event-organizer" value="&lt;b&gt;Event Organizer&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;A user who creates and manages events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="120" y="340" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="person-admin" value="&lt;b&gt;System Administrator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Manages users, roles, permissions, and system configuration." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="120" y="520" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="system-azure-ad" value="&lt;b&gt;Azure AD B2C&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Identity provider for SSO and external authentication." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="160" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="system-email" value="&lt;b&gt;Email Service&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Sends notification emails for account activities." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="340" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="system-sms" value="&lt;b&gt;SMS Service&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Sends SMS for MFA verification." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="520" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="system-analytics" value="&lt;b&gt;Analytics Platform&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Collects and analyzes user behavior and security events." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="700" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-attendee-system" value="Registers account, logs in,&#xa;views profile" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="person-event-attendee" target="system-event-platform">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-organizer-system" value="Manages events,&#xa;user accounts" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="person-event-organizer" target="system-event-platform">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-admin-system" value="Manages users, roles,&#xa;permissions, audit logs" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="person-admin" target="system-event-platform">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-azure" value="Authenticates users&#xa;via SSO" style="endArrow=classic;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="system-event-platform" target="system-azure-ad">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-email" value="Sends password reset,&#xa;account notifications" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="system-event-platform" target="system-email">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-sms" value="Sends MFA codes" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="system-event-platform" target="system-sms">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-system-analytics" value="Publishes user events&#xa;and audit logs" style="endArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;fontColor=#333333;" edge="1" parent="1" source="system-event-platform" target="system-analytics">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-context" value="Legend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;align=left;verticalAlign=top;fontSize=14;fontStyle=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="720" width="300" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="140" y="750" width="80" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system-internal" value="System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="240" y="750" width="80" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system-external" value="External" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="140" y="795" width="80" height="35" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container" id="c4-container">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="container-title" value="C4 Container Diagram - User &amp; Access Management" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="container-users" value="&lt;b&gt;Users&lt;/b&gt;&lt;br&gt;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-admin" value="&lt;b&gt;Administrators&lt;/b&gt;&lt;br&gt;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="440" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend -->
+        <mxCell id="container-webapp" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;[Angular 18+]&lt;br&gt;&lt;br&gt;Provides user interface for authentication, profile management, user administration, role/permission management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="340" y="280" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-admin-portal" value="&lt;b&gt;Admin Portal&lt;/b&gt;&lt;br&gt;[Angular 18+]&lt;br&gt;&lt;br&gt;Administrative interface for managing users, roles, permissions, and viewing audit logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="340" y="440" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Backend APIs -->
+        <mxCell id="container-api" value="&lt;b&gt;User Management API&lt;/b&gt;&lt;br&gt;[.NET 8 Web API]&lt;br&gt;&lt;br&gt;Provides REST APIs for user authentication, profile management, RBAC, and audit logging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="700" y="320" width="240" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Database -->
+        <mxCell id="container-database" value="&lt;b&gt;User Database&lt;/b&gt;&lt;br&gt;[Azure SQL Database]&lt;br&gt;&lt;br&gt;Stores users, roles, permissions, sessions, audit logs" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="500" width="180" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Cache -->
+        <mxCell id="container-cache" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;[Azure Redis Cache]&lt;br&gt;&lt;br&gt;Caches user permissions, roles, session data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="320" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Message Queue -->
+        <mxCell id="container-queue" value="&lt;b&gt;Message Queue&lt;/b&gt;&lt;br&gt;[Azure Service Bus]&lt;br&gt;&lt;br&gt;Publishes domain events for async processing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Azure Services -->
+        <mxCell id="container-keyvault" value="&lt;b&gt;Azure Key Vault&lt;/b&gt;&lt;br&gt;[External]&lt;br&gt;&lt;br&gt;Stores secrets and keys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="140" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-azuread" value="&lt;b&gt;Azure AD B2C&lt;/b&gt;&lt;br&gt;[External]&lt;br&gt;&lt;br&gt;Authentication provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="280" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-appinsights" value="&lt;b&gt;Application Insights&lt;/b&gt;&lt;br&gt;[External]&lt;br&gt;&lt;br&gt;Monitoring and logging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="420" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-blob" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;&lt;br&gt;[External]&lt;br&gt;&lt;br&gt;Stores profile pictures" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="560" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-openai" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;&lt;br&gt;[External]&lt;br&gt;&lt;br&gt;AI security analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="700" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Background Services -->
+        <mxCell id="container-event-processor" value="&lt;b&gt;Event Processor&lt;/b&gt;&lt;br&gt;[Background Service]&lt;br&gt;&lt;br&gt;Processes domain events from queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="700" y="680" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-session-cleanup" value="&lt;b&gt;Session Cleanup&lt;/b&gt;&lt;br&gt;[Background Service]&lt;br&gt;&lt;br&gt;Cleans up expired sessions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;align=center;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="700" y="820" width="240" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="crel-user-webapp" value="Uses&#xa;[HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-users" target="container-webapp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-admin-portal" value="Uses&#xa;[HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-admin" target="container-admin-portal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-webapp-api" value="Makes API calls&#xa;[JSON/HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-webapp" target="container-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-portal-api" value="Makes API calls&#xa;[JSON/HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-admin-portal" target="container-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-cache" value="Reads/Writes&#xa;[Redis Protocol]" style="endArrow=classic;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-api" target="container-cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-db" value="Reads/Writes&#xa;[SQL/TLS]" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-api" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-queue" value="Publishes events&#xa;[AMQP]" style="endArrow=classic;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-api" target="container-queue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-keyvault" value="Gets secrets" style="endArrow=classic;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" edge="1" parent="1" source="container-api" target="container-keyvault">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-azuread" value="Authenticates" style="endArrow=classic;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-api" target="container-azuread">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-insights" value="Logs telemetry" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" edge="1" parent="1" source="container-api" target="container-appinsights">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-blob" value="Uploads files" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-api" target="container-blob">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-api-openai" value="Security analysis" style="endArrow=classic;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;dashed=1;" edge="1" parent="1" source="container-api" target="container-openai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-processor-queue" value="Subscribes to&#xa;[AMQP]" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-event-processor" target="container-queue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-processor-db" value="Writes" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=82.5;entryPerimeter=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-event-processor" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-cleanup-db" value="Deletes expired" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=-52.5;entryPerimeter=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-session-cleanup" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="crel-cleanup-cache" value="Invalidates" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=10;" edge="1" parent="1" source="container-session-cleanup" target="container-cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Component" id="c4-component">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="component-title" value="C4 Component Diagram - User Management API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External Actors -->
+        <mxCell id="comp-webapp" value="&lt;b&gt;Web App&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="200" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-admin" value="&lt;b&gt;Admin Portal&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- API Boundary -->
+        <mxCell id="api-boundary" value="User Management API [.NET 8]" style="swimlane;whiteSpace=wrap;html=1;startSize=40;fillColor=#e1f5fe;strokeColor=#01579b;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="120" width="900" height="980" as="geometry" />
+        </mxCell>
+
+        <!-- Controllers -->
+        <mxCell id="comp-auth-controller" value="&lt;b&gt;Auth Controller&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Login, Register, Logout, Password Reset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="40" y="60" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-user-controller" value="&lt;b&gt;User Controller&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;User CRUD, Profile, Change Password" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="40" y="170" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-role-controller" value="&lt;b&gt;Role Controller&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Role CRUD, Assign/Revoke Roles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="40" y="280" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-permission-controller" value="&lt;b&gt;Permission Controller&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Grant/Revoke Permissions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="40" y="390" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-audit-controller" value="&lt;b&gt;Audit Controller&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;View Audit Logs, Security Events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="40" y="500" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Application Services -->
+        <mxCell id="comp-auth-service" value="&lt;b&gt;Authentication Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;JWT generation, Token validation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="60" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-user-service" value="&lt;b&gt;User Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;User business logic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="170" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-role-service" value="&lt;b&gt;Role Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Role business logic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="280" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-authz-service" value="&lt;b&gt;Authorization Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Permission checks, RBAC enforcement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="390" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-audit-service" value="&lt;b&gt;Audit Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Event logging, Audit queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="500" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-password-service" value="&lt;b&gt;Password Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Hashing, Validation, Reset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#AED6F1;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="280" y="610" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Repositories -->
+        <mxCell id="comp-user-repo" value="&lt;b&gt;User Repository&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;User data access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="170" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-role-repo" value="&lt;b&gt;Role Repository&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Role data access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="280" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-permission-repo" value="&lt;b&gt;Permission Repository&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Permission data access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="390" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-audit-repo" value="&lt;b&gt;Audit Repository&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Audit log data access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="500" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure -->
+        <mxCell id="comp-cache-provider" value="&lt;b&gt;Cache Provider&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Redis cache access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="610" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-event-publisher" value="&lt;b&gt;Event Publisher&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Publishes domain events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="720" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-ai-service" value="&lt;b&gt;AI Security Service&lt;/b&gt;&lt;br&gt;[Component]&lt;br&gt;&lt;br&gt;Azure OpenAI integration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EAF8;strokeColor=#1E88E5;fontColor=#000000;fontSize=10;align=center;verticalAlign=top;" vertex="1" parent="api-boundary">
+          <mxGeometry x="520" y="830" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Middleware -->
+        <mxCell id="comp-jwt-middleware" value="&lt;b&gt;JWT Middleware&lt;/b&gt;&lt;br&gt;[Component]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B0BEC5;strokeColor=#455A64;fontColor=#000000;fontSize=10;" vertex="1" parent="api-boundary">
+          <mxGeometry x="720" y="60" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-authz-middleware" value="&lt;b&gt;Authorization Middleware&lt;/b&gt;&lt;br&gt;[Component]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B0BEC5;strokeColor=#455A64;fontColor=#000000;fontSize=10;" vertex="1" parent="api-boundary">
+          <mxGeometry x="720" y="140" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-exception-middleware" value="&lt;b&gt;Exception Middleware&lt;/b&gt;&lt;br&gt;[Component]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B0BEC5;strokeColor=#455A64;fontColor=#000000;fontSize=10;" vertex="1" parent="api-boundary">
+          <mxGeometry x="720" y="220" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-ratelimit-middleware" value="&lt;b&gt;Rate Limit Middleware&lt;/b&gt;&lt;br&gt;[Component]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B0BEC5;strokeColor=#455A64;fontColor=#000000;fontSize=10;" vertex="1" parent="api-boundary">
+          <mxGeometry x="720" y="300" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="comp-database" value="&lt;b&gt;SQL Database&lt;/b&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="380" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-redis" value="&lt;b&gt;Redis Cache&lt;/b&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="520" width="120" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-servicebus" value="&lt;b&gt;Service Bus&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="660" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp-openai" value="&lt;b&gt;Azure OpenAI&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="780" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Component Relationships -->
+        <mxCell id="comprel-webapp-auth" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-webapp" target="comp-auth-controller">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-admin-user" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-admin" target="comp-user-controller">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-authc-auths" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-auth-controller" target="comp-auth-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-userc-users" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-user-controller" target="comp-user-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-users-userr" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-user-service" target="comp-user-repo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-userr-db" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=1;" edge="1" parent="1" source="comp-user-repo" target="comp-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-cache-redis" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=1;" edge="1" parent="1" source="comp-cache-provider" target="comp-redis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-event-bus" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-event-publisher" target="comp-servicebus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comprel-ai-openai" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-ai-service" target="comp-openai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
