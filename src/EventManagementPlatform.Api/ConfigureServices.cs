@@ -2,9 +2,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using EventManagementPlatform.Api.Logging;
 using EventManagementPlatform.Core.Services;
 using EventManagementPlatform.Infrastructure;
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -93,9 +95,12 @@ public static class ConfigureServices
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
 
-        // MediatR
+        // MediatR with logging pipeline behavior
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(ConfigureServices).Assembly));
+
+        // Register logging behavior for MediatR pipeline
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
         // FluentValidation
         services.AddValidatorsFromAssembly(typeof(ConfigureServices).Assembly);
