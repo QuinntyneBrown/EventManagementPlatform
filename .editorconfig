@@ -241,6 +241,10 @@ dotnet_diagnostic.SA1204.severity = none
 dotnet_diagnostic.SA1000.severity = none
 # SA1413: Use trailing comma in multi-line initializers - disabled
 dotnet_diagnostic.SA1413.severity = none
+# SA1124: Do not use regions - disabled (regions used for test organization)
+dotnet_diagnostic.SA1124.severity = none
+# SA1123: Do not place regions within elements - disabled
+dotnet_diagnostic.SA1123.severity = none
 
 # CA1305: Specify IFormatProvider - disabled
 dotnet_diagnostic.CA1305.severity = none
