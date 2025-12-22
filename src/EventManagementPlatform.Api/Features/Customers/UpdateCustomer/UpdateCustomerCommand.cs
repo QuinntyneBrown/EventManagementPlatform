@@ -18,4 +18,4 @@ public record UpdateCustomerCommand(
     string BillingCity,
     string BillingState,
     string BillingPostalCode,
-    string BillingCountry)  : IRequest<UpdateCustomerResponse>;
+    string BillingCountry): IRequest<UpdateCustomerResponse>;

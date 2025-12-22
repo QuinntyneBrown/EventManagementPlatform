@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Customers.DeleteCustomer;
 
-public record DeleteCustomerCommand(Guid CustomerId)  : IRequest<Unit>;
+public record DeleteCustomerCommand(Guid CustomerId): IRequest<Unit>;

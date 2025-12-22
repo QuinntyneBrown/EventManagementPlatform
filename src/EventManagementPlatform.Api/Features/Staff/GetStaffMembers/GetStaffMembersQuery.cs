@@ -11,4 +11,4 @@ public record GetStaffMembersQuery(
     int PageSize = 20,
     StaffStatus? Status = null,
     StaffRole? Role = null,
-    string? Search = null)  : IRequest<GetStaffMembersResponse>;
+    string? Search = null): IRequest<GetStaffMembersResponse>;

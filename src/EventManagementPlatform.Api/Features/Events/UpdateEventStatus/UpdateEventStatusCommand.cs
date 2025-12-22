@@ -6,4 +6,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Events.UpdateEventStatus;
 
-public record UpdateEventStatusCommand(Guid EventId, EventStatus Status)  : IRequest<UpdateEventStatusResponse>;
+public record UpdateEventStatusCommand(Guid EventId, EventStatus Status): IRequest<UpdateEventStatusResponse>;

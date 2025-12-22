@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Identity.Authenticate;
 
-public record AuthenticateCommand(string Username, string Password)  : IRequest<AuthenticateResponse>;
+public record AuthenticateCommand(string Username, string Password): IRequest<AuthenticateResponse>;

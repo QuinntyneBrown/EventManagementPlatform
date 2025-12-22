@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Events.GetEventById;
 
-public record GetEventByIdQuery(Guid EventId)  : IRequest<GetEventByIdResponse>;
+public record GetEventByIdQuery(Guid EventId): IRequest<GetEventByIdResponse>;

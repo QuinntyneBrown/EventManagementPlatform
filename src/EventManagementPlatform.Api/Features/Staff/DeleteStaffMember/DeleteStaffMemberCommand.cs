@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Staff.DeleteStaffMember;
 
-public record DeleteStaffMemberCommand(Guid StaffMemberId)  : IRequest<Unit>;
+public record DeleteStaffMemberCommand(Guid StaffMemberId): IRequest<Unit>;

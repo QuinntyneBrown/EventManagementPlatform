@@ -12,4 +12,4 @@ public record GetVenuesQuery(
     VenueStatus? Status = null,
     VenueType? Type = null,
     string? City = null,
-    int? MinCapacity = null)  : IRequest<GetVenuesResponse>;
+    int? MinCapacity = null): IRequest<GetVenuesResponse>;

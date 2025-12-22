@@ -13,4 +13,4 @@ public record CreateStaffMemberCommand(
     string PhoneNumber,
     DateTime HireDate,
     StaffRole Role,
-    decimal? HourlyRate)  : IRequest<CreateStaffMemberResponse>;
+    decimal? HourlyRate): IRequest<CreateStaffMemberResponse>;

@@ -21,4 +21,4 @@ public record UpdateVenueCommand(
     int? StandingCapacity,
     string? ContactName,
     string? ContactEmail,
-    string? ContactPhone)  : IRequest<UpdateVenueResponse>;
+    string? ContactPhone): IRequest<UpdateVenueResponse>;

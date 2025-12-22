@@ -11,4 +11,4 @@ public record GetEventsQuery(
     int PageSize = 20,
     EventStatus? Status = null,
     Guid? VenueId = null,
-    Guid? CustomerId = null)  : IRequest<GetEventsResponse>;
+    Guid? CustomerId = null): IRequest<GetEventsResponse>;

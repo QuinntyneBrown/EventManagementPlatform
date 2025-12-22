@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Staff.GetStaffMemberById;
 
-public record GetStaffMemberByIdQuery(Guid StaffMemberId)  : IRequest<GetStaffMemberByIdResponse>;
+public record GetStaffMemberByIdQuery(Guid StaffMemberId): IRequest<GetStaffMemberByIdResponse>;

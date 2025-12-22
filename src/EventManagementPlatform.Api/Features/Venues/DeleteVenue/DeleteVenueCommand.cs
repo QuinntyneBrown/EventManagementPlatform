@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Venues.DeleteVenue;
 
-public record DeleteVenueCommand(Guid VenueId)  : IRequest<Unit>;
+public record DeleteVenueCommand(Guid VenueId): IRequest<Unit>;

@@ -17,4 +17,4 @@ public record CreateEquipmentItemCommand(
     string? Manufacturer,
     string? Model,
     string? SerialNumber,
-    string? WarehouseLocation)  : IRequest<CreateEquipmentItemResponse>;
+    string? WarehouseLocation): IRequest<CreateEquipmentItemResponse>;

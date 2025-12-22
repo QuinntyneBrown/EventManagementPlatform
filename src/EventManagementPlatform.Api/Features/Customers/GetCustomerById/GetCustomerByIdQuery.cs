@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Customers.GetCustomerById;
 
-public record GetCustomerByIdQuery(Guid CustomerId)  : IRequest<GetCustomerByIdResponse>;
+public record GetCustomerByIdQuery(Guid CustomerId): IRequest<GetCustomerByIdResponse>;
