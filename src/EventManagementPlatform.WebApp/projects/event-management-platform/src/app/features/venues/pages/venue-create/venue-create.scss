@@ -1,0 +1,9 @@
+.venue-create {
+  &__card { margin-top: var(--spacing-lg); max-width: 900px; }
+  &__form { display: flex; flex-direction: column; gap: var(--spacing-md); }
+  &__section-title { margin: var(--spacing-md) 0 0; font-weight: 500; color: var(--mat-sys-primary); }
+  &__row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-md); }
+  &__amenities { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+  &__amenity-input { max-width: 300px; }
+  &__actions { display: flex; justify-content: flex-end; gap: var(--spacing-sm); padding-top: var(--spacing-lg); border-top: 1px solid rgba(0, 0, 0, 0.12); }
+}

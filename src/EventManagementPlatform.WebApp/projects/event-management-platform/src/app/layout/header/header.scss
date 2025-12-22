@@ -1,0 +1,52 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  &__menu-button {
+    margin-right: var(--spacing-sm);
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__brand-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+
+    @media (max-width: 599px) {
+      font-size: 1rem;
+    }
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__user-button {
+    margin-left: var(--spacing-sm);
+  }
+
+  &__user-info {
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+  }
+
+  &__user-name {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  &__user-email {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}

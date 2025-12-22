@@ -1,0 +1,76 @@
+@if (isLoading) {
+  <app-loading-spinner message="Loading equipment..."></app-loading-spinner>
+} @else if (equipment) {
+  <div class="equipment-detail">
+    <app-page-header [title]="equipment.name" [breadcrumbs]="breadcrumbs" [showBackButton]="true" backLink="/equipment">
+      <app-status-badge [status]="equipmentStatusLabels[equipment.status]" [color]="getStatusColor(equipment.status)"></app-status-badge>
+      <button mat-stroked-button [routerLink]="['edit']"><mat-icon>edit</mat-icon> Edit</button>
+      <button mat-stroked-button color="warn" (click)="deleteEquipment()"><mat-icon>delete</mat-icon> Delete</button>
+    </app-page-header>
+
+    <mat-tab-group class="equipment-detail__tabs">
+      <mat-tab label="Overview">
+        <div class="equipment-detail__content">
+          <div class="equipment-detail__grid">
+            <mat-card>
+              <mat-card-header><mat-card-title>Basic Information</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="equipment-detail__info">
+                  <div><dt>Category</dt><dd>{{ equipmentCategoryLabels[equipment.category] }}</dd></div>
+                  <div><dt>Condition</dt><dd>{{ equipmentConditionLabels[equipment.condition] }}</dd></div>
+                  <div><dt>Total Quantity</dt><dd>{{ equipment.quantity }}</dd></div>
+                  <div><dt>Available</dt><dd>{{ equipment.availableQuantity }}</dd></div>
+                  <div><dt>Daily Rate</dt><dd>{{ formatCurrency(equipment.dailyRate) }}</dd></div>
+                  <div><dt>Location</dt><dd>{{ equipment.location || '-' }}</dd></div>
+                </dl>
+                @if (equipment.description) {
+                  <div class="equipment-detail__description"><h4>Description</h4><p>{{ equipment.description }}</p></div>
+                }
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header><mat-card-title>Product Details</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="equipment-detail__info">
+                  <div><dt>Manufacturer</dt><dd>{{ equipment.manufacturer || '-' }}</dd></div>
+                  <div><dt>Model</dt><dd>{{ equipment.model || '-' }}</dd></div>
+                  <div><dt>Serial Number</dt><dd>{{ equipment.serialNumber || '-' }}</dd></div>
+                  <div><dt>Purchase Date</dt><dd>{{ formatDate(equipment.purchaseDate) }}</dd></div>
+                  <div><dt>Purchase Price</dt><dd>{{ equipment.purchasePrice ? formatCurrency(equipment.purchasePrice) : '-' }}</dd></div>
+                </dl>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header><mat-card-title>Maintenance</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="equipment-detail__info">
+                  <div><dt>Last Maintenance</dt><dd>{{ formatDate(equipment.lastMaintenanceDate) }}</dd></div>
+                  <div><dt>Next Maintenance</dt><dd>{{ formatDate(equipment.nextMaintenanceDate) }}</dd></div>
+                </dl>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          @if (equipment.notes) {
+            <mat-card class="equipment-detail__notes">
+              <mat-card-header><mat-card-title>Notes</mat-card-title></mat-card-header>
+              <mat-card-content><p>{{ equipment.notes }}</p></mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Usage History">
+        <div class="equipment-detail__content">
+          <mat-card>
+            <mat-card-content>
+              <p class="equipment-detail__placeholder">Equipment usage history and event assignments will be displayed here.</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+}

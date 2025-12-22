@@ -1,0 +1,8 @@
+.customer-list {
+  &__filters { margin-bottom: var(--spacing-lg); }
+  &__filter-row { display: flex; gap: var(--spacing-md); flex-wrap: wrap; }
+  &__search { flex: 1; min-width: 250px; }
+  &__status-filter { min-width: 180px; }
+  &__table-card { overflow: hidden; }
+  &__name-link { color: #3f51b5; text-decoration: none; font-weight: 500; &:hover { text-decoration: underline; } }
+}

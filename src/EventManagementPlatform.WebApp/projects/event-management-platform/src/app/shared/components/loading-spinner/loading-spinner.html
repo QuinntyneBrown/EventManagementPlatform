@@ -1,0 +1,11 @@
+<div
+  class="loading-spinner"
+  [class.loading-spinner--overlay]="overlay"
+  role="status"
+  aria-live="polite"
+>
+  <mat-spinner [diameter]="diameter"></mat-spinner>
+  @if (message) {
+    <p class="loading-spinner__message">{{ message }}</p>
+  }
+</div>

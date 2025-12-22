@@ -1,0 +1,114 @@
+.event-detail {
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+
+    @media (max-width: 959px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__info-card {
+    height: fit-content;
+  }
+
+  &__info-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin: 0;
+    padding: var(--spacing-md) 0;
+  }
+
+  &__info-item {
+    dt {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: var(--spacing-xxs);
+    }
+
+    dd {
+      margin: 0;
+      font-size: 1rem;
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+
+  &__description,
+  &__notes {
+    padding: var(--spacing-md) 0;
+
+    h4 {
+      margin: 0 0 var(--spacing-xs);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  &__sidebar-card {
+    mat-card-avatar {
+      background-color: #3f51b5;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__customer-name,
+  &__venue-name {
+    font-weight: 500;
+    margin: 0 0 var(--spacing-xxs);
+  }
+
+  &__customer-email,
+  &__customer-phone,
+  &__venue-address,
+  &__venue-city,
+  &__venue-capacity {
+    margin: 0 0 var(--spacing-xxs);
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.875rem;
+  }
+
+  &__meta-list {
+    margin: 0;
+  }
+
+  &__meta-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    dt {
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 0.875rem;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.875rem;
+    }
+  }
+}

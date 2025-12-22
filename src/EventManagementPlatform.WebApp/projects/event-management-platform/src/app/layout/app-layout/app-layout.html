@@ -1,0 +1,22 @@
+<div class="app-layout">
+  <app-header (toggleSidenav)="toggleSidenav()"></app-header>
+
+  <mat-sidenav-container class="app-layout__container">
+    <mat-sidenav
+      #drawer
+      class="app-layout__sidenav"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false"
+      fixedInViewport
+      fixedTopGap="64"
+    >
+      <app-sidenav></app-sidenav>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="app-layout__content">
+      <main class="app-layout__main">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

@@ -1,0 +1,28 @@
+<div class="dashboard">
+  @if (currentUser$ | async; as user) {
+    <app-page-header
+      [title]="'Welcome, ' + user.firstName + '!'"
+      subtitle="Here's an overview of your Event Management Platform"
+    ></app-page-header>
+  }
+
+  <div class="dashboard__cards">
+    @for (card of cards; track card.route) {
+      <mat-card class="dashboard__card" [routerLink]="card.route">
+        <mat-card-header>
+          <div class="dashboard__card-icon" [style.background-color]="card.color">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </div>
+          <mat-card-title>{{ card.title }}</mat-card-title>
+          <mat-card-subtitle>{{ card.description }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions align="end">
+          <button mat-button color="primary">
+            View All
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+</div>

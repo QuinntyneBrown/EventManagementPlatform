@@ -1,0 +1,103 @@
+<div class="customer-list">
+  <app-page-header title="Customers" subtitle="Manage customer information">
+    <a mat-flat-button color="primary" routerLink="create">
+      <mat-icon>add</mat-icon> New Customer
+    </a>
+  </app-page-header>
+
+  <mat-card class="customer-list__filters">
+    <mat-card-content>
+      <div class="customer-list__filter-row">
+        <mat-form-field appearance="outline" class="customer-list__search">
+          <mat-label>Search customers</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)" placeholder="Search by name, email, or company">
+          <mat-icon matPrefix>search</mat-icon>
+          @if (searchTerm) {
+            <button matSuffix mat-icon-button (click)="searchTerm = ''; onSearch('')">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="customer-list__status-filter">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onStatusChange()">
+            @for (option of statusOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading) {
+    <app-loading-spinner message="Loading customers..."></app-loading-spinner>
+  } @else if (dataSource.data.length === 0) {
+    <app-empty-state icon="people" title="No customers found"
+      [message]="searchTerm || statusFilter ? 'Try adjusting your search or filters' : 'Get started by adding your first customer'">
+      @if (!searchTerm && !statusFilter) {
+        <a mat-flat-button color="primary" routerLink="create"><mat-icon>add</mat-icon> Add Customer</a>
+      }
+    </app-empty-state>
+  } @else {
+    <mat-card class="customer-list__table-card">
+      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let customer">
+            <a [routerLink]="customer.customerId" class="customer-list__name-link">
+              {{ customer.firstName }} {{ customer.lastName }}
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.email }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef>Phone</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.phone || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="company">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Company</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.company || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="eventCount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Events</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.eventCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let customer">
+            <app-status-badge [text]="customer.status" [color]="getStatusColor(customer.status)"></app-status-badge>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let customer">
+            <button mat-icon-button [matMenuTriggerFor]="menu"><mat-icon>more_vert</mat-icon></button>
+            <mat-menu #menu="matMenu">
+              <a mat-menu-item [routerLink]="customer.customerId"><mat-icon>visibility</mat-icon> View</a>
+              <a mat-menu-item [routerLink]="[customer.customerId, 'edit']"><mat-icon>edit</mat-icon> Edit</a>
+              <button mat-menu-item (click)="onDelete(customer)"><mat-icon color="warn">delete</mat-icon> Delete</button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageIndex]="pageIndex"
+        [pageSizeOptions]="[10, 25, 50, 100]" (page)="onPageChange($event)" showFirstLastButtons>
+      </mat-paginator>
+    </mat-card>
+  }
+</div>

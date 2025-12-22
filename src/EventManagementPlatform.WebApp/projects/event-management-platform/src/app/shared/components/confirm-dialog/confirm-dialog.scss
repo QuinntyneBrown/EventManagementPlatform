@@ -1,0 +1,35 @@
+.confirm-dialog {
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+  }
+
+  &__icon {
+    &--info {
+      color: #2196f3;
+    }
+
+    &--warning {
+      color: #ff9800;
+    }
+
+    &--danger {
+      color: #f44336;
+    }
+  }
+
+  &__content {
+    padding: var(--spacing-md) 0;
+
+    p {
+      margin: 0;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  &__actions {
+    padding: var(--spacing-sm) 0;
+  }
+}

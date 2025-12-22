@@ -1,0 +1,41 @@
+<mat-toolbar class="header" color="primary">
+  <button
+    mat-icon-button
+    class="header__menu-button"
+    aria-label="Toggle navigation menu"
+    (click)="toggleSidenav.emit()"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <a routerLink="/" class="header__brand">
+    <span class="header__brand-text">Event Management Platform</span>
+  </a>
+
+  <span class="header__spacer"></span>
+
+  @if (currentUser$ | async; as user) {
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="header__user-button">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="header__user-info">
+        <span class="header__user-name">{{ user.firstName }} {{ user.lastName }}</span>
+        <span class="header__user-email">{{ user.email }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <a mat-menu-item routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </a>
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <a mat-button routerLink="/login">Login</a>
+    <a mat-stroked-button routerLink="/register">Register</a>
+  }
+</mat-toolbar>

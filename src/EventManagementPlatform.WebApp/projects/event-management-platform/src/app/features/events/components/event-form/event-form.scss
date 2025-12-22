@@ -1,0 +1,26 @@
+.event-form {
+  &__section {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  &__section-title {
+    margin: 0 0 var(--spacing-md);
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}

@@ -1,0 +1,144 @@
+@if (isLoading) {
+  <app-loading-spinner message="Loading event details..."></app-loading-spinner>
+} @else if (event) {
+  <div class="event-detail">
+    <app-page-header
+      [title]="event.title"
+      [breadcrumbs]="breadcrumbs"
+      [showBackButton]="true"
+      backLink="/events"
+    >
+      <app-status-badge
+        [text]="event.status"
+        [color]="getStatusColor(event.status)"
+      ></app-status-badge>
+
+      @if (event.status === 'Scheduled') {
+        <button mat-flat-button color="primary" (click)="onConfirm()">
+          <mat-icon>check</mat-icon>
+          Confirm
+        </button>
+      }
+
+      <a mat-stroked-button [routerLink]="['edit']">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </a>
+
+      @if (event.status !== 'Cancelled' && event.status !== 'Completed') {
+        <button mat-stroked-button color="warn" (click)="onCancel()">
+          <mat-icon>cancel</mat-icon>
+          Cancel
+        </button>
+      }
+    </app-page-header>
+
+    <div class="event-detail__content">
+      <mat-card class="event-detail__info-card">
+        <mat-card-header>
+          <mat-card-title>Event Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <dl class="event-detail__info-list">
+            <div class="event-detail__info-item">
+              <dt>Date</dt>
+              <dd>{{ event.eventDate | date:'fullDate' }}</dd>
+            </div>
+            <div class="event-detail__info-item">
+              <dt>Time</dt>
+              <dd>{{ event.startTime }} - {{ event.endTime }}</dd>
+            </div>
+            <div class="event-detail__info-item">
+              <dt>Attendees</dt>
+              <dd>{{ event.attendeeCount || 'Not specified' }}</dd>
+            </div>
+          </dl>
+
+          @if (event.description) {
+            <mat-divider></mat-divider>
+            <div class="event-detail__description">
+              <h4>Description</h4>
+              <p>{{ event.description }}</p>
+            </div>
+          }
+
+          @if (event.notes) {
+            <mat-divider></mat-divider>
+            <div class="event-detail__notes">
+              <h4>Notes</h4>
+              <p>{{ event.notes }}</p>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <div class="event-detail__sidebar">
+        <mat-card class="event-detail__sidebar-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>person</mat-icon>
+            <mat-card-title>Customer</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (event.customer) {
+              <p class="event-detail__customer-name">
+                {{ event.customer.firstName }} {{ event.customer.lastName }}
+              </p>
+              <p class="event-detail__customer-email">{{ event.customer.email }}</p>
+              @if (event.customer.phone) {
+                <p class="event-detail__customer-phone">{{ event.customer.phone }}</p>
+              }
+            } @else {
+              <p>Customer ID: {{ event.customerId }}</p>
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <a mat-button [routerLink]="['/customers', event.customerId]">
+              View Customer
+            </a>
+          </mat-card-actions>
+        </mat-card>
+
+        @if (event.venue) {
+          <mat-card class="event-detail__sidebar-card">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>location_on</mat-icon>
+              <mat-card-title>Venue</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="event-detail__venue-name">{{ event.venue.name }}</p>
+              <p class="event-detail__venue-address">{{ event.venue.address }}</p>
+              <p class="event-detail__venue-city">{{ event.venue.city }}</p>
+              <p class="event-detail__venue-capacity">Capacity: {{ event.venue.capacity }}</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <a mat-button [routerLink]="['/venues', event.venueId]">
+                View Venue
+              </a>
+            </mat-card-actions>
+          </mat-card>
+        }
+
+        <mat-card class="event-detail__sidebar-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>info</mat-icon>
+            <mat-card-title>Meta</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <dl class="event-detail__meta-list">
+              <div class="event-detail__meta-item">
+                <dt>Created</dt>
+                <dd>{{ event.createdAt | date:'medium' }}</dd>
+              </div>
+              @if (event.modifiedAt) {
+                <div class="event-detail__meta-item">
+                  <dt>Modified</dt>
+                  <dd>{{ event.modifiedAt | date:'medium' }}</dd>
+                </div>
+              }
+            </dl>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+}

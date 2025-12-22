@@ -1,0 +1,121 @@
+<form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
+  <div class="event-form__section">
+    <h3 class="event-form__section-title">Basic Information</h3>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Event Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter event title">
+      @if (eventForm.get('title')?.hasError('required')) {
+        <mat-error>Title is required</mat-error>
+      }
+      @if (eventForm.get('title')?.hasError('maxlength')) {
+        <mat-error>Title cannot exceed 200 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        placeholder="Enter event description"
+        rows="4"
+      ></textarea>
+      @if (eventForm.get('description')?.hasError('maxlength')) {
+        <mat-error>Description cannot exceed 2000 characters</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="event-form__section">
+    <h3 class="event-form__section-title">Date & Time</h3>
+
+    <div class="event-form__row">
+      <mat-form-field appearance="outline">
+        <mat-label>Event Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="eventDate">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        @if (eventForm.get('eventDate')?.hasError('required')) {
+          <mat-error>Date is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start Time</mat-label>
+        <input matInput type="time" formControlName="startTime">
+        @if (eventForm.get('startTime')?.hasError('required')) {
+          <mat-error>Start time is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End Time</mat-label>
+        <input matInput type="time" formControlName="endTime">
+        @if (eventForm.get('endTime')?.hasError('required')) {
+          <mat-error>End time is required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="event-form__section">
+    <h3 class="event-form__section-title">Details</h3>
+
+    <div class="event-form__row">
+      <mat-form-field appearance="outline">
+        <mat-label>Customer ID</mat-label>
+        <input matInput formControlName="customerId" placeholder="Enter customer ID">
+        @if (eventForm.get('customerId')?.hasError('required')) {
+          <mat-error>Customer is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Venue ID (Optional)</mat-label>
+        <input matInput formControlName="venueId" placeholder="Enter venue ID">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Expected Attendees</mat-label>
+        <input matInput type="number" formControlName="attendeeCount" placeholder="0">
+        @if (eventForm.get('attendeeCount')?.hasError('min')) {
+          <mat-error>Attendee count must be at least 1</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="event-form__section">
+    <h3 class="event-form__section-title">Additional Notes</h3>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Notes</mat-label>
+      <textarea
+        matInput
+        formControlName="notes"
+        placeholder="Enter any additional notes"
+        rows="3"
+      ></textarea>
+      @if (eventForm.get('notes')?.hasError('maxlength')) {
+        <mat-error>Notes cannot exceed 2000 characters</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="event-form__actions">
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="isLoading"
+    >
+      @if (isLoading) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        {{ isEditMode ? 'Save Changes' : 'Create Event' }}
+      }
+    </button>
+  </div>
+</form>
