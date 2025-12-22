@@ -20,4 +20,4 @@ public record CreateVenueCommand(
     int? StandingCapacity,
     string? ContactName,
     string? ContactEmail,
-    string? ContactPhone) : IRequest<CreateVenueResponse>;
+    string? ContactPhone)  : IRequest<CreateVenueResponse>;

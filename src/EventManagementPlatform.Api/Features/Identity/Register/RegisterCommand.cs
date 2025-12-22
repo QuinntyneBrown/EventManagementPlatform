@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Identity.Register;
 
-public record RegisterCommand(string Username, string Password, string ConfirmPassword) : IRequest<RegisterResponse>;
+public record RegisterCommand(string Username, string Password, string ConfirmPassword)  : IRequest<RegisterResponse>;

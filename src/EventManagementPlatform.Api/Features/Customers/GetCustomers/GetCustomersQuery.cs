@@ -10,4 +10,4 @@ public record GetCustomersQuery(
     int Page = 1,
     int PageSize = 20,
     CustomerStatus? Status = null,
-    string? Search = null) : IRequest<GetCustomersResponse>;
+    string? Search = null)  : IRequest<GetCustomersResponse>;

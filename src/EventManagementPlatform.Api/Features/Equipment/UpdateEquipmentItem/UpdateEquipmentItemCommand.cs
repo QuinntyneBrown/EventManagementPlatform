@@ -16,4 +16,4 @@ public record UpdateEquipmentItemCommand(
     string? Manufacturer,
     string? Model,
     string? SerialNumber,
-    string? WarehouseLocation) : IRequest<UpdateEquipmentItemResponse>;
+    string? WarehouseLocation)  : IRequest<UpdateEquipmentItemResponse>;

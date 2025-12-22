@@ -6,14 +6,24 @@ namespace EventManagementPlatform.Core.Model.UserAggregate;
 public class User
 {
     public Guid UserId { get; set; }
+
     public string Username { get; set; } = string.Empty;
+
     public string Password { get; set; } = string.Empty;
+
     public byte[] Salt { get; set; } = Array.Empty<byte>();
+
     public string? RefreshToken { get; set; }
+
     public Guid? CurrentProfileId { get; set; }
+
     public Guid? DefaultProfileId { get; set; }
+
     public bool IsDeleted { get; set; }
+
     public DateTime CreatedAt { get; set; }
+
     public DateTime? ModifiedAt { get; set; }
+
     public ICollection<Role> Roles { get; set; } = new List<Role>();
 }

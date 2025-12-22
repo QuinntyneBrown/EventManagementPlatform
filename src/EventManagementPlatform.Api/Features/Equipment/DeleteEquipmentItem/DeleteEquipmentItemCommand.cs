@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Equipment.DeleteEquipmentItem;
 
-public record DeleteEquipmentItemCommand(Guid EquipmentItemId) : IRequest<Unit>;
+public record DeleteEquipmentItemCommand(Guid EquipmentItemId)  : IRequest<Unit>;

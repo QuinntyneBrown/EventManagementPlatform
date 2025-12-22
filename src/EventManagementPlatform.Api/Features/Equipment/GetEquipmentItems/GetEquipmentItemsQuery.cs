@@ -13,4 +13,4 @@ public record GetEquipmentItemsQuery(
     EquipmentStatus? Status = null,
     EquipmentCondition? Condition = null,
     bool? IsActive = null,
-    string? Search = null) : IRequest<GetEquipmentItemsResponse>;
+    string? Search = null)  : IRequest<GetEquipmentItemsResponse>;

@@ -12,4 +12,4 @@ public record UpdateStaffMemberCommand(
     string LastName,
     string PhoneNumber,
     StaffRole Role,
-    decimal? HourlyRate) : IRequest<UpdateStaffMemberResponse>;
+    decimal? HourlyRate)  : IRequest<UpdateStaffMemberResponse>;

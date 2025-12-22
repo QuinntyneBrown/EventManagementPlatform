@@ -12,4 +12,4 @@ public record UpdateEventCommand(
     DateTime EventDate,
     Guid VenueId,
     Guid EventTypeId,
-    Guid CustomerId) : IRequest<UpdateEventResponse>;
+    Guid CustomerId)  : IRequest<UpdateEventResponse>;

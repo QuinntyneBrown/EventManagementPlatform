@@ -8,5 +8,5 @@ public enum VenueStatus
     Active = 0,
     Inactive = 1,
     PendingApproval = 2,
-    Blacklisted = 3
+    Blacklisted = 3,
 }

@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Events.DeleteEvent;
 
-public record DeleteEventCommand(Guid EventId) : IRequest<Unit>;
+public record DeleteEventCommand(Guid EventId)  : IRequest<Unit>;

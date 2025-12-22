@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Identity.RefreshToken;
 
-public record RefreshTokenCommand(string RefreshToken) : IRequest<RefreshTokenResponse>;
+public record RefreshTokenCommand(string RefreshToken)  : IRequest<RefreshTokenResponse>;

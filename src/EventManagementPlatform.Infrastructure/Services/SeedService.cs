@@ -63,7 +63,7 @@ public class SeedService : ISeedService
             Password = hash,
             Salt = salt,
             CreatedAt = DateTime.UtcNow,
-            IsDeleted = false
+            IsDeleted = false,
         };
 
         _context.Users.Add(adminUser);

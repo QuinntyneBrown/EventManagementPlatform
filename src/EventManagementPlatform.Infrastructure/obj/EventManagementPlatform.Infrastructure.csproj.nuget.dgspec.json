@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj": {}
+    "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj": {
+    "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
+        "projectUniqueName": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
         "projectName": "EventManagementPlatform.Core",
-        "projectPath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
+        "projectPath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
         "packagesPath": "C:\\Users\\quinn\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\obj\\",
+        "outputPath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -35,6 +35,7 @@
           }
         },
         "warningProperties": {
+          "allWarningsAsErrors": true,
           "warnAsError": [
             "NU1605"
           ]
@@ -66,6 +67,12 @@
               "target": "Package",
               "version": "[8.0.11, )"
             },
+            "Microsoft.CodeAnalysis.NetAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.11, )"
@@ -73,6 +80,12 @@
             "Microsoft.Extensions.Configuration.Abstractions": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "StyleCop.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.1.118, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
@@ -99,14 +112,14 @@
         }
       }
     },
-    "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj": {
+    "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj",
+        "projectUniqueName": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj",
         "projectName": "EventManagementPlatform.Infrastructure",
-        "projectPath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj",
+        "projectPath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\EventManagementPlatform.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\quinn\\.nuget\\packages\\",
-        "outputPath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\obj\\",
+        "outputPath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -127,13 +140,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj": {
-                "projectPath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj"
+              "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj": {
+                "projectPath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj"
               }
             }
           }
         },
         "warningProperties": {
+          "allWarningsAsErrors": true,
           "warnAsError": [
             "NU1605"
           ]
@@ -149,6 +163,12 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.CodeAnalysis.NetAnalyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[8.0.11, )"
@@ -158,6 +178,12 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.11, )"
+            },
+            "StyleCop.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.1.118, )"
             }
           },
           "imports": [

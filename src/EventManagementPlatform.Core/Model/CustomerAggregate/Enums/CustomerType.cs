@@ -9,5 +9,5 @@ public enum CustomerType
     SmallBusiness = 1,
     Enterprise = 2,
     NonProfit = 3,
-    Government = 4
+    Government = 4,
 }

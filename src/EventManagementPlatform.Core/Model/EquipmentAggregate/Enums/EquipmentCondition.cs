@@ -10,5 +10,5 @@ public enum EquipmentCondition
     Fair = 2,
     Poor = 3,
     NeedsRepair = 4,
-    OutOfService = 5
+    OutOfService = 5,
 }

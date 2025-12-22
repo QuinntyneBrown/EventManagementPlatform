@@ -11,5 +11,5 @@ public enum EquipmentCategory
     Decoration = 3,
     Seating = 4,
     Lighting = 5,
-    Other = 99
+    Other = 99,
 }

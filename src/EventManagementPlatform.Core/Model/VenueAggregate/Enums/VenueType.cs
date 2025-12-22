@@ -11,5 +11,5 @@ public enum VenueType
     Outdoor = 3,
     Theater = 4,
     Banquet = 5,
-    Other = 99
+    Other = 99,
 }

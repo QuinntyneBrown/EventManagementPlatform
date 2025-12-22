@@ -7,5 +7,5 @@ public enum EventStatus
 {
     Planned = 0,
     Confirmed = 1,
-    Cancelled = 2
+    Cancelled = 2,
 }

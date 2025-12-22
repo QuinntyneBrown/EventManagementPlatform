@@ -10,5 +10,5 @@ public enum EquipmentStatus
     InTransit = 2,
     AtVenue = 3,
     InMaintenance = 4,
-    Retired = 5
+    Retired = 5,
 }

@@ -14,5 +14,5 @@ public enum StaffRole
     Photographer = 6,
     DJ = 7,
     Manager = 8,
-    Other = 9
+    Other = 9,
 }

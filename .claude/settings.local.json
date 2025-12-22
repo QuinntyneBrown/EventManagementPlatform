@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)",
-      "Bash(dir:*)"
+      "Bash(git checkout:*)",
+      "Bash(xargs sed:*)"
     ],
     "deny": [],
     "ask": []

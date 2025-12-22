@@ -11,4 +11,4 @@ public record CreateEventCommand(
     DateTime EventDate,
     Guid VenueId,
     Guid EventTypeId,
-    Guid CustomerId) : IRequest<CreateEventResponse>;
+    Guid CustomerId)  : IRequest<CreateEventResponse>;

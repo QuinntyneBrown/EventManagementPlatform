@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Equipment.GetEquipmentItemById;
 
-public record GetEquipmentItemByIdQuery(Guid EquipmentItemId) : IRequest<GetEquipmentItemByIdResponse>;
+public record GetEquipmentItemByIdQuery(Guid EquipmentItemId)  : IRequest<GetEquipmentItemByIdResponse>;

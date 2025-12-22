@@ -20,13 +20,21 @@ public class EventManagementPlatformDbContext : DbContext, IEventManagementPlatf
     }
 
     public DbSet<User> Users => Set<User>();
+
     public DbSet<Role> Roles => Set<Role>();
+
     public DbSet<Privilege> Privileges => Set<Privilege>();
+
     public DbSet<Event> Events => Set<Event>();
+
     public DbSet<EventType> EventTypes => Set<EventType>();
+
     public DbSet<Customer> Customers => Set<Customer>();
+
     public DbSet<Venue> Venues => Set<Venue>();
+
     public DbSet<StaffMember> StaffMembers => Set<StaffMember>();
+
     public DbSet<EquipmentItem> EquipmentItems => Set<EquipmentItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

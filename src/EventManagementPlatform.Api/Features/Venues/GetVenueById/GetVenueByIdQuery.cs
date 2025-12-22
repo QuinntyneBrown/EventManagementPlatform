@@ -5,4 +5,4 @@ using MediatR;
 
 namespace EventManagementPlatform.Api.Features.Venues.GetVenueById;
 
-public record GetVenueByIdQuery(Guid VenueId) : IRequest<GetVenueByIdResponse>;
+public record GetVenueByIdQuery(Guid VenueId)  : IRequest<GetVenueByIdResponse>;
