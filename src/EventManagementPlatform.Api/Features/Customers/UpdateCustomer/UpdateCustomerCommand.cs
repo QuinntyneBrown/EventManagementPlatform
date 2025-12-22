@@ -17,5 +17,5 @@ public record UpdateCustomerCommand(
     string BillingStreet,
     string BillingCity,
     string BillingState,
-    string BillingZipCode,
+    string BillingPostalCode,
     string BillingCountry) : IRequest<UpdateCustomerResponse>;

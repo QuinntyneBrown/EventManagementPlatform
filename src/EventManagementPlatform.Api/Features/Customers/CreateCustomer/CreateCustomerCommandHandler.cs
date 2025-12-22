@@ -30,7 +30,7 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             BillingStreet = request.Address,
             BillingCity = request.City,
             BillingState = request.State,
-            BillingZipCode = request.ZipCode,
+            BillingPostalCode = request.PostalCode,
             BillingCountry = request.BillingCountry,
             Status = CustomerStatus.Active,
             CreatedAt = DateTime.UtcNow
@@ -50,7 +50,7 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
             customer.BillingStreet,
             customer.BillingCity,
             customer.BillingState,
-            customer.BillingZipCode,
+            customer.BillingPostalCode,
             customer.BillingCountry,
             customer.Status,
             customer.CreatedAt,

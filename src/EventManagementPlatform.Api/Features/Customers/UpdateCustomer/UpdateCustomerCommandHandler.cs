@@ -31,7 +31,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
         customer.BillingStreet = request.BillingStreet;
         customer.BillingCity = request.BillingCity;
         customer.BillingState = request.BillingState;
-        customer.BillingZipCode = request.BillingZipCode;
+        customer.BillingPostalCode = request.BillingPostalCode;
         customer.BillingCountry = request.BillingCountry;
         customer.ModifiedAt = DateTime.UtcNow;
 
@@ -48,7 +48,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
             customer.BillingStreet,
             customer.BillingCity,
             customer.BillingState,
-            customer.BillingZipCode,
+            customer.BillingPostalCode,
             customer.BillingCountry,
             customer.Status,
             customer.CreatedAt,

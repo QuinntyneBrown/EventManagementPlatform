@@ -19,7 +19,7 @@ export interface CustomerDetailDto {
   address?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
+  postalCode?: string;
   notes?: string;
   status: CustomerStatus;
   eventCount: number;
@@ -36,7 +36,7 @@ export interface CreateCustomerDto {
   address?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
+  postalCode?: string;
   notes?: string;
 }
 

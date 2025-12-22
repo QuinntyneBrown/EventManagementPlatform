@@ -16,5 +16,5 @@ public record CreateCustomerCommand(
     string Address,
     string City,
     string State,
-    string ZipCode,
+    string PostalCode,
     string BillingCountry = "Canada") : IRequest<CreateCustomerResponse>;

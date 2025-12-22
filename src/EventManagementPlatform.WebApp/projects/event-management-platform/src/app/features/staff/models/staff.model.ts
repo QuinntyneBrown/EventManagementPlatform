@@ -15,7 +15,7 @@ export interface StaffDetailDto extends StaffListItemDto {
   address: string;
   city: string;
   state: string;
-  zipCode: string;
+  postalCode: string;
   emergencyContact: string;
   emergencyPhone: string;
   skills: string[];
@@ -36,7 +36,7 @@ export interface CreateStaffRequest {
   address: string;
   city: string;
   state: string;
-  zipCode: string;
+  postalCode: string;
   emergencyContact: string;
   emergencyPhone: string;
   skills: string[];

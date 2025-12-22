@@ -52,7 +52,7 @@ export class StaffEdit implements OnInit, HasUnsavedChanges {
     role: ['', Validators.required],
     hireDate: ['', Validators.required],
     hourlyRate: ['', [Validators.required, Validators.min(0)]],
-    address: [''], city: [''], state: [''], zipCode: [''],
+    address: [''], city: [''], state: [''], postalCode: [''],
     emergencyContact: [''], emergencyPhone: [''],
     notes: ['']
   });

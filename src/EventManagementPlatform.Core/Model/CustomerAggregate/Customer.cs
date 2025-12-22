@@ -15,7 +15,7 @@ public class Customer
     public string BillingStreet { get; set; } = string.Empty;
     public string BillingCity { get; set; } = string.Empty;
     public string BillingState { get; set; } = string.Empty;
-    public string BillingZipCode { get; set; } = string.Empty;
+    public string BillingPostalCode { get; set; } = string.Empty;
     public string BillingCountry { get; set; } = string.Empty;
     public CustomerStatus Status { get; set; } = CustomerStatus.Active;
     public bool IsDeleted { get; set; }

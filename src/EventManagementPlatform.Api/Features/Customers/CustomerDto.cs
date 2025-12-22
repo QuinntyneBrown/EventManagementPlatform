@@ -16,7 +16,7 @@ public record CustomerDto(
     string BillingStreet,
     string BillingCity,
     string BillingState,
-    string BillingZipCode,
+    string BillingPostalCode,
     string BillingCountry,
     CustomerStatus Status,
     DateTime CreatedAt,

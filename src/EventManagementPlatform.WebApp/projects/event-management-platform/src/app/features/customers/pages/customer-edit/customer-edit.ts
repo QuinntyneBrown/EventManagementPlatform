@@ -37,7 +37,7 @@ export class CustomerEdit implements OnInit, HasUnsavedChanges {
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''], company: [''], address: [''], city: [''], state: [''], zipCode: [''], notes: ['']
+    phone: [''], company: [''], address: [''], city: [''], state: [''], postalCode: [''], notes: ['']
   });
 
   ngOnInit(): void { this.loadCustomer(); }
