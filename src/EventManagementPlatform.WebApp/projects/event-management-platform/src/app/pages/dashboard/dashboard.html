@@ -1,7 +1,7 @@
 <div class="dashboard">
   @if (currentUser$ | async; as user) {
     <app-page-header
-      [title]="'Welcome, ' + user.firstName + '!'"
+      [title]="'Welcome, ' + user.username + '!'"
       subtitle="Here's an overview of your Event Management Platform"
     ></app-page-header>
   }

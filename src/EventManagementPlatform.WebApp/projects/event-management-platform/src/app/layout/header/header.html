@@ -21,14 +21,11 @@
 
     <mat-menu #userMenu="matMenu">
       <div class="header__user-info">
-        <span class="header__user-name">{{ user.firstName }} {{ user.lastName }}</span>
-        <span class="header__user-email">{{ user.email }}</span>
+        <span class="header__user-name">{{ user.username }}</span>
+        <span class="header__user-roles">{{ user.roles.join(', ') }}</span>
       </div>
       <mat-divider></mat-divider>
-      <a mat-menu-item routerLink="/profile">
-        <mat-icon>person</mat-icon>
-        <span>Profile</span>
-      </a>
+      <!-- Note: Profile page deferred to Phase B -->
       <button mat-menu-item (click)="onLogout()">
         <mat-icon>logout</mat-icon>
         <span>Logout</span>

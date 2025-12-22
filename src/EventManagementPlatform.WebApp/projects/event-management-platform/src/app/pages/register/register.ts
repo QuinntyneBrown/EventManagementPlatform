@@ -11,6 +11,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 
+/**
+ * Register Page Component
+ *
+ * Uses POST /api/identity/register endpoint
+ * Request: { username: string, password: string, confirmPassword: string }
+ *
+ * Note: After successful registration, user is redirected to login
+ * (does NOT auto-login per backend identity spec)
+ */
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -35,10 +44,8 @@ export class Register {
   private readonly notificationService = inject(NotificationService);
 
   registerForm: FormGroup = this.fb.group({
-    firstName: ['', [Validators.required, Validators.maxLength(100)]],
-    lastName: ['', [Validators.required, Validators.maxLength(100)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
 
@@ -63,12 +70,12 @@ export class Register {
     }
 
     this.isLoading = true;
-    const { firstName, lastName, email, password } = this.registerForm.value;
+    const { username, password, confirmPassword } = this.registerForm.value;
 
-    this.authService.register({ firstName, lastName, email, password }).subscribe({
+    this.authService.register({ username, password, confirmPassword }).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Registration successful! Welcome aboard.');
-        this.router.navigate(['/dashboard']);
+        this.notificationService.showSuccess('Registration successful! Please sign in.');
+        this.router.navigate(['/login']);
       },
       error: () => {
         this.isLoading = false;
@@ -80,9 +87,6 @@ export class Register {
     const control = this.registerForm.get(field);
     if (control?.hasError('required')) {
       return `${this.formatFieldName(field)} is required`;
-    }
-    if (control?.hasError('email')) {
-      return 'Please enter a valid email address';
     }
     if (control?.hasError('minlength')) {
       return `${this.formatFieldName(field)} must be at least ${control.errors?.['minlength'].requiredLength} characters`;

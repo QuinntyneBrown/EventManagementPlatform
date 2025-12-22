@@ -1,139 +1,100 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 import { PageHeader } from '../../shared/components/page-header';
 import { AuthService } from '../../core/services/auth.service';
-import { NotificationService } from '../../core/services/notification.service';
 import { HasUnsavedChanges } from '../../core/guards/unsaved-changes.guard';
 
+/**
+ * Profile Page Component - PHASE B STUB
+ *
+ * This component is a placeholder for Phase B implementation.
+ * Profile functionality requires backend endpoints that are not yet implemented:
+ * - GET /api/identity/profile
+ * - PUT /api/identity/profile
+ *
+ * Phase A does not include user profile management.
+ */
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatIconModule,
-    MatTabsModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
+    MatButtonModule,
     PageHeader
   ],
-  templateUrl: './profile.html',
-  styleUrl: './profile.scss'
-})
-export class Profile implements OnInit, HasUnsavedChanges {
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
+  template: `
+    <div class="profile-placeholder">
+      <app-page-header
+        title="User Profile"
+        subtitle="Profile management coming in Phase B"
+      ></app-page-header>
 
-  profileForm!: FormGroup;
-  passwordForm!: FormGroup;
+      <mat-card class="profile-placeholder__card">
+        <mat-card-content>
+          <div class="profile-placeholder__content">
+            <mat-icon class="profile-placeholder__icon">construction</mat-icon>
+            <h2>Profile Management</h2>
+            <p>This feature is planned for Phase B.</p>
+            <p class="profile-placeholder__info">
+              @if (currentUser$ | async; as user) {
+                <strong>Current User:</strong> {{ user.username }}<br>
+                <strong>Roles:</strong> {{ user.roles.join(', ') }}
+              }
+            </p>
+            <button mat-raised-button color="primary" (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon>
+              Go Back
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  `,
+  styles: [`
+    .profile-placeholder {
+      padding: 24px;
+    }
+    .profile-placeholder__card {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .profile-placeholder__content {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .profile-placeholder__icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #757575;
+      margin-bottom: 16px;
+    }
+    .profile-placeholder__info {
+      margin: 24px 0;
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      text-align: left;
+    }
+  `]
+})
+export class Profile implements HasUnsavedChanges {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   currentUser$ = this.authService.currentUser$;
-  isProfileLoading = false;
-  isPasswordLoading = false;
-
-  hideCurrentPassword = true;
-  hideNewPassword = true;
-  hideConfirmPassword = true;
-
-  ngOnInit(): void {
-    this.initForms();
-    this.loadProfile();
-  }
 
   hasUnsavedChanges(): boolean {
-    return this.profileForm?.dirty || this.passwordForm?.dirty;
+    return false;
   }
 
-  onProfileSubmit(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
-      return;
-    }
-
-    this.isProfileLoading = true;
-    const { firstName, lastName, phoneNumber } = this.profileForm.value;
-
-    this.authService.updateProfile({ firstName, lastName, phoneNumber }).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Profile updated successfully');
-        this.profileForm.markAsPristine();
-        this.isProfileLoading = false;
-      },
-      error: () => {
-        this.isProfileLoading = false;
-      }
-    });
-  }
-
-  onPasswordSubmit(): void {
-    if (this.passwordForm.invalid) {
-      this.passwordForm.markAllAsTouched();
-      return;
-    }
-
-    this.isPasswordLoading = true;
-    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
-    this.authService.changePassword({ currentPassword, newPassword, confirmPassword }).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Password changed successfully');
-        this.passwordForm.reset();
-        this.passwordForm.markAsPristine();
-        this.isPasswordLoading = false;
-      },
-      error: () => {
-        this.isPasswordLoading = false;
-      }
-    });
-  }
-
-  private initForms(): void {
-    this.profileForm = this.fb.group({
-      firstName: ['', [Validators.required, Validators.maxLength(100)]],
-      lastName: ['', [Validators.required, Validators.maxLength(100)]],
-      email: [{ value: '', disabled: true }],
-      phoneNumber: ['', [Validators.pattern(/^\+?[1-9]\d{1,14}$/)]]
-    });
-
-    this.passwordForm = this.fb.group({
-      currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
-  }
-
-  private passwordMatchValidator(form: FormGroup): { [key: string]: boolean } | null {
-    const newPassword = form.get('newPassword');
-    const confirmPassword = form.get('confirmPassword');
-    if (newPassword && confirmPassword && newPassword.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-    return null;
-  }
-
-  private loadProfile(): void {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.profileForm.patchValue({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email
-      });
-    }
+  goBack(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

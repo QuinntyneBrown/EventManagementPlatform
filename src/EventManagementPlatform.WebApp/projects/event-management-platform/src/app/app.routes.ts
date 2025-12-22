@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
   // Public routes
@@ -15,7 +14,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard) },
-      { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile), canDeactivate: [unsavedChangesGuard] },
+      // Note: Profile route deferred to Phase B (backend profile endpoints not yet implemented)
 
       // Events feature
       {

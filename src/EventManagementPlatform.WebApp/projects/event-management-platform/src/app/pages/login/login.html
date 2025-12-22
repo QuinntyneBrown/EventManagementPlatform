@@ -8,17 +8,17 @@
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login__form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
+          <mat-label>Username</mat-label>
           <input
             matInput
-            formControlName="email"
-            type="email"
-            placeholder="Enter your email"
-            autocomplete="email"
+            formControlName="username"
+            type="text"
+            placeholder="Enter your username"
+            autocomplete="username"
           >
-          <mat-icon matSuffix>email</mat-icon>
-          @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-            <mat-error>{{ getErrorMessage('email') }}</mat-error>
+          <mat-icon matSuffix>person</mat-icon>
+          @if (loginForm.get('username')?.touched && loginForm.get('username')?.invalid) {
+            <mat-error>{{ getErrorMessage('username') }}</mat-error>
           }
         </mat-form-field>
 
