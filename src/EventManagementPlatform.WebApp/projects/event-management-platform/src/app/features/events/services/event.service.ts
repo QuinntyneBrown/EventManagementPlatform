@@ -31,34 +31,34 @@ export class EventService {
     if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
     if (params.sortDirection) httpParams = httpParams.set('sortDirection', params.sortDirection);
 
-    return this.http.get<PagedResult<EventListDto>>(`${this.baseUrl}/events`, { params: httpParams });
+    return this.http.get<PagedResult<EventListDto>>(`${this.baseUrl}/api/events`, { params: httpParams });
   }
 
   getEventById(eventId: string): Observable<EventDetailDto> {
-    return this.http.get<EventDetailDto>(`${this.baseUrl}/events/${eventId}`);
+    return this.http.get<EventDetailDto>(`${this.baseUrl}/api/events/${eventId}`);
   }
 
   createEvent(event: CreateEventDto): Observable<EventDetailDto> {
-    return this.http.post<EventDetailDto>(`${this.baseUrl}/events`, event);
+    return this.http.post<EventDetailDto>(`${this.baseUrl}/api/events`, event);
   }
 
   updateEvent(eventId: string, event: UpdateEventDto): Observable<EventDetailDto> {
-    return this.http.put<EventDetailDto>(`${this.baseUrl}/events/${eventId}`, event);
+    return this.http.put<EventDetailDto>(`${this.baseUrl}/api/events/${eventId}`, event);
   }
 
   deleteEvent(eventId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/events/${eventId}`);
+    return this.http.delete<void>(`${this.baseUrl}/api/events/${eventId}`);
   }
 
   updateStatus(eventId: string, status: EventStatus): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/events/${eventId}/status`, { status });
+    return this.http.patch<void>(`${this.baseUrl}/api/events/${eventId}/status`, { status });
   }
 
   cancelEvent(eventId: string, reason?: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/events/${eventId}/cancel`, { reason });
+    return this.http.post<void>(`${this.baseUrl}/api/events/${eventId}/cancel`, { reason });
   }
 
   confirmEvent(eventId: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/events/${eventId}/confirm`, {});
+    return this.http.post<void>(`${this.baseUrl}/api/events/${eventId}/confirm`, {});
   }
 }
