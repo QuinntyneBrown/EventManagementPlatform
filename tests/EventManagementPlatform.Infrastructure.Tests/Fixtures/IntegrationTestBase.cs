@@ -13,7 +13,7 @@ namespace EventManagementPlatform.Infrastructure.Tests.Fixtures;
 [Collection("Database")]
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
-    protected readonly SqlExpressDatabaseFixture Fixture;
+    protected SqlExpressDatabaseFixture Fixture { get; }
     protected EventManagementPlatformDbContext DbContext { get; private set; } = null!;
 
     protected IntegrationTestBase(SqlExpressDatabaseFixture fixture)
