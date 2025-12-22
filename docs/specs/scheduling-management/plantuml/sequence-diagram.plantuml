@@ -116,8 +116,10 @@ deactivate WebApp
 ' Sequence 2: Reschedule Event with Conflict Detection
 ' ==============================================
 
-@startuml
-!include Scheduling & Calendar Management Sequence Diagrams
+@startuml Reschedule Event Sequence
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 
 participant "User" as User2
 participant "Web App" as WebApp2
@@ -231,8 +233,10 @@ deactivate WebApp2
 ' Sequence 3: Resolve Schedule Conflict
 ' ==============================================
 
-@startuml
-!include Scheduling & Calendar Management Sequence Diagrams
+@startuml Resolve Schedule Conflict Sequence
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 
 participant "Manager" as Manager
 participant "Web App" as WebApp3
@@ -339,8 +343,10 @@ deactivate WebApp3
 ' Sequence 4: Check Resource Availability
 ' ==============================================
 
-@startuml
-!include Scheduling & Calendar Management Sequence Diagrams
+@startuml Check Resource Availability Sequence
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 
 participant "User" as User4
 participant "Web App" as WebApp4
@@ -421,8 +427,10 @@ deactivate WebApp4
 ' Sequence 5: Generate and Export Calendar View
 ' ==============================================
 
-@startuml
-!include Scheduling & Calendar Management Sequence Diagrams
+@startuml Generate and Export Calendar View Sequence
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 
 participant "Manager" as Manager5
 participant "Web App" as WebApp5
@@ -536,8 +544,10 @@ deactivate WebApp5
 ' Sequence 6: Automatic Conflict Detection (Background Job)
 ' ==============================================
 
-@startuml
-!include Scheduling & Calendar Management Sequence Diagrams
+@startuml Automatic Conflict Detection Sequence
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
 
 participant "Timer Trigger" as Timer
 participant "Azure Function" as Function
@@ -623,7 +633,5 @@ deactivate ConflictSvc
 Function -> Function : Log results
 Function --> Timer : Complete
 deactivate Function
-
-@enduml
 
 @enduml

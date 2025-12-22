@@ -847,52 +847,42 @@ else Cache Miss
     Handler -> Service: GetFinancialDashboard(startDate, endDate)
     activate Service
 
-    par Parallel Queries
+    note over Service: Parallel Queries for Dashboard Data
 
-        Service -> InvoiceRepo: GetInvoiceStatistics(period)
-        activate InvoiceRepo
-        InvoiceRepo -> DB: SELECT COUNT(*), SUM(TotalAmount),\nAVG(TotalAmount), etc.\nFROM Invoices\nWHERE IssueDate BETWEEN @start AND @end
-        DB --> InvoiceRepo: statistics
-        InvoiceRepo --> Service: InvoiceStats
-        deactivate InvoiceRepo
+    Service -> InvoiceRepo: GetInvoiceStatistics(period)
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT COUNT(*), SUM(TotalAmount),\nAVG(TotalAmount), etc.\nFROM Invoices\nWHERE IssueDate BETWEEN @start AND @end
+    DB --> InvoiceRepo: statistics
+    InvoiceRepo --> Service: InvoiceStats
+    deactivate InvoiceRepo
 
-    and
+    Service -> InvoiceRepo: GetRevenueByMonth(period)
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT MONTH(IssueDate), SUM(TotalAmount)\nFROM Invoices\nGROUP BY MONTH(IssueDate)
+    DB --> InvoiceRepo: monthly data
+    InvoiceRepo --> Service: List<MonthlyRevenue>
+    deactivate InvoiceRepo
 
-        Service -> InvoiceRepo: GetRevenueByMonth(period)
-        activate InvoiceRepo
-        InvoiceRepo -> DB: SELECT MONTH(IssueDate), SUM(TotalAmount)\nFROM Invoices\nGROUP BY MONTH(IssueDate)
-        DB --> InvoiceRepo: monthly data
-        InvoiceRepo --> Service: List<MonthlyRevenue>
-        deactivate InvoiceRepo
+    Service -> InvoiceRepo: GetRevenueByFeeType(period)
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT FeeType, SUM(LineTotal)\nFROM InvoiceItems\nGROUP BY FeeType
+    DB --> InvoiceRepo: fee type data
+    InvoiceRepo --> Service: Dictionary<FeeType, Money>
+    deactivate InvoiceRepo
 
-    and
+    Service -> PaymentRepo: GetPaymentStatistics(period)
+    activate PaymentRepo
+    PaymentRepo -> DB: SELECT SUM(Amount), COUNT(*),\nAVG(DATEDIFF(ProcessedDate, Invoice.IssueDate))\nFROM Payments
+    DB --> PaymentRepo: payment stats
+    PaymentRepo --> Service: PaymentStats
+    deactivate PaymentRepo
 
-        Service -> InvoiceRepo: GetRevenueByFeeType(period)
-        activate InvoiceRepo
-        InvoiceRepo -> DB: SELECT FeeType, SUM(LineTotal)\nFROM InvoiceItems\nGROUP BY FeeType
-        DB --> InvoiceRepo: fee type data
-        InvoiceRepo --> Service: Dictionary<FeeType, Money>
-        deactivate InvoiceRepo
-
-    and
-
-        Service -> PaymentRepo: GetPaymentStatistics(period)
-        activate PaymentRepo
-        PaymentRepo -> DB: SELECT SUM(Amount), COUNT(*),\nAVG(DATEDIFF(ProcessedDate, Invoice.IssueDate))\nFROM Payments
-        DB --> PaymentRepo: payment stats
-        PaymentRepo --> Service: PaymentStats
-        deactivate PaymentRepo
-
-    and
-
-        Service -> InvoiceRepo: GetPastDueCount()
-        activate InvoiceRepo
-        InvoiceRepo -> DB: SELECT COUNT(*)\nFROM Invoices\nWHERE Status = 'PastDue'
-        DB --> InvoiceRepo: count
-        InvoiceRepo --> Service: pastDueCount
-        deactivate InvoiceRepo
-
-    end
+    Service -> InvoiceRepo: GetPastDueCount()
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT COUNT(*)\nFROM Invoices\nWHERE Status = 'PastDue'
+    DB --> InvoiceRepo: count
+    InvoiceRepo --> Service: pastDueCount
+    deactivate InvoiceRepo
 
     == Build Dashboard ==
 
@@ -1080,7 +1070,5 @@ end
 
 Function -> Function: Log analysis complete
 deactivate Function
-
-@enduml
 
 @enduml
