@@ -1,0 +1,98 @@
+@if (isLoading) {
+  <app-loading-spinner message="Loading staff member..."></app-loading-spinner>
+} @else if (staff) {
+  <div class="staff-detail">
+    <app-page-header [title]="staff.firstName + ' ' + staff.lastName" [breadcrumbs]="breadcrumbs" [showBackButton]="true" backLink="/staff">
+      <app-status-badge [status]="staffStatusLabels[staff.status]" [color]="getStatusColor(staff.status)"></app-status-badge>
+      <button mat-stroked-button [routerLink]="['edit']"><mat-icon>edit</mat-icon> Edit</button>
+      <button mat-stroked-button color="warn" (click)="deleteStaff()"><mat-icon>delete</mat-icon> Delete</button>
+    </app-page-header>
+
+    <mat-tab-group class="staff-detail__tabs">
+      <mat-tab label="Overview">
+        <div class="staff-detail__content">
+          <div class="staff-detail__grid">
+            <mat-card>
+              <mat-card-header><mat-card-title>Basic Information</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="staff-detail__info">
+                  <div><dt>Role</dt><dd>{{ staffRoleLabels[staff.role] }}</dd></div>
+                  <div><dt>Email</dt><dd><a [href]="'mailto:' + staff.email">{{ staff.email }}</a></dd></div>
+                  <div><dt>Phone</dt><dd>{{ staff.phone || '-' }}</dd></div>
+                  <div><dt>Hire Date</dt><dd>{{ formatDate(staff.hireDate) }}</dd></div>
+                  <div><dt>Hourly Rate</dt><dd>{{ formatCurrency(staff.hourlyRate) }}</dd></div>
+                  <div><dt>Events Assigned</dt><dd>{{ staff.totalEventsAssigned }}</dd></div>
+                </dl>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header><mat-card-title>Address</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="staff-detail__info">
+                  <div><dt>Street</dt><dd>{{ staff.address || '-' }}</dd></div>
+                  <div><dt>City</dt><dd>{{ staff.city || '-' }}</dd></div>
+                  <div><dt>State</dt><dd>{{ staff.state || '-' }}</dd></div>
+                  <div><dt>ZIP Code</dt><dd>{{ staff.zipCode || '-' }}</dd></div>
+                </dl>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header><mat-card-title>Emergency Contact</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <dl class="staff-detail__info">
+                  <div><dt>Contact Name</dt><dd>{{ staff.emergencyContact || '-' }}</dd></div>
+                  <div><dt>Contact Phone</dt><dd>{{ staff.emergencyPhone || '-' }}</dd></div>
+                </dl>
+              </mat-card-content>
+            </mat-card>
+
+            @if (staff.skills && staff.skills.length > 0) {
+              <mat-card>
+                <mat-card-header><mat-card-title>Skills</mat-card-title></mat-card-header>
+                <mat-card-content>
+                  <mat-chip-set>
+                    @for (skill of staff.skills; track skill) {
+                      <mat-chip>{{ skill }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                </mat-card-content>
+              </mat-card>
+            }
+
+            @if (staff.certifications && staff.certifications.length > 0) {
+              <mat-card>
+                <mat-card-header><mat-card-title>Certifications</mat-card-title></mat-card-header>
+                <mat-card-content>
+                  <mat-chip-set>
+                    @for (cert of staff.certifications; track cert) {
+                      <mat-chip color="accent">{{ cert }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+
+          @if (staff.notes) {
+            <mat-card class="staff-detail__notes">
+              <mat-card-header><mat-card-title>Notes</mat-card-title></mat-card-header>
+              <mat-card-content><p>{{ staff.notes }}</p></mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Schedule">
+        <div class="staff-detail__content">
+          <mat-card>
+            <mat-card-content>
+              <p class="staff-detail__placeholder">Staff schedule and event assignments will be displayed here.</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+}

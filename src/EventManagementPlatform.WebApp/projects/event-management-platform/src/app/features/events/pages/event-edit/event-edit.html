@@ -1,0 +1,23 @@
+@if (isLoading) {
+  <app-loading-spinner message="Loading event..."></app-loading-spinner>
+} @else if (event) {
+  <div class="event-edit">
+    <app-page-header
+      [title]="'Edit: ' + event.title"
+      [breadcrumbs]="breadcrumbs"
+      [showBackButton]="true"
+      [backLink]="'/events/' + eventId"
+    ></app-page-header>
+
+    <mat-card class="event-edit__card">
+      <mat-card-content>
+        <app-event-form
+          [event]="event"
+          [isLoading]="isSaving"
+          (formSubmit)="onSubmit($event)"
+          (formCancel)="onCancel()"
+        ></app-event-form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

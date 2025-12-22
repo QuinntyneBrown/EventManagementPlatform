@@ -1,0 +1,16 @@
+<span
+  class="status-badge"
+  [class.status-badge--small]="size === 'small'"
+  [class.status-badge--primary]="color === 'primary'"
+  [class.status-badge--accent]="color === 'accent'"
+  [class.status-badge--warn]="color === 'warn'"
+  [class.status-badge--success]="color === 'success'"
+  [class.status-badge--info]="color === 'info'"
+  [class.status-badge--default]="color === 'default'"
+  [class.status-badge--danger]="color === 'danger'"
+  [class.status-badge--warning]="color === 'warning'"
+  [class.status-badge--neutral]="color === 'neutral'"
+  [attr.aria-label]="status"
+>
+  {{ status }}
+</span>

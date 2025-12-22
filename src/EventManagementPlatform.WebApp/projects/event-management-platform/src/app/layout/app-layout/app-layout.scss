@@ -1,0 +1,31 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  &__container {
+    flex: 1;
+    margin-top: 64px;
+  }
+
+  &__sidenav {
+    width: 256px;
+    background-color: #fff;
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 64px);
+  }
+
+  &__main {
+    flex: 1;
+    padding: var(--spacing-lg);
+
+    @media (max-width: 599px) {
+      padding: var(--spacing-md);
+    }
+  }
+}

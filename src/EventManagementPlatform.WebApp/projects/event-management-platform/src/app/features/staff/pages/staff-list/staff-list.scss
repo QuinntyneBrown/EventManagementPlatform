@@ -1,0 +1,10 @@
+.staff-list {
+  &__filters { margin-bottom: var(--spacing-md); }
+  &__filter-row { display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: flex-start; }
+  &__search { flex: 1; min-width: 250px; }
+  &__table-card { overflow: hidden; }
+  &__link { color: var(--mat-sys-primary); text-decoration: none; font-weight: 500; &:hover { text-decoration: underline; } }
+
+  table { width: 100%; }
+  .mat-mdc-row:hover { background-color: rgba(0, 0, 0, 0.04); }
+}
