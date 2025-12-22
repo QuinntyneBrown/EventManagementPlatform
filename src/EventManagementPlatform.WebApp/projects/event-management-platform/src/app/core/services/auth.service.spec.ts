@@ -1,6 +1,8 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
 import { API_BASE_URL } from '../tokens/api.token';
 import { AuthenticateResponse, RegisterResponse, RefreshTokenResponse } from '../models/auth.model';
@@ -87,19 +89,13 @@ describe('AuthService', () => {
         roles: ['Staff']
       };
 
-      const loginPromise = new Promise<void>((resolve) => {
-        service.login(credentials).subscribe(() => {
-          service.isAuthenticated$.subscribe(isAuth => {
-            expect(isAuth).toBe(true);
-            resolve();
-          });
-        });
-      });
-
-      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`);
+      const loginPromise = firstValueFrom(service.login(credentials));
+      const req = httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`);
       req.flush(mockResponse);
 
       await loginPromise;
+      const isAuth = await firstValueFrom(service.isAuthenticated$);
+      expect(isAuth).toBe(true);
     });
   });
 
@@ -201,27 +197,15 @@ describe('AuthService', () => {
     it('should set isAuthenticated$ to false', async () => {
       service.logout();
 
-      const isAuthPromise = new Promise<void>((resolve) => {
-        service.isAuthenticated$.subscribe(isAuth => {
-          expect(isAuth).toBe(false);
-          resolve();
-        });
-      });
-
-      await isAuthPromise;
+      const isAuth = await firstValueFrom(service.isAuthenticated$);
+      expect(isAuth).toBe(false);
     });
 
     it('should set currentUser$ to null', async () => {
       service.logout();
 
-      const userPromise = new Promise<void>((resolve) => {
-        service.currentUser$.subscribe(user => {
-          expect(user).toBeNull();
-          resolve();
-        });
-      });
-
-      await userPromise;
+      const user = await firstValueFrom(service.currentUser$);
+      expect(user).toBeNull();
     });
   });
 

@@ -43,7 +43,7 @@ public class GetCustomersQueryHandler : IRequestHandler<GetCustomersQuery, GetCu
                 x.BillingStreet,
                 x.BillingCity,
                 x.BillingState,
-                x.BillingZipCode,
+                x.BillingPostalCode,
                 x.BillingCountry,
                 x.Status,
                 x.CreatedAt,

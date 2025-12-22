@@ -14,7 +14,7 @@ export interface VenueListItemDto {
 
 export interface VenueDetailDto extends VenueListItemDto {
   description: string;
-  zipCode: string;
+  postalCode: string;
   phone: string;
   email: string;
   website: string;
@@ -32,7 +32,7 @@ export interface CreateVenueRequest {
   address: string;
   city: string;
   state: string;
-  zipCode: string;
+  postalCode: string;
   phone: string;
   email: string;
   website: string;

@@ -1,0 +1,1185 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Event Management Platform API",
+    "version": "1.0.0",
+    "description": "API contract for the Event Management Platform"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "API Base URL"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "CustomerStatus": {
+        "type": "string",
+        "enum": ["Active", "Inactive", "Pending", "Blocked"]
+      },
+      "CustomerType": {
+        "type": "string",
+        "enum": ["Individual", "Corporate", "NonProfit", "Government"]
+      },
+      "CustomerDto": {
+        "type": "object",
+        "properties": {
+          "customerId": { "type": "string", "format": "uuid" },
+          "companyName": { "type": "string" },
+          "type": { "$ref": "#/components/schemas/CustomerType" },
+          "primaryEmail": { "type": "string", "format": "email" },
+          "primaryPhone": { "type": "string" },
+          "industry": { "type": "string", "nullable": true },
+          "website": { "type": "string", "nullable": true },
+          "billingStreet": { "type": "string" },
+          "billingCity": { "type": "string" },
+          "billingState": { "type": "string" },
+          "billingPostalCode": { "type": "string" },
+          "billingCountry": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/CustomerStatus" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "modifiedAt": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["customerId", "companyName", "type", "primaryEmail", "primaryPhone", "billingStreet", "billingCity", "billingState", "billingPostalCode", "billingCountry", "status", "createdAt"]
+      },
+      "CreateCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "type": { "$ref": "#/components/schemas/CustomerType" },
+          "email": { "type": "string", "format": "email" },
+          "phone": { "type": "string" },
+          "industry": { "type": "string", "nullable": true },
+          "website": { "type": "string", "nullable": true },
+          "address": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "postalCode": { "type": "string" },
+          "billingCountry": { "type": "string", "default": "Canada" }
+        },
+        "required": ["company", "type", "email", "phone", "address", "city", "state", "postalCode"]
+      },
+      "UpdateCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "customerId": { "type": "string", "format": "uuid" },
+          "companyName": { "type": "string" },
+          "type": { "$ref": "#/components/schemas/CustomerType" },
+          "primaryEmail": { "type": "string", "format": "email" },
+          "primaryPhone": { "type": "string" },
+          "industry": { "type": "string", "nullable": true },
+          "website": { "type": "string", "nullable": true },
+          "billingStreet": { "type": "string" },
+          "billingCity": { "type": "string" },
+          "billingState": { "type": "string" },
+          "billingPostalCode": { "type": "string" },
+          "billingCountry": { "type": "string" }
+        },
+        "required": ["customerId", "companyName", "type", "primaryEmail", "primaryPhone", "billingStreet", "billingCity", "billingState", "billingPostalCode", "billingCountry"]
+      },
+      "GetCustomersResponse": {
+        "type": "object",
+        "properties": {
+          "customers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CustomerDto" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        },
+        "required": ["customers", "totalCount", "page", "pageSize"]
+      },
+      "GetCustomerByIdResponse": {
+        "type": "object",
+        "properties": {
+          "customer": { "$ref": "#/components/schemas/CustomerDto" }
+        },
+        "required": ["customer"]
+      },
+      "CreateCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "customer": { "$ref": "#/components/schemas/CustomerDto" }
+        },
+        "required": ["customer"]
+      },
+      "UpdateCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "customer": { "$ref": "#/components/schemas/CustomerDto" }
+        },
+        "required": ["customer"]
+      },
+      "VenueStatus": {
+        "type": "string",
+        "enum": ["Active", "Inactive", "UnderMaintenance"]
+      },
+      "VenueType": {
+        "type": "string",
+        "enum": ["ConferenceCenter", "BanquetHall", "Hotel", "Outdoor", "Theater", "Restaurant", "Museum", "Other"]
+      },
+      "VenueDto": {
+        "type": "object",
+        "properties": {
+          "venueId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "type": { "$ref": "#/components/schemas/VenueType" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "postalCode": { "type": "string" },
+          "country": { "type": "string" },
+          "maxCapacity": { "type": "integer" },
+          "seatedCapacity": { "type": "integer", "nullable": true },
+          "standingCapacity": { "type": "integer", "nullable": true },
+          "contactName": { "type": "string", "nullable": true },
+          "contactEmail": { "type": "string", "nullable": true },
+          "contactPhone": { "type": "string", "nullable": true },
+          "status": { "$ref": "#/components/schemas/VenueStatus" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "modifiedAt": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["venueId", "name", "type", "street", "city", "state", "postalCode", "country", "maxCapacity", "status", "createdAt"]
+      },
+      "CreateVenueRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "type": { "$ref": "#/components/schemas/VenueType" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "postalCode": { "type": "string" },
+          "country": { "type": "string" },
+          "maxCapacity": { "type": "integer" },
+          "seatedCapacity": { "type": "integer", "nullable": true },
+          "standingCapacity": { "type": "integer", "nullable": true },
+          "contactName": { "type": "string", "nullable": true },
+          "contactEmail": { "type": "string", "nullable": true },
+          "contactPhone": { "type": "string", "nullable": true }
+        },
+        "required": ["name", "type", "street", "city", "state", "postalCode", "country", "maxCapacity"]
+      },
+      "UpdateVenueRequest": {
+        "type": "object",
+        "properties": {
+          "venueId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "type": { "$ref": "#/components/schemas/VenueType" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "postalCode": { "type": "string" },
+          "country": { "type": "string" },
+          "maxCapacity": { "type": "integer" },
+          "seatedCapacity": { "type": "integer", "nullable": true },
+          "standingCapacity": { "type": "integer", "nullable": true },
+          "contactName": { "type": "string", "nullable": true },
+          "contactEmail": { "type": "string", "nullable": true },
+          "contactPhone": { "type": "string", "nullable": true }
+        },
+        "required": ["venueId", "name", "type", "street", "city", "state", "postalCode", "country", "maxCapacity"]
+      },
+      "GetVenuesResponse": {
+        "type": "object",
+        "properties": {
+          "venues": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/VenueDto" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        },
+        "required": ["venues", "totalCount", "page", "pageSize"]
+      },
+      "GetVenueByIdResponse": {
+        "type": "object",
+        "properties": {
+          "venue": { "$ref": "#/components/schemas/VenueDto" }
+        },
+        "required": ["venue"]
+      },
+      "CreateVenueResponse": {
+        "type": "object",
+        "properties": {
+          "venue": { "$ref": "#/components/schemas/VenueDto" }
+        },
+        "required": ["venue"]
+      },
+      "UpdateVenueResponse": {
+        "type": "object",
+        "properties": {
+          "venue": { "$ref": "#/components/schemas/VenueDto" }
+        },
+        "required": ["venue"]
+      },
+      "EventStatus": {
+        "type": "string",
+        "enum": ["Draft", "Scheduled", "InProgress", "Completed", "Cancelled"]
+      },
+      "EventDto": {
+        "type": "object",
+        "properties": {
+          "eventId": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "eventDate": { "type": "string", "format": "date-time" },
+          "venueId": { "type": "string", "format": "uuid" },
+          "eventTypeId": { "type": "string", "format": "uuid" },
+          "customerId": { "type": "string", "format": "uuid" },
+          "status": { "$ref": "#/components/schemas/EventStatus" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "modifiedAt": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["eventId", "title", "eventDate", "venueId", "eventTypeId", "customerId", "status", "createdAt"]
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "eventDate": { "type": "string", "format": "date-time" },
+          "venueId": { "type": "string", "format": "uuid" },
+          "eventTypeId": { "type": "string", "format": "uuid" },
+          "customerId": { "type": "string", "format": "uuid" }
+        },
+        "required": ["title", "eventDate", "venueId", "eventTypeId", "customerId"]
+      },
+      "UpdateEventRequest": {
+        "type": "object",
+        "properties": {
+          "eventId": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "eventDate": { "type": "string", "format": "date-time" },
+          "venueId": { "type": "string", "format": "uuid" },
+          "eventTypeId": { "type": "string", "format": "uuid" },
+          "customerId": { "type": "string", "format": "uuid" }
+        },
+        "required": ["eventId", "title", "eventDate", "venueId", "eventTypeId", "customerId"]
+      },
+      "GetEventsResponse": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EventDto" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        },
+        "required": ["events", "totalCount", "page", "pageSize"]
+      },
+      "GetEventByIdResponse": {
+        "type": "object",
+        "properties": {
+          "event": { "$ref": "#/components/schemas/EventDto" }
+        },
+        "required": ["event"]
+      },
+      "CreateEventResponse": {
+        "type": "object",
+        "properties": {
+          "event": { "$ref": "#/components/schemas/EventDto" }
+        },
+        "required": ["event"]
+      },
+      "UpdateEventResponse": {
+        "type": "object",
+        "properties": {
+          "event": { "$ref": "#/components/schemas/EventDto" }
+        },
+        "required": ["event"]
+      },
+      "UpdateEventStatusResponse": {
+        "type": "object",
+        "properties": {
+          "event": { "$ref": "#/components/schemas/EventDto" }
+        },
+        "required": ["event"]
+      },
+      "StaffStatus": {
+        "type": "string",
+        "enum": ["Active", "OnLeave", "Inactive", "Terminated"]
+      },
+      "StaffRole": {
+        "type": "string",
+        "enum": ["Manager", "Coordinator", "Technician", "Security", "Catering", "Cleaning", "Driver", "Other"]
+      },
+      "StaffMemberDto": {
+        "type": "object",
+        "properties": {
+          "staffMemberId": { "type": "string", "format": "uuid" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "phoneNumber": { "type": "string" },
+          "photoUrl": { "type": "string", "nullable": true },
+          "status": { "$ref": "#/components/schemas/StaffStatus" },
+          "hireDate": { "type": "string", "format": "date-time" },
+          "terminationDate": { "type": "string", "format": "date-time", "nullable": true },
+          "role": { "$ref": "#/components/schemas/StaffRole" },
+          "hourlyRate": { "type": "number", "nullable": true },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "modifiedAt": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["staffMemberId", "firstName", "lastName", "email", "phoneNumber", "status", "hireDate", "role", "createdAt"]
+      },
+      "CreateStaffMemberRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "phoneNumber": { "type": "string" },
+          "hireDate": { "type": "string", "format": "date-time" },
+          "role": { "$ref": "#/components/schemas/StaffRole" },
+          "hourlyRate": { "type": "number", "nullable": true }
+        },
+        "required": ["firstName", "lastName", "email", "phoneNumber", "hireDate", "role"]
+      },
+      "UpdateStaffMemberRequest": {
+        "type": "object",
+        "properties": {
+          "staffMemberId": { "type": "string", "format": "uuid" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "phoneNumber": { "type": "string" },
+          "role": { "$ref": "#/components/schemas/StaffRole" },
+          "hourlyRate": { "type": "number", "nullable": true }
+        },
+        "required": ["staffMemberId", "firstName", "lastName", "phoneNumber", "role"]
+      },
+      "GetStaffMembersResponse": {
+        "type": "object",
+        "properties": {
+          "staffMembers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/StaffMemberDto" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        },
+        "required": ["staffMembers", "totalCount", "page", "pageSize"]
+      },
+      "GetStaffMemberByIdResponse": {
+        "type": "object",
+        "properties": {
+          "staffMember": { "$ref": "#/components/schemas/StaffMemberDto" }
+        },
+        "required": ["staffMember"]
+      },
+      "CreateStaffMemberResponse": {
+        "type": "object",
+        "properties": {
+          "staffMember": { "$ref": "#/components/schemas/StaffMemberDto" }
+        },
+        "required": ["staffMember"]
+      },
+      "UpdateStaffMemberResponse": {
+        "type": "object",
+        "properties": {
+          "staffMember": { "$ref": "#/components/schemas/StaffMemberDto" }
+        },
+        "required": ["staffMember"]
+      },
+      "EquipmentCategory": {
+        "type": "string",
+        "enum": ["Audio", "Video", "Lighting", "Staging", "Furniture", "Catering", "Decoration", "Safety", "Other"]
+      },
+      "EquipmentCondition": {
+        "type": "string",
+        "enum": ["New", "Excellent", "Good", "Fair", "Poor", "NeedsRepair"]
+      },
+      "EquipmentStatus": {
+        "type": "string",
+        "enum": ["Available", "InUse", "Reserved", "UnderMaintenance", "Retired"]
+      },
+      "EquipmentItemDto": {
+        "type": "object",
+        "properties": {
+          "equipmentItemId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "category": { "$ref": "#/components/schemas/EquipmentCategory" },
+          "condition": { "$ref": "#/components/schemas/EquipmentCondition" },
+          "status": { "$ref": "#/components/schemas/EquipmentStatus" },
+          "purchaseDate": { "type": "string", "format": "date-time" },
+          "purchasePrice": { "type": "number" },
+          "currentValue": { "type": "number", "nullable": true },
+          "manufacturer": { "type": "string", "nullable": true },
+          "model": { "type": "string", "nullable": true },
+          "serialNumber": { "type": "string", "nullable": true },
+          "warehouseLocation": { "type": "string", "nullable": true },
+          "isActive": { "type": "boolean" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "modifiedAt": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["equipmentItemId", "name", "category", "condition", "status", "purchaseDate", "purchasePrice", "isActive", "createdAt"]
+      },
+      "CreateEquipmentItemRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "category": { "$ref": "#/components/schemas/EquipmentCategory" },
+          "condition": { "$ref": "#/components/schemas/EquipmentCondition" },
+          "purchaseDate": { "type": "string", "format": "date-time" },
+          "purchasePrice": { "type": "number" },
+          "currentValue": { "type": "number", "nullable": true },
+          "manufacturer": { "type": "string", "nullable": true },
+          "model": { "type": "string", "nullable": true },
+          "serialNumber": { "type": "string", "nullable": true },
+          "warehouseLocation": { "type": "string", "nullable": true }
+        },
+        "required": ["name", "category", "condition", "purchaseDate", "purchasePrice"]
+      },
+      "UpdateEquipmentItemRequest": {
+        "type": "object",
+        "properties": {
+          "equipmentItemId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "category": { "$ref": "#/components/schemas/EquipmentCategory" },
+          "condition": { "$ref": "#/components/schemas/EquipmentCondition" },
+          "currentValue": { "type": "number", "nullable": true },
+          "manufacturer": { "type": "string", "nullable": true },
+          "model": { "type": "string", "nullable": true },
+          "serialNumber": { "type": "string", "nullable": true },
+          "warehouseLocation": { "type": "string", "nullable": true }
+        },
+        "required": ["equipmentItemId", "name", "category", "condition"]
+      },
+      "GetEquipmentItemsResponse": {
+        "type": "object",
+        "properties": {
+          "equipmentItems": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EquipmentItemDto" }
+          },
+          "totalCount": { "type": "integer" },
+          "page": { "type": "integer" },
+          "pageSize": { "type": "integer" }
+        },
+        "required": ["equipmentItems", "totalCount", "page", "pageSize"]
+      },
+      "GetEquipmentItemByIdResponse": {
+        "type": "object",
+        "properties": {
+          "equipmentItem": { "$ref": "#/components/schemas/EquipmentItemDto" }
+        },
+        "required": ["equipmentItem"]
+      },
+      "CreateEquipmentItemResponse": {
+        "type": "object",
+        "properties": {
+          "equipmentItem": { "$ref": "#/components/schemas/EquipmentItemDto" }
+        },
+        "required": ["equipmentItem"]
+      },
+      "UpdateEquipmentItemResponse": {
+        "type": "object",
+        "properties": {
+          "equipmentItem": { "$ref": "#/components/schemas/EquipmentItemDto" }
+        },
+        "required": ["equipmentItem"]
+      },
+      "AuthenticateRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" }
+        },
+        "required": ["username", "password"]
+      },
+      "AuthenticateResponse": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" },
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "roles": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["userId", "username", "accessToken", "refreshToken", "roles"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string" },
+          "confirmPassword": { "type": "string" }
+        },
+        "required": ["username", "password", "confirmPassword"]
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "username": { "type": "string" }
+        },
+        "required": ["userId", "username"]
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": { "type": "string" }
+        },
+        "required": ["refreshToken"]
+      },
+      "RefreshTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" }
+        },
+        "required": ["accessToken", "refreshToken"]
+      }
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ],
+  "paths": {
+    "/customers": {
+      "get": {
+        "tags": ["Customers"],
+        "summary": "Get all customers",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/CustomerStatus" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetCustomersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Customers"],
+        "summary": "Create a new customer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCustomerRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateCustomerResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/customers/{customerId}": {
+      "get": {
+        "tags": ["Customers"],
+        "summary": "Get customer by ID",
+        "parameters": [
+          { "name": "customerId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetCustomerByIdResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "put": {
+        "tags": ["Customers"],
+        "summary": "Update customer",
+        "parameters": [
+          { "name": "customerId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateCustomerRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateCustomerResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "tags": ["Customers"],
+        "summary": "Delete customer",
+        "parameters": [
+          { "name": "customerId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/venues": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Get all venues",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/VenueStatus" } },
+          { "name": "type", "in": "query", "schema": { "$ref": "#/components/schemas/VenueType" } },
+          { "name": "city", "in": "query", "schema": { "type": "string" } },
+          { "name": "minCapacity", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetVenuesResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Venues"],
+        "summary": "Create a new venue",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateVenueRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateVenueResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/venues/{venueId}": {
+      "get": {
+        "tags": ["Venues"],
+        "summary": "Get venue by ID",
+        "parameters": [
+          { "name": "venueId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetVenueByIdResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "put": {
+        "tags": ["Venues"],
+        "summary": "Update venue",
+        "parameters": [
+          { "name": "venueId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateVenueRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateVenueResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "tags": ["Venues"],
+        "summary": "Delete venue",
+        "parameters": [
+          { "name": "venueId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get all events",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/EventStatus" } },
+          { "name": "venueId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "customerId", "in": "query", "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetEventsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Events"],
+        "summary": "Create a new event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateEventRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateEventResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/events/{eventId}": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get event by ID",
+        "parameters": [
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetEventByIdResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "put": {
+        "tags": ["Events"],
+        "summary": "Update event",
+        "parameters": [
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateEventRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateEventResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "tags": ["Events"],
+        "summary": "Delete event",
+        "parameters": [
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/events/{eventId}/status": {
+      "patch": {
+        "tags": ["Events"],
+        "summary": "Update event status",
+        "parameters": [
+          { "name": "eventId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventStatus" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateEventStatusResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/staff": {
+      "get": {
+        "tags": ["Staff"],
+        "summary": "Get all staff members",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/StaffStatus" } },
+          { "name": "role", "in": "query", "schema": { "$ref": "#/components/schemas/StaffRole" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetStaffMembersResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Staff"],
+        "summary": "Create a new staff member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateStaffMemberRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateStaffMemberResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/staff/{staffMemberId}": {
+      "get": {
+        "tags": ["Staff"],
+        "summary": "Get staff member by ID",
+        "parameters": [
+          { "name": "staffMemberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetStaffMemberByIdResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "put": {
+        "tags": ["Staff"],
+        "summary": "Update staff member",
+        "parameters": [
+          { "name": "staffMemberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateStaffMemberRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateStaffMemberResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "tags": ["Staff"],
+        "summary": "Delete staff member",
+        "parameters": [
+          { "name": "staffMemberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/equipment": {
+      "get": {
+        "tags": ["Equipment"],
+        "summary": "Get all equipment items",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "category", "in": "query", "schema": { "$ref": "#/components/schemas/EquipmentCategory" } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/EquipmentStatus" } },
+          { "name": "condition", "in": "query", "schema": { "$ref": "#/components/schemas/EquipmentCondition" } },
+          { "name": "isActive", "in": "query", "schema": { "type": "boolean" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetEquipmentItemsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Equipment"],
+        "summary": "Create a new equipment item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateEquipmentItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateEquipmentItemResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/equipment/{equipmentItemId}": {
+      "get": {
+        "tags": ["Equipment"],
+        "summary": "Get equipment item by ID",
+        "parameters": [
+          { "name": "equipmentItemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetEquipmentItemByIdResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "put": {
+        "tags": ["Equipment"],
+        "summary": "Update equipment item",
+        "parameters": [
+          { "name": "equipmentItemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateEquipmentItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UpdateEquipmentItemResponse" }
+              }
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "tags": ["Equipment"],
+        "summary": "Delete equipment item",
+        "parameters": [
+          { "name": "equipmentItemId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/identity/authenticate": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Authenticate user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthenticateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthenticateResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/identity/register": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Register new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegisterResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad Request" }
+        }
+      }
+    },
+    "/identity/refresh-token": {
+      "post": {
+        "tags": ["Identity"],
+        "summary": "Refresh access token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefreshTokenRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RefreshTokenResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  }
+}

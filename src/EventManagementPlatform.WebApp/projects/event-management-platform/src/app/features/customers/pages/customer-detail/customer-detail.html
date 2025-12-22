@@ -21,12 +21,12 @@
         </mat-card-content>
       </mat-card>
 
-      @if (customer.address || customer.city || customer.state || customer.zipCode) {
+      @if (customer.address || customer.city || customer.state || customer.postalCode) {
         <mat-card>
           <mat-card-header><mat-card-title>Address</mat-card-title></mat-card-header>
           <mat-card-content>
             <p>{{ customer.address }}</p>
-            <p>{{ customer.city }}{{ customer.state ? ', ' + customer.state : '' }} {{ customer.zipCode }}</p>
+            <p>{{ customer.city }}{{ customer.state ? ', ' + customer.state : '' }} {{ customer.postalCode }}</p>
           </mat-card-content>
         </mat-card>
       }

@@ -45,7 +45,7 @@ export class VenueCreate implements HasUnsavedChanges {
     address: ['', Validators.required],
     city: ['', Validators.required],
     state: ['', Validators.required],
-    zipCode: ['', Validators.required],
+    postalCode: ['', Validators.required],
     phone: [''],
     email: ['', Validators.email],
     website: [''],

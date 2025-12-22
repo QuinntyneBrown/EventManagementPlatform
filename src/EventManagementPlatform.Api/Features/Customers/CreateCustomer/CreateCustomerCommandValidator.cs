@@ -31,8 +31,8 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
         RuleFor(x => x.State)
             .MaximumLength(100).WithMessage("State must not exceed 100 characters");
 
-        RuleFor(x => x.ZipCode)
-            .MaximumLength(20).WithMessage("Zip code must not exceed 20 characters");
+        RuleFor(x => x.PostalCode)
+            .MaximumLength(20).WithMessage("Postal code must not exceed 20 characters");
 
         RuleFor(x => x.BillingCountry)
             .MaximumLength(100).WithMessage("Country must not exceed 100 characters");

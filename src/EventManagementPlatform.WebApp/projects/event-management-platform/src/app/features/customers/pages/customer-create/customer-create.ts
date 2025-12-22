@@ -37,7 +37,7 @@ export class CustomerCreate implements HasUnsavedChanges {
     address: [''],
     city: [''],
     state: [''],
-    zipCode: [''],
+    postalCode: [''],
     notes: ['']
   });
 

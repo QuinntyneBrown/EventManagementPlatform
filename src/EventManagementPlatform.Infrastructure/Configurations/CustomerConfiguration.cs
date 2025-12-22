@@ -22,7 +22,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.BillingStreet).HasMaxLength(200);
         builder.Property(x => x.BillingCity).HasMaxLength(100);
         builder.Property(x => x.BillingState).HasMaxLength(100);
-        builder.Property(x => x.BillingZipCode).HasMaxLength(20);
+        builder.Property(x => x.BillingPostalCode).HasMaxLength(20);
         builder.Property(x => x.BillingCountry).HasMaxLength(100);
         builder.Property(x => x.Status).IsRequired();
         builder.HasIndex(x => x.PrimaryEmail);
