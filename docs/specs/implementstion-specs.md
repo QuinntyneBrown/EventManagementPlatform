@@ -290,24 +290,60 @@ this.http.get(`${baseUrl}/customers`)
 
 ---
 
-## 7. Compliance and Standards
+## 7. Code Linting and Static Analysis
 
-### 7.1 Code Quality
+### 7.1 Backend Linting Requirements
+**REQ-LINT-001**: **CRITICAL** - The backend SHALL use StyleCop.Analyzers and Microsoft.CodeAnalysis.NetAnalyzers for code style and quality enforcement.
+
+**REQ-LINT-002**: All linting warnings in the backend SHALL be treated as errors and SHALL block the build.
+
+**REQ-LINT-003**: The backend linting configuration SHALL enforce:
+- Consistent code style and formatting
+- Null safety analysis
+- Code quality best practices
+- Security vulnerability detection
+
+**REQ-LINT-004**: A shared `.editorconfig` file SHALL be used at the solution root to define consistent code style rules across all backend projects.
+
+### 7.2 Frontend Linting Requirements
+**REQ-LINT-005**: **CRITICAL** - The frontend SHALL use ESLint with the official Angular ESLint plugin (@angular-eslint) for TypeScript and template linting.
+
+**REQ-LINT-006**: All linting errors in the frontend SHALL block the build.
+
+**REQ-LINT-007**: The frontend linting configuration SHALL enforce:
+- TypeScript best practices
+- Angular-specific conventions and best practices
+- Accessibility (a11y) rules
+- Import organization
+
+**REQ-LINT-008**: A `lint` script SHALL be added to package.json and SHALL be executed as part of the build process.
+
+### 7.3 Build Integration
+**REQ-LINT-009**: **CRITICAL** - Both backend and frontend builds SHALL fail if any linting errors are detected. This ensures code quality gates are enforced before code can be merged.
+
+**REQ-LINT-010**: Linting SHALL be integrated into the CI/CD pipeline as a mandatory quality gate.
+
+---
+
+## 8. Compliance and Standards
+
+### 8.1 Code Quality
 All code SHALL adhere to the requirements specified in this document. Deviations from these requirements SHALL require formal approval and documentation.
 
-### 7.2 Version Control
+### 8.2 Version Control
 All changes to this specification SHALL be tracked and versioned appropriately.
 
 ---
 
-## 8. Appendices
+## 9. Appendices
 
-### 8.1 Document History
+### 9.1 Document History
 
 | Version | Date       | Author | Description |
 |---------|------------|--------|-------------|
 | 1.0     | 2025-12-21 | System | Initial SRS document creation |
 | 1.1     | 2025-12-22 | System | Added structured logging requirements (REQ-SYS-013 through REQ-SYS-022) |
+| 1.2     | 2025-12-22 | System | Added code linting and static analysis requirements (REQ-LINT-001 through REQ-LINT-010) |
 
 ---
 

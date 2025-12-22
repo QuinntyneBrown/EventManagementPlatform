@@ -408,12 +408,12 @@ test.describe('Events API Contract', () => {
   });
 
   test('PATCH /api/events/{id}/status should update event status', async ({ page }) => {
-    let capturedRequest: any = null;
-    let capturedMethod = '';
+    let _capturedRequest: unknown = null;
+    let _capturedMethod = '';
 
     await page.route(`**/events/${mockEvent.eventId}/status`, async (route) => {
-      capturedMethod = route.request().method();
-      capturedRequest = JSON.parse(route.request().postData() || '{}');
+      _capturedMethod = route.request().method();
+      _capturedRequest = JSON.parse(route.request().postData() || '{}');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -565,12 +565,12 @@ test.describe('Equipment API Contract', () => {
   });
 
   test('DELETE /api/equipment/{id} should delete equipment', async ({ page }) => {
-    let capturedMethod = '';
-    let capturedUrl = '';
+    let _capturedMethod = '';
+    let _capturedUrl = '';
 
     await page.route(`**/api/equipment/${mockEquipmentItem.equipmentItemId}`, async (route) => {
-      capturedMethod = route.request().method();
-      capturedUrl = route.request().url();
+      _capturedMethod = route.request().method();
+      _capturedUrl = route.request().url();
       if (route.request().method() === 'DELETE') {
         await route.fulfill({ status: 204 });
       } else {
@@ -599,10 +599,10 @@ test.describe('Equipment API Contract', () => {
 
 test.describe('Token Refresh Contract', () => {
   test('POST /api/identity/refresh-token should refresh tokens', async ({ page }) => {
-    let capturedRequest: any = null;
+    let _capturedRequest: unknown = null;
 
     await page.route('**/api/identity/refresh-token', async (route) => {
-      capturedRequest = JSON.parse(route.request().postData() || '{}');
+      _capturedRequest = JSON.parse(route.request().postData() || '{}');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
