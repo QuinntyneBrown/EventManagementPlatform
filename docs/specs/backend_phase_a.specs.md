@@ -49,6 +49,8 @@ This document defines the Minimum Viable Product (MVP) backend requirements for 
 | REQ-AUTHZ-001 | Role-Based Access Control | IN SCOPE |
 | REQ-AUTHZ-002 | Privilege-Based Authorization | IN SCOPE |
 | REQ-AUTHZ-003 | Protected Resource Endpoints ([Authorize] attribute) | IN SCOPE |
+| REQ-SEED-001 | Development Seeding Service (SeedService) | IN SCOPE |
+| REQ-SEED-002 | Admin User Seeding (Username: "Admin", Password: "P@ssw0rd") | IN SCOPE |
 
 ### Out of Scope (Deferred)
 
@@ -334,6 +336,26 @@ The following modules are entirely out of scope for Phase A MVP:
 
 ---
 
+## Development Seeding (Phase A)
+
+### Overview
+When the API starts in development mode, a SeedService ensures initial data is seeded for testing purposes.
+
+### Default Admin User
+| Field | Value |
+|-------|-------|
+| Username | Admin |
+| Password | P@ssw0rd |
+
+### Behavior
+- Only runs when `ASPNETCORE_ENVIRONMENT=Development`
+- Ensures database is created if it doesn't exist
+- Checks if Admin user already exists before creating
+- Uses PBKDF2-HMACSHA256 password hashing (consistent with REQ-PWD-001)
+- Logs seeding progress for debugging
+
+---
+
 ## Non-Functional Requirements (Phase A)
 
 ### Performance
@@ -343,7 +365,7 @@ The following modules are entirely out of scope for Phase A MVP:
 ### Security
 - JWT authentication required for all protected endpoints
 - HTTPS required in production
-- Password hashing with BCrypt
+- Password hashing with PBKDF2-HMACSHA256
 
 ### Testing
 - Unit test coverage minimum 60%
@@ -356,3 +378,4 @@ The following modules are entirely out of scope for Phase A MVP:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-12-22 | System | Initial MVP specification |
+| 1.1 | 2025-12-22 | System | Added development seeding (REQ-SEED-001, REQ-SEED-002) |

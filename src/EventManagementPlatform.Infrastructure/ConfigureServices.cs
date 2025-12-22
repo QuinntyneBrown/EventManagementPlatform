@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using EventManagementPlatform.Core;
+using EventManagementPlatform.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,8 @@ public static class ConfigureServices
 
         services.AddScoped<IEventManagementPlatformContext>(provider =>
             provider.GetRequiredService<EventManagementPlatformDbContext>());
+
+        services.AddScoped<ISeedService, SeedService>();
 
         return services;
     }
