@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class CustomerTests : IntegrationTestBase
 {
-    public CustomerTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public CustomerTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
