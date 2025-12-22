@@ -77,7 +77,7 @@ describe('AuthService', () => {
       req.flush(mockResponse);
     });
 
-    it('should update isAuthenticated$ observable on successful login', (done) => {
+    it('should update isAuthenticated$ observable on successful login', async () => {
       const credentials = { username: 'testuser', password: 'password123' };
       const mockResponse: AuthenticateResponse = {
         userId: '123',
@@ -87,15 +87,19 @@ describe('AuthService', () => {
         roles: ['Staff']
       };
 
-      service.login(credentials).subscribe(() => {
-        service.isAuthenticated$.subscribe(isAuth => {
-          expect(isAuth).toBe(true);
-          done();
+      const loginPromise = new Promise<void>((resolve) => {
+        service.login(credentials).subscribe(() => {
+          service.isAuthenticated$.subscribe(isAuth => {
+            expect(isAuth).toBe(true);
+            resolve();
+          });
         });
       });
 
       const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`);
       req.flush(mockResponse);
+
+      await loginPromise;
     });
   });
 
@@ -194,22 +198,30 @@ describe('AuthService', () => {
       expect(localStorage.getItem('eventmanagement:currentUser')).toBeNull();
     });
 
-    it('should set isAuthenticated$ to false', (done) => {
+    it('should set isAuthenticated$ to false', async () => {
       service.logout();
 
-      service.isAuthenticated$.subscribe(isAuth => {
-        expect(isAuth).toBe(false);
-        done();
+      const isAuthPromise = new Promise<void>((resolve) => {
+        service.isAuthenticated$.subscribe(isAuth => {
+          expect(isAuth).toBe(false);
+          resolve();
+        });
       });
+
+      await isAuthPromise;
     });
 
-    it('should set currentUser$ to null', (done) => {
+    it('should set currentUser$ to null', async () => {
       service.logout();
 
-      service.currentUser$.subscribe(user => {
-        expect(user).toBeNull();
-        done();
+      const userPromise = new Promise<void>((resolve) => {
+        service.currentUser$.subscribe(user => {
+          expect(user).toBeNull();
+          resolve();
+        });
       });
+
+      await userPromise;
     });
   });
 
