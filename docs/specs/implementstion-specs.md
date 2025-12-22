@@ -81,6 +81,9 @@ Id
 ### 2.7 Database Configuration
 **REQ-SYS-010**: The system SHALL use SQL Server Express as the default database.
 
+### 2.9 Implementation Simplicity
+**REQ-SYS-012**: All implementations in the system SHALL be as simple as possible. Complex solutions SHALL be avoided in favor of straightforward, maintainable approaches that directly solve the problem at hand.
+
 ---
 
 ## 3. Core Project Requirements
