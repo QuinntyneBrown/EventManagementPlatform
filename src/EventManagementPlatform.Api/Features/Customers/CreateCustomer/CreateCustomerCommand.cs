@@ -7,14 +7,14 @@ using MediatR;
 namespace EventManagementPlatform.Api.Features.Customers.CreateCustomer;
 
 public record CreateCustomerCommand(
-    string CompanyName,
+    string Company,
     CustomerType Type,
-    string PrimaryEmail,
-    string PrimaryPhone,
+    string Email,
+    string Phone,
     string? Industry,
     string? Website,
-    string BillingStreet,
-    string BillingCity,
-    string BillingState,
-    string BillingZipCode,
-    string BillingCountry) : IRequest<CreateCustomerResponse>;
+    string Address,
+    string City,
+    string State,
+    string ZipCode,
+    string BillingCountry = "Canada") : IRequest<CreateCustomerResponse>;

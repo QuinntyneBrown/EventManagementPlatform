@@ -247,6 +247,26 @@ header.component.ts
 
 **REQ-FE-025**: The frontend SHALL have a single configuration point for the baseUrl of the backend API.
 
+**REQ-FE-026**: **CRITICAL** - The frontend `baseUrl` configuration SHALL contain ONLY the base URI without the `/api` path segment. Frontend services SHALL append the complete path including `/api` and any additional segments when making HTTP requests.
+
+**Example (Compliant):**
+```typescript
+// Configuration
+baseUrl = "http://localhost:3200"
+
+// Service usage
+this.http.get(`${baseUrl}/api/customers`)
+```
+
+**Example (Non-Compliant):**
+```typescript
+// Configuration
+baseUrl = "http://localhost:3200/api"
+
+// Service usage
+this.http.get(`${baseUrl}/customers`)
+```
+
 ---
 
 ## 7. Compliance and Standards

@@ -21,16 +21,16 @@ public class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerComman
         var customer = new Customer
         {
             CustomerId = Guid.NewGuid(),
-            CompanyName = request.CompanyName,
+            CompanyName = request.Company,
             Type = request.Type,
-            PrimaryEmail = request.PrimaryEmail,
-            PrimaryPhone = request.PrimaryPhone,
+            PrimaryEmail = request.Email,
+            PrimaryPhone = request.Phone,
             Industry = request.Industry,
             Website = request.Website,
-            BillingStreet = request.BillingStreet,
-            BillingCity = request.BillingCity,
-            BillingState = request.BillingState,
-            BillingZipCode = request.BillingZipCode,
+            BillingStreet = request.Address,
+            BillingCity = request.City,
+            BillingState = request.State,
+            BillingZipCode = request.ZipCode,
             BillingCountry = request.BillingCountry,
             Status = CustomerStatus.Active,
             CreatedAt = DateTime.UtcNow

@@ -25,22 +25,22 @@ export class CustomerService {
     if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
     if (params.sortDirection) httpParams = httpParams.set('sortDirection', params.sortDirection);
 
-    return this.http.get<PagedResult<CustomerListDto>>(`${this.baseUrl}/customers`, { params: httpParams });
+    return this.http.get<PagedResult<CustomerListDto>>(`${this.baseUrl}/api/customers`, { params: httpParams });
   }
 
   getCustomerById(customerId: string): Observable<CustomerDetailDto> {
-    return this.http.get<CustomerDetailDto>(`${this.baseUrl}/customers/${customerId}`);
+    return this.http.get<CustomerDetailDto>(`${this.baseUrl}/api/customers/${customerId}`);
   }
 
   createCustomer(customer: CreateCustomerDto): Observable<CustomerDetailDto> {
-    return this.http.post<CustomerDetailDto>(`${this.baseUrl}/customers`, customer);
+    return this.http.post<CustomerDetailDto>(`${this.baseUrl}/api/customers`, customer);
   }
 
   updateCustomer(customerId: string, customer: UpdateCustomerDto): Observable<CustomerDetailDto> {
-    return this.http.put<CustomerDetailDto>(`${this.baseUrl}/customers/${customerId}`, customer);
+    return this.http.put<CustomerDetailDto>(`${this.baseUrl}/api/customers/${customerId}`, customer);
   }
 
   deleteCustomer(customerId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/customers/${customerId}`);
+    return this.http.delete<void>(`${this.baseUrl}/api/customers/${customerId}`);
   }
 }

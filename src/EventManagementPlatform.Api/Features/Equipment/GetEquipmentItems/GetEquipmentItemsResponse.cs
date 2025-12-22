@@ -3,4 +3,4 @@
 
 namespace EventManagementPlatform.Api.Features.Equipment.GetEquipmentItems;
 
-public record GetEquipmentItemsResponse(IEnumerable<EquipmentItemDto> EquipmentItems, int TotalCount, int Page, int PageSize);
+public record GetEquipmentItemsResponse(List<EquipmentItemDto> EquipmentItems, int TotalCount, int Page, int PageSize);

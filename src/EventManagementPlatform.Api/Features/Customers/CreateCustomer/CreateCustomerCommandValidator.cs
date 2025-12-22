@@ -9,29 +9,29 @@ public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCo
 {
     public CreateCustomerCommandValidator()
     {
-        RuleFor(x => x.CompanyName)
+        RuleFor(x => x.Company)
             .NotEmpty().WithMessage("Company name is required")
             .MaximumLength(200).WithMessage("Company name must not exceed 200 characters");
 
-        RuleFor(x => x.PrimaryEmail)
+        RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required")
             .EmailAddress().WithMessage("Invalid email format")
             .MaximumLength(255).WithMessage("Email must not exceed 255 characters");
 
-        RuleFor(x => x.PrimaryPhone)
+        RuleFor(x => x.Phone)
             .NotEmpty().WithMessage("Phone is required")
             .MaximumLength(50).WithMessage("Phone must not exceed 50 characters");
 
-        RuleFor(x => x.BillingStreet)
+        RuleFor(x => x.Address)
             .MaximumLength(200).WithMessage("Street must not exceed 200 characters");
 
-        RuleFor(x => x.BillingCity)
+        RuleFor(x => x.City)
             .MaximumLength(100).WithMessage("City must not exceed 100 characters");
 
-        RuleFor(x => x.BillingState)
+        RuleFor(x => x.State)
             .MaximumLength(100).WithMessage("State must not exceed 100 characters");
 
-        RuleFor(x => x.BillingZipCode)
+        RuleFor(x => x.ZipCode)
             .MaximumLength(20).WithMessage("Zip code must not exceed 20 characters");
 
         RuleFor(x => x.BillingCountry)
