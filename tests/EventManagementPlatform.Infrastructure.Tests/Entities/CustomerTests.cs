@@ -26,8 +26,7 @@ public class CustomerTests : IntegrationTestBase
         var customer = TestDataFactory.CreateCustomer(
             companyName: "Acme Corporation",
             type: CustomerType.Enterprise,
-            email: "contact@acme.com"
-        );
+            email: "contact@acme.com");
 
         // Act
         DbContext.Customers.Add(customer);

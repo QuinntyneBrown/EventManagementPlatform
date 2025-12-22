@@ -27,8 +27,7 @@ public class VenueTests : IntegrationTestBase
             name: "Grand Convention Center",
             type: VenueType.ConferenceCenter,
             city: "Toronto",
-            maxCapacity: 1000
-        );
+            maxCapacity: 1000);
 
         // Act
         DbContext.Venues.Add(venue);

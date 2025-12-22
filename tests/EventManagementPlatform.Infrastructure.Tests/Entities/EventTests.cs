@@ -37,8 +37,7 @@ public class EventTests : IntegrationTestBase
             eventTypeId: eventType.EventTypeId,
             customerId: customer.CustomerId,
             title: "Annual Tech Conference",
-            eventDate: DateTime.UtcNow.AddMonths(3)
-        );
+            eventDate: DateTime.UtcNow.AddMonths(3));
 
         // Act
         DbContext.Events.Add(evt);
@@ -151,8 +150,7 @@ public class EventTests : IntegrationTestBase
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
             customerId: customer.CustomerId,
-            title: "Query Test Event"
-        );
+            title: "Query Test Event");
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -182,8 +180,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -423,8 +420,7 @@ public class EventTests : IntegrationTestBase
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
             customerId: customer.CustomerId,
-            title: "Original Title"
-        );
+            title: "Original Title");
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -467,8 +463,7 @@ public class EventTests : IntegrationTestBase
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
             customerId: customer.CustomerId,
-            status: EventStatus.Planned
-        );
+            status: EventStatus.Planned);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -506,8 +501,7 @@ public class EventTests : IntegrationTestBase
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
             customerId: customer.CustomerId,
-            eventDate: originalDate
-        );
+            eventDate: originalDate);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -548,8 +542,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -585,8 +578,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -624,8 +616,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 
@@ -711,8 +702,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         evt.Title = null!;
 
         // Act & Assert
@@ -737,8 +727,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         evt.Title = new string('T', 201); // Max is 200
 
         // Act & Assert
@@ -763,8 +752,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         evt.Description = new string('D', 2001); // Max is 2000
 
         // Act & Assert
@@ -787,8 +775,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: Guid.NewGuid(), // Non-existent EventType
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
 
         // Act & Assert
         DbContext.Events.Add(evt);
@@ -824,8 +811,7 @@ public class EventTests : IntegrationTestBase
         var evt = TestDataFactory.CreateEvent(
             eventTypeId: eventType.EventTypeId,
             venueId: venue.VenueId,
-            customerId: customer.CustomerId
-        );
+            customerId: customer.CustomerId);
         DbContext.Events.Add(evt);
         await DbContext.SaveChangesAsync();
 

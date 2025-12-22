@@ -27,8 +27,7 @@ public class StaffMemberTests : IntegrationTestBase
             firstName: "John",
             lastName: "Smith",
             email: "john.smith@events.com",
-            role: StaffRole.EventCoordinator
-        );
+            role: StaffRole.EventCoordinator);
 
         // Act
         DbContext.StaffMembers.Add(staffMember);

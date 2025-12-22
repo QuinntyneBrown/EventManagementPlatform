@@ -27,8 +27,7 @@ public class EquipmentItemTests : IntegrationTestBase
             name: "Professional Sound System",
             category: EquipmentCategory.AudioVisual,
             condition: EquipmentCondition.Excellent,
-            purchasePrice: 5000.00m
-        );
+            purchasePrice: 5000.00m);
 
         // Act
         DbContext.EquipmentItems.Add(equipment);
