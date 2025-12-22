@@ -28,13 +28,13 @@ export class AuthService {
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.baseUrl}/identity/login`, credentials).pipe(
       tap(response => this.handleAuthResponse(response))
     );
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/register`, request).pipe(
+    return this.http.post<AuthResponse>(`${this.baseUrl}/identity/register`, request).pipe(
       tap(response => this.handleAuthResponse(response))
     );
   }

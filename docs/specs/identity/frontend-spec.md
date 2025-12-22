@@ -1,11 +1,11 @@
-# Identity Software Requirements Specification - Frontend (Coop.App)
+# Identity Software Requirements Specification - Frontend (Angular)
 
 ## Document Information
 
-- **Project:** {project} - Angular Frontend
-- **Version:** 
-- **Date:** 
-- **Status:** 
+- **Project:** Event Management Platform - Angular Frontend
+- **Version:** 1.0
+- **Date:** 2025-12-22
+- **Status:** Aligned with Backend Implementation
 
 ---
 
@@ -15,14 +15,11 @@
 2. [Token Management Requirements](#token-management-requirements)
 3. [Route Protection & Navigation Requirements](#route-protection--navigation-requirements)
 4. [User Registration Requirements](#user-registration-requirements)
-5. [User Invitation Requirements](#user-invitation-requirements)
-6. [Session Management Requirements](#session-management-requirements)
-7. [Authorization & Access Control Requirements](#authorization--access-control-requirements)
-8. [User Profile Management Requirements](#user-profile-management-requirements)
-9. [Password Management Requirements](#password-management-requirements)
-10. [User Interface Requirements](#user-interface-requirements)
-11. [State Management Requirements](#state-management-requirements)
-12. [Validation Requirements](#validation-requirements)
+5. [Session Management Requirements](#session-management-requirements)
+6. [Authorization & Access Control Requirements](#authorization--access-control-requirements)
+7. [User Interface Requirements](#user-interface-requirements)
+8. [State Management Requirements](#state-management-requirements)
+9. [Validation Requirements](#validation-requirements)
 
 ---
 
@@ -30,14 +27,12 @@
 
 ### REQ-FE-AUTH-001: Login Form
 
-**Requirement:** The system shall provide a reactive login form with username and password fields, validation, and remember me functionality.
-
+**Requirement:** The system shall provide a reactive login form with username and password fields that integrates with the backend authentication endpoint.
 
 **Acceptance Criteria:**
 - [ ] Login form uses Angular Reactive Forms
 - [ ] Username field is required
 - [ ] Password field is required
-- [ ] Remember Me checkbox is available
 - [ ] Form validation prevents submission of invalid data
 - [ ] Submit button emits login credentials event
 - [ ] Form is visually accessible and user-friendly
@@ -46,9 +41,8 @@
 
 ```typescript
 loginForm: FormGroup = new FormGroup({
-  username: new FormControl(this.username, [Validators.required]),
-  password: new FormControl(this.password, [Validators.required]),
-  rememberMe: new FormControl(this.rememberMe, [])
+  username: new FormControl('', [Validators.required]),
+  password: new FormControl('', [Validators.required])
 });
 ```
 
@@ -58,22 +52,25 @@ loginForm: FormGroup = new FormGroup({
 |-------|------|------------|---------|
 | username | string | Required | '' |
 | password | string | Required | '' |
-| rememberMe | boolean | None | false |
+
+**Backend Integration:**
+- Endpoint: `POST /api/identity/authenticate`
+- Request: `{ username: string, password: string }`
 
 ---
 
 ### REQ-FE-AUTH-002: Authentication Service
 
-**Requirement:** The system shall provide a centralized authentication service that handles login, logout, and current user state management.
+**Requirement:** The system shall provide a centralized authentication service that handles login, logout, and current user state management using the backend identity API.
 
 **Acceptance Criteria:**
 - [ ] Service provides `login()` method accepting username and password
-- [ ] Login method calls backend API endpoint `POST /api/user/token`
+- [ ] Login method calls backend API endpoint `POST /api/identity/authenticate`
 - [ ] Service provides `logout()` method to clear authentication state
 - [ ] Service exposes `currentUser$` observable for reactive state access
-- [ ] Current user state is maintained using `ReplaySubject`
 - [ ] Service integrates with LocalStorageService for token persistence
-- [ ] Service provides `tryToLogin()` method to restore session from storage
+- [ ] Service stores both access token and refresh token
+- [ ] Service handles roles returned from backend
 
 **Service Interface:**
 
@@ -84,17 +81,18 @@ export class AuthService {
   login(options: { username: string; password: string }): Observable<AuthenticateResponse>;
   logout(): void;
   tryToLogin(): Observable<User>;
-  hasReadWritePrivileges$(aggregate: string): Observable<boolean>;
 }
 ```
 
-**Authentication Response Model:**
+**Authentication Response Model (from Backend):**
 
 ```typescript
 interface AuthenticateResponse {
   userId: string;
-  token: string;
+  username: string;
+  accessToken: string;
   refreshToken: string;
+  roles: string[];
 }
 ```
 
@@ -102,46 +100,41 @@ interface AuthenticateResponse {
 
 ### REQ-FE-AUTH-003: Login Page Component
 
-**Requirement:** The system shall provide a login page that orchestrates the authentication flow, handles remember me functionality, and manages post-login navigation.
+**Requirement:** The system shall provide a login page that orchestrates the authentication flow and manages post-login navigation.
 
 **Acceptance Criteria:**
-- [ ] Login page loads saved credentials if "Remember Me" was previously checked
-- [ ] Login page saves credentials to localStorage when "Remember Me" is checked
-- [ ] Login page clears stored credentials when "Remember Me" is unchecked
-- [ ] Successful login redirects user to workspace or saved path
-- [ ] Failed login displays appropriate error message
+- [ ] Successful login stores access token and refresh token in localStorage
+- [ ] Successful login redirects user to default workspace path
+- [ ] Failed login displays appropriate error message from backend
 - [ ] Login page is accessible without authentication
+- [ ] User roles are stored for authorization checks
 
-**Remember Me Implementation:**
+**Login Flow:**
 
 ```typescript
-ngOnInit() {
-  // Load saved credentials if Remember Me was checked
-  const loginCredentials = this._localStorageService
-    .get({ key: loginCredentialsKey }) as LoginCredentials;
+public handleLogin(credentials: { username: string; password: string }): void {
+  this._authService.login(credentials).subscribe({
+    next: (response: AuthenticateResponse) => {
+      // Store tokens
+      this._localStorageService.put({ key: accessTokenKey, value: response.accessToken });
+      this._localStorageService.put({ key: refreshTokenKey, value: response.refreshToken });
 
-  if (loginCredentials) {
-    this.username = loginCredentials.username;
-    this.password = loginCredentials.password;
-    this.rememberMe = true;
-  }
-}
+      // Set current user
+      const user: User = {
+        userId: response.userId,
+        username: response.username,
+        roles: response.roles
+      };
+      this._authService.setCurrentUser(user);
 
-public handleLogin(credentials: LoginFormCredentials): void {
-  // Save credentials if Remember Me is checked
-  if (credentials.rememberMe) {
-    this._localStorageService.put({
-      key: loginCredentialsKey,
-      value: { username: credentials.username, password: credentials.password }
-    });
-  } else {
-    this._localStorageService.put({ key: loginCredentialsKey, value: null });
-  }
-
-  // Perform login
-  this._authService.login(credentials).subscribe(
-    response => this._navigationService.redirectPreLogin()
-  );
+      // Navigate to workspace
+      this._navigationService.redirectPreLogin();
+    },
+    error: (error) => {
+      // Display error message (401 Unauthorized, 400 Bad Request)
+      this.errorMessage = 'Invalid username or password';
+    }
+  });
 }
 ```
 
@@ -149,21 +142,22 @@ public handleLogin(credentials: LoginFormCredentials): void {
 
 ### REQ-FE-AUTH-004: Logout Functionality
 
-**Requirement:** The system shall provide logout functionality accessible from the workspace interface that clears all authentication state and redirects to public area.
-
+**Requirement:** The system shall provide logout functionality that clears all authentication state and redirects to public area.
 
 **Acceptance Criteria:**
 - [ ] Logout button is displayed in workspace navigation
 - [ ] Clicking logout clears access token from storage
+- [ ] Clicking logout clears refresh token from storage
 - [ ] Clicking logout clears current user state
 - [ ] Logout redirects user to public landing page
-- [ ] Logout is accessible from any workspace page
 
 **Logout Implementation:**
 
 ```typescript
 public logout(): void {
-  this._authService.logout();
+  this._localStorageService.put({ key: accessTokenKey, value: null });
+  this._localStorageService.put({ key: refreshTokenKey, value: null });
+  this._authService.clearCurrentUser();
   this._navigationService.redirectToPublicDefault();
 }
 ```
@@ -174,25 +168,24 @@ public logout(): void {
 
 ### REQ-FE-TOKEN-001: Token Storage
 
-**Requirement:** The system shall store JWT access tokens securely in browser localStorage with consistent key naming.
+**Requirement:** The system shall store JWT access tokens and refresh tokens securely in browser localStorage.
 
 **Acceptance Criteria:**
 - [ ] Access token is stored in localStorage
-- [ ] Storage key is defined as constant: `{project}:accessTokenKey`
-- [ ] Token is stored immediately after successful login
-- [ ] Token is cleared on logout
-- [ ] Token is cleared on 401 Unauthorized error
+- [ ] Refresh token is stored in localStorage
+- [ ] Storage keys are defined as constants
+- [ ] Tokens are stored immediately after successful login
+- [ ] Tokens are cleared on logout
+- [ ] Tokens are cleared on 401 Unauthorized error
 - [ ] LocalStorageService provides get/put methods for token access
 
 **Storage Keys:**
 
 | Key | Purpose | Value Format |
 |-----|---------|--------------|
-| {project}:accessTokenKey | JWT access token | string (JWT) |
-| {project}:usernameKey | Current username | string |
-| {project}:loginCredentialsKey | Saved login credentials | { username: string, password: string } |
-| {project}:currentUserKey | Current user object | User |
-| {project}:currentProfileKey | Current profile object | Profile |
+| eventmanagement:accessToken | JWT access token | string (JWT, expires in 1 hour) |
+| eventmanagement:refreshToken | Refresh token | string (Base64, rotates on refresh) |
+| eventmanagement:currentUser | Current user object | User JSON |
 
 **LocalStorage Service Interface:**
 
@@ -200,7 +193,6 @@ public logout(): void {
 export class LocalStorageService {
   get({ key }: { key: string }): any;
   put({ key, value }: { key: string; value: any }): void;
-  updateLocalStorage(key: string, update: (value: any) => any): void;
 }
 ```
 
@@ -210,13 +202,11 @@ export class LocalStorageService {
 
 **Requirement:** The system shall automatically inject JWT access tokens into all HTTP request headers using an HTTP interceptor.
 
-**Implementation:** [headers.interceptor.ts](src/Coop.App/src/app/@core/headers.interceptor.ts)
-
 **Acceptance Criteria:**
-- [ ] Interceptor retrieves token from localStorage
+- [ ] Interceptor retrieves access token from localStorage
 - [ ] Interceptor adds `Authorization` header with Bearer scheme
-- [ ] Header format is: `Authorization: Bearer {token}`
-- [ ] Interceptor applies to all outgoing HTTP requests
+- [ ] Header format is: `Authorization: Bearer {accessToken}`
+- [ ] Interceptor applies to all outgoing HTTP requests to the API
 - [ ] Interceptor does not modify requests if no token is present
 - [ ] Interceptor is registered in app module providers
 
@@ -241,31 +231,37 @@ export class HeadersInterceptor implements HttpInterceptor {
 
 ---
 
-### REQ-FE-TOKEN-003: JWT Error Interceptor
+### REQ-FE-TOKEN-003: JWT Error Interceptor & Token Refresh
 
-**Requirement:** The system shall intercept HTTP 401 Unauthorized errors, clear invalid tokens, and redirect users to login page.
-
+**Requirement:** The system shall intercept HTTP 401 Unauthorized errors and attempt to refresh the access token using the refresh token.
 
 **Acceptance Criteria:**
 - [ ] Interceptor detects 401 status codes in HTTP responses
-- [ ] 401 errors trigger immediate token removal from localStorage
-- [ ] 401 errors redirect user to login page
-- [ ] Interceptor prevents further API calls with expired token
+- [ ] 401 errors trigger token refresh attempt using refresh token
+- [ ] Refresh request calls `POST /api/identity/refresh-token`
+- [ ] New access token and refresh token are stored
+- [ ] Original failed request is retried with new access token
+- [ ] If refresh fails, clear tokens and redirect to login
 - [ ] Navigation service is used for consistent redirection
-- [ ] Error is re-thrown after handling for component-level handling
 
-**Error Handling Flow:**
+**Token Refresh Flow:**
 
 ```
-API Request → Headers Interceptor (adds token) → API Response
-                                                        ↓
-                                                   401 Error?
-                                                        ↓ Yes
-                                         JWT Interceptor catches error
-                                                        ↓
-                                              Clear token storage
-                                                        ↓
-                                            Redirect to login page
+API Request → Headers Interceptor (adds access token) → API Response
+                                                              ↓
+                                                         401 Error?
+                                                              ↓ Yes
+                                              JWT Interceptor catches error
+                                                              ↓
+                                                 Attempt token refresh
+                                                              ↓
+                              ┌─────────────────────────────┴─────────────────────────────┐
+                              ↓                                                           ↓
+                    Refresh succeeds                                          Refresh fails
+                              ↓                                                           ↓
+                  Store new tokens                                        Clear all tokens
+                              ↓                                                           ↓
+              Retry original request                                   Redirect to login
 ```
 
 **Implementation:**
@@ -276,7 +272,33 @@ export class JwtInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          this._localStorageService.put({ key: accessTokenKey, value: null });
+          // Attempt token refresh
+          const refreshToken = this._localStorageService.get({ key: refreshTokenKey });
+
+          if (refreshToken) {
+            return this._authService.refreshToken({ refreshToken }).pipe(
+              switchMap((response: RefreshTokenResponse) => {
+                // Store new tokens
+                this._localStorageService.put({ key: accessTokenKey, value: response.accessToken });
+                this._localStorageService.put({ key: refreshTokenKey, value: response.refreshToken });
+
+                // Retry original request with new token
+                const clonedReq = req.clone({
+                  headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
+                });
+                return next.handle(clonedReq);
+              }),
+              catchError(() => {
+                // Refresh failed, logout
+                this._authService.logout();
+                this._navigationService.redirectToLogin();
+                return throwError(error);
+              })
+            );
+          }
+
+          // No refresh token, logout
+          this._authService.logout();
           this._navigationService.redirectToLogin();
         }
         return throwError(error);
@@ -286,6 +308,11 @@ export class JwtInterceptor implements HttpInterceptor {
 }
 ```
 
+**Backend Integration:**
+- Endpoint: `POST /api/identity/refresh-token`
+- Request: `{ refreshToken: string }`
+- Response: `{ accessToken: string, refreshToken: string }`
+
 ---
 
 ## 3. Route Protection & Navigation Requirements
@@ -294,15 +321,13 @@ export class JwtInterceptor implements HttpInterceptor {
 
 **Requirement:** The system shall implement a route guard that protects workspace routes from unauthorized access.
 
-**Implementation:** [auth.guard.ts](src/Coop.App/src/app/@core/auth.guard.ts)
-
 **Acceptance Criteria:**
 - [ ] Guard implements Angular `CanActivate` interface
 - [ ] Guard checks for access token in localStorage
 - [ ] Guard allows navigation if token exists
 - [ ] Guard prevents navigation and redirects to login if no token
 - [ ] Guard saves attempted URL for post-login redirection
-- [ ] Guard is applied to `/workspace` route tree
+- [ ] Guard is applied to protected route tree
 
 **Guard Implementation:**
 
@@ -328,21 +353,27 @@ export class AuthGuard implements CanActivate {
 
 **Requirement:** The system shall define protected and public routes with appropriate guards and lazy loading.
 
-**Implementation:** [app-routing.module.ts](src/Coop.App/src/app/app-routing.module.ts)
-
 **Acceptance Criteria:**
-- [ ] `/workspace` route is protected with `AuthGuard`
+- [ ] Workspace routes are protected with `AuthGuard`
 - [ ] Login route is public and accessible without authentication
-- [ ] Create account route is public
-- [ ] Landing page and informational routes are public
+- [ ] Registration route is public
 - [ ] Protected routes lazy load workspace module
 - [ ] Unauthenticated access to protected routes redirects to login
 
 **Route Configuration:**
 
-| Route | Guard | Lazy Loaded | Description |
-|-------|-------|-------------|-------------|
-| /login | None | No | Public login page |
+```typescript
+const routes: Routes = [
+  { path: '', component: LandingComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {
+    path: 'workspace',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./workspace/workspace.module').then(m => m.WorkspaceModule)
+  }
+];
+```
 
 ---
 
@@ -356,7 +387,6 @@ export class AuthGuard implements CanActivate {
 - [ ] Service provides `redirectToPublicDefault()` for logout navigation
 - [ ] Service tracks `lastPath` for return navigation after login
 - [ ] Service uses Angular Router for navigation
-- [ ] Login URL and default workspace path are configurable
 
 **Navigation Methods:**
 
@@ -364,7 +394,7 @@ export class AuthGuard implements CanActivate {
 export class NavigationService {
   lastPath: string = '/';
   loginUrl: string = '/login';
-  defaultWorkspacePath: string = '/TBD';
+  defaultWorkspacePath: string = '/workspace/dashboard';
 
   redirectToLogin(): void {
     this._router.navigate([this.loginUrl]);
@@ -385,199 +415,102 @@ export class NavigationService {
 
 ## 4. User Registration Requirements
 
-### REQ-FE-REG-001: Create Account Form
+### REQ-FE-REG-001: Registration Form
 
-**Requirement:** The system shall provide a comprehensive registration form with validation for creating new user accounts.
-
-**Implementation:** [create-account-form.component.ts](src/Coop.App/src/app/create-account/create-account-form/create-account-form.component.ts)
+**Requirement:** The system shall provide a registration form that integrates with the backend registration endpoint.
 
 **Acceptance Criteria:**
-- [ ] Form includes invitation token field (required)
-- [ ] Form includes first name field (required)
-- [ ] Form includes last name field (required)
-- [ ] Form includes email field (required, email format validation)
-- [ ] Form includes password field (required)
-- [ ] Form includes password confirmation field (required)
-- [ ] Email field has async validation to check username uniqueness
-- [ ] Form emits `CreateProfileRequest` on valid submission
+- [ ] Form includes username field (required, 3-100 characters, email format)
+- [ ] Form includes password field (required, minimum 6 characters)
+- [ ] Form includes password confirmation field (required, must match password)
+- [ ] Username field has validation to check format
+- [ ] Form emits registration request on valid submission
 - [ ] Form prevents submission if validation fails
 
 **Form Fields:**
 
-| Field | Type | Validation | Async Validation |
-|-------|------|------------|------------------|
-| invitationToken | string | Required | None |
-| firstname | string | Required | None |
-| lastname | string | Required | None |
-| email | string | Required, Email format | Username exists check |
-| password | string | Required | None |
-| passwordConfirmation | string | Required | None |
+| Field | Type | Validation |
+|-------|------|------------|
+| username | string | Required, Email format, 3-100 characters |
+| password | string | Required, Minimum 6 characters |
+| confirmPassword | string | Required, Must match password |
 
-**Create Profile Request Model:**
+**Registration Request Model (to Backend):**
 
 ```typescript
-interface CreateProfileRequest {
-  email: string;
+interface RegisterRequest {
+  username: string;
   password: string;
-  passwordConfirmation: string;
-  invitationToken: string;
-  firstname: string;
-  lastname: string;
-  avatarDigitalAssetId?: string;
+  confirmPassword: string;
+}
+```
+
+**Backend Response:**
+
+```typescript
+interface RegisterResponse {
+  userId: string;
+  username: string;
 }
 ```
 
 ---
 
-### REQ-FE-REG-002: Create Account Page
+### REQ-FE-REG-002: Registration Page
 
 **Requirement:** The system shall provide a registration page that handles account creation and redirects to login on success.
 
-**Implementation:** [create-account.component.ts](src/Coop.App/src/app/create-account/create-account.component.ts)
-
 **Acceptance Criteria:**
 - [ ] Page is accessible without authentication
-- [ ] Page receives form data from create account form component
-- [ ] Page calls ProfileService.create() with registration data
-- [ ] Successful registration redirects to login page
-- [ ] Failed registration displays error message
+- [ ] Page receives form data from registration form component
+- [ ] Page calls backend endpoint `POST /api/identity/register`
+- [ ] Successful registration redirects to login page with success message
+- [ ] Failed registration displays error message (400 Bad Request if username exists)
 - [ ] Page displays user-friendly success/error feedback
 
-**Account Creation Flow:**
+**Registration Flow:**
 
 ```typescript
-public handleCreateAccountFormSubmit(options: CreateProfileRequest): void {
-  this._profileService.create({ request: options })
-    .subscribe(
-      response => {
-        // Show success message
+public handleRegister(request: RegisterRequest): void {
+  this._authService.register(request).subscribe({
+    next: (response: RegisterResponse) => {
+      // Show success message
+      this.successMessage = 'Account created successfully. Please login.';
+
+      // Redirect to login after delay
+      setTimeout(() => {
         this._navigationService.redirectToLogin();
-      },
-      error => {
-        // Display error message
+      }, 2000);
+    },
+    error: (error: HttpErrorResponse) => {
+      // Display error message (username exists, validation errors)
+      if (error.status === 400) {
+        this.errorMessage = error.error.message || 'Registration failed. Username may already exist.';
       }
-    );
+    }
+  });
 }
 ```
+
+**Backend Integration:**
+- Endpoint: `POST /api/identity/register`
+- Request: `{ username, password, confirmPassword }`
+- Response (201): `{ userId, username }`
+- Error (400): Validation errors or duplicate username
 
 ---
 
-### REQ-FE-REG-003: Username Uniqueness Validation
-
-**Requirement:** The system shall validate username uniqueness during registration using async validation.
-
-**Implementation:** [username-exists-validator.ts](src/Coop.App/src/app/@core/username-exisits-validator.ts)
-
-**Acceptance Criteria:**
-- [ ] Validator is implemented as Angular async validator
-- [ ] Validator calls backend API: `GET /api/user/exists/{username}`
-- [ ] Validator debounces API calls by 300ms
-- [ ] Validator returns `{ existingValue }` error if username exists
-- [ ] Validator returns null if username is available
-- [ ] Validator integrates with reactive form validation
-
-**Async Validator Implementation:**
-
-```typescript
-export function usernameExistsValidator(userService: UserService): AsyncValidatorFn {
-  return (control: AbstractControl): Observable<ValidationErrors | null> => {
-    return userService.exists({ username: control.value }).pipe(
-      debounceTime(300),
-      map(exists => exists ? { existingValue: true } : null)
-    );
-  };
-}
-```
-
-**Usage:**
-
-```typescript
-this.emailFormControl = new FormControl(
-  this.email,
-  [Validators.required, Validators.email],
-  [usernameExistsValidator(this._userService)]
-);
-```
-
----
-
-## 5. User Invitation Requirements
-
-### REQ-FE-INV-001: Invitation Token Service
-
-**Requirement:** The system shall provide a service for managing invitation tokens including CRUD operations.
-
-**Acceptance Criteria:**
-- [ ] Service provides `get()` method to list all invitation tokens
-- [ ] Service provides `getById()` method to retrieve specific token
-- [ ] Service provides `create()` method to create new invitation tokens
-- [ ] Service provides `update()` method to modify tokens
-- [ ] Service provides `remove()` method to delete tokens
-- [ ] Service implements `IPagableService<InvitationToken>` interface
-- [ ] Service calls backend API endpoints under `/api/invitationToken`
-
-**Service Interface:**
-
-```typescript
-export class InvitationTokenService implements IPagableService<InvitationToken> {
-  get(): Observable<InvitationToken[]>;
-  getById(options: { invitationTokenId: string }): Observable<InvitationToken>;
-  create(options: { request: CreateInvitationTokenRequest }): Observable<CreateInvitationTokenResponse>;
-  update(options: { request: UpdateInvitationTokenRequest }): Observable<UpdateInvitationTokenResponse>;
-  remove(options: { invitationTokenId: string }): Observable<RemoveInvitationTokenResponse>;
-}
-```
-
-**Invitation Token Model:**
-
-```typescript
-interface InvitationToken {
-  invitationTokenId: string;
-  value: string;
-  expiry?: Date;
-  type: InvitationTokenType;
-}
-```
-
----
-
-### REQ-FE-INV-002: Invitation Token State Management
-
-**Requirement:** The system shall manage invitation token state using NgRx Component Store.
-
-**Acceptance Criteria:**
-- [ ] Store maintains list of invitation tokens
-- [ ] Store maintains selected invitation token
-- [ ] Store provides effects for create, update, remove operations
-- [ ] Store handles loading and error states
-- [ ] Store exposes selectors for reactive state access
-- [ ] Store integrates with InvitationTokenService
-
-**Store State:**
-
-```typescript
-interface InvitationTokenState {
-  invitationTokens: InvitationToken[];
-  invitationToken?: InvitationToken;
-  loading?: boolean;
-  error?: any;
-}
-```
-
----
-
-## 6. Session Management Requirements
+## 5. Session Management Requirements
 
 ### REQ-FE-SESS-001: Current User Initialization
 
-**Requirement:** The system shall attempt to restore user session from stored tokens on application startup.
+**Requirement:** The system shall attempt to restore user session from stored access token on application startup.
 
 **Acceptance Criteria:**
-- [ ] App component calls `tryToInitializeCurrentUser()` on initialization
+- [ ] App component attempts session restoration on initialization
 - [ ] Method retrieves stored access token from localStorage
-- [ ] Method calls backend to fetch current user if token exists
-- [ ] Method combines user and profile data
-- [ ] Method initializes theme settings
+- [ ] If token exists, app assumes user is authenticated
+- [ ] Current user state is initialized from token or fetched from backend
 - [ ] Failed initialization clears invalid tokens
 - [ ] Current user observable is available app-wide
 
@@ -592,19 +525,12 @@ private tryToInitializeCurrentUser(): void {
   const accessToken = this._localStorageService.get({ key: accessTokenKey });
 
   if (accessToken) {
-    forkJoin({
-      user: this._userService.getCurrent(),
-      profile: this._profileService.getCurrent()
-    }).subscribe(
-      ({ user, profile }) => {
-        this._authService.setCurrentUser(user);
-        this._profileService.setCurrentProfile(profile);
-        this.initializeTheme();
-      },
-      error => {
-        this._localStorageService.put({ key: accessTokenKey, value: null });
-      }
-    );
+    // Token exists, restore session
+    const currentUser = this._localStorageService.get({ key: currentUserKey });
+
+    if (currentUser) {
+      this._authService.setCurrentUser(currentUser);
+    }
   }
 }
 ```
@@ -613,30 +539,29 @@ private tryToInitializeCurrentUser(): void {
 
 ### REQ-FE-SESS-002: Auto-Logout on Token Expiration
 
-**Requirement:** The system shall automatically log out users when their JWT token expires or becomes invalid.
+**Requirement:** The system shall automatically log out users when their JWT token expires (after 1 hour).
 
 **Acceptance Criteria:**
 - [ ] System detects 401 Unauthorized responses from API
-- [ ] 401 errors trigger immediate token clearance
+- [ ] 401 errors first trigger token refresh attempt
+- [ ] If refresh fails, tokens are cleared
 - [ ] User is redirected to login page
 - [ ] Current user state is cleared
-- [ ] User receives appropriate feedback about session expiration
 - [ ] Attempted URL is saved for post-login redirection
 
 ---
 
-## 7. Authorization & Access Control Requirements
+## 6. Authorization & Access Control Requirements
 
 ### REQ-FE-AUTHZ-001: User Model with Roles
 
-**Requirement:** The system shall maintain a user model that includes role and privilege information.
+**Requirement:** The system shall maintain a user model that includes role information from backend authentication response.
 
 **Acceptance Criteria:**
 - [ ] User model includes userId property
 - [ ] User model includes username property
-- [ ] User model includes roles collection
-- [ ] User model includes defaultProfileId property
-- [ ] Roles include associated privileges
+- [ ] User model includes roles collection (string array)
+- [ ] Model matches backend AuthenticateResponse structure
 - [ ] Model supports serialization from API responses
 
 **User Model:**
@@ -645,469 +570,145 @@ private tryToInitializeCurrentUser(): void {
 interface User {
   userId: string;
   username: string;
-  roles: Role[];
-  defaultProfileId: string;
+  roles: string[];
 }
 ```
+
+**Note:** The backend returns roles as a string array in the authentication response. Privilege checking will need to be implemented when the backend adds privilege claims to JWT tokens.
 
 ---
 
-### REQ-FE-AUTHZ-002: Role and Privilege Models
+### REQ-FE-AUTHZ-002: Role-Based UI Rendering
 
-**Requirement:** The system shall define role and privilege models matching backend authorization structure.
-
-**Acceptance Criteria:**
-- [ ] Role model includes roleId, name, and privileges
-- [ ] Privilege model includes privilegeId, roleId, aggregate, and accessRight
-- [ ] AccessRight enum matches backend values (None, Read, Write, Create, Delete)
-- [ ] Models support nested relationships
-- [ ] Models are type-safe with TypeScript
-
-**Role Model:**
-
-```typescript
-interface Role {
-  roleId: string;
-  name: string;
-  privileges: Privilege[];
-  aggregatePrivileges: AggregatePrivilege[];
-}
-```
-
-**Privilege Model:**
-
-```typescript
-interface Privilege {
-  privilegeId: string;
-  roleId: string;
-  aggregate: string;
-  accessRight: AccessRight;
-}
-```
-
-**Access Right Enum:**
-
-```typescript
-enum AccessRight {
-  None = 0,
-  Read = 1,
-  Write = 2,
-  Create = 3,
-  Delete = 4
-}
-```
-
----
-
-### REQ-FE-AUTHZ-003: Privilege Checking Service
-
-**Requirement:** The system shall provide methods to check user privileges for specific aggregates and operations.
-
-**Acceptance Criteria:**
-- [ ] Service provides `hasReadWritePrivileges$()` observable method
-- [ ] Method accepts aggregate name as parameter
-- [ ] Method returns Observable<boolean> for reactive UI binding
-- [ ] Method checks current user's roles for required privileges
-- [ ] Method verifies both Read and Write access rights
-- [ ] Method returns false if user lacks privileges
-
-**Privilege Check Implementation:**
-
-```typescript
-export class AuthService {
-  hasReadWritePrivileges$(aggregate: string): Observable<boolean> {
-    return this.currentUser$.pipe(
-      map(user => {
-        if (!user) return false;
-
-        return this._hasPrivilege(user, aggregate, AccessRight.Read) &&
-               this._hasPrivilege(user, aggregate, AccessRight.Write);
-      })
-    );
-  }
-
-  private _hasPrivilege(user: User, aggregate: string, accessRight: AccessRight): boolean {
-    return user.roles.some(role =>
-      role.privileges.some(p =>
-        p.aggregate === aggregate && p.accessRight === accessRight
-      )
-    );
-  }
-}
-```
-
----
-
-### REQ-FE-AUTHZ-004: Role-Based UI Rendering
-
-**Requirement:** The system shall conditionally render UI elements based on user privileges using Angular directives.
+**Requirement:** The system shall conditionally render UI elements based on user roles.
 
 **Acceptance Criteria:**
 - [ ] Navigation menu items are conditionally displayed
-- [ ] Menu visibility is controlled by `*ngIf` with privilege check observables
+- [ ] Menu visibility is controlled by role checks
 - [ ] Users only see features they have permission to access
-- [ ] UI updates reactively when user privileges change
-- [ ] No protected features are exposed to unauthorized users
+- [ ] UI updates reactively when user roles change
 
-**Privilege-Based UI Examples:**
+**Role-Based UI Examples:**
 
 ```html
-<!-- Messages menu item -->
-<a *ngIf="hasReadWritePrivileges$(Aggregate.Message) | async"
-   routerLink="/workspace/messages">
-  Messages
+<!-- Admin-only menu item -->
+<a *ngIf="hasRole('SystemAdministrator')"
+   routerLink="/workspace/admin">
+  Administration
 </a>
 
-<!-- Board Members menu item -->
-<a *ngIf="hasReadWritePrivileges$(Aggregate.BoardMember) | async"
-   routerLink="/workspace/board-members">
-  Board Members
-</a>
-
-<!-- Users menu item (admin only) -->
-<a *ngIf="hasReadWritePrivileges$(Aggregate.User) | async"
-   routerLink="/workspace/users">
-  Users
-</a>
-
-<!-- Roles menu item (admin only) -->
-<a *ngIf="hasReadWritePrivileges$(Aggregate.Role) | async"
-   routerLink="/workspace/roles">
-  Roles
-</a>
+<!-- Check for specific role -->
+<button *ngIf="currentUser$ | async as user">
+  <span *ngIf="user.roles.includes('SystemAdministrator')">
+    Admin Panel
+  </span>
+</button>
 ```
 
-**Protected Features:**
-
-| Feature | Aggregate | Access Rights Required |
-|---------|-----------|------------------------|
-| Messages | Message | Read + Write |
-| Board Members | BoardMember | Read + Write |
-| By Laws | ByLaw | Read + Write |
-| Maintenance Requests | MaintenanceRequest | Read + Write |
-| Members | Member | Read + Write |
-| Notices | Notice | Read + Write |
-| Reports | Report | Read + Write |
-| Staff Members | StaffMember | Read + Write |
-| Users | User | Read + Write |
-| Roles | Role | Read + Write |
-| Settings | Theme | Read + Write |
-| Content | JsonContent | Read + Write |
-
----
-
-### REQ-FE-AUTHZ-005: Privilege Management Service
-
-**Requirement:** The system shall provide a service for managing privileges including CRUD operations.
-
-**Acceptance Criteria:**
-- [ ] Service provides methods for privilege CRUD operations
-- [ ] Service calls backend API endpoints under `/api/privilege`
-- [ ] Service supports privilege creation for roles
-- [ ] Service supports privilege modification
-- [ ] Service supports privilege deletion
-- [ ] Service integrates with privilege store for state management
-
----
-
-### REQ-FE-AUTHZ-006: Privilege State Management
-
-**Requirement:** The system shall manage privilege state.
-
-**Acceptance Criteria:**
-- [ ] Store maintains privilege collection
-- [ ] Store provides effects for create, update, remove operations
-- [ ] Store handles loading and error states
-- [ ] Store exposes selectors for reactive access
-- [ ] Store integrates with PrivilegeService
-
----
-
-## 8. User Profile Management Requirements
-
-### REQ-FE-PROFILE-001: Profile Model
-
-**Requirement:** The system shall define a comprehensive profile model containing user personal information and relationships.
-
-**Acceptance Criteria:**
-- [ ] Profile model includes profileId
-- [ ] Profile model includes userId
-- [ ] Profile model includes firstname and lastname
-- [ ] Profile model includes avatarDigitalAssetId
-- [ ] Profile model includes phoneNumber
-- [ ] Profile model includes address
-- [ ] Profile model includes messages collection
-- [ ] Model supports serialization from API
-
-**Profile Model:**
+**Role Check Method:**
 
 ```typescript
-interface Profile {
-  profileId: string;
-  userId: string;
-  firstname: string;
-  lastname: string;
-  avatarDigitalAssetId?: string;
-  phoneNumber?: string;
-  address?: Address;
-  messages?: Message[];
-}
-```
-
----
-
-### REQ-FE-PROFILE-002: Profile Service
-
-**Requirement:** The system shall provide a service for profile management including retrieval, creation, and updates.
-
-**Acceptance Criteria:**
-- [ ] Service provides `getCurrent()` method for authenticated user's profile
-- [ ] Service provides `get()` method for all profiles
-- [ ] Service provides `getById()` method for specific profile
-- [ ] Service provides `create()` method for registration
-- [ ] Service provides `update()` method for profile modifications
-- [ ] Service provides `updateAvatar()` method for avatar changes
-- [ ] Service calls backend API endpoints under `/api/profile`
-
-**Service Interface:**
-
-```typescript
-export class ProfileService {
-  getCurrent(): Observable<Profile>;
-  get(): Observable<Profile[]>;
-  getById(options: { profileId: string }): Observable<Profile>;
-  create(options: { request: CreateProfileRequest }): Observable<CreateProfileResponse>;
-  update(options: { request: UpdateProfileRequest }): Observable<UpdateProfileResponse>;
-  updateAvatar(options: { profileId: string, digitalAssetId: string }): Observable<UpdateProfileAvatarResponse>;
-}
-```
-
----
-
-### REQ-FE-PROFILE-003: Profile Component
-
-**Requirement:** The system shall provide a profile component for viewing and editing user profile information.
-
-**Acceptance Criteria:**
-- [ ] Component displays current user's profile information
-- [ ] Component supports avatar upload and update
-- [ ] Component displays user's maintenance requests
-- [ ] Component displays user's notices
-- [ ] Component displays user's bylaws
-- [ ] Component displays user's reports
-- [ ] Component integrates with AuthService for current user
-
-**Profile Component Features:**
-
-```typescript
-export class ProfileComponent implements OnInit {
-  public profile$: Observable<Profile>;
-  public maintenanceRequests$: Observable<MaintenanceRequest[]>;
-  public notices$: Observable<Notice[]>;
-  public bylaws$: Observable<ByLaw[]>;
-
-  ngOnInit() {
-    this.profile$ = this._profileService.getCurrent();
-  }
-
-  public handleAvatarChange(digitalAssetId: string): void {
-    this._profileService.updateAvatar({
-      profileId: this.profileId,
-      digitalAssetId
-    }).subscribe();
+export class AuthService {
+  hasRole(roleName: string): Observable<boolean> {
+    return this.currentUser$.pipe(
+      map(user => user ? user.roles.includes(roleName) : false)
+    );
   }
 }
 ```
 
 ---
 
-### REQ-FE-PROFILE-004: Profile State Management
+## 7. User Interface Requirements
 
-**Requirement:** The system shall manage profile state using NgRx Component Store.
+### REQ-FE-UI-001: Login Component
+
+**Requirement:** The system shall provide a login component with username and password inputs.
 
 **Acceptance Criteria:**
-- [ ] Store maintains profile collection
-- [ ] Store maintains current profile
-- [ ] Store provides effects for create, update operations
-- [ ] Store handles loading and error states
-- [ ] Store exposes selectors for reactive access
-- [ ] Store integrates with ProfileService
+- [ ] Component displays reactive form with username and password fields
+- [ ] Component shows validation errors inline
+- [ ] Component displays backend error messages (401, 400)
+- [ ] Component has submit button disabled when form is invalid
+- [ ] Component shows loading indicator during authentication
 
 ---
 
-## 9. Password Management Requirements
+### REQ-FE-UI-002: Registration Component
 
-### REQ-FE-PWD-001: Password Change Feature
-
-**Requirement:** The system should provide password change functionality for authenticated users.
-
+**Requirement:** The system shall provide a registration component for new user account creation.
 
 **Acceptance Criteria:**
-- [ ] Password change form with old password, new password, and confirmation fields
-- [ ] Form validation for password strength requirements
-- [ ] API integration with backend password change endpoint
-- [ ] Success/error feedback to user
-- [ ] Automatic re-authentication after password change
+- [ ] Component displays reactive form with username, password, confirmPassword fields
+- [ ] Component shows validation errors inline
+- [ ] Component displays backend error messages
+- [ ] Component shows password strength indicator
+- [ ] Component validates password confirmation matches
+- [ ] Component shows success message before redirecting to login
 
 ---
 
-### REQ-FE-PWD-002: Password Reset Feature
+### REQ-FE-UI-003: Protected Workspace Layout
 
-**Requirement:** The system should provide password reset functionality for users who forgot their passwords.
+**Requirement:** The system shall provide a workspace layout component for authenticated users.
 
 **Acceptance Criteria:**
-- [ ] Password reset request form with email field
-- [ ] Email verification and reset link generation
-- [ ] Password reset form with new password and confirmation
-- [ ] Integration with backend password reset endpoints
-- [ ] Redirect to login after successful reset
+- [ ] Layout displays navigation menu
+- [ ] Layout shows current user information
+- [ ] Layout includes logout button
+- [ ] Layout is only accessible to authenticated users
+- [ ] Layout adapts navigation based on user roles
 
 ---
 
-## 10. User Interface Requirements
+## 8. State Management Requirements
 
-### REQ-FE-UI-001: User List Component
+### REQ-FE-STATE-001: Authentication State Management
 
-**Requirement:** The system shall provide a component to display a list of all users for administrative purposes.
-
-**Acceptance Criteria:**
-- [ ] Component displays all users in a table or list format
-- [ ] Component is accessible only to users with User aggregate privileges
-- [ ] Component supports navigation to user detail view
-- [ ] Component integrates with UserService
-
----
-
-### REQ-FE-UI-002: User Detail Component
-
-**Requirement:** The system shall provide a component to view detailed information about a specific user.
-
+**Requirement:** The system shall manage authentication state using RxJS observables and services.
 
 **Acceptance Criteria:**
-- [ ] Component displays user details including username, roles, and profiles
-- [ ] Component is accessible only to authorized users
-- [ ] Component supports navigation to edit mode
-- [ ] Component integrates with UserService
+- [ ] AuthService maintains currentUser$ observable
+- [ ] State is persisted to localStorage
+- [ ] State is reactive and updates UI automatically
+- [ ] State is cleared on logout
+- [ ] State includes user identity and roles
 
----
-
-### REQ-FE-UI-003: User Editor Component
-
-**Requirement:** The system shall provide a component for creating and editing user information.
-
-**Acceptance Criteria:**
-- [ ] Component implements `ControlValueAccessor` for form integration
-- [ ] Component implements `Validator` interface
-- [ ] Component provides form fields for userId and name
-- [ ] Component is reusable in different contexts
-- [ ] Component integrates with Angular reactive forms
-
----
-
-### REQ-FE-UI-004: Role Management Components
-
-**Requirement:** The system shall provide components for viewing, creating, and editing roles.
-
-**Acceptance Criteria:**
-- [ ] Role list component displays all system roles
-- [ ] Role detail component shows role information and associated privileges
-- [ ] Role editor component allows creating/editing roles
-- [ ] Components are accessible only to users with Role aggregate privileges
-- [ ] Components integrate with RoleService
-
----
-
-### REQ-FE-UI-005: Aggregate Privilege Component
-
-**Requirement:** The system shall provide a component for displaying and managing aggregate-level privileges.
-
-**Acceptance Criteria:**
-- [ ] Component displays privilege information
-- [ ] Component is reusable across different contexts
-- [ ] Component integrates with privilege models
-- [ ] Component supports privilege assignment/removal
-
----
-
-## 11. State Management Requirements
-
-### REQ-FE-STATE-001: User State Management
-
-**Requirement:** The system shall manage user state using NgRx Component Store.
-
-**Acceptance Criteria:**
-- [ ] Store maintains users collection
-- [ ] Store maintains selected user
-- [ ] Store provides effects for create, update, remove operations
-- [ ] Store handles loading and error states
-- [ ] Store exposes selectors: `getUsers()`, `getUserById()`
-- [ ] Store integrates with UserService
-
-**Store State:**
+**State Management:**
 
 ```typescript
-interface UserState {
-  users?: User[];
-  user?: User;
-  loading?: boolean;
-  error?: any;
-}
-```
+export class AuthService {
+  private _currentUserSubject = new BehaviorSubject<User | null>(null);
+  public currentUser$ = this._currentUserSubject.asObservable();
 
-**Store Effects:**
+  setCurrentUser(user: User): void {
+    this._currentUserSubject.next(user);
+    this._localStorageService.put({ key: currentUserKey, value: user });
+  }
 
-```typescript
-export class UserStore extends ComponentStore<UserState> {
-  createUser = this.effect<CreateUserRequest>((request$) =>
-    request$.pipe(
-      tap(() => this.patchState({ loading: true })),
-      switchMap(request =>
-        this._userService.create({ request }).pipe(
-          tap(() => this.patchState({ loading: false })),
-          catchError(error => {
-            this.patchState({ error, loading: false });
-            return EMPTY;
-          })
-        )
-      )
-    )
-  );
-
-  updateUser = this.effect<UpdateUserRequest>(...);
-  removeUser = this.effect<RemoveUserRequest>(...);
+  clearCurrentUser(): void {
+    this._currentUserSubject.next(null);
+    this._localStorageService.put({ key: currentUserKey, value: null });
+  }
 }
 ```
 
 ---
 
-### REQ-FE-STATE-002: Role State Management
-
-**Requirement:** The system shall manage role state using NgRx Component Store.
-
-**Acceptance Criteria:**
-- [ ] Store maintains roles collection
-- [ ] Store maintains selected role
-- [ ] Store provides effects for CRUD operations
-- [ ] Store handles loading and error states
-- [ ] Store exposes selectors for reactive access
-- [ ] Store integrates with RoleService
-
----
-
-### REQ-FE-STATE-003: Reactive State Patterns
+### REQ-FE-STATE-002: Reactive State Patterns
 
 **Requirement:** The system shall use reactive programming patterns with RxJS for state management.
 
 **Acceptance Criteria:**
 - [ ] Observables are used for asynchronous data streams
-- [ ] Subjects are used for state broadcasting
+- [ ] BehaviorSubject is used for current user state
 - [ ] Operators like map, switchMap, catchError are used appropriately
 - [ ] Subscriptions are properly managed to prevent memory leaks
 - [ ] Async pipe is used in templates for automatic subscription management
 
 ---
 
-## 12. Validation Requirements
+## 9. Validation Requirements
 
 ### REQ-FE-VAL-001: Login Form Validation
 
@@ -1131,39 +732,40 @@ export class UserStore extends ComponentStore<UserState> {
 
 ### REQ-FE-VAL-002: Registration Form Validation
 
-**Requirement:** The system shall validate registration form inputs including async username uniqueness check.
+**Requirement:** The system shall validate registration form inputs matching backend validation rules.
 
 **Acceptance Criteria:**
-- [ ] All required fields are validated
-- [ ] Email format is validated
-- [ ] Username uniqueness is validated asynchronously
+- [ ] Username is required and 3-100 characters
+- [ ] Username format is email
+- [ ] Password is required and minimum 6 characters
 - [ ] Password confirmation matches password
 - [ ] Validation errors are displayed clearly
 - [ ] Form submission is disabled when invalid
 
 **Validation Rules:**
 
-| Field | Validators | Async Validators | Error Messages |
-|-------|-----------|------------------|----------------|
-| invitationToken | Required | None | "Invitation token is required" |
-| firstname | Required | None | "First name is required" |
-| lastname | Required | None | "Last name is required" |
-| email | Required, Email | Username exists | "Valid email is required", "Username already exists" |
-| password | Required | None | "Password is required" |
-| passwordConfirmation | Required | None | "Password confirmation is required" |
+| Field | Validators | Error Messages |
+|-------|-----------|----------------|
+| username | Required, Email, Length(3-100) | "Username is required", "Must be valid email", "Must be 3-100 characters" |
+| password | Required, MinLength(6) | "Password is required", "Password must be at least 6 characters" |
+| confirmPassword | Required, MustMatch('password') | "Password confirmation is required", "Passwords must match" |
 
----
+**Custom Validator for Password Match:**
 
-### REQ-FE-VAL-003: Custom Validators
+```typescript
+export function passwordMatchValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
 
-**Requirement:** The system shall provide custom validators for complex validation scenarios.
+    if (!password || !confirmPassword) {
+      return null;
+    }
 
-**Acceptance Criteria:**
-- [ ] Custom validators follow Angular validator pattern
-- [ ] Async validators return observables
-- [ ] Validators are reusable across forms
-- [ ] Validators integrate with Angular form validation system
-- [ ] Validators provide meaningful error objects
+    return password.value === confirmPassword.value ? null : { passwordMismatch: true };
+  };
+}
+```
 
 ---
 
@@ -1173,53 +775,9 @@ export class UserStore extends ComponentStore<UserState> {
 
 | Method | Endpoint | Purpose | Request Body | Response |
 |--------|----------|---------|--------------|----------|
-| POST | /api/user/token | Login | { username, password } | { token, refreshToken, userId } |
-| GET | /api/user/current | Get current user | None | User |
-| GET | /api/user/exists/{username} | Check username | None | boolean |
-
-### User Management Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | /api/user | Get all users |
-| GET | /api/user/{id} | Get user by ID |
-| POST | /api/user | Create user |
-| PUT | /api/user | Update user |
-| DELETE | /api/user/{id} | Delete user |
-
-### Profile Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | /api/profile/current | Get current profile |
-| GET | /api/profile | Get all profiles |
-| GET | /api/profile/{id} | Get profile by ID |
-| POST | /api/profile | Create profile (registration) |
-| PUT | /api/profile | Update profile |
-| PUT | /api/profile/{id}/avatar | Update avatar |
-
-### Role & Privilege Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | /api/role | Get all roles |
-| POST | /api/role | Create role |
-| PUT | /api/role | Update role |
-| DELETE | /api/role/{id} | Delete role |
-| GET | /api/privilege | Get all privileges |
-| POST | /api/privilege | Create privilege |
-| PUT | /api/privilege | Update privilege |
-| DELETE | /api/privilege/{id} | Delete privilege |
-
-### Invitation Token Endpoints
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | /api/invitationToken | Get all tokens |
-| GET | /api/invitationToken/{id} | Get token by ID |
-| POST | /api/invitationToken | Create token |
-| PUT | /api/invitationToken | Update token |
-| DELETE | /api/invitationToken/{id} | Delete token |
+| POST | /api/identity/authenticate | Login | `{ username, password }` | `{ userId, username, accessToken, refreshToken, roles }` |
+| POST | /api/identity/register | Register | `{ username, password, confirmPassword }` | `{ userId, username }` |
+| POST | /api/identity/refresh-token | Refresh Token | `{ refreshToken }` | `{ accessToken, refreshToken }` |
 
 ---
 
@@ -1227,11 +785,9 @@ export class UserStore extends ComponentStore<UserState> {
 
 | Key | Purpose | Data Type |
 |-----|---------|-----------|
-| {project}:accessTokenKey | JWT access token | string |
-| {project}:usernameKey | Current username | string |
-| {project}:loginCredentialsKey | Saved login credentials (Remember Me) | { username: string, password: string } |
-| {project}:currentUserKey | Current user object | User |
-| {project}:currentProfileKey | Current profile object | Profile |
+| eventmanagement:accessToken | JWT access token (expires 1 hour) | string |
+| eventmanagement:refreshToken | Refresh token (rotates on refresh) | string |
+| eventmanagement:currentUser | Current user object | User JSON |
 
 ---
 
@@ -1239,56 +795,27 @@ export class UserStore extends ComponentStore<UserState> {
 
 ### Core Services
 
-- **AuthService**: Authentication and authorization logic
+- **AuthService**: Authentication, token management, current user state
 - **LocalStorageService**: Browser storage management
 - **NavigationService**: Routing and navigation
-- **UserService**: User API client
-- **ProfileService**: Profile API client
-- **RoleService**: Role API client
-- **PrivilegeService**: Privilege API client
-- **InvitationTokenService**: Invitation token API client
 
 ### HTTP Interceptors
 
-- **HeadersInterceptor**: Adds JWT token to requests
-- **JwtInterceptor**: Handles 401 errors and auto-logout
+- **HeadersInterceptor**: Adds JWT access token to requests
+- **JwtInterceptor**: Handles 401 errors, token refresh, auto-logout
 
 ### Route Guards
 
-- **AuthGuard**: Protects workspace routes
-
-### State Stores (NgRx Component Store)
-
-- **UserStore**: User state management
-- **ProfileStore**: Profile state management
-- **RoleStore**: Role state management
-- **PrivilegeStore**: Privilege state management
-- **InvitationTokenStore**: Invitation token state management
+- **AuthGuard**: Protects workspace routes, requires authentication
 
 ### Feature Components
 
 #### Authentication
 - LoginComponent
-- LoginFormComponent
-- CreateAccountComponent
-- CreateAccountFormComponent
+- RegisterComponent
 
-#### User Management
-- UserListComponent
-- UserDetailComponent
-- UserEditorComponent
-
-#### Role Management
-- RoleListComponent
-- RoleDetailComponent
-- RoleEditorComponent
-
-#### Profile
-- ProfileComponent
-
-#### Shared
-- SidenavComponent (logout button)
-- AggregatePrivilegeComponent
+#### Workspace
+- WorkspaceLayoutComponent (protected, shows navigation and logout)
 
 ---
 
@@ -1297,31 +824,42 @@ export class UserStore extends ComponentStore<UserState> {
 ### Implemented Security Controls
 
 1. **Token-Based Authentication**
-   - JWT tokens stored in localStorage
+   - JWT access tokens (1 hour expiration)
+   - Refresh tokens (rotated on each refresh)
+   - Tokens stored in localStorage
    - Tokens automatically included in API requests
-   - Auto-logout on token expiration
 
-2. **Route Protection**
+2. **Token Refresh**
+   - Automatic token refresh on 401 errors
+   - Seamless user experience
+   - Logout on refresh failure
+
+3. **Route Protection**
    - AuthGuard prevents unauthorized access to workspace
    - Post-login redirection to attempted URL
-
-3. **Role-Based Access Control**
-   - UI elements hidden based on user privileges
-   - Privilege checks using observables for reactivity
-   - Granular access rights (Read, Write, Create, Delete)
 
 4. **Input Validation**
    - Required field validation
    - Email format validation
-   - Async username uniqueness validation
+   - Password length validation (minimum 6 characters)
    - Password confirmation matching
+   - Matches backend validation rules
 
 5. **Error Handling**
-   - 401 errors trigger logout and redirect
+   - 401 errors trigger token refresh or logout
    - Invalid tokens are cleared automatically
    - User-friendly error messages
 
+### Not Implemented (Future Enhancements)
 
+1. Remember Me functionality
+2. Multi-factor authentication (2FA/MFA)
+3. Password reset via email
+4. Email verification for registration
+5. Granular privilege-based authorization (awaiting backend privilege claims in JWT)
+6. User profile management
+7. Role management UI
+8. Account settings/preferences
 
 ---
 
@@ -1330,16 +868,37 @@ export class UserStore extends ComponentStore<UserState> {
 ### Authentication Models
 
 ```typescript
+interface AuthenticateRequest {
+  username: string;
+  password: string;
+}
+
 interface AuthenticateResponse {
   userId: string;
-  token: string;
+  username: string;
+  accessToken: string;
+  refreshToken: string;
+  roles: string[];
+}
+
+interface RegisterRequest {
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface RegisterResponse {
+  userId: string;
+  username: string;
+}
+
+interface RefreshTokenRequest {
   refreshToken: string;
 }
 
-interface LoginCredentials {
-  username: string;
-  password: string;
-  rememberMe?: boolean;
+interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 ```
 
@@ -1349,87 +908,68 @@ interface LoginCredentials {
 interface User {
   userId: string;
   username: string;
-  roles: Role[];
-  defaultProfileId: string;
-}
-
-interface CreateUserRequest {
-  username: string;
-  password: string;
-  roles: string[];
-}
-
-interface UpdateUserRequest {
-  userId: string;
-  username: string;
   roles: string[];
 }
 ```
 
-### Profile Models
+---
 
-```typescript
-interface Profile {
-  profileId: string;
-  userId: string;
-  firstname: string;
-  lastname: string;
-  avatarDigitalAssetId?: string;
-  phoneNumber?: string;
-  address?: Address;
-  messages?: Message[];
-}
+## Appendix F: Backend Alignment Summary
 
-interface CreateProfileRequest {
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-  invitationToken: string;
-  firstname: string;
-  lastname: string;
-  avatarDigitalAssetId?: string;
-}
-```
+This frontend specification is aligned with the backend implementation as follows:
 
-### Authorization Models
+### ✅ Aligned Features
 
-```typescript
-interface Role {
-  roleId: string;
-  name: string;
-  privileges: Privilege[];
-  aggregatePrivileges: AggregatePrivilege[];
-}
+1. **Authentication Endpoints**
+   - Login: `POST /api/identity/authenticate`
+   - Register: `POST /api/identity/register`
+   - Refresh Token: `POST /api/identity/refresh-token`
 
-interface Privilege {
-  privilegeId: string;
-  roleId: string;
-  aggregate: string;
-  accessRight: AccessRight;
-}
+2. **Request/Response Models**
+   - All DTOs match backend command/response structures
+   - Validation rules match backend FluentValidation rules
 
-enum AccessRight {
-  None = 0,
-  Read = 1,
-  Write = 2,
-  Create = 3,
-  Delete = 4
-}
-```
+3. **Token Management**
+   - Access token (JWT, 1 hour expiration)
+   - Refresh token (Base64, 32 bytes, rotated)
+   - Bearer token authentication scheme
 
-### Invitation Models
+4. **Password Policy**
+   - Minimum 6 characters
+   - Password confirmation required
+   - Username 3-100 characters
 
-```typescript
-interface InvitationToken {
-  invitationTokenId: string;
-  value: string;
-  expiry?: Date;
-  type: InvitationTokenType;
-}
+5. **Security**
+   - CORS configured for localhost:4200
+   - JWT Bearer authentication
+   - Token refresh flow
 
-enum InvitationTokenType {
-  TBD
-}
-```
+### 📋 Removed from Original Frontend Spec
 
+The following items were removed as they are **not implemented in the backend**:
 
+1. ❌ Invitation token system
+2. ❌ Profile management endpoints
+3. ❌ User CRUD operations (create, update, delete users)
+4. ❌ Role management endpoints
+5. ❌ Privilege management endpoints
+6. ❌ Password change endpoint
+7. ❌ Current user endpoint (`/api/user/current`)
+8. ❌ Username exists check endpoint
+9. ❌ Granular privilege-based authorization with AccessRight enum
+10. ❌ Profile-related features
+
+### 🔮 Future Enhancements (When Backend Implements)
+
+These features can be added to the frontend when the backend implements the corresponding endpoints:
+
+1. User management UI (when backend adds user CRUD endpoints)
+2. Role management UI (when backend adds role endpoints)
+3. Privilege-based authorization (when backend adds privilege claims to JWT)
+4. Profile management (when backend adds profile endpoints)
+5. Password change functionality (when backend adds password change endpoint)
+6. Current user info from API (when backend adds `/api/user/current` or includes in auth response)
+
+---
+
+**End of Document**

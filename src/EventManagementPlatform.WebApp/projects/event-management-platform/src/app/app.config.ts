@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     {
       provide: API_BASE_URL,
-      useValue: '/api'
+      useValue: 'https://localhost:7161/api'
     },
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
