@@ -12,7 +12,7 @@ namespace EventManagementPlatform.Api.Logging;
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    private readonly ILogger _logger;
+    private readonly Serilog.ILogger _logger;
     private static readonly HashSet<string> SensitivePropertyNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "password", "passwordhash", "token", "accesstoken", "refreshtoken",

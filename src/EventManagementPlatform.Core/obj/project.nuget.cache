@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Hhl8Bx/3M/o=",
+  "dgSpecHash": "PpELOqKMpS4=",
   "success": true,
-  "projectFilePath": "c:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
+  "projectFilePath": "C:\\projects\\EventManagementPlatform\\src\\EventManagementPlatform.Core\\EventManagementPlatform.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\quinn\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
     "C:\\Users\\quinn\\.nuget\\packages\\mediatr\\12.2.0\\mediatr.12.2.0.nupkg.sha512",

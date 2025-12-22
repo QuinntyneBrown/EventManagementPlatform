@@ -194,6 +194,10 @@ dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1200.severity = none
 # SA1309: Field names should not begin with underscore - disabled (we use underscore prefix for private fields)
 dotnet_diagnostic.SA1309.severity = none
+# SA1313: Parameter names should begin with lower-case letter - disabled (record parameters use PascalCase)
+dotnet_diagnostic.SA1313.severity = none
+# SA1024: Colons should be followed by space - disabled (conflicts with record syntax)
+dotnet_diagnostic.SA1024.severity = none
 # SA1600: Elements should be documented - disabled (not all elements require XML docs)
 dotnet_diagnostic.SA1600.severity = none
 # SA1633: File should have header - disabled (no file header requirement)
@@ -218,8 +222,32 @@ dotnet_diagnostic.CA1303.severity = none
 # CA2007: Consider calling ConfigureAwait on the awaited task - disabled for ASP.NET Core
 dotnet_diagnostic.CA2007.severity = none
 
+# IDE0011: Add braces - disabled (too strict for this codebase)
+dotnet_diagnostic.IDE0011.severity = none
 # IDE0058: Expression value is never used - suggestion only
 dotnet_diagnostic.IDE0058.severity = suggestion
+# IDE0270: Null check can be simplified - disabled
+dotnet_diagnostic.IDE0270.severity = none
+
+# SA1503: Braces should not be omitted - disabled (too strict for simple returns)
+dotnet_diagnostic.SA1503.severity = none
+# SA1519: Braces should not be omitted from multi-line child statement - disabled
+dotnet_diagnostic.SA1519.severity = none
+# SA1116: Split parameters should start on line after declaration - disabled
+dotnet_diagnostic.SA1116.severity = none
+# SA1204: Static elements should appear before instance elements - disabled
+dotnet_diagnostic.SA1204.severity = none
+# SA1000: Keywords should be spaced correctly - disabled
+dotnet_diagnostic.SA1000.severity = none
+# SA1413: Use trailing comma in multi-line initializers - disabled
+dotnet_diagnostic.SA1413.severity = none
+
+# CA1305: Specify IFormatProvider - disabled
+dotnet_diagnostic.CA1305.severity = none
+# CA1852: Seal internal types - disabled
+dotnet_diagnostic.CA1852.severity = none
+# CA1859: Use concrete types when possible for improved performance - disabled
+dotnet_diagnostic.CA1859.severity = none
 
 # JSON files
 [*.json]

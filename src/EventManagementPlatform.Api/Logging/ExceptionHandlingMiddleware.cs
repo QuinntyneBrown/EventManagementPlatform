@@ -5,13 +5,14 @@ using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using Serilog;
+using Serilog.Events;
 
 namespace EventManagementPlatform.Api.Logging;
 
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
+    private readonly Serilog.ILogger _logger;
 
     public ExceptionHandlingMiddleware(RequestDelegate next)
     {
