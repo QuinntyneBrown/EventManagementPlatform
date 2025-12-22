@@ -84,6 +84,27 @@ Id
 ### 2.9 Implementation Simplicity
 **REQ-SYS-012**: All implementations in the system SHALL be as simple as possible. Complex solutions SHALL be avoided in favor of straightforward, maintainable approaches that directly solve the problem at hand.
 
+### 2.10 Structured Logging
+**REQ-SYS-013**: **CRITICAL** - The system SHALL implement structured logging using Serilog across all backend areas with appropriate log levels and enrichment.
+
+**REQ-SYS-014**: Information level SHALL log normal operations and API calls.
+
+**REQ-SYS-015**: Warning level SHALL log validation failures and business rule violations.
+
+**REQ-SYS-016**: Error level SHALL log all exceptions and external service failures with complete error details.
+
+**REQ-SYS-017**: Critical level SHALL log system failures and data corruption issues.
+
+**REQ-SYS-018**: Logs SHALL be enriched with CorrelationId, UserId, Timestamp, and relevant context identifiers (e.g., CustomerId, EventId, VenueId).
+
+**REQ-SYS-019**: Environment information SHALL be included in logs.
+
+**REQ-SYS-020**: Logs SHALL be centralized in Azure Log Analytics (production) or appropriate development targets.
+
+**REQ-SYS-021**: Sensitive data (passwords, tokens, credit card information, personal identification numbers) SHALL NOT be logged.
+
+**REQ-SYS-022**: All errors and exceptions SHALL be clearly logged with sufficient context to enable debugging and troubleshooting.
+
 ---
 
 ## 3. Core Project Requirements
@@ -286,6 +307,7 @@ All changes to this specification SHALL be tracked and versioned appropriately.
 | Version | Date       | Author | Description |
 |---------|------------|--------|-------------|
 | 1.0     | 2025-12-21 | System | Initial SRS document creation |
+| 1.1     | 2025-12-22 | System | Added structured logging requirements (REQ-SYS-013 through REQ-SYS-022) |
 
 ---
 

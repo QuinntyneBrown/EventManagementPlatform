@@ -367,6 +367,22 @@ When the API starts in development mode, a SeedService ensures initial data is s
 - HTTPS required in production
 - Password hashing with PBKDF2-HMACSHA256
 
+### Logging
+
+| Requirement ID | Description | Status |
+|----------------|-------------|--------|
+| REQ-LOG-001 | Structured Logging with Serilog | IN SCOPE |
+| REQ-LOG-002 | Information Level Logging (normal operations, API calls) | IN SCOPE |
+| REQ-LOG-003 | Warning Level Logging (validation failures, business rule violations) | IN SCOPE |
+| REQ-LOG-004 | Error Level Logging (all exceptions with complete details) | IN SCOPE |
+| REQ-LOG-005 | Critical Level Logging (system failures, data corruption) | IN SCOPE |
+| REQ-LOG-006 | Log Enrichment (CorrelationId, UserId, Timestamp, context IDs) | IN SCOPE |
+| REQ-LOG-007 | Environment Information in Logs | IN SCOPE |
+| REQ-LOG-008 | Sensitive Data Protection (no passwords, tokens, PII in logs) | IN SCOPE |
+| REQ-LOG-009 | All Errors Must Be Clearly Logged with Context | IN SCOPE |
+
+**Note:** This is a mandatory system-wide requirement. All backend modules SHALL implement structured logging as specified in REQ-SYS-013 through REQ-SYS-022 in the implementation specifications.
+
 ### Testing
 - Unit test coverage minimum 60%
 - Integration tests for all API endpoints
@@ -379,3 +395,4 @@ When the API starts in development mode, a SeedService ensures initial data is s
 |---------|------|--------|---------|
 | 1.0 | 2025-12-22 | System | Initial MVP specification |
 | 1.1 | 2025-12-22 | System | Added development seeding (REQ-SEED-001, REQ-SEED-002) |
+| 1.2 | 2025-12-22 | System | Added mandatory logging requirements (REQ-LOG-001 through REQ-LOG-009) |
