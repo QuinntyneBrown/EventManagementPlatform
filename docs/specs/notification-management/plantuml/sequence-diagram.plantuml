@@ -79,32 +79,32 @@ alt Should Send Notification
     PrefService --> DeliveryService: Channel preferences
     deactivate PrefService
 
-    par Email Delivery
-        DeliveryService -> ACS: SendEmailAsync(to, subject, body)
-        activate ACS
-        ACS --> DeliveryService: Email sent
-        deactivate ACS
-    and SMS Delivery (if enabled)
-        DeliveryService -> ACS: SendSmsAsync(phone, message)
-        activate ACS
-        ACS --> DeliveryService: SMS sent
-        deactivate ACS
-    and Push Notification (if enabled)
-        DeliveryService -> ACS: SendPushNotificationAsync(userId, title, body)
-        activate ACS
-        ACS --> DeliveryService: Push sent
-        deactivate ACS
-    and In-App Notification
-        DeliveryService -> SignalR: SendNotificationToUserAsync(userId, notification)
-        activate SignalR
-        SignalR -> AzureSignalR: Broadcast to user group
-        activate AzureSignalR
-        AzureSignalR --> WebApp: Real-time notification update
-        AzureSignalR --> SignalR: Broadcasted
-        deactivate AzureSignalR
-        SignalR --> DeliveryService: Sent
-        deactivate SignalR
-    end
+    note over DeliveryService: Parallel delivery across channels
+
+    DeliveryService -> ACS: SendEmailAsync(to, subject, body)
+    activate ACS
+    ACS --> DeliveryService: Email sent
+    deactivate ACS
+
+    DeliveryService -> ACS: SendSmsAsync(phone, message)
+    activate ACS
+    ACS --> DeliveryService: SMS sent (if enabled)
+    deactivate ACS
+
+    DeliveryService -> ACS: SendPushNotificationAsync(userId, title, body)
+    activate ACS
+    ACS --> DeliveryService: Push sent (if enabled)
+    deactivate ACS
+
+    DeliveryService -> SignalR: SendNotificationToUserAsync(userId, notification)
+    activate SignalR
+    SignalR -> AzureSignalR: Broadcast to user group
+    activate AzureSignalR
+    AzureSignalR --> WebApp: Real-time notification update
+    AzureSignalR --> SignalR: Broadcasted
+    deactivate AzureSignalR
+    SignalR --> DeliveryService: Sent
+    deactivate SignalR
 
     DeliveryService -> DB: Update notification status\n(Delivered)
     activate DB
@@ -477,75 +477,71 @@ deactivate Gateway
 WebApp --> Admin: Broadcast initiated
 deactivate WebApp
 
-' Parallel delivery to all users
-par Email Delivery
-    ServiceBus -> DeliveryService: Process broadcast messages\n(Email batch)
-    activate DeliveryService
+note over ServiceBus, DeliveryService: Parallel delivery to all users across channels
 
-    loop For each recipient
-        DeliveryService -> ACS: SendEmailAsync(recipient, subject, body)
-        activate ACS
-        ACS --> DeliveryService: Email sent
-        deactivate ACS
-    end
+== Email Delivery ==
+ServiceBus -> DeliveryService: Process broadcast messages (Email batch)
+activate DeliveryService
 
-    DeliveryService -> DB: Update broadcast delivery stats
-    activate DB
-    DB --> DeliveryService: Stats updated
-    deactivate DB
-
-    deactivate DeliveryService
-
-and SMS Delivery
-    ServiceBus -> DeliveryService: Process broadcast messages\n(SMS batch)
-    activate DeliveryService
-
-    loop For each recipient
-        DeliveryService -> ACS: SendSmsAsync(recipient, message)
-        activate ACS
-        ACS --> DeliveryService: SMS sent
-        deactivate ACS
-    end
-
-    DeliveryService -> DB: Update broadcast delivery stats
-    activate DB
-    DB --> DeliveryService: Stats updated
-    deactivate DB
-
-    deactivate DeliveryService
-
-and Push Notification Delivery
-    ServiceBus -> DeliveryService: Process broadcast messages\n(Push batch)
-    activate DeliveryService
-
-    DeliveryService -> ACS: SendBulkPushNotificationsAsync(recipients, title, body)
+loop For each recipient
+    DeliveryService -> ACS: SendEmailAsync(recipient, subject, body)
     activate ACS
-    ACS --> DeliveryService: Push notifications sent
+    ACS --> DeliveryService: Email sent
     deactivate ACS
-
-    DeliveryService -> DB: Update broadcast delivery stats
-    activate DB
-    DB --> DeliveryService: Stats updated
-    deactivate DB
-
-    deactivate DeliveryService
-
-and In-App Broadcast
-    ServiceBus -> SignalR: BroadcastEmergencyAsync(broadcast)
-    activate SignalR
-
-    SignalR -> Users: Broadcast emergency notification\nto all connected users
-    activate Users
-    Users --> SignalR: Notification received
-    deactivate Users
-
-    SignalR -> DB: Update broadcast delivery stats
-    activate DB
-    DB --> SignalR: Stats updated
-    deactivate DB
-
-    deactivate SignalR
 end
+
+DeliveryService -> DB: Update broadcast delivery stats
+activate DB
+DB --> DeliveryService: Stats updated
+deactivate DB
+deactivate DeliveryService
+
+== SMS Delivery ==
+ServiceBus -> DeliveryService: Process broadcast messages (SMS batch)
+activate DeliveryService
+
+loop For each recipient
+    DeliveryService -> ACS: SendSmsAsync(recipient, message)
+    activate ACS
+    ACS --> DeliveryService: SMS sent
+    deactivate ACS
+end
+
+DeliveryService -> DB: Update broadcast delivery stats
+activate DB
+DB --> DeliveryService: Stats updated
+deactivate DB
+deactivate DeliveryService
+
+== Push Notification Delivery ==
+ServiceBus -> DeliveryService: Process broadcast messages (Push batch)
+activate DeliveryService
+
+DeliveryService -> ACS: SendBulkPushNotificationsAsync(recipients, title, body)
+activate ACS
+ACS --> DeliveryService: Push notifications sent
+deactivate ACS
+
+DeliveryService -> DB: Update broadcast delivery stats
+activate DB
+DB --> DeliveryService: Stats updated
+deactivate DB
+deactivate DeliveryService
+
+== In-App Broadcast ==
+ServiceBus -> SignalR: BroadcastEmergencyAsync(broadcast)
+activate SignalR
+
+SignalR -> Users: Broadcast emergency notification\nto all connected users
+activate Users
+Users --> SignalR: Notification received
+deactivate Users
+
+SignalR -> DB: Update broadcast delivery stats
+activate DB
+DB --> SignalR: Stats updated
+deactivate DB
+deactivate SignalR
 
 ' Admin checks broadcast status
 Admin -> WebApp: Check broadcast status
@@ -859,7 +855,5 @@ note over PrefService, DB
   respect the updated preferences
   for this user
 end note
-
-@enduml
 
 @enduml
