@@ -75,12 +75,3 @@ public class SqlExpressDatabaseFixture : IAsyncLifetime
         await command.ExecuteNonQueryAsync();
     }
 }
-
-/// <summary>
-/// xUnit collection definition for database integration tests.
-/// All tests in this collection share the same database fixture.
-/// </summary>
-[CollectionDefinition("Database")]
-public class DatabaseCollection : ICollectionFixture<SqlExpressDatabaseFixture>
-{
-}
