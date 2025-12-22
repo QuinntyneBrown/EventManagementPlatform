@@ -41,15 +41,18 @@ This document defines the Minimum Viable Product (MVP) frontend requirements for
 
 | Requirement ID | Description | Status |
 |----------------|-------------|--------|
-| REQ-FE-AUTH-001 | Login Page | IN SCOPE |
-| REQ-FE-AUTH-002 | Login Form with Validation | IN SCOPE |
-| REQ-FE-AUTH-003 | Token Storage (localStorage) | IN SCOPE |
+| REQ-FE-AUTH-001 | Login Page (POST /api/identity/authenticate) | IN SCOPE |
+| REQ-FE-AUTH-002 | Login Form with Validation (username, password required) | IN SCOPE |
+| REQ-FE-AUTH-003 | Token Storage (localStorage: accessToken, refreshToken, currentUser) | IN SCOPE |
 | REQ-FE-AUTH-004 | Auth Guard for Protected Routes | IN SCOPE |
 | REQ-FE-AUTH-005 | Logout Functionality | IN SCOPE |
-| REQ-FE-AUTH-010 | Registration Page | IN SCOPE |
-| REQ-FE-AUTH-011 | Registration Form with Validation | IN SCOPE |
-| REQ-FE-USER-001 | User Profile Page | IN SCOPE |
-| REQ-FE-USER-002 | Edit Profile Form | IN SCOPE |
+| REQ-FE-AUTH-006 | JWT Token Refresh Flow (POST /api/identity/refresh-token) | IN SCOPE |
+| REQ-FE-AUTH-007 | HTTP Headers Interceptor (Bearer token injection) | IN SCOPE |
+| REQ-FE-AUTH-008 | JWT Error Interceptor (401 handling, auto-refresh) | IN SCOPE |
+| REQ-FE-AUTH-010 | Registration Page (POST /api/identity/register) | IN SCOPE |
+| REQ-FE-AUTH-011 | Registration Form with Validation (username 3-100 chars, password min 6, confirmPassword match) | IN SCOPE |
+| REQ-FE-AUTHZ-001 | User Model with Roles | IN SCOPE |
+| REQ-FE-AUTHZ-002 | Role-Based UI Rendering | IN SCOPE |
 | REQ-FE-LAYOUT-001 | Main App Layout with Navigation | IN SCOPE |
 | REQ-FE-LAYOUT-002 | Responsive Header | IN SCOPE |
 | REQ-FE-LAYOUT-003 | Side Navigation Menu | IN SCOPE |
@@ -58,11 +61,12 @@ This document defines the Minimum Viable Product (MVP) frontend requirements for
 
 | Requirement ID | Description | Target Phase |
 |----------------|-------------|--------------|
-| REQ-FE-AUTH-006 | Refresh Token Flow | Phase B |
-| REQ-FE-AUTH-007 | Remember Me Checkbox | Phase B |
-| REQ-FE-AUTH-008 | Forgot Password Flow | Phase B |
-| REQ-FE-AUTH-009 | Password Reset Page | Phase B |
+| REQ-FE-AUTH-009 | Remember Me Checkbox | Phase B |
+| REQ-FE-AUTH-012 | Forgot Password Flow | Phase B |
+| REQ-FE-AUTH-013 | Password Reset Page | Phase B |
 | REQ-FE-AUTH-015 | Multi-Factor Authentication UI | Phase C |
+| REQ-FE-USER-001 | User Profile Page | Phase B |
+| REQ-FE-USER-002 | Edit Profile Form | Phase B |
 | REQ-FE-USER-003 | Avatar Upload | Phase B |
 | REQ-FE-USER-004 | Change Password Form | Phase B |
 | REQ-FE-USER-005 | User Preferences | Phase B |
@@ -277,8 +281,8 @@ src/app/
 ```
 src/app/pages/
 ├── auth/
-│   ├── login/                # Login page
-│   └── register/             # Registration page
+│   ├── login/                # Login page (POST /api/identity/authenticate)
+│   └── register/             # Registration page (POST /api/identity/register)
 ├── events/
 │   ├── event-list/           # Event list page
 │   ├── event-detail/         # Event detail page
@@ -299,14 +303,14 @@ src/app/pages/
 │   ├── staff-detail/         # Staff detail page
 │   ├── staff-create/         # Create staff page
 │   └── staff-edit/           # Edit staff page
-├── equipment/
-│   ├── equipment-list/       # Equipment list page
-│   ├── equipment-detail/     # Equipment detail page
-│   ├── equipment-create/     # Create equipment page
-│   └── equipment-edit/       # Edit equipment page
-└── profile/
-    └── user-profile/         # User profile page
+└── equipment/
+    ├── equipment-list/       # Equipment list page
+    ├── equipment-detail/     # Equipment detail page
+    ├── equipment-create/     # Create equipment page
+    └── equipment-edit/       # Edit equipment page
 ```
+
+**Note:** User profile page is deferred to Phase B (depends on backend profile endpoints).
 
 ---
 
@@ -325,8 +329,8 @@ export const routes: Routes = [
             { path: 'customers', loadChildren: () => import('./pages/customers/routes') },
             { path: 'venues', loadChildren: () => import('./pages/venues/routes') },
             { path: 'staff', loadChildren: () => import('./pages/staff/routes') },
-            { path: 'equipment', loadChildren: () => import('./pages/equipment/routes') },
-            { path: 'profile', loadComponent: () => import('./pages/profile/user-profile') }
+            { path: 'equipment', loadChildren: () => import('./pages/equipment/routes') }
+            // Note: Profile route deferred to Phase B
         ]
     }
 ];

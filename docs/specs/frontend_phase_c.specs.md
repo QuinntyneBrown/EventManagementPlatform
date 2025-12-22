@@ -60,21 +60,25 @@ Phase C includes ALL requirements from the following frontend modules:
 
 | Requirement ID | Description |
 |----------------|-------------|
-| REQ-FE-AUTH-001 | Login Page |
-| REQ-FE-AUTH-002 | Login Form with Validation |
-| REQ-FE-AUTH-003 | Token Storage |
-| REQ-FE-AUTH-004 | Auth Guard |
+| REQ-FE-AUTH-001 | Login Page (POST /api/identity/authenticate) |
+| REQ-FE-AUTH-002 | Login Form with Validation (username, password required) |
+| REQ-FE-AUTH-003 | Token Storage (localStorage: accessToken, refreshToken, currentUser) |
+| REQ-FE-AUTH-004 | Auth Guard for Protected Routes |
 | REQ-FE-AUTH-005 | Logout Functionality |
-| REQ-FE-AUTH-006 | Refresh Token Flow |
-| REQ-FE-AUTH-007 | Remember Me Checkbox |
-| REQ-FE-AUTH-008 | Forgot Password Flow |
-| REQ-FE-AUTH-009 | Password Reset Page |
-| REQ-FE-AUTH-010 | Registration Page |
-| REQ-FE-AUTH-011 | Registration Form |
+| REQ-FE-AUTH-006 | JWT Token Refresh Flow (POST /api/identity/refresh-token) |
+| REQ-FE-AUTH-007 | HTTP Headers Interceptor (Bearer token injection) |
+| REQ-FE-AUTH-008 | JWT Error Interceptor (401 handling, auto-refresh) |
+| REQ-FE-AUTH-009 | Remember Me Checkbox |
+| REQ-FE-AUTH-010 | Registration Page (POST /api/identity/register) |
+| REQ-FE-AUTH-011 | Registration Form with Validation |
+| REQ-FE-AUTH-012 | Forgot Password Flow |
+| REQ-FE-AUTH-013 | Password Reset Page |
 | REQ-FE-AUTH-015 | Multi-Factor Authentication UI |
 | REQ-FE-AUTH-016 | OAuth/Social Login Buttons |
-| REQ-FE-USER-001 | User Profile Page |
-| REQ-FE-USER-002 | Edit Profile Form |
+| REQ-FE-AUTHZ-001 | User Model with Roles |
+| REQ-FE-AUTHZ-002 | Role-Based UI Rendering |
+| REQ-FE-USER-001 | User Profile Page (GET /api/identity/profile) |
+| REQ-FE-USER-002 | Edit Profile Form (PUT /api/identity/profile) |
 | REQ-FE-USER-003 | Avatar Upload |
 | REQ-FE-USER-004 | Change Password Form |
 | REQ-FE-USER-005 | User Preferences |

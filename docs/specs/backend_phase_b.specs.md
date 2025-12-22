@@ -38,12 +38,15 @@ This document defines Phase B backend requirements for the Event Management Plat
 
 | Requirement ID | Description | Status |
 |----------------|-------------|--------|
-| REQ-AUTH-001 to REQ-AUTH-003 | (From Phase A) | IN SCOPE |
-| REQ-AUTH-004 | Query String Token Support | IN SCOPE |
-| REQ-AUTH-005 | Refresh Token Flow (enhanced) | IN SCOPE |
-| REQ-USER-001 to REQ-USER-003 | (From Phase A) | IN SCOPE |
+| REQ-AUTH-001 to REQ-AUTH-004 | (From Phase A: JWT Auth, Token Generation, Authenticate, Refresh Token) | IN SCOPE |
+| REQ-AUTH-005 | Query String Token Support | IN SCOPE |
+| REQ-PWD-001 to REQ-PWD-002 | (From Phase A: Password Hashing, Validation) | IN SCOPE |
+| REQ-USER-001 | (From Phase A: User Registration) | IN SCOPE |
+| REQ-USER-002 | User Profile Retrieval (GET /api/identity/profile) | IN SCOPE |
+| REQ-USER-003 | User Profile Update (PUT /api/identity/profile) | IN SCOPE |
 | REQ-USER-004 | User Avatar Upload | IN SCOPE |
 | REQ-USER-005 | User Search | IN SCOPE |
+| REQ-AUTHZ-001 to REQ-AUTHZ-003 | (From Phase A: RBAC, Privileges, Protected Endpoints) | IN SCOPE |
 | REQ-INVITE-001 | User Invitation System | IN SCOPE |
 | REQ-INVITE-002 | Invitation Email Sending | IN SCOPE |
 | REQ-INVITE-003 | Invitation Acceptance | IN SCOPE |

@@ -39,12 +39,13 @@ This document defines Phase B frontend requirements for the Event Management Pla
 
 | Requirement ID | Description | Status |
 |----------------|-------------|--------|
-| REQ-FE-AUTH-001 to REQ-FE-AUTH-005 | (From Phase A) | IN SCOPE |
-| REQ-FE-AUTH-006 | Refresh Token Flow | IN SCOPE |
-| REQ-FE-AUTH-007 | Remember Me Checkbox | IN SCOPE |
-| REQ-FE-AUTH-008 | Forgot Password Flow | IN SCOPE |
-| REQ-FE-AUTH-009 | Password Reset Page | IN SCOPE |
-| REQ-FE-USER-001 to REQ-FE-USER-002 | (From Phase A) | IN SCOPE |
+| REQ-FE-AUTH-001 to REQ-FE-AUTH-011 | (From Phase A: Login, Register, Tokens, Guards, Interceptors) | IN SCOPE |
+| REQ-FE-AUTHZ-001 to REQ-FE-AUTHZ-002 | (From Phase A: User Model with Roles, Role-Based UI) | IN SCOPE |
+| REQ-FE-AUTH-009 | Remember Me Checkbox | IN SCOPE |
+| REQ-FE-AUTH-012 | Forgot Password Flow | IN SCOPE |
+| REQ-FE-AUTH-013 | Password Reset Page | IN SCOPE |
+| REQ-FE-USER-001 | User Profile Page (GET /api/identity/profile) | IN SCOPE |
+| REQ-FE-USER-002 | Edit Profile Form (PUT /api/identity/profile) | IN SCOPE |
 | REQ-FE-USER-003 | Avatar Upload | IN SCOPE |
 | REQ-FE-USER-004 | Change Password Form | IN SCOPE |
 | REQ-FE-USER-005 | User Preferences | IN SCOPE |

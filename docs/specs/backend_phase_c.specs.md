@@ -64,20 +64,20 @@ Phase C includes ALL requirements from the following modules:
 
 | Requirement ID | Description |
 |----------------|-------------|
-| REQ-AUTH-001 | JWT Bearer Token Authentication |
-| REQ-AUTH-002 | Token Generation and Management |
-| REQ-AUTH-003 | Authentication Endpoint |
-| REQ-AUTH-004 | Query String Token Support |
-| REQ-AUTH-005 | Refresh Token Flow |
+| REQ-AUTH-001 | JWT Bearer Token Authentication (HS256) |
+| REQ-AUTH-002 | Token Generation and Management (1 hour expiry, Base64 refresh tokens) |
+| REQ-AUTH-003 | Authentication Endpoint (POST /api/identity/authenticate) |
+| REQ-AUTH-004 | Token Refresh Endpoint (POST /api/identity/refresh-token) |
+| REQ-AUTH-005 | Query String Token Support |
 | REQ-AUTH-006 | Multi-Factor Authentication |
 | REQ-AUTH-007 | OAuth/Social Login Integration |
-| REQ-PWD-001 | Password Hashing (BCrypt) |
-| REQ-PWD-002 | Password Validation Rules |
+| REQ-PWD-001 | Password Hashing (PBKDF2-HMACSHA256, 10000 iterations, 128-bit salt) |
+| REQ-PWD-002 | Password Validation Rules (min 6 chars, confirmation matching) |
 | REQ-PWD-003 | Password History |
 | REQ-PWD-004 | Password Reset Flow |
-| REQ-USER-001 | User Registration |
-| REQ-USER-002 | User Profile Retrieval |
-| REQ-USER-003 | User Profile Update |
+| REQ-USER-001 | User Registration (POST /api/identity/register) |
+| REQ-USER-002 | User Profile Retrieval (GET /api/identity/profile) |
+| REQ-USER-003 | User Profile Update (PUT /api/identity/profile) |
 | REQ-USER-004 | User Avatar Upload |
 | REQ-USER-005 | User Search |
 | REQ-USER-006 | User Deactivation |
@@ -89,9 +89,10 @@ Phase C includes ALL requirements from the following modules:
 | REQ-SESSION-002 | Active Sessions List |
 | REQ-SESSION-003 | Revoke Session |
 | REQ-SESSION-004 | Session Timeout |
-| REQ-AUTHZ-001 | Role-Based Access Control |
-| REQ-AUTHZ-002 | Privilege-Based Authorization |
-| REQ-AUTHZ-003 | Dynamic Permission Management |
+| REQ-AUTHZ-001 | Role-Based Access Control (many-to-many User-Role) |
+| REQ-AUTHZ-002 | Privilege-Based Authorization (AccessRight: None, Read, Write, Create, Delete) |
+| REQ-AUTHZ-003 | Protected Resource Endpoints ([Authorize] attribute) |
+| REQ-AUTHZ-004 | Dynamic Permission Management |
 | REQ-AUDIT-001 | Security Audit Logging |
 | REQ-AUDIT-002 | Login History |
 | REQ-AUDIT-003 | Permission Change Audit |

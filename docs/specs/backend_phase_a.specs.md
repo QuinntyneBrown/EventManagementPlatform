@@ -39,24 +39,25 @@ This document defines the Minimum Viable Product (MVP) backend requirements for 
 
 | Requirement ID | Description | Status |
 |----------------|-------------|--------|
-| REQ-AUTH-001 | JWT Bearer Token Authentication | IN SCOPE |
-| REQ-AUTH-002 | Token Generation and Management | IN SCOPE |
-| REQ-AUTH-003 | Authentication Endpoint | IN SCOPE |
-| REQ-AUTH-005 | Refresh Token Flow | IN SCOPE |
-| REQ-PWD-001 | Password Hashing | IN SCOPE |
-| REQ-PWD-002 | Password Validation Rules | IN SCOPE |
-| REQ-USER-001 | User Registration | IN SCOPE |
-| REQ-USER-002 | User Profile Retrieval | IN SCOPE |
-| REQ-USER-003 | User Profile Update | IN SCOPE |
+| REQ-AUTH-001 | JWT Bearer Token Authentication (HS256) | IN SCOPE |
+| REQ-AUTH-002 | Token Generation and Management (1 hour expiry) | IN SCOPE |
+| REQ-AUTH-003 | Authentication Endpoint (POST /api/identity/authenticate) | IN SCOPE |
+| REQ-AUTH-004 | Token Refresh Endpoint (POST /api/identity/refresh-token) | IN SCOPE |
+| REQ-PWD-001 | Password Hashing (PBKDF2-HMACSHA256, 10000 iterations) | IN SCOPE |
+| REQ-PWD-002 | Password Validation Rules (min 6 chars) | IN SCOPE |
+| REQ-USER-001 | User Registration (POST /api/identity/register) | IN SCOPE |
 | REQ-AUTHZ-001 | Role-Based Access Control | IN SCOPE |
 | REQ-AUTHZ-002 | Privilege-Based Authorization | IN SCOPE |
+| REQ-AUTHZ-003 | Protected Resource Endpoints ([Authorize] attribute) | IN SCOPE |
 
 ### Out of Scope (Deferred)
 
 | Requirement ID | Description | Target Phase |
 |----------------|-------------|--------------|
-| REQ-AUTH-004 | Query String Token Support | Phase B |
+| REQ-AUTH-005 | Query String Token Support | Phase B |
 | REQ-AUTH-006 | Multi-Factor Authentication | Phase C |
+| REQ-USER-002 | User Profile Retrieval | Phase B |
+| REQ-USER-003 | User Profile Update | Phase B |
 | REQ-USER-004 | User Avatar Upload | Phase B |
 | REQ-USER-005 | User Search | Phase B |
 | REQ-INVITE-001 | User Invitation System | Phase B |
@@ -264,11 +265,9 @@ This document defines the Minimum Viable Product (MVP) backend requirements for 
 ### Identity
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /api/user/token | Authenticate user |
-| POST | /api/user/token/refresh | Refresh access token |
-| POST | /api/user/register | Register new user |
-| GET | /api/user/profile | Get current user profile |
-| PUT | /api/user/profile | Update current user profile |
+| POST | /api/identity/authenticate | Authenticate user (returns userId, username, accessToken, refreshToken, roles) |
+| POST | /api/identity/register | Register new user (username, password, confirmPassword) |
+| POST | /api/identity/refresh-token | Refresh access token (returns accessToken, refreshToken) |
 
 ### Events
 | Method | Endpoint | Description |

@@ -11,6 +11,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 
+/**
+ * Login Page Component
+ *
+ * Uses POST /api/identity/authenticate endpoint
+ * Request: { username: string, password: string }
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -36,7 +42,7 @@ export class Login {
   private readonly notificationService = inject(NotificationService);
 
   loginForm: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
@@ -50,9 +56,9 @@ export class Login {
     }
 
     this.isLoading = true;
-    const { email, password } = this.loginForm.value;
+    const { username, password } = this.loginForm.value;
 
-    this.authService.login({ email, password }).subscribe({
+    this.authService.login({ username, password }).subscribe({
       next: () => {
         this.notificationService.showSuccess('Login successful!');
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
@@ -69,11 +75,13 @@ export class Login {
     if (control?.hasError('required')) {
       return `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
     }
-    if (control?.hasError('email')) {
-      return 'Please enter a valid email address';
-    }
     if (control?.hasError('minlength')) {
-      return 'Password must be at least 6 characters';
+      const minLength = control.getError('minlength').requiredLength;
+      return `${field.charAt(0).toUpperCase() + field.slice(1)} must be at least ${minLength} characters`;
+    }
+    if (control?.hasError('maxlength')) {
+      const maxLength = control.getError('maxlength').requiredLength;
+      return `${field.charAt(0).toUpperCase() + field.slice(1)} must not exceed ${maxLength} characters`;
     }
     return '';
   }
