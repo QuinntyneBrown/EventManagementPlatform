@@ -8,7 +8,7 @@ import { AuthenticateResponse, RegisterResponse, RefreshTokenResponse } from '..
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  const apiBaseUrl = 'http://localhost:5000/api';
+  const apiBaseUrl = 'http://localhost:5000';
 
   beforeEach(() => {
     // Clear localStorage before each test
@@ -47,7 +47,7 @@ describe('AuthService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(credentials);
       req.flush(mockResponse);
@@ -73,7 +73,7 @@ describe('AuthService', () => {
         expect(storedUser.roles).toEqual(['Admin', 'Manager']);
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`);
       req.flush(mockResponse);
     });
 
@@ -94,7 +94,7 @@ describe('AuthService', () => {
         });
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`);
       req.flush(mockResponse);
     });
   });
@@ -115,7 +115,7 @@ describe('AuthService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/register`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/register`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(registerData);
       req.flush(mockResponse);
@@ -138,7 +138,7 @@ describe('AuthService', () => {
         expect(localStorage.getItem('eventmanagement:currentUser')).toBeNull();
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/register`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/register`);
       req.flush(mockResponse);
     });
   });
@@ -156,7 +156,7 @@ describe('AuthService', () => {
         expect(response).toEqual(mockResponse);
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/refresh-token`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/refresh-token`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ refreshToken: 'old-refresh-token' });
       req.flush(mockResponse);
@@ -176,7 +176,7 @@ describe('AuthService', () => {
         expect(localStorage.getItem('eventmanagement:refreshToken')).toBe('new-refresh-token');
       });
 
-      const req = httpMock.expectOne(`${apiBaseUrl}/identity/refresh-token`);
+      const req = httpMock.expectOne(`${apiBaseUrl}/api/identity/refresh-token`);
       req.flush(mockResponse);
     });
   });
@@ -246,7 +246,7 @@ describe('AuthService', () => {
       };
 
       service.login({ username: 'admin', password: 'pass' }).subscribe();
-      httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`).flush(mockResponse);
+      httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`).flush(mockResponse);
 
       expect(service.hasRole('Admin')).toBe(true);
       expect(service.hasRole('Manager')).toBe(true);
@@ -262,7 +262,7 @@ describe('AuthService', () => {
       };
 
       service.login({ username: 'user', password: 'pass' }).subscribe();
-      httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`).flush(mockResponse);
+      httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`).flush(mockResponse);
 
       expect(service.hasRole('Admin')).toBe(false);
     });
@@ -279,7 +279,7 @@ describe('AuthService', () => {
       };
 
       service.login({ username: 'manager', password: 'pass' }).subscribe();
-      httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`).flush(mockResponse);
+      httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`).flush(mockResponse);
 
       expect(service.hasAnyRole(['Admin', 'Manager'])).toBe(true);
     });
@@ -294,7 +294,7 @@ describe('AuthService', () => {
       };
 
       service.login({ username: 'staff', password: 'pass' }).subscribe();
-      httpMock.expectOne(`${apiBaseUrl}/identity/authenticate`).flush(mockResponse);
+      httpMock.expectOne(`${apiBaseUrl}/api/identity/authenticate`).flush(mockResponse);
 
       expect(service.hasAnyRole(['Admin', 'Manager'])).toBe(false);
     });

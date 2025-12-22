@@ -45,7 +45,7 @@ export class AuthService {
    * POST /api/identity/authenticate
    */
   login(credentials: LoginRequest): Observable<AuthenticateResponse> {
-    return this.http.post<AuthenticateResponse>(`${this.baseUrl}/identity/authenticate`, credentials).pipe(
+    return this.http.post<AuthenticateResponse>(`${this.baseUrl}/api/identity/authenticate`, credentials).pipe(
       tap(response => this.handleAuthenticateResponse(response))
     );
   }
@@ -56,7 +56,7 @@ export class AuthService {
    * Note: Does NOT auto-login after registration per identity spec
    */
   register(request: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>(`${this.baseUrl}/identity/register`, request);
+    return this.http.post<RegisterResponse>(`${this.baseUrl}/api/identity/register`, request);
   }
 
   /**
@@ -67,7 +67,7 @@ export class AuthService {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     const request: RefreshTokenRequest = { refreshToken: refreshToken || '' };
 
-    return this.http.post<RefreshTokenResponse>(`${this.baseUrl}/identity/refresh-token`, request).pipe(
+    return this.http.post<RefreshTokenResponse>(`${this.baseUrl}/api/identity/refresh-token`, request).pipe(
       tap(response => this.handleRefreshTokenResponse(response))
     );
   }
