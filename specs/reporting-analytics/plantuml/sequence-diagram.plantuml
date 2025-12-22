@@ -1,0 +1,622 @@
+@startuml Reporting & Analytics Sequence Diagrams
+
+title Reporting & Analytics - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Generate Report
+' ============================================
+
+newpage Generate Report Sequence
+
+actor Manager as manager
+participant "Angular App" as webapp
+participant "ReportsController" as controller
+participant "MediatR" as mediatr
+participant "GenerateReportCommandHandler" as handler
+participant "ReportService" as service
+participant "IEventManagementPlatformContext" as context
+database "Azure SQL" as db
+queue "Service Bus" as servicebus
+participant "Background Worker" as worker
+participant "Blob Storage" as blobstorage
+
+manager -> webapp : Select report,\nset date range
+activate webapp
+
+webapp -> webapp : Validate date range
+webapp -> controller : POST /api/reports/{reportId}/generate\n{startDate, endDate, outputFormat}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(GenerateReportCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> context : Reports.FindAsync(reportId)
+activate context
+context -> db : SELECT report
+db --> context : report data
+context --> handler : Report entity
+deactivate context
+
+alt Report Not Found
+    handler --> mediatr : throw NotFoundException
+    mediatr --> controller : NotFoundException
+    controller --> webapp : 404 Not Found
+    webapp --> manager : Show error message
+else Report Found
+    handler -> handler : Validate date range
+
+    alt Date Range Invalid
+        handler --> mediatr : throw ValidationException
+        mediatr --> controller : ValidationException
+        controller --> webapp : 400 Bad Request
+        webapp --> manager : Show validation errors
+    else Date Range Valid
+        handler -> handler : report.GenerateInstance(...)
+        handler -> handler : instance.MarkAsQueued()
+
+        handler -> context : ReportInstances.Add(instance)
+        activate context
+        handler -> context : SaveChangesAsync()
+        context -> db : INSERT report_instance
+        db --> context : success
+        context --> handler : saved
+        deactivate context
+
+        handler -> servicebus : Queue GenerateReportJob\n{instanceId, reportId}
+        activate servicebus
+        servicebus --> handler : job queued
+        deactivate servicebus
+
+        handler -> handler : Map to ReportInstanceDto
+        handler --> mediatr : ReportInstanceDto
+        deactivate handler
+
+        mediatr --> controller : ReportInstanceDto
+        deactivate mediatr
+
+        controller --> webapp : 202 Accepted\nReportInstanceDto
+        deactivate controller
+
+        webapp --> manager : Show generation started\nDisplay status
+    end
+end
+
+deactivate webapp
+
+' Background Processing
+servicebus -> worker : Dequeue GenerateReportJob
+activate worker
+
+worker -> context : GetReportInstanceAsync(instanceId)
+activate context
+context -> db : SELECT report_instance, report
+db --> context : instance and report data
+context --> worker : ReportInstance, Report
+deactivate context
+
+worker -> worker : instance.MarkAsGenerating()
+worker -> context : SaveChangesAsync()
+
+worker -> service : GenerateReportAsync(reportId, startDate, endDate, outputFormat)
+activate service
+
+service -> context : Query event data, customer data, etc.
+activate context
+context -> db : SELECT events, customers, invoices\nWHERE date BETWEEN startDate AND endDate
+db --> context : aggregated data
+context --> service : report data
+deactivate context
+
+service -> service : Build report content
+service -> service : Format as PDF/Excel
+
+alt PDF Export
+    service -> service : Generate PDF using iTextSharp
+else Excel Export
+    service -> service : Generate Excel using EPPlus
+end
+
+service -> blobstorage : Upload report file
+activate blobstorage
+blobstorage --> service : file URL
+deactivate blobstorage
+
+service --> worker : Report file URL, file size
+deactivate service
+
+worker -> worker : instance.MarkAsCompleted(fileUrl, fileSize)
+worker -> worker : instance.AddDomainEvent(ReportExportedToPDF/Excel)
+
+worker -> context : SaveChangesAsync()
+activate context
+context -> db : UPDATE report_instance
+db --> context : success
+context -> servicebus : Publish ReportExportedToPDF/Excel event
+context --> worker : saved
+deactivate context
+
+worker --> servicebus : job completed
+deactivate worker
+
+' ============================================
+' Sequence 2: Create Dashboard
+' ============================================
+
+newpage Create Dashboard Sequence
+
+actor Manager as manager2
+participant "Angular App" as webapp2
+participant "DashboardsController" as controller2
+participant "MediatR" as mediatr2
+participant "CreateDashboardCommandHandler" as handler2
+participant "IEventManagementPlatformContext" as context2
+database "Azure SQL" as db2
+
+manager2 -> webapp2 : Open dashboard builder\nEnter dashboard details
+activate webapp2
+
+webapp2 -> webapp2 : Validate form inputs
+webapp2 -> controller2 : POST /api/dashboards\n{name, description, isPublic}
+activate controller2
+
+controller2 -> mediatr2 : Send(CreateDashboardCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> handler2 : Create Dashboard entity
+handler2 -> handler2 : dashboard.SetOwnerId(currentUserId)
+handler2 -> handler2 : dashboard.AddDomainEvent(DashboardCreated)
+
+handler2 -> context2 : Dashboards.Add(dashboard)
+activate context2
+handler2 -> context2 : SaveChangesAsync()
+context2 -> db2 : INSERT dashboard
+db2 --> context2 : success
+context2 --> handler2 : saved
+deactivate context2
+
+handler2 -> handler2 : Map to DashboardDetailDto
+handler2 --> mediatr2 : DashboardDetailDto
+deactivate handler2
+
+mediatr2 --> controller2 : DashboardDetailDto
+deactivate mediatr2
+
+controller2 --> webapp2 : 201 Created\nDashboardDetailDto
+deactivate controller2
+
+webapp2 -> webapp2 : Navigate to dashboard builder
+webapp2 --> manager2 : Show empty dashboard\nReady to add widgets
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Add Widget to Dashboard
+' ============================================
+
+newpage Add Widget to Dashboard Sequence
+
+actor Manager as manager3
+participant "Angular App" as webapp3
+participant "DashboardsController" as controller3
+participant "MediatR" as mediatr3
+participant "AddWidgetCommandHandler" as handler3
+participant "IEventManagementPlatformContext" as context3
+database "Azure SQL" as db3
+
+manager3 -> webapp3 : Drag widget from library\nConfigure widget
+activate webapp3
+
+webapp3 -> webapp3 : Open widget configurator
+webapp3 -> webapp3 : Select widget type, data source
+webapp3 -> controller3 : POST /api/dashboards/{dashboardId}/widgets\n{widgetType, title, configuration, size}
+activate controller3
+
+controller3 -> mediatr3 : Send(AddWidgetCommand)
+activate mediatr3
+
+mediatr3 -> handler3 : Handle(command)
+activate handler3
+
+handler3 -> context3 : Dashboards.FindAsync(dashboardId)
+activate context3
+context3 -> db3 : SELECT dashboard
+db3 --> context3 : dashboard data
+context3 --> handler3 : Dashboard entity
+deactivate context3
+
+alt Dashboard Not Found
+    handler3 --> mediatr3 : throw NotFoundException
+    mediatr3 --> controller3 : NotFoundException
+    controller3 --> webapp3 : 404 Not Found
+    webapp3 --> manager3 : Show error message
+else Dashboard Found
+    handler3 -> handler3 : Validate user is owner or dashboard is editable
+
+    alt Not Authorized
+        handler3 --> mediatr3 : throw ForbiddenException
+        mediatr3 --> controller3 : ForbiddenException
+        controller3 --> webapp3 : 403 Forbidden
+        webapp3 --> manager3 : Show permission error
+    else Authorized
+        handler3 -> handler3 : dashboard.AddWidget(...)
+        handler3 -> handler3 : dashboard.AddDomainEvent(DashboardWidgetAdded)
+
+        handler3 -> context3 : SaveChangesAsync()
+        activate context3
+        context3 -> db3 : INSERT dashboard_widget
+        db3 --> context3 : success
+        context3 --> handler3 : saved
+        deactivate context3
+
+        handler3 -> handler3 : Map to DashboardWidgetDto
+        handler3 --> mediatr3 : DashboardWidgetDto
+        deactivate handler3
+
+        mediatr3 --> controller3 : DashboardWidgetDto
+        deactivate mediatr3
+
+        controller3 --> webapp3 : 201 Created\nDashboardWidgetDto
+        deactivate controller3
+
+        webapp3 -> webapp3 : Add widget to dashboard grid
+        webapp3 --> manager3 : Display new widget
+    end
+end
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: View Dashboard
+' ============================================
+
+newpage View Dashboard Sequence
+
+actor Staff as staff4
+participant "Angular App" as webapp4
+participant "DashboardsController" as controller4
+participant "MediatR" as mediatr4
+participant "GetDashboardByIdQueryHandler" as handler4
+participant "DashboardService" as dashservice4
+participant "IEventManagementPlatformContext" as context4
+database "Azure SQL" as db4
+participant "Cache" as cache4
+
+staff4 -> webapp4 : Navigate to dashboard
+activate webapp4
+
+webapp4 -> controller4 : GET /api/dashboards/{dashboardId}
+activate controller4
+
+controller4 -> mediatr4 : Send(GetDashboardByIdQuery)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(query)
+activate handler4
+
+handler4 -> context4 : Dashboards.FindAsync(dashboardId)\nInclude widgets
+activate context4
+context4 -> db4 : SELECT dashboard, widgets
+db4 --> context4 : dashboard with widgets
+context4 --> handler4 : Dashboard entity
+deactivate context4
+
+alt Dashboard Not Found
+    handler4 --> mediatr4 : throw NotFoundException
+    mediatr4 --> controller4 : NotFoundException
+    controller4 --> webapp4 : 404 Not Found
+    webapp4 --> staff4 : Show not found page
+else Dashboard Found
+    handler4 -> handler4 : dashboard.RecordView()
+    handler4 -> context4 : SaveChangesAsync()
+    activate context4
+    context4 -> db4 : UPDATE dashboard SET LastViewedAt
+    context4 --> handler4 : saved
+    deactivate context4
+
+    handler4 -> dashservice4 : GetDashboardDataAsync(dashboardId)
+    activate dashservice4
+
+    loop For each widget
+        dashservice4 -> cache4 : GetWidgetData(widgetId)
+        activate cache4
+
+        alt Cache Hit
+            cache4 --> dashservice4 : cached widget data
+        else Cache Miss
+            cache4 --> dashservice4 : null
+            deactivate cache4
+
+            dashservice4 -> context4 : Query widget data source
+            activate context4
+            context4 -> db4 : SELECT data based on widget config
+            db4 --> context4 : widget data
+            context4 --> dashservice4 : data
+            deactivate context4
+
+            dashservice4 -> cache4 : SetWidgetData(widgetId, data)
+            activate cache4
+            cache4 --> dashservice4 : cached
+            deactivate cache4
+        end
+    end
+
+    dashservice4 --> handler4 : DashboardData with all widgets
+    deactivate dashservice4
+
+    handler4 -> handler4 : Map to DashboardDetailDto
+    handler4 --> mediatr4 : DashboardDetailDto
+    deactivate handler4
+
+    mediatr4 --> controller4 : DashboardDetailDto
+    deactivate mediatr4
+
+    controller4 --> webapp4 : 200 OK\nDashboardDetailDto
+    deactivate controller4
+
+    webapp4 -> webapp4 : Render dashboard grid
+    webapp4 -> webapp4 : Initialize widgets with data
+    webapp4 -> webapp4 : Start auto-refresh if configured
+    webapp4 --> staff4 : Display interactive dashboard
+end
+
+deactivate webapp4
+
+' ============================================
+' Sequence 5: Calculate Statistics
+' ============================================
+
+newpage Calculate Statistics Sequence
+
+participant "Scheduled Job" as scheduler5
+participant "Background Worker" as worker5
+participant "StatisticsService" as statsservice5
+participant "IEventManagementPlatformContext" as context5
+database "Azure SQL" as db5
+participant "Cache" as cache5
+queue "Service Bus" as servicebus5
+
+scheduler5 -> worker5 : Trigger hourly statistics calculation
+activate worker5
+
+worker5 -> statsservice5 : CalculateEventStatisticsAsync(startDate, endDate)
+activate statsservice5
+
+statsservice5 -> context5 : Query event data
+activate context5
+context5 -> db5 : SELECT events\nWHERE date BETWEEN startDate AND endDate
+db5 --> context5 : event records
+context5 --> statsservice5 : event data
+deactivate context5
+
+statsservice5 -> statsservice5 : Calculate metrics:\n- Total events\n- Completed events\n- Cancelled events\n- Completion rate\n- Cancellation rate
+
+statsservice5 -> statsservice5 : Create StatisticsSnapshot entity
+statsservice5 -> statsservice5 : snapshot.AddDomainEvent(EventStatisticsCalculated)
+
+statsservice5 -> context5 : StatisticsSnapshots.Add(snapshot)
+activate context5
+statsservice5 -> context5 : SaveChangesAsync()
+context5 -> db5 : INSERT statistics_snapshot
+db5 --> context5 : success
+context5 -> servicebus5 : Publish EventStatisticsCalculated
+context5 --> statsservice5 : saved
+deactivate context5
+
+statsservice5 -> cache5 : SetCachedStatistics(snapshot)
+activate cache5
+cache5 --> statsservice5 : cached
+deactivate cache5
+
+statsservice5 --> worker5 : StatisticsSnapshot
+deactivate statsservice5
+
+worker5 -> statsservice5 : CalculateRevenueStatisticsAsync(startDate, endDate)
+activate statsservice5
+
+statsservice5 -> context5 : Query invoice and revenue data
+activate context5
+context5 -> db5 : SELECT invoices, payments\nWHERE date BETWEEN startDate AND endDate
+db5 --> context5 : financial records
+context5 --> statsservice5 : revenue data
+deactivate context5
+
+statsservice5 -> statsservice5 : Calculate metrics:\n- Total revenue\n- Average revenue per event\n- Top customers\n- Monthly breakdown
+
+statsservice5 -> statsservice5 : Create StatisticsSnapshot entity
+statsservice5 -> statsservice5 : snapshot.AddDomainEvent(RevenueStatisticsCalculated)
+
+statsservice5 -> context5 : StatisticsSnapshots.Add(snapshot)
+activate context5
+statsservice5 -> context5 : SaveChangesAsync()
+context5 -> db5 : INSERT statistics_snapshot
+db5 --> context5 : success
+context5 -> servicebus5 : Publish RevenueStatisticsCalculated
+context5 --> statsservice5 : saved
+deactivate context5
+
+statsservice5 -> cache5 : SetCachedStatistics(snapshot)
+activate cache5
+cache5 --> statsservice5 : cached
+deactivate cache5
+
+statsservice5 --> worker5 : StatisticsSnapshot
+deactivate statsservice5
+
+worker5 --> scheduler5 : Statistics calculation completed
+deactivate worker5
+
+' ============================================
+' Sequence 6: Schedule Report
+' ============================================
+
+newpage Schedule Report Sequence
+
+actor Manager as manager6
+participant "Angular App" as webapp6
+participant "ReportsController" as controller6
+participant "MediatR" as mediatr6
+participant "ScheduleReportCommandHandler" as handler6
+participant "IEventManagementPlatformContext" as context6
+database "Azure SQL" as db6
+queue "Service Bus" as servicebus6
+
+manager6 -> webapp6 : Open schedule dialog\nConfigure cron expression
+activate webapp6
+
+webapp6 -> webapp6 : Validate cron expression
+webapp6 -> controller6 : POST /api/reports/{reportId}/schedule\n{cronExpression, timezone}
+activate controller6
+
+controller6 -> mediatr6 : Send(ScheduleReportCommand)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(command)
+activate handler6
+
+handler6 -> context6 : Reports.FindAsync(reportId)
+activate context6
+context6 -> db6 : SELECT report
+db6 --> context6 : report data
+context6 --> handler6 : Report entity
+deactivate context6
+
+alt Report Not Found
+    handler6 --> mediatr6 : throw NotFoundException
+    mediatr6 --> controller6 : NotFoundException
+    controller6 --> webapp6 : 404 Not Found
+    webapp6 --> manager6 : Show error message
+else Report Found
+    handler6 -> handler6 : Create ScheduleConfig
+    handler6 -> handler6 : scheduleConfig.Validate()
+
+    alt Invalid Cron Expression
+        handler6 --> mediatr6 : throw ValidationException
+        mediatr6 --> controller6 : ValidationException
+        controller6 --> webapp6 : 400 Bad Request
+        webapp6 --> manager6 : Show validation error
+    else Valid Schedule
+        handler6 -> handler6 : report.Schedule(scheduleConfig)
+        handler6 -> handler6 : scheduleConfig.CalculateNextRun()
+        handler6 -> handler6 : report.AddDomainEvent(ReportScheduled)
+
+        handler6 -> context6 : SaveChangesAsync()
+        activate context6
+        context6 -> db6 : UPDATE report SET ScheduleConfig, NextRunDate
+        db6 --> context6 : success
+        context6 -> servicebus6 : Publish ReportScheduled event
+        context6 --> handler6 : saved
+        deactivate context6
+
+        handler6 --> mediatr6 : success
+        deactivate handler6
+
+        mediatr6 --> controller6 : success
+        deactivate mediatr6
+
+        controller6 --> webapp6 : 200 OK
+        deactivate controller6
+
+        webapp6 -> webapp6 : Update UI with schedule info
+        webapp6 --> manager6 : Show schedule confirmed\nDisplay next run time
+    end
+end
+
+deactivate webapp6
+
+' ============================================
+' Sequence 7: Export Report to PDF
+' ============================================
+
+newpage Export Report to PDF Sequence
+
+actor Staff as staff7
+participant "Angular App" as webapp7
+participant "ReportsController" as controller7
+participant "MediatR" as mediatr7
+participant "ExportReportToPdfCommandHandler" as handler7
+participant "ReportService" as service7
+participant "IEventManagementPlatformContext" as context7
+database "Azure SQL" as db7
+participant "Blob Storage" as blobstorage7
+
+staff7 -> webapp7 : Click Export to PDF
+activate webapp7
+
+webapp7 -> controller7 : POST /api/reports/instances/{instanceId}/export-pdf
+activate controller7
+
+controller7 -> mediatr7 : Send(ExportReportToPdfCommand)
+activate mediatr7
+
+mediatr7 -> handler7 : Handle(command)
+activate handler7
+
+handler7 -> context7 : ReportInstances.FindAsync(instanceId)
+activate context7
+context7 -> db7 : SELECT report_instance
+db7 --> context7 : instance data
+context7 --> handler7 : ReportInstance entity
+deactivate context7
+
+alt Instance Not Found
+    handler7 --> mediatr7 : throw NotFoundException
+    mediatr7 --> controller7 : NotFoundException
+    controller7 --> webapp7 : 404 Not Found
+    webapp7 --> staff7 : Show error message
+else Instance Found
+    handler7 -> service7 : ExportToPdfAsync(instanceId)
+    activate service7
+
+    service7 -> context7 : Get report data
+    activate context7
+    context7 -> db7 : SELECT report data
+    db7 --> context7 : report content
+    context7 --> service7 : data
+    deactivate context7
+
+    service7 -> service7 : Generate PDF using iTextSharp
+    service7 -> service7 : Add headers, charts, tables
+    service7 -> service7 : Format content
+
+    service7 -> blobstorage7 : Upload PDF file
+    activate blobstorage7
+    blobstorage7 --> service7 : file URL, file size
+    deactivate blobstorage7
+
+    service7 --> handler7 : file URL, file size
+    deactivate service7
+
+    handler7 -> handler7 : instance.MarkAsExported()
+    handler7 -> handler7 : instance.AddDomainEvent(ReportExportedToPDF)
+
+    handler7 -> context7 : SaveChangesAsync()
+    activate context7
+    context7 -> db7 : UPDATE report_instance
+    db7 --> context7 : success
+    context7 --> handler7 : saved
+    deactivate context7
+
+    handler7 -> handler7 : Create file download response
+    handler7 --> mediatr7 : FileResult
+    deactivate handler7
+
+    mediatr7 --> controller7 : FileResult
+    deactivate mediatr7
+
+    controller7 --> webapp7 : 200 OK\nPDF file stream
+    deactivate controller7
+
+    webapp7 -> webapp7 : Trigger file download
+    webapp7 --> staff7 : PDF downloaded
+end
+
+deactivate webapp7
+
+@enduml

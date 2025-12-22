@@ -1,0 +1,236 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="5.0" version="21.0.0" etag="venue-management-use-case" type="device">
+  <diagram name="Venue Management Use Cases" id="venue-use-case-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Venue Management System" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="50" width="700" height="700" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Venue Management -->
+        <mxCell id="uc-add-venue" value="Add Venue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="50" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-venue" value="Update Venue Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="50" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-venue" value="View Venue Directory" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="50" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-delete-venue" value="Remove Venue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="130" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-activate-venue" value="Activate/Deactivate Venue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="130" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Contact Management -->
+        <mxCell id="uc-manage-contacts" value="Manage Venue Contacts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="220" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-add-contact" value="Add Contact" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="220" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-contact" value="Update Contact" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="220" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Venue Details -->
+        <mxCell id="uc-update-address" value="Update Address" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="310" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-capacity" value="Update Capacity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="310" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-amenities" value="Update Amenities" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="310" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-upload-photos" value="Upload Venue Photos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="390" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-parking" value="Update Parking Info" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="390" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - History & Feedback -->
+        <mxCell id="uc-view-history" value="View Venue History" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="480" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-rate-venue" value="Rate Venue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="480" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-submit-feedback" value="Submit Feedback" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="480" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Issue Management -->
+        <mxCell id="uc-report-issue" value="Report Issue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="system-boundary">
+          <mxGeometry x="150" y="570" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-track-issues" value="Track Issues" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="system-boundary">
+          <mxGeometry x="300" y="570" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Status Management -->
+        <mxCell id="uc-blacklist-venue" value="Blacklist Venue" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="570" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-search-venues" value="Search Venues" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="450" y="130" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-venue-admin" value="Venue Administrator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-venue-manager" value="Venue Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="100" y="250" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-event-planner" value="Event Planner" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="100" y="450" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-coordinator" value="Venue Coordinator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="100" y="600" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="External System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1030" y="350" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships - Venue Admin -->
+        <mxCell id="rel-admin-add" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-admin" target="uc-add-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-admin-update" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-admin" target="uc-update-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-admin-delete" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-admin" target="uc-delete-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-admin-activate" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-admin" target="uc-activate-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-admin-blacklist" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-admin" target="uc-blacklist-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships - Venue Manager -->
+        <mxCell id="rel-manager-manage" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-manager" target="uc-manage-contacts">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-manager-add-contact" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-manager" target="uc-add-contact">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-manager-update-details" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-manager" target="uc-update-address">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-manager-capacity" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-venue-manager" target="uc-update-capacity">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships - Event Planner -->
+        <mxCell id="rel-planner-view" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-event-planner" target="uc-view-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-planner-search" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-event-planner" target="uc-search-venues">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-planner-history" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-event-planner" target="uc-view-history">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-planner-rate" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-event-planner" target="uc-rate-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-planner-feedback" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-event-planner" target="uc-submit-feedback">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships - Coordinator -->
+        <mxCell id="rel-coord-upload" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-coordinator" target="uc-upload-photos">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-coord-amenities" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-coordinator" target="uc-update-amenities">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-coord-parking" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-coordinator" target="uc-update-parking">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-coord-report" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-coordinator" target="uc-report-issue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rel-coord-track" value="" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-coordinator" target="uc-track-issues">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-validate" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;html=1;dashed=1;dashPattern=1 2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="system-boundary" source="uc-add-venue" target="uc-update-venue">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="Legend" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="50" width="200" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-venue" value="Venue Management" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="10" y="30" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-contact" value="Contacts" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="100" y="30" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-details" value="Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="10" y="70" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-history" value="History" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="100" y="70" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-issues" value="Issues" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="10" y="110" width="80" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-status" value="Status" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;" vertex="1" parent="legend-box">
+          <mxGeometry x="100" y="110" width="80" height="30" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

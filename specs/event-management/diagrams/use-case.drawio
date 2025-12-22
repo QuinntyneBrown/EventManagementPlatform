@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="event-management-use-case" name="Event Management Use Cases">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Event Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=140;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="200" y="40" width="700" height="680" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-customer" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="180" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-staff" value="Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="60" y="360" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-manager" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="60" y="540" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="320" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Event Lifecycle -->
+        <mxCell id="uc-create-event" value="Create Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-events" value="View Events" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-event" value="Update Event&#xa;Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-cancel-event" value="Cancel Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-confirm-event" value="Confirm Event&#xa;Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Status Management -->
+        <mxCell id="uc-submit-approval" value="Submit for&#xa;Approval" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="480" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-approve-event" value="Approve Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="200" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-reject-event" value="Reject Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="280" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-reinstate-event" value="Reinstate Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="360" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-complete-event" value="Complete Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="480" y="440" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-archive-event" value="Archive Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="520" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Notes -->
+        <mxCell id="uc-add-note" value="Add Event Note" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="680" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-edit-note" value="Edit Event Note" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="680" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-delete-note" value="Delete Event Note" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="680" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-add-comment" value="Add Customer&#xa;Comment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="680" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- System Use Cases -->
+        <mxCell id="uc-send-notifications" value="Send Event&#xa;Notifications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="680" y="500" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-validate-booking" value="Validate Booking&#xa;Constraints" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="680" y="580" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-publish-events" value="Publish Domain&#xa;Events" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="680" y="660" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Customer -->
+        <mxCell id="assoc-1" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-create-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-view-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-update-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-cancel-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-confirm-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-6" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-add-comment" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff -->
+        <mxCell id="assoc-7" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-submit-approval" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-9" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-complete-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-add-note" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-11" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-edit-note" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Manager -->
+        <mxCell id="assoc-12" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-approve-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-reject-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-reinstate-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-15" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-archive-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-16" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-delete-note" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-17" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-send-notifications" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-validate-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-19" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-create-event" target="uc-validate-booking" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-2" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-cancel-event" target="uc-send-notifications" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-2" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-3" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-approve-event" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-3-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-3" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-reinstate-event" target="uc-cancel-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

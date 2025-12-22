@@ -1,0 +1,427 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T10:00:00.000Z" agent="5.0" version="22.1.0" etag="c4-diagram">
+  <diagram name="C4 Context" id="c4-context">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="C4 Context Diagram: Shipper &amp; Logistics Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="800" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="system-shipper" value="&lt;b&gt;Shipper &amp; Logistics&lt;br&gt;Management System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages shipper lists,&lt;br&gt;shipments, deliveries,&lt;br&gt;and returns for events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=14;verticalAlign=top;align=center;" vertex="1" parent="1">
+          <mxGeometry x="600" y="400" width="400" height="200" as="geometry"/>
+        </mxCell>
+
+        <!-- People -->
+        <mxCell id="person-event-manager" value="&lt;b&gt;Event Manager&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Creates and manages&lt;br&gt;shipper lists for events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="120" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-logistics" value="&lt;b&gt;Logistics Coordinator&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Coordinates shipments&lt;br&gt;and assigns drivers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="320" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-warehouse" value="&lt;b&gt;Warehouse Personnel&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Packs and loads items&lt;br&gt;for shipment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="520" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-driver" value="&lt;b&gt;Driver&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Delivers shipments&lt;br&gt;and updates status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="180" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="person-venue" value="&lt;b&gt;Venue Staff&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Receives deliveries&lt;br&gt;and signs for items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="380" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-inventory" value="&lt;b&gt;Inventory Management&lt;br&gt;System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages event&lt;br&gt;inventory items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="720" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-event" value="&lt;b&gt;Event Management&lt;br&gt;System&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages event&lt;br&gt;details and schedules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="920" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-notification" value="&lt;b&gt;Notification Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Sends email and SMS&lt;br&gt;notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="580" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides route optimization,&lt;br&gt;predictions, and analytics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="780" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-azure-maps" value="&lt;b&gt;Azure Maps&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides mapping and&lt;br&gt;geolocation services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="980" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-em-1" value="Creates shipper lists&lt;br&gt;and manages items&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="person-event-manager" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-lc-1" value="Manages shipments&lt;br&gt;and assigns drivers&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="person-logistics" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-wh-1" value="Updates packing and&lt;br&gt;loading status&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="person-warehouse" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-dr-1" value="Updates shipment status&lt;br&gt;and delivery info&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="person-driver" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-vs-1" value="Signs for deliveries&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="person-venue" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-inv-1" value="Reads inventory&lt;br&gt;item data&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="ext-inventory" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-evt-1" value="Reads event&lt;br&gt;information&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="ext-event" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-notif-1" value="Sends notifications&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="ext-notification" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-ai-1" value="Gets route optimization,&lt;br&gt;predictions, analytics&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="ext-azure-ai" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-maps-1" value="Gets geolocation and&lt;br&gt;mapping data&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;edgeStyle=orthogonalEdgeStyle;align=center;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="ext-azure-maps" target="system-shipper">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="400" as="sourcePoint"/>
+            <mxPoint x="600" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container" id="c4-container">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-container" value="C4 Container Diagram: Shipper &amp; Logistics Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="800" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="cont-users" value="&lt;b&gt;System Users&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Event Managers, Logistics,&lt;br&gt;Warehouse, Drivers, Venue Staff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="700" y="120" width="200" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="cont-web-app" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Angular 18+]&lt;br&gt;&lt;br&gt;Provides UI for managing&lt;br&gt;shipper lists, shipments,&lt;br&gt;deliveries, and returns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="340" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-mobile-app" value="&lt;b&gt;Mobile Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[PWA]&lt;br&gt;&lt;br&gt;Mobile interface for&lt;br&gt;drivers and field staff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="340" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-api" value="&lt;b&gt;API Application&lt;/b&gt;&lt;br&gt;&lt;br&gt;[.NET 8 Web API]&lt;br&gt;&lt;br&gt;Provides REST APIs,&lt;br&gt;business logic, and&lt;br&gt;domain services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="560" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-signalr" value="&lt;b&gt;SignalR Hub&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure SignalR]&lt;br&gt;&lt;br&gt;Provides real-time&lt;br&gt;shipment tracking&lt;br&gt;updates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="560" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-database" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure SQL Database]&lt;br&gt;&lt;br&gt;Stores shipper lists,&lt;br&gt;shipments, deliveries,&lt;br&gt;and return data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="400" y="780" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-eventstore" value="&lt;b&gt;Event Store&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Cosmos DB]&lt;br&gt;&lt;br&gt;Stores domain events&lt;br&gt;for event sourcing&lt;br&gt;and audit trail" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="780" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-blob" value="&lt;b&gt;Blob Storage&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Blob Storage]&lt;br&gt;&lt;br&gt;Stores signatures,&lt;br&gt;damage photos,&lt;br&gt;and exports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="960" y="780" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-servicebus" value="&lt;b&gt;Message Broker&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Service Bus]&lt;br&gt;&lt;br&gt;Handles async event&lt;br&gt;publishing and&lt;br&gt;subscriptions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="780" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-cache" value="&lt;b&gt;Cache&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Azure Redis Cache]&lt;br&gt;&lt;br&gt;Caches frequently&lt;br&gt;accessed data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0D47A1;fontColor=#ffffff;fontSize=12;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1000" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="cont-ext-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="560" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-ext-maps" value="&lt;b&gt;Azure Maps&lt;/b&gt;&lt;br&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="680" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-ext-notif" value="&lt;b&gt;Notification Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="800" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="cont-rel-1" value="Uses&lt;br&gt;[HTTPS]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-users" target="cont-web-app">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-2" value="Uses&lt;br&gt;[HTTPS]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-users" target="cont-mobile-app">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-3" value="Makes API calls&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-web-app" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-4" value="Makes API calls&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-mobile-app" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-5" value="Connects to&lt;br&gt;[WebSocket]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="cont-mobile-app" target="cont-signalr">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-6" value="Reads/Writes&lt;br&gt;[SQL/TDS]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-api" target="cont-database">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-7" value="Publishes events&lt;br&gt;[HTTPS]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-api" target="cont-eventstore">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-8" value="Stores files&lt;br&gt;[HTTPS]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-api" target="cont-blob">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-9" value="Publishes messages&lt;br&gt;[AMQP]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-api" target="cont-servicebus">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-10" value="Reads/Writes&lt;br&gt;[Redis Protocol]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="cont-api" target="cont-cache">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-11" value="Uses&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-ext-azure-ai" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-12" value="Uses&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-ext-maps" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-13" value="Uses&lt;br&gt;[HTTPS/REST]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cont-ext-notif" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cont-rel-14" value="Broadcasts updates&lt;br&gt;[SignalR Protocol]" style="endArrow=block;endFill=1;html=1;align=center;verticalAlign=bottom;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;dashed=1;" edge="1" parent="1" source="cont-signalr" target="cont-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Component" id="c4-component">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title-component" value="C4 Component Diagram: API Application" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="800" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- API Container Boundary -->
+        <mxCell id="api-boundary" value="API Application [.NET 8 Web API]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;verticalAlign=top;fontSize=14;fontStyle=1;align=center;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="140" width="1200" height="1200" as="geometry"/>
+        </mxCell>
+
+        <!-- Controllers -->
+        <mxCell id="comp-shipper-ctrl" value="&lt;b&gt;Shipper List Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: API Controller]&lt;br&gt;&lt;br&gt;Handles shipper list&lt;br&gt;HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="260" y="200" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-shipment-ctrl" value="&lt;b&gt;Shipment Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: API Controller]&lt;br&gt;&lt;br&gt;Handles shipment&lt;br&gt;HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="500" y="200" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-delivery-ctrl" value="&lt;b&gt;Delivery Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: API Controller]&lt;br&gt;&lt;br&gt;Handles delivery&lt;br&gt;HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="200" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-return-ctrl" value="&lt;b&gt;Return Controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: API Controller]&lt;br&gt;&lt;br&gt;Handles return item&lt;br&gt;HTTP requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="200" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Command Handlers -->
+        <mxCell id="comp-cmd-handler" value="&lt;b&gt;Command Handlers&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR]&lt;br&gt;&lt;br&gt;Processes commands&lt;br&gt;and business logic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="260" y="380" width="440" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Query Handlers -->
+        <mxCell id="comp-qry-handler" value="&lt;b&gt;Query Handlers&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: MediatR]&lt;br&gt;&lt;br&gt;Processes queries&lt;br&gt;and reads data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="380" width="440" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Domain Services -->
+        <mxCell id="comp-domain-svc" value="&lt;b&gt;Domain Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Services]&lt;br&gt;&lt;br&gt;Route optimization,&lt;br&gt;tracking, notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="260" y="560" width="440" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Event Publisher -->
+        <mxCell id="comp-event-pub" value="&lt;b&gt;Event Publisher&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Publishes domain&lt;br&gt;events to Service Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="560" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- SignalR Hub -->
+        <mxCell id="comp-signalr-hub" value="&lt;b&gt;Shipment Tracking Hub&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: SignalR Hub]&lt;br&gt;&lt;br&gt;Real-time shipment&lt;br&gt;updates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="560" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Repositories -->
+        <mxCell id="comp-repositories" value="&lt;b&gt;Repositories&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Data Access]&lt;br&gt;&lt;br&gt;ShipperList, Shipment,&lt;br&gt;Delivery, Return repos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="260" y="740" width="440" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Event Store Repository -->
+        <mxCell id="comp-eventstore-repo" value="&lt;b&gt;Event Store Repository&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Data Access]&lt;br&gt;&lt;br&gt;Stores domain events&lt;br&gt;to Cosmos DB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="740" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Blob Storage Service -->
+        <mxCell id="comp-blob-svc" value="&lt;b&gt;Blob Storage Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Manages file uploads&lt;br&gt;and downloads" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="740" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Azure Services -->
+        <mxCell id="comp-azure-ai-svc" value="&lt;b&gt;Azure AI Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Integrates with Azure&lt;br&gt;OpenAI and ML" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="260" y="920" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-maps-svc" value="&lt;b&gt;Azure Maps Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Geolocation and&lt;br&gt;routing services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="500" y="920" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-notif-svc" value="&lt;b&gt;Notification Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Sends emails and SMS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="740" y="920" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Background Jobs -->
+        <mxCell id="comp-bg-jobs" value="&lt;b&gt;Background Jobs&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Hangfire]&lt;br&gt;&lt;br&gt;Tracking updates,&lt;br&gt;reminders, cleanups" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="980" y="920" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- DbContext -->
+        <mxCell id="comp-dbcontext" value="&lt;b&gt;DbContext&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: EF Core]&lt;br&gt;&lt;br&gt;Entity Framework&lt;br&gt;database context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1100" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-cache-svc" value="&lt;b&gt;Cache Service&lt;/b&gt;&lt;br&gt;&lt;br&gt;[Component: Service]&lt;br&gt;&lt;br&gt;Redis cache&lt;br&gt;management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85C1E9;strokeColor=#1976D2;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1100" width="200" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- External Dependencies (outside boundary) -->
+        <mxCell id="ext-comp-db" value="&lt;b&gt;Azure SQL Database&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1120" width="100" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-comp-cosmos" value="&lt;b&gt;Azure Cosmos DB&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="760" width="100" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-comp-blob" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="760" width="100" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-comp-servicebus" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="580" width="100" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Component Relationships -->
+        <mxCell id="comp-rel-1" value="Uses" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-shipper-ctrl" target="comp-cmd-handler">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-2" value="Uses" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-shipment-ctrl" target="comp-qry-handler">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-3" value="Uses" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-cmd-handler" target="comp-domain-svc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-4" value="Uses" style="endArrow=block;endFill=1;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-cmd-handler" target="comp-repositories">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-5" value="Publishes" style="endArrow=block;endFill=1;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-cmd-handler" target="comp-event-pub">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-6" value="Reads" style="endArrow=block;endFill=1;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;dashed=1;" edge="1" parent="1" source="comp-qry-handler" target="comp-repositories">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-7" value="Uses" style="endArrow=block;endFill=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-repositories" target="comp-dbcontext">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-8" value="Stores" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-dbcontext" target="ext-comp-db">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-9" value="Stores" style="endArrow=block;endFill=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-eventstore-repo" target="ext-comp-cosmos">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-10" value="Stores" style="endArrow=block;endFill=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-blob-svc" target="ext-comp-blob">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-rel-11" value="Publishes" style="endArrow=block;endFill=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=1;" edge="1" parent="1" source="comp-event-pub" target="ext-comp-servicebus">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

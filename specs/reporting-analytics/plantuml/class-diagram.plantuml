@@ -1,0 +1,635 @@
+@startuml Reporting & Analytics Class Diagram
+
+title Reporting & Analytics - Domain Model Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+
+package "EventManagementPlatform.Core.Model.ReportingAggregate" {
+
+    class Report <<AggregateRoot>> {
+        + ReportId : Guid
+        + ReportName : string
+        + ReportType : ReportType
+        + Description : string?
+        + Parameters : string?
+        + ScheduleConfig : ScheduleConfig?
+        + IsScheduled : bool
+        + CreatedBy : Guid
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + LastGeneratedAt : DateTime?
+        --
+        + Report(reportName: string, reportType: ReportType, description: string?, createdBy: Guid)
+        + UpdateDetails(reportName: string, description: string?, parameters: string?) : void
+        + Schedule(scheduleConfig: ScheduleConfig) : void
+        + RemoveSchedule() : void
+        + RecordGeneration(generatedAt: DateTime) : void
+        + GenerateInstance(startDate: DateTime, endDate: DateTime, outputFormat: OutputFormat, generatedBy: Guid?) : ReportInstance
+    }
+
+    class ReportInstance <<Entity>> {
+        + ReportInstanceId : Guid
+        + ReportId : Guid
+        + GeneratedAt : DateTime
+        + GeneratedBy : Guid?
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + Status : ReportStatus
+        + OutputFormat : OutputFormat
+        + FileUrl : string?
+        + FileSize : long?
+        + ErrorMessage : string?
+        --
+        + ReportInstance(reportId: Guid, startDate: DateTime, endDate: DateTime, outputFormat: OutputFormat, generatedBy: Guid?)
+        + MarkAsGenerating() : void
+        + MarkAsCompleted(fileUrl: string, fileSize: long) : void
+        + MarkAsFailed(errorMessage: string) : void
+        + MarkAsExported() : void
+        + MarkAsEmailed() : void
+    }
+
+    class ScheduleConfig <<ValueObject>> {
+        + CronExpression : string
+        + Timezone : string
+        + IsEnabled : bool
+        + NextRunDate : DateTime?
+        --
+        + ScheduleConfig(cronExpression: string, timezone: string)
+        + Validate() : bool
+        + CalculateNextRun() : DateTime
+    }
+
+    enum ReportType <<Enumeration>> {
+        DailySummary = 0
+        WeeklySummary = 1
+        MonthlySummary = 2
+        YearlySummary = 3
+        CustomReport = 4
+        EventStatistics = 5
+        RevenueStatistics = 6
+        StaffStatistics = 7
+        EquipmentUtilization = 8
+        CustomerStatistics = 9
+        VenueStatistics = 10
+    }
+
+    enum ReportStatus <<Enumeration>> {
+        Queued = 0
+        Generating = 1
+        Completed = 2
+        Failed = 3
+        Exported = 4
+        Emailed = 5
+    }
+
+    enum OutputFormat <<Enumeration>> {
+        PDF = 0
+        Excel = 1
+        CSV = 2
+        JSON = 3
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.DashboardAggregate" {
+
+    class Dashboard <<AggregateRoot>> {
+        + DashboardId : Guid
+        + Name : string
+        + Description : string?
+        + Layout : string
+        + IsDefault : bool
+        + OwnerId : Guid
+        + IsPublic : bool
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + LastViewedAt : DateTime?
+        --
+        + Dashboard(name: string, ownerId: Guid, isPublic: bool)
+        + UpdateDetails(name: string, description: string?) : void
+        + AddWidget(widgetType: WidgetType, title: string, configuration: string, position: int, size: WidgetSize) : DashboardWidget
+        + RemoveWidget(widgetId: Guid) : void
+        + UpdateLayout(layout: string) : void
+        + RecordView() : void
+        + SetAsDefault() : void
+    }
+
+    class DashboardWidget <<Entity>> {
+        + WidgetId : Guid
+        + DashboardId : Guid
+        + WidgetType : WidgetType
+        + Title : string
+        + Configuration : string
+        + Position : int
+        + Size : WidgetSize
+        + DataSource : string?
+        + RefreshInterval : int?
+        --
+        + DashboardWidget(dashboardId: Guid, widgetType: WidgetType, title: string, configuration: string, position: int, size: WidgetSize)
+        + UpdateConfiguration(configuration: string) : void
+        + UpdatePosition(position: int) : void
+        + UpdateSize(size: WidgetSize) : void
+    }
+
+    enum WidgetType <<Enumeration>> {
+        LineChart = 0
+        BarChart = 1
+        PieChart = 2
+        StatCard = 3
+        Table = 4
+        Gauge = 5
+        Heatmap = 6
+        Timeline = 7
+    }
+
+    enum WidgetSize <<Enumeration>> {
+        Small = 0
+        Medium = 1
+        Large = 2
+        Wide = 3
+        ExtraLarge = 4
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.StatisticsAggregate" {
+
+    class StatisticsSnapshot <<AggregateRoot>> {
+        + SnapshotId : Guid
+        + SnapshotType : StatisticsType
+        + SnapshotDate : DateTime
+        + PeriodStart : DateTime
+        + PeriodEnd : DateTime
+        + Data : string
+        + CalculatedAt : DateTime
+        --
+        + StatisticsSnapshot(snapshotType: StatisticsType, snapshotDate: DateTime, periodStart: DateTime, periodEnd: DateTime, data: string)
+        + UpdateData(data: string) : void
+    }
+
+    enum StatisticsType <<Enumeration>> {
+        EventStatistics = 0
+        RevenueStatistics = 1
+        StaffStatistics = 2
+        EquipmentUtilization = 3
+        CustomerStatistics = 4
+        VenueStatistics = 5
+    }
+
+}
+
+package "EventManagementPlatform.Core.Model.ReportingAggregate.Events" {
+
+    abstract class ReportingDomainEvent <<DomainEvent>> {
+        + OccurredAt : DateTime
+        + UserId : Guid?
+    }
+
+    class DailySummaryGenerated {
+        + ReportInstanceId : Guid
+        + ReportDate : DateTime
+        + TotalEvents : int
+    }
+
+    class WeeklySummaryGenerated {
+        + ReportInstanceId : Guid
+        + WeekStart : DateTime
+        + WeekEnd : DateTime
+        + TotalEvents : int
+    }
+
+    class MonthlySummaryGenerated {
+        + ReportInstanceId : Guid
+        + Month : int
+        + Year : int
+        + TotalEvents : int
+    }
+
+    class YearlySummaryGenerated {
+        + ReportInstanceId : Guid
+        + Year : int
+        + TotalEvents : int
+    }
+
+    class CustomReportGenerated {
+        + ReportInstanceId : Guid
+        + ReportName : string
+        + Parameters : string
+    }
+
+    class ReportScheduled {
+        + ReportId : Guid
+        + ScheduleConfig : ScheduleConfig
+        + NextRunDate : DateTime
+    }
+
+    class ReportExportedToPDF {
+        + ReportInstanceId : Guid
+        + FileUrl : string
+        + FileSize : long
+    }
+
+    class ReportExportedToExcel {
+        + ReportInstanceId : Guid
+        + FileUrl : string
+        + FileSize : long
+    }
+
+    class ReportEmailedToRecipient {
+        + ReportInstanceId : Guid
+        + RecipientEmail : string
+        + SentAt : DateTime
+    }
+
+    class EventStatisticsCalculated {
+        + SnapshotId : Guid
+        + TotalEvents : int
+        + CompletedEvents : int
+        + CancelledEvents : int
+    }
+
+    class RevenueStatisticsCalculated {
+        + SnapshotId : Guid
+        + TotalRevenue : decimal
+        + AverageRevenue : decimal
+        + TopCustomers : string
+    }
+
+    class StaffStatisticsCalculated {
+        + SnapshotId : Guid
+        + TotalStaff : int
+        + ActiveAssignments : int
+        + Utilization : decimal
+    }
+
+    class EquipmentUtilizationCalculated {
+        + SnapshotId : Guid
+        + TotalEquipment : int
+        + UtilizationRate : decimal
+        + TopEquipment : string
+    }
+
+    class CustomerStatisticsCalculated {
+        + SnapshotId : Guid
+        + TotalCustomers : int
+        + ActiveCustomers : int
+        + Retention : decimal
+    }
+
+    class VenueStatisticsCalculated {
+        + SnapshotId : Guid
+        + TotalVenues : int
+        + BookingRate : decimal
+        + TopVenues : string
+    }
+
+    class DashboardViewed {
+        + DashboardId : Guid
+        + UserId : Guid
+        + ViewedAt : DateTime
+    }
+
+    class DashboardRefreshed {
+        + DashboardId : Guid
+        + UserId : Guid
+        + RefreshedAt : DateTime
+    }
+
+    class DashboardWidgetAdded {
+        + DashboardId : Guid
+        + WidgetId : Guid
+        + WidgetType : WidgetType
+    }
+
+    class DashboardWidgetRemoved {
+        + DashboardId : Guid
+        + WidgetId : Guid
+    }
+
+    class DashboardLayoutSaved {
+        + DashboardId : Guid
+        + LayoutConfig : string
+        + SavedBy : Guid
+    }
+
+}
+
+package "EventManagementPlatform.Core" {
+
+    interface IEventManagementPlatformContext <<Interface>> {
+        + Reports : DbSet<Report>
+        + ReportInstances : DbSet<ReportInstance>
+        + Dashboards : DbSet<Dashboard>
+        + DashboardWidgets : DbSet<DashboardWidget>
+        + StatisticsSnapshots : DbSet<StatisticsSnapshot>
+        + SaveChangesAsync(cancellationToken: CancellationToken) : Task<int>
+    }
+
+}
+
+package "EventManagementPlatform.Core.Services" {
+
+    class ReportService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _blobStorage : IBlobStorageService
+        --
+        + ReportService(context: IEventManagementPlatformContext, blobStorage: IBlobStorageService)
+        + GenerateReportAsync(reportId: Guid, startDate: DateTime, endDate: DateTime, outputFormat: OutputFormat) : Task<ReportInstance>
+        + ExportToPdfAsync(instanceId: Guid) : Task<string>
+        + ExportToExcelAsync(instanceId: Guid) : Task<string>
+        + EmailReportAsync(instanceId: Guid, recipients: string[]) : Task
+    }
+
+    class StatisticsService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        - _cache : ICacheService
+        --
+        + StatisticsService(context: IEventManagementPlatformContext, cache: ICacheService)
+        + CalculateEventStatisticsAsync(startDate: DateTime, endDate: DateTime) : Task<StatisticsSnapshot>
+        + CalculateRevenueStatisticsAsync(startDate: DateTime, endDate: DateTime) : Task<StatisticsSnapshot>
+        + CalculateStaffStatisticsAsync(startDate: DateTime, endDate: DateTime) : Task<StatisticsSnapshot>
+        + GetCachedStatisticsAsync(snapshotType: StatisticsType, date: DateTime) : Task<StatisticsSnapshot>
+    }
+
+    class DashboardService <<Service>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + DashboardService(context: IEventManagementPlatformContext)
+        + GetDashboardDataAsync(dashboardId: Guid) : Task<DashboardData>
+        + RefreshWidgetDataAsync(widgetId: Guid) : Task<object>
+        + ValidateLayoutAsync(layout: string) : Task<bool>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Reports" {
+
+    class CreateReportCommand <<Command>> {
+        + ReportName : string
+        + ReportType : ReportType
+        + Description : string?
+        + Parameters : string?
+        + IsScheduled : bool
+        + ScheduleConfig : ScheduleConfig?
+    }
+
+    class CreateReportCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: CreateReportCommand, cancellationToken: CancellationToken) : Task<ReportDetailDto>
+    }
+
+    class GenerateReportCommand <<Command>> {
+        + ReportId : Guid
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + OutputFormat : OutputFormat
+    }
+
+    class GenerateReportCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _reportService : ReportService
+        - _serviceBus : IServiceBusPublisher
+        --
+        + Handle(command: GenerateReportCommand, cancellationToken: CancellationToken) : Task<ReportInstanceDto>
+    }
+
+    class ScheduleReportCommand <<Command>> {
+        + ReportId : Guid
+        + ScheduleConfig : ScheduleConfig
+    }
+
+    class ScheduleReportCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: ScheduleReportCommand, cancellationToken: CancellationToken) : Task
+    }
+
+    class GetReportsQuery <<Query>> {
+        + PageNumber : int
+        + PageSize : int
+        + ReportType : ReportType?
+        + SearchTerm : string?
+    }
+
+    class GetReportsQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetReportsQuery, cancellationToken: CancellationToken) : Task<PagedResult<ReportListDto>>
+    }
+
+    class GetReportByIdQuery <<Query>> {
+        + ReportId : Guid
+    }
+
+    class GetReportByIdQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(query: GetReportByIdQuery, cancellationToken: CancellationToken) : Task<ReportDetailDto>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Dashboards" {
+
+    class CreateDashboardCommand <<Command>> {
+        + Name : string
+        + Description : string?
+        + IsPublic : bool
+    }
+
+    class CreateDashboardCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: CreateDashboardCommand, cancellationToken: CancellationToken) : Task<DashboardDetailDto>
+    }
+
+    class AddWidgetCommand <<Command>> {
+        + DashboardId : Guid
+        + WidgetType : WidgetType
+        + Title : string
+        + Configuration : string
+        + Position : int
+        + Size : WidgetSize
+    }
+
+    class AddWidgetCommandHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        --
+        + Handle(command: AddWidgetCommand, cancellationToken: CancellationToken) : Task<DashboardWidgetDto>
+    }
+
+    class GetDashboardByIdQuery <<Query>> {
+        + DashboardId : Guid
+    }
+
+    class GetDashboardByIdQueryHandler <<Handler>> {
+        - _context : IEventManagementPlatformContext
+        - _dashboardService : DashboardService
+        --
+        + Handle(query: GetDashboardByIdQuery, cancellationToken: CancellationToken) : Task<DashboardDetailDto>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Statistics" {
+
+    class GetEventStatisticsQuery <<Query>> {
+        + StartDate : DateTime
+        + EndDate : DateTime
+    }
+
+    class GetEventStatisticsQueryHandler <<Handler>> {
+        - _statisticsService : StatisticsService
+        --
+        + Handle(query: GetEventStatisticsQuery, cancellationToken: CancellationToken) : Task<EventStatisticsDto>
+    }
+
+    class CalculateStatisticsCommand <<Command>> {
+        + StatisticsType : StatisticsType
+        + StartDate : DateTime
+        + EndDate : DateTime
+    }
+
+    class CalculateStatisticsCommandHandler <<Handler>> {
+        - _statisticsService : StatisticsService
+        --
+        + Handle(command: CalculateStatisticsCommand, cancellationToken: CancellationToken) : Task<StatisticsSnapshot>
+    }
+
+}
+
+package "EventManagementPlatform.Api.Features.Dtos" {
+
+    class ReportDetailDto <<DTO>> {
+        + ReportId : Guid
+        + ReportName : string
+        + ReportType : string
+        + Description : string?
+        + Parameters : string?
+        + IsScheduled : bool
+        + ScheduleConfig : ScheduleConfig?
+        + CreatedAt : DateTime
+        + LastGeneratedAt : DateTime?
+        + RecentInstances : IEnumerable<ReportInstanceDto>
+    }
+
+    class ReportInstanceDto <<DTO>> {
+        + ReportInstanceId : Guid
+        + ReportId : Guid
+        + GeneratedAt : DateTime
+        + StartDate : DateTime
+        + EndDate : DateTime
+        + Status : string
+        + OutputFormat : string
+        + FileUrl : string?
+        + FileSize : long?
+    }
+
+    class DashboardDetailDto <<DTO>> {
+        + DashboardId : Guid
+        + Name : string
+        + Description : string?
+        + Layout : string
+        + IsDefault : bool
+        + IsPublic : bool
+        + OwnerId : Guid
+        + OwnerName : string
+        + CreatedAt : DateTime
+        + ModifiedAt : DateTime?
+        + Widgets : IEnumerable<DashboardWidgetDto>
+    }
+
+    class DashboardWidgetDto <<DTO>> {
+        + WidgetId : Guid
+        + WidgetType : string
+        + Title : string
+        + Configuration : string
+        + Position : int
+        + Size : string
+        + DataSource : string?
+    }
+
+    class EventStatisticsDto <<DTO>> {
+        + TotalEvents : int
+        + CompletedEvents : int
+        + CancelledEvents : int
+        + PendingEvents : int
+        + CompletionRate : double
+        + CancellationRate : double
+        + Trend : IEnumerable<TrendDataPoint>
+    }
+
+}
+
+' Relationships - Aggregates
+Report "1" *-- "0..*" ReportInstance : contains
+Report --> ReportType : has
+Report --> ScheduleConfig : has
+ReportInstance --> ReportStatus : has
+ReportInstance --> OutputFormat : has
+
+Dashboard "1" *-- "0..*" DashboardWidget : contains
+DashboardWidget --> WidgetType : has
+DashboardWidget --> WidgetSize : has
+
+StatisticsSnapshot --> StatisticsType : has
+
+' Relationships - Events
+ReportingDomainEvent <|-- DailySummaryGenerated
+ReportingDomainEvent <|-- WeeklySummaryGenerated
+ReportingDomainEvent <|-- MonthlySummaryGenerated
+ReportingDomainEvent <|-- YearlySummaryGenerated
+ReportingDomainEvent <|-- CustomReportGenerated
+ReportingDomainEvent <|-- ReportScheduled
+ReportingDomainEvent <|-- ReportExportedToPDF
+ReportingDomainEvent <|-- ReportExportedToExcel
+ReportingDomainEvent <|-- ReportEmailedToRecipient
+ReportingDomainEvent <|-- EventStatisticsCalculated
+ReportingDomainEvent <|-- RevenueStatisticsCalculated
+ReportingDomainEvent <|-- StaffStatisticsCalculated
+ReportingDomainEvent <|-- EquipmentUtilizationCalculated
+ReportingDomainEvent <|-- CustomerStatisticsCalculated
+ReportingDomainEvent <|-- VenueStatisticsCalculated
+ReportingDomainEvent <|-- DashboardViewed
+ReportingDomainEvent <|-- DashboardRefreshed
+ReportingDomainEvent <|-- DashboardWidgetAdded
+ReportingDomainEvent <|-- DashboardWidgetRemoved
+ReportingDomainEvent <|-- DashboardLayoutSaved
+
+' Relationships - Services
+ReportService --> IEventManagementPlatformContext : uses
+StatisticsService --> IEventManagementPlatformContext : uses
+DashboardService --> IEventManagementPlatformContext : uses
+
+CreateReportCommandHandler --> IEventManagementPlatformContext : uses
+GenerateReportCommandHandler --> IEventManagementPlatformContext : uses
+GenerateReportCommandHandler --> ReportService : uses
+ScheduleReportCommandHandler --> IEventManagementPlatformContext : uses
+GetReportsQueryHandler --> IEventManagementPlatformContext : uses
+GetReportByIdQueryHandler --> IEventManagementPlatformContext : uses
+
+CreateDashboardCommandHandler --> IEventManagementPlatformContext : uses
+AddWidgetCommandHandler --> IEventManagementPlatformContext : uses
+GetDashboardByIdQueryHandler --> IEventManagementPlatformContext : uses
+GetDashboardByIdQueryHandler --> DashboardService : uses
+
+GetEventStatisticsQueryHandler --> StatisticsService : uses
+CalculateStatisticsCommandHandler --> StatisticsService : uses
+
+' Relationships - DTOs
+CreateReportCommandHandler ..> ReportDetailDto : returns
+GenerateReportCommandHandler ..> ReportInstanceDto : returns
+GetReportsQueryHandler ..> ReportDetailDto : returns
+GetReportByIdQueryHandler ..> ReportDetailDto : returns
+
+CreateDashboardCommandHandler ..> DashboardDetailDto : returns
+AddWidgetCommandHandler ..> DashboardWidgetDto : returns
+GetDashboardByIdQueryHandler ..> DashboardDetailDto : returns
+
+GetEventStatisticsQueryHandler ..> EventStatisticsDto : returns
+
+@enduml

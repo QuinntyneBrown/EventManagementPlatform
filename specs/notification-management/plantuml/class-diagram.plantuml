@@ -1,0 +1,646 @@
+@startuml Notification_Alert_Management_Class_Diagram
+
+' Title and Description
+title Notification & Alert Management System - Class Diagram
+
+' Styling
+skinparam class {
+    BackgroundColor<<Entity>> LightBlue
+    BackgroundColor<<ValueObject>> LightGreen
+    BackgroundColor<<Service>> LightYellow
+    BackgroundColor<<Repository>> LightGray
+    BackgroundColor<<DomainEvent>> LightCoral
+    BorderColor Black
+    ArrowColor Black
+}
+
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+
+' ===================================
+' Core Entities
+' ===================================
+
+package "Domain.Entities" {
+
+    class Notification <<Entity>> {
+        + Id: Guid
+        + UserId: Guid
+        + Type: NotificationType
+        + Priority: NotificationPriority
+        + Title: string
+        + Message: string
+        + Category: string
+        + Metadata: Dictionary<string, object>
+        + Actions: List<NotificationAction>
+        + Status: NotificationStatus
+        + CreatedAt: DateTime
+        + ViewedAt: DateTime?
+        + DismissedAt: DateTime?
+        + ActionTakenAt: DateTime?
+        + ExpiresAt: DateTime?
+        + SourceEntityType: string
+        + SourceEntityId: Guid?
+        + Channel: string
+        + IsRead: bool
+        + IsDismissed: bool
+        --
+        + MarkAsViewed(): void
+        + Dismiss(): void
+        + TakeAction(actionType: string): void
+        + IsExpired(): bool
+    }
+
+    class Alert <<Entity>> {
+        + Id: Guid
+        + Type: AlertType
+        + Title: string
+        + Description: string
+        + Severity: AlertSeverity
+        + Source: string
+        + SourceEntityId: Guid?
+        + Context: Dictionary<string, object>
+        + Status: AlertStatus
+        + CreatedAt: DateTime
+        + AcknowledgedAt: DateTime?
+        + AcknowledgedBy: Guid?
+        + ResolvedAt: DateTime?
+        + ResolvedBy: Guid?
+        + EscalatedAt: DateTime?
+        + EscalationLevel: int
+        + AssignedUserIds: List<Guid>
+        + Tags: List<string>
+        --
+        + Acknowledge(userId: Guid): void
+        + Resolve(userId: Guid, notes: string): void
+        + Escalate(reason: string): void
+        + AssignTo(userIds: List<Guid>): void
+        + CanEscalate(): bool
+    }
+
+    class NotificationPreferences <<Entity>> {
+        + Id: Guid
+        + UserId: Guid
+        + CategoryPreferences: Dictionary<string, ChannelPreference>
+        + EnableEmailNotifications: bool
+        + EnableSmsNotifications: bool
+        + EnablePushNotifications: bool
+        + EnableInAppNotifications: bool
+        + QuietHours: QuietHoursSettings
+        + DigestSettings: DigestSettings
+        + MaxFrequency: NotificationFrequency
+        + MutedCategories: List<string>
+        + UpdatedAt: DateTime
+        --
+        + UpdateChannelPreference(category: string, preference: ChannelPreference): void
+        + SetQuietHours(settings: QuietHoursSettings): void
+        + IsCategoryMuted(category: string): bool
+        + ShouldSendNotification(type: NotificationType, priority: NotificationPriority): bool
+    }
+
+    class NotificationTemplate <<Entity>> {
+        + Id: Guid
+        + Name: string
+        + Category: string
+        + Type: NotificationType
+        + ChannelTemplates: Dictionary<string, ChannelTemplate>
+        + RequiredVariables: List<string>
+        + IsActive: bool
+        + CreatedAt: DateTime
+        + UpdatedAt: DateTime?
+        --
+        + GetTemplateForChannel(channel: string): ChannelTemplate
+        + ValidateVariables(variables: Dictionary<string, object>): bool
+        + Render(channel: string, variables: Dictionary<string, object>): string
+    }
+
+    class EmergencyBroadcast <<Entity>> {
+        + Id: Guid
+        + Title: string
+        + Message: string
+        + Channels: List<string>
+        + TargetUserIds: List<Guid>
+        + TargetGroups: List<string>
+        + Priority: NotificationPriority
+        + Status: BroadcastStatus
+        + CreatedAt: DateTime
+        + CreatedBy: Guid
+        + SentCount: int
+        + DeliveredCount: int
+        + FailedCount: int
+        + ViewedCount: int
+        --
+        + UpdateDeliveryStats(sent: int, delivered: int, failed: int): void
+        + MarkAsCompleted(): void
+    }
+}
+
+' ===================================
+' Value Objects
+' ===================================
+
+package "Domain.ValueObjects" {
+
+    class NotificationAction <<ValueObject>> {
+        + Type: string
+        + Label: string
+        + Url: string
+        + ActionData: Dictionary<string, object>
+        --
+        + Equals(other: NotificationAction): bool
+    }
+
+    class ChannelPreference <<ValueObject>> {
+        + Email: bool
+        + Sms: bool
+        + Push: bool
+        + InApp: bool
+        + MinimumPriority: NotificationPriority
+        --
+        + IsChannelEnabled(channel: string): bool
+        + MeetsPriorityThreshold(priority: NotificationPriority): bool
+    }
+
+    class QuietHoursSettings <<ValueObject>> {
+        + Enabled: bool
+        + StartTime: TimeSpan
+        + EndTime: TimeSpan
+        + TimeZone: string
+        + Days: List<DayOfWeek>
+        + AllowUrgent: bool
+        --
+        + IsInQuietHours(time: DateTime): bool
+        + ShouldBlock(priority: NotificationPriority): bool
+    }
+
+    class DigestSettings <<ValueObject>> {
+        + Enabled: bool
+        + Frequency: DigestFrequency
+        + PreferredTime: TimeSpan
+        + IncludedCategories: List<string>
+        --
+        + ShouldIncludeCategory(category: string): bool
+    }
+
+    class ChannelTemplate <<ValueObject>> {
+        + Subject: string
+        + BodyTemplate: string
+        + HtmlBodyTemplate: string
+        + Format: TemplateFormat
+        --
+        + Render(variables: Dictionary<string, object>): string
+    }
+}
+
+' ===================================
+' Enumerations
+' ===================================
+
+package "Domain.Enums" {
+
+    enum NotificationType {
+        Info
+        Warning
+        Alert
+        Critical
+        Emergency
+        Reminder
+        Action
+    }
+
+    enum NotificationPriority {
+        Low
+        Normal
+        High
+        Urgent
+        Critical
+    }
+
+    enum NotificationStatus {
+        Created
+        Queued
+        Sent
+        Delivered
+        Viewed
+        Dismissed
+        ActionTaken
+        Failed
+        Expired
+    }
+
+    enum AlertType {
+        Overbooking
+        LowInventory
+        MaintenanceDue
+        PaymentDue
+        StaffNoShow
+        DeliveryDelay
+        SystemIssue
+        SecurityIncident
+    }
+
+    enum AlertSeverity {
+        Low
+        Medium
+        High
+        Critical
+        Emergency
+    }
+
+    enum AlertStatus {
+        Active
+        Acknowledged
+        InProgress
+        Resolved
+        Escalated
+        Closed
+    }
+
+    enum NotificationFrequency {
+        RealTime
+        Hourly
+        Daily
+        Weekly
+    }
+
+    enum DigestFrequency {
+        Daily
+        Weekly
+        BiWeekly
+    }
+
+    enum TemplateFormat {
+        Plain
+        Html
+        Markdown
+        Liquid
+        Razor
+    }
+
+    enum BroadcastStatus {
+        Pending
+        InProgress
+        Completed
+        Failed
+    }
+}
+
+' ===================================
+' Domain Events
+' ===================================
+
+package "Domain.Events" {
+
+    interface IDomainEvent {
+        + Timestamp: DateTime
+    }
+
+    class OverbookingAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + EventId: Guid
+        + CurrentCapacity: int
+        + MaxCapacity: int
+        + Timestamp: DateTime
+    }
+
+    class LowInventoryAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + ItemId: Guid
+        + ItemName: string
+        + CurrentStock: int
+        + ThresholdLevel: int
+        + Timestamp: DateTime
+    }
+
+    class MaintenanceDueAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + AssetId: Guid
+        + AssetName: string
+        + DueDate: DateTime
+        + Priority: MaintenancePriority
+        + Timestamp: DateTime
+    }
+
+    class PaymentDueAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + PaymentId: Guid
+        + Amount: decimal
+        + DueDate: DateTime
+        + DaysOverdue: int
+        + Timestamp: DateTime
+    }
+
+    class StaffNoShowAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + StaffId: Guid
+        + StaffName: string
+        + ShiftId: Guid
+        + ShiftTime: DateTime
+        + Timestamp: DateTime
+    }
+
+    class EventReminderSent <<DomainEvent>> {
+        + NotificationId: Guid
+        + EventId: Guid
+        + UserId: Guid
+        + EventDateTime: DateTime
+        + HoursBefore: int
+        + Timestamp: DateTime
+    }
+
+    class DeliveryDelayAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + DeliveryId: Guid
+        + OriginalETA: DateTime
+        + RevisedETA: DateTime
+        + Reason: string
+        + Timestamp: DateTime
+    }
+
+    class UserNotificationCreated <<DomainEvent>> {
+        + NotificationId: Guid
+        + UserId: Guid
+        + Type: NotificationType
+        + Priority: NotificationPriority
+        + Category: string
+        + Timestamp: DateTime
+    }
+
+    class UserNotificationViewed <<DomainEvent>> {
+        + NotificationId: Guid
+        + UserId: Guid
+        + ViewedAt: DateTime
+    }
+
+    class UserNotificationDismissed <<DomainEvent>> {
+        + NotificationId: Guid
+        + UserId: Guid
+        + DismissedAt: DateTime
+    }
+
+    class UserNotificationActionTaken <<DomainEvent>> {
+        + NotificationId: Guid
+        + UserId: Guid
+        + ActionType: string
+        + ActionData: Dictionary<string, object>
+        + Timestamp: DateTime
+    }
+
+    class NotificationPreferencesUpdated <<DomainEvent>> {
+        + UserId: Guid
+        + OldPreferences: NotificationPreferences
+        + NewPreferences: NotificationPreferences
+        + Timestamp: DateTime
+    }
+
+    class IssueEscalated <<DomainEvent>> {
+        + IssueId: Guid
+        + IssueType: string
+        + FromLevel: int
+        + ToLevel: int
+        + EscalatedToUserIds: List<Guid>
+        + Reason: string
+        + Timestamp: DateTime
+    }
+
+    class UrgentAlertSent <<DomainEvent>> {
+        + AlertId: Guid
+        + Type: AlertType
+        + Severity: AlertSeverity
+        + TargetUserIds: List<Guid>
+        + Timestamp: DateTime
+    }
+
+    class EmergencyNotificationBroadcast <<DomainEvent>> {
+        + BroadcastId: Guid
+        + Title: string
+        + Message: string
+        + Channels: List<string>
+        + TargetUserIds: List<Guid>
+        + Timestamp: DateTime
+    }
+}
+
+' ===================================
+' Services
+' ===================================
+
+package "Application.Services" {
+
+    interface INotificationService <<Service>> {
+        + CreateNotificationAsync(command: CreateNotificationCommand): Task<NotificationDto>
+        + GetUserNotificationsAsync(query: GetUserNotificationsQuery): Task<PagedResult<NotificationDto>>
+        + GetNotificationByIdAsync(id: Guid): Task<NotificationDto>
+        + MarkAsViewedAsync(notificationId: Guid, userId: Guid): Task
+        + DismissNotificationAsync(notificationId: Guid, userId: Guid): Task
+        + TakeActionAsync(notificationId: Guid, actionType: string, actionData: Dictionary<string, object>): Task
+        + MarkAllAsReadAsync(userId: Guid, category: string?): Task<int>
+        + DeleteNotificationAsync(id: Guid): Task
+        + GetNotificationSummaryAsync(userId: Guid): Task<NotificationSummaryDto>
+    }
+
+    interface IAlertService <<Service>> {
+        + CreateAlertAsync(command: CreateAlertCommand): Task<AlertDto>
+        + GetAlertsAsync(query: GetAlertsQuery): Task<PagedResult<AlertDto>>
+        + GetAlertByIdAsync(id: Guid): Task<AlertDto>
+        + AcknowledgeAlertAsync(alertId: Guid, userId: Guid): Task
+        + ResolveAlertAsync(alertId: Guid, userId: Guid, notes: string, data: Dictionary<string, object>): Task
+        + EscalateAlertAsync(alertId: Guid, reason: string, escalateTo: List<Guid>): Task
+        + AssignAlertAsync(alertId: Guid, userIds: List<Guid>): Task
+        + CheckAndProcessAlertEscalationAsync(): Task
+    }
+
+    interface INotificationPreferencesService <<Service>> {
+        + GetPreferencesAsync(userId: Guid): Task<NotificationPreferencesDto>
+        + UpdatePreferencesAsync(userId: Guid, command: UpdatePreferencesCommand): Task<NotificationPreferencesDto>
+        + UpdateChannelPreferencesAsync(userId: Guid, category: string, preferences: ChannelPreference): Task
+        + SetQuietHoursAsync(userId: Guid, settings: QuietHoursSettings): Task
+        + ShouldSendNotificationAsync(userId: Guid, type: NotificationType, category: string, priority: NotificationPriority): Task<bool>
+    }
+
+    interface INotificationDeliveryService <<Service>> {
+        + DeliverNotificationAsync(notification: Notification, channels: List<string>): Task
+        + SendEmailNotificationAsync(userId: Guid, subject: string, body: string): Task
+        + SendSmsNotificationAsync(userId: Guid, message: string): Task
+        + SendPushNotificationAsync(userId: Guid, title: string, body: string, data: Dictionary<string, string>): Task
+        + SendInAppNotificationAsync(userId: Guid, notification: Notification): Task
+        + SendDigestEmailAsync(userId: Guid, notifications: List<Notification>): Task
+    }
+
+    interface IEmergencyBroadcastService <<Service>> {
+        + SendEmergencyBroadcastAsync(command: EmergencyBroadcastCommand): Task<BroadcastResultDto>
+        + GetBroadcastStatusAsync(broadcastId: Guid): Task<BroadcastStatusDto>
+        + ResolveTargetRecipientsAsync(userIds: List<Guid>, groups: List<string>): Task<List<Guid>>
+    }
+
+    interface INotificationTemplateService <<Service>> {
+        + RenderTemplateAsync(templateName: string, channel: string, variables: Dictionary<string, object>): Task<string>
+        + GetTemplateAsync(templateName: string): Task<NotificationTemplate>
+        + CreateOrUpdateTemplateAsync(template: NotificationTemplate): Task
+    }
+
+    interface INotificationIntelligenceService <<Service>> {
+        + AnalyzeAndPrioritizeAsync(notification: Notification): Task<NotificationPriority>
+        + SummarizeNotificationsAsync(notifications: List<Notification>): Task<string>
+        + GenerateSmartActionsAsync(notification: Notification): Task<List<string>>
+        + DetectDuplicateNotificationAsync(notification: Notification): Task<bool>
+        + ClusterSimilarNotificationsAsync(notifications: List<Notification>): Task<List<Notification>>
+    }
+
+    interface IAlertPredictionService <<Service>> {
+        + PredictPotentialAlertsAsync(contextType: string, contextId: Guid): Task<List<PredictedAlert>>
+        + CalculateAlertRiskScoreAsync(type: AlertType, context: Dictionary<string, object>): Task<double>
+        + SuggestPreventiveActionsAsync(type: AlertType): Task<List<string>>
+    }
+
+    interface IRealtimeNotificationService <<Service>> {
+        + SendNotificationToUserAsync(userId: Guid, notification: NotificationDto): Task
+        + BroadcastAlertAsync(alert: AlertDto, userIds: List<Guid>): Task
+        + UpdateNotificationStatusAsync(notificationId: Guid, status: NotificationStatus): Task
+    }
+}
+
+' ===================================
+' Repositories
+' ===================================
+
+package "Infrastructure.Repositories" {
+
+    interface INotificationRepository <<Repository>> {
+        + GetByIdAsync(id: Guid): Task<Notification>
+        + GetUserNotificationsAsync(userId: Guid, filter: NotificationFilter): Task<PagedResult<Notification>>
+        + AddAsync(notification: Notification): Task<Notification>
+        + UpdateAsync(notification: Notification): Task
+        + DeleteAsync(id: Guid): Task
+        + MarkAllAsReadAsync(userId: Guid, category: string?): Task<int>
+        + GetSummaryAsync(userId: Guid): Task<NotificationSummary>
+    }
+
+    interface IAlertRepository <<Repository>> {
+        + GetByIdAsync(id: Guid): Task<Alert>
+        + GetAlertsAsync(filter: AlertFilter): Task<PagedResult<Alert>>
+        + AddAsync(alert: Alert): Task<Alert>
+        + UpdateAsync(alert: Alert): Task
+        + GetUnacknowledgedAlertsAsync(olderThan: DateTime): Task<List<Alert>>
+        + GetActiveAlertsByTypeAsync(type: AlertType): Task<List<Alert>>
+    }
+
+    interface INotificationPreferencesRepository <<Repository>> {
+        + GetByUserIdAsync(userId: Guid): Task<NotificationPreferences>
+        + UpsertAsync(preferences: NotificationPreferences): Task<NotificationPreferences>
+    }
+
+    interface INotificationTemplateRepository <<Repository>> {
+        + GetByNameAsync(name: string): Task<NotificationTemplate>
+        + GetAllActiveAsync(): Task<List<NotificationTemplate>>
+        + AddAsync(template: NotificationTemplate): Task<NotificationTemplate>
+        + UpdateAsync(template: NotificationTemplate): Task
+    }
+
+    interface IEmergencyBroadcastRepository <<Repository>> {
+        + GetByIdAsync(id: Guid): Task<EmergencyBroadcast>
+        + AddAsync(broadcast: EmergencyBroadcast): Task<EmergencyBroadcast>
+        + UpdateAsync(broadcast: EmergencyBroadcast): Task
+        + GetRecentBroadcastsAsync(hours: int): Task<List<EmergencyBroadcast>>
+    }
+}
+
+' ===================================
+' Relationships
+' ===================================
+
+' Entity Relationships
+Notification "1" *-- "many" NotificationAction
+Notification --> NotificationType
+Notification --> NotificationPriority
+Notification --> NotificationStatus
+
+Alert --> AlertType
+Alert --> AlertSeverity
+Alert --> AlertStatus
+
+NotificationPreferences "1" *-- "many" ChannelPreference
+NotificationPreferences "1" *-- "1" QuietHoursSettings
+NotificationPreferences "1" *-- "1" DigestSettings
+NotificationPreferences --> NotificationFrequency
+
+NotificationTemplate "1" *-- "many" ChannelTemplate
+NotificationTemplate --> NotificationType
+NotificationTemplate --> TemplateFormat
+
+EmergencyBroadcast --> BroadcastStatus
+EmergencyBroadcast --> NotificationPriority
+
+' Value Object Relationships
+ChannelPreference --> NotificationPriority
+DigestSettings --> DigestFrequency
+
+' Domain Events Relationships
+IDomainEvent <|.. OverbookingAlertSent
+IDomainEvent <|.. LowInventoryAlertSent
+IDomainEvent <|.. MaintenanceDueAlertSent
+IDomainEvent <|.. PaymentDueAlertSent
+IDomainEvent <|.. StaffNoShowAlertSent
+IDomainEvent <|.. EventReminderSent
+IDomainEvent <|.. DeliveryDelayAlertSent
+IDomainEvent <|.. UserNotificationCreated
+IDomainEvent <|.. UserNotificationViewed
+IDomainEvent <|.. UserNotificationDismissed
+IDomainEvent <|.. UserNotificationActionTaken
+IDomainEvent <|.. NotificationPreferencesUpdated
+IDomainEvent <|.. IssueEscalated
+IDomainEvent <|.. UrgentAlertSent
+IDomainEvent <|.. EmergencyNotificationBroadcast
+
+' Service Dependencies
+INotificationService ..> INotificationRepository : uses
+INotificationService ..> INotificationDeliveryService : uses
+INotificationService ..> INotificationIntelligenceService : uses
+
+IAlertService ..> IAlertRepository : uses
+IAlertService ..> INotificationService : uses
+
+INotificationPreferencesService ..> INotificationPreferencesRepository : uses
+
+INotificationDeliveryService ..> INotificationTemplateService : uses
+INotificationDeliveryService ..> INotificationPreferencesService : uses
+INotificationDeliveryService ..> IRealtimeNotificationService : uses
+
+IEmergencyBroadcastService ..> IEmergencyBroadcastRepository : uses
+IEmergencyBroadcastService ..> INotificationDeliveryService : uses
+
+' Repository Dependencies
+INotificationRepository ..> Notification : manages
+IAlertRepository ..> Alert : manages
+INotificationPreferencesRepository ..> NotificationPreferences : manages
+INotificationTemplateRepository ..> NotificationTemplate : manages
+IEmergencyBroadcastRepository ..> EmergencyBroadcast : manages
+
+' Notes
+note right of Notification
+  Core entity representing a
+  notification sent to a user.
+  Supports multiple channels
+  and action items.
+end note
+
+note right of Alert
+  Represents system alerts
+  requiring attention and
+  potential escalation.
+end note
+
+note right of INotificationIntelligenceService
+  AI-powered service using
+  Azure OpenAI for intelligent
+  notification processing.
+end note
+
+note bottom of IDomainEvent
+  All domain events follow
+  the event sourcing pattern
+  and are published via
+  Azure Service Bus.
+end note
+
+@enduml

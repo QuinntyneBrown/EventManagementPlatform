@@ -1,0 +1,1086 @@
+@startuml Invoice and Financial Management - Sequence Diagrams
+
+title Invoice & Financial Management - Key Workflows
+
+' ============================================
+' Sequence 1: Create and Finalize Invoice
+' ============================================
+
+@startuml 1-Create-and-Finalize-Invoice
+
+title 1. Create and Finalize Invoice Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam maxmessagesize 200
+
+actor "Finance Manager" as FM
+participant "Angular SPA" as SPA
+participant "API Gateway" as Gateway
+participant "Invoice Controller" as Controller
+participant "Create Invoice\nCommand Handler" as CreateHandler
+participant "Invoice Service" as Service
+participant "Invoice\nAggregate" as Invoice
+participant "Invoice Repository" as Repo
+participant "Event Publisher" as Events
+participant "Azure Service Bus" as ServiceBus
+participant "Azure SQL" as DB
+
+== Create Draft Invoice ==
+
+FM -> SPA: Create new invoice
+activate SPA
+
+SPA -> SPA: Validate input
+SPA -> Gateway: POST /api/v1/invoices\n{eventId, customerId, dueDate, ...}
+activate Gateway
+
+Gateway -> Gateway: Authenticate JWT
+Gateway -> Gateway: Authorize (Invoice.Create)
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> Controller: Validate request
+Controller -> CreateHandler: Send CreateInvoiceCommand
+activate CreateHandler
+
+CreateHandler -> Service: CreateDraftInvoice(request)
+activate Service
+
+Service -> Invoice: new Invoice(...)
+activate Invoice
+Invoice -> Invoice: Validate business rules
+Invoice --> Service: invoice
+deactivate Invoice
+
+Service -> Repo: AddAsync(invoice)
+activate Repo
+Repo -> DB: INSERT INTO Invoices
+DB --> Repo: Success
+deactivate Repo
+
+Service -> Events: PublishAsync(InvoiceDraftCreated)
+activate Events
+Events -> ServiceBus: Send event
+ServiceBus --> Events: Acknowledged
+deactivate Events
+
+Service --> CreateHandler: invoice
+deactivate Service
+
+CreateHandler --> Controller: InvoiceResponse
+deactivate CreateHandler
+
+Controller --> Gateway: 201 Created + invoice
+deactivate Controller
+
+Gateway --> SPA: InvoiceResponse
+deactivate Gateway
+
+SPA -> SPA: Update state (NgRx)
+SPA --> FM: Show success message
+deactivate SPA
+
+== Add Invoice Items ==
+
+FM -> SPA: Add staff fees
+activate SPA
+
+SPA -> Gateway: POST /api/v1/invoices/{id}/items\n{feeType: "Staff", ...}
+activate Gateway
+
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> CreateHandler: Send AddInvoiceItemCommand
+activate CreateHandler
+
+CreateHandler -> Service: AddItemToInvoice(invoiceId, item)
+activate Service
+
+Service -> Repo: GetByIdAsync(invoiceId)
+activate Repo
+Repo -> DB: SELECT * FROM Invoices
+DB --> Repo: invoice data
+Repo --> Service: invoice
+deactivate Repo
+
+Service -> Invoice: AddItem(item)
+activate Invoice
+Invoice -> Invoice: Validate item
+Invoice -> Invoice: Recalculate totals
+Invoice --> Service: success
+deactivate Invoice
+
+Service -> Repo: UpdateAsync(invoice)
+activate Repo
+Repo -> DB: UPDATE Invoices
+DB --> Repo: Success
+deactivate Repo
+
+Service -> Events: PublishAsync(InvoiceItemAdded,\nInvoiceRecalculated)
+activate Events
+Events -> ServiceBus: Send events
+ServiceBus --> Events: Acknowledged
+deactivate Events
+
+Service --> CreateHandler: invoice
+deactivate Service
+
+CreateHandler --> Controller: InvoiceResponse
+deactivate CreateHandler
+
+Controller --> Gateway: 200 OK + invoice
+deactivate Controller
+
+Gateway --> SPA: Updated invoice
+deactivate Gateway
+
+SPA -> SPA: Update state
+SPA --> FM: Show updated invoice
+deactivate SPA
+
+== Apply Discount ==
+
+FM -> SPA: Apply 10% discount
+activate SPA
+
+SPA -> Gateway: POST /api/v1/invoices/{id}/discount\n{type: "Percentage", value: 10}
+activate Gateway
+
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> CreateHandler: Send ApplyDiscountCommand
+activate CreateHandler
+
+CreateHandler -> Service: ApplyDiscount(invoiceId, discount)
+activate Service
+
+Service -> Repo: GetByIdAsync(invoiceId)
+Repo -> DB: SELECT
+DB --> Repo: invoice
+Repo --> Service: invoice
+
+Service -> Invoice: ApplyDiscount(amount, type, reason)
+activate Invoice
+Invoice -> Invoice: Calculate discount amount
+Invoice -> Invoice: Recalculate totals
+Invoice --> Service: success
+deactivate Invoice
+
+Service -> Repo: UpdateAsync(invoice)
+Repo -> DB: UPDATE
+DB --> Repo: Success
+
+Service -> Events: PublishAsync(DiscountAppliedToInvoice,\nInvoiceRecalculated)
+Events -> ServiceBus: Send events
+ServiceBus --> Events: Acknowledged
+
+Service --> CreateHandler: invoice
+deactivate Service
+
+CreateHandler --> Controller: InvoiceResponse
+deactivate CreateHandler
+
+Controller --> Gateway: 200 OK
+deactivate Controller
+
+Gateway --> SPA: Updated invoice
+deactivate Gateway
+
+SPA --> FM: Show updated totals
+deactivate SPA
+
+== Finalize Invoice ==
+
+FM -> SPA: Finalize invoice
+activate SPA
+
+SPA -> SPA: Confirm action
+SPA -> Gateway: POST /api/v1/invoices/{id}/finalize
+activate Gateway
+
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> CreateHandler: Send FinalizeInvoiceCommand
+activate CreateHandler
+
+CreateHandler -> Service: FinalizeInvoice(invoiceId)
+activate Service
+
+Service -> Repo: GetByIdAsync(invoiceId)
+Repo -> DB: SELECT
+DB --> Repo: invoice
+Repo --> Service: invoice
+
+Service -> Invoice: Finalize()
+activate Invoice
+Invoice -> Invoice: Validate can finalize
+Invoice -> Invoice: Generate invoice number
+Invoice -> Invoice: Set status = Finalized
+Invoice -> Invoice: Set finalized date
+Invoice --> Service: success
+deactivate Invoice
+
+Service -> Repo: UpdateAsync(invoice)
+Repo -> DB: UPDATE
+DB --> Repo: Success
+
+Service -> Events: PublishAsync(InvoiceFinalized)
+activate Events
+Events -> ServiceBus: Send event
+note right
+  Event triggers PDF generation
+  in Azure Function
+end note
+ServiceBus --> Events: Acknowledged
+deactivate Events
+
+Service --> CreateHandler: invoice
+deactivate Service
+
+CreateHandler --> Controller: InvoiceResponse
+deactivate CreateHandler
+
+Controller --> Gateway: 200 OK + invoice
+deactivate Controller
+
+Gateway --> SPA: Finalized invoice
+deactivate Gateway
+
+SPA -> SPA: Update state
+SPA --> FM: Show success + PDF link
+deactivate SPA
+
+@enduml
+
+' ============================================
+' Sequence 2: Process Payment
+' ============================================
+
+@startuml 2-Process-Payment
+
+title 2. Process Payment Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+
+actor "Customer" as Customer
+participant "Angular SPA" as SPA
+participant "API Gateway" as Gateway
+participant "Payment Controller" as Controller
+participant "Process Payment\nCommand Handler" as Handler
+participant "Payment Service" as Service
+participant "Payment\nAggregate" as Payment
+participant "Payment Gateway\n(Stripe)" as Stripe
+participant "Invoice Repository" as InvoiceRepo
+participant "Payment Repository" as PaymentRepo
+participant "Invoice\nAggregate" as Invoice
+participant "Event Publisher" as Events
+participant "Azure Service Bus" as ServiceBus
+participant "Azure SQL" as DB
+
+== Customer Initiates Payment ==
+
+Customer -> SPA: Click "Pay Invoice"
+activate SPA
+
+SPA -> SPA: Load invoice details
+SPA -> SPA: Show payment form
+
+Customer -> SPA: Enter payment details\n(credit card)
+SPA -> SPA: Validate form
+
+SPA -> Gateway: POST /api/v1/payments\n{invoiceId, amount, method: "CreditCard"}
+activate Gateway
+
+Gateway -> Gateway: Authenticate
+Gateway -> Gateway: Authorize (Payment.Create)
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> Controller: Validate request
+Controller -> Handler: Send ProcessPaymentCommand
+activate Handler
+
+== Create Payment Record ==
+
+Handler -> Service: ProcessPayment(request)
+activate Service
+
+Service -> Payment: new Payment(...)
+activate Payment
+Payment -> Payment: Validate amount > 0
+Payment -> Payment: Set status = Pending
+Payment --> Service: payment
+deactivate Payment
+
+Service -> PaymentRepo: AddAsync(payment)
+activate PaymentRepo
+PaymentRepo -> DB: INSERT INTO Payments
+DB --> PaymentRepo: Success
+deactivate PaymentRepo
+
+== Process with Payment Gateway ==
+
+Service -> Stripe: ProcessPayment(paymentRequest)
+activate Stripe
+note right
+  POST /v1/charges
+  {
+    amount: 244125,
+    currency: "usd",
+    source: token,
+    metadata: {...}
+  }
+end note
+
+alt Successful Payment
+
+    Stripe -> Stripe: Validate card
+    Stripe -> Stripe: Charge card
+    Stripe --> Service: {status: "succeeded",\nid: "ch_xxx"}
+    deactivate Stripe
+
+    Service -> Payment: Process()
+    activate Payment
+    Payment -> Payment: Set status = Successful
+    Payment -> Payment: Set transactionId
+    Payment -> Payment: Set processedDate
+    Payment --> Service: success
+    deactivate Payment
+
+    Service -> PaymentRepo: UpdateAsync(payment)
+    PaymentRepo -> DB: UPDATE Payments
+    DB --> PaymentRepo: Success
+
+    == Update Invoice ==
+
+    Service -> InvoiceRepo: GetByIdAsync(invoiceId)
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT FROM Invoices
+    DB --> InvoiceRepo: invoice
+    InvoiceRepo --> Service: invoice
+    deactivate InvoiceRepo
+
+    Service -> Invoice: RecordPayment(payment)
+    activate Invoice
+    Invoice -> Invoice: Add to amountPaid
+    Invoice -> Invoice: Calculate amountDue
+
+    alt Fully Paid
+        Invoice -> Invoice: Set status = Paid
+        Invoice -> Invoice: Set paidDate
+        Invoice --> Service: InvoiceFullyPaid event
+    else Partial Payment
+        Invoice -> Invoice: Set status = PartiallyPaid
+        Invoice --> Service: PartialPaymentReceived event
+    end
+    deactivate Invoice
+
+    Service -> InvoiceRepo: UpdateAsync(invoice)
+    InvoiceRepo -> DB: UPDATE Invoices
+    DB --> InvoiceRepo: Success
+
+    == Publish Events ==
+
+    Service -> Events: PublishAsync(PaymentReceived)
+    activate Events
+    Events -> ServiceBus: Send event
+    ServiceBus --> Events: Acknowledged
+    deactivate Events
+
+    Service -> Events: PublishAsync(InvoiceFullyPaid)
+    activate Events
+    Events -> ServiceBus: Send event
+    ServiceBus --> Events: Acknowledged
+    deactivate Events
+
+else Payment Failed
+
+    Stripe --> Service: {status: "failed",\nerror: "insufficient_funds"}
+    deactivate Stripe
+
+    Service -> Payment: Fail(reason)
+    activate Payment
+    Payment -> Payment: Set status = Failed
+    Payment -> Payment: Set failureReason
+    Payment --> Service: failure
+    deactivate Payment
+
+    Service -> PaymentRepo: UpdateAsync(payment)
+    PaymentRepo -> DB: UPDATE
+    DB --> PaymentRepo: Success
+
+    Service -> Events: PublishAsync(PaymentFailed)
+    Events -> ServiceBus: Send event
+    ServiceBus --> Events: Acknowledged
+
+    Service --> Handler: PaymentFailedException
+    Handler --> Controller: 422 Unprocessable Entity
+    Controller --> Gateway: Error response
+    Gateway --> SPA: Payment failed
+    SPA --> Customer: Show error message
+
+end
+
+Service --> Handler: payment
+deactivate Service
+
+Handler --> Controller: PaymentResponse
+deactivate Handler
+
+Controller --> Gateway: 200 OK + payment
+deactivate Controller
+
+Gateway --> SPA: Payment successful
+deactivate Gateway
+
+SPA -> SPA: Update invoice state
+SPA --> Customer: Show success + receipt
+deactivate SPA
+
+@enduml
+
+' ============================================
+' Sequence 3: Send Payment Reminder (Automated)
+' ============================================
+
+@startuml 3-Send-Payment-Reminder
+
+title 3. Automated Payment Reminder Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+
+participant "Azure Function\n(Timer Trigger)" as Function
+participant "Invoice Repository" as Repo
+participant "Invoice\nAggregate" as Invoice
+participant "Email Service" as Email
+participant "Event Publisher" as Events
+participant "Azure Service Bus" as ServiceBus
+participant "Azure SQL" as DB
+participant "SMTP Server" as SMTP
+actor "Customer" as Customer
+
+== Daily Reminder Check (8 AM) ==
+
+Function -> Function: Timer triggers (cron: 0 0 8 * * *)
+activate Function
+
+Function -> Repo: GetUpcomingDueInvoices(daysAhead: 3)
+activate Repo
+Repo -> DB: SELECT * FROM Invoices\nWHERE DueDate BETWEEN NOW() AND NOW()+3\nAND Status IN ('Finalized', 'PartiallyPaid')
+DB --> Repo: invoice list
+Repo --> Function: List<Invoice>
+deactivate Repo
+
+loop For each upcoming invoice
+
+    Function -> Invoice: Check if reminder needed
+    activate Invoice
+    Invoice -> Invoice: Calculate days until due
+    Invoice --> Function: needs reminder
+    deactivate Invoice
+
+    Function -> Email: SendPaymentReminderAsync(invoice)
+    activate Email
+
+    Email -> Email: Load email template
+    Email -> Email: Populate invoice details
+    Email -> Email: Generate reminder email
+
+    Email -> SMTP: Send email
+    activate SMTP
+    SMTP -> Customer: Email: "Invoice due in 3 days"
+    SMTP --> Email: Sent
+    deactivate SMTP
+
+    Email --> Function: Success
+    deactivate Email
+
+    Function -> Events: PublishAsync(InvoiceReminderSent)
+    activate Events
+    Events -> ServiceBus: Send event
+    ServiceBus --> Events: Acknowledged
+    deactivate Events
+
+end
+
+== Check Past Due Invoices ==
+
+Function -> Repo: GetPastDueInvoices()
+activate Repo
+Repo -> DB: SELECT * FROM Invoices\nWHERE DueDate < NOW()\nAND Status IN ('Finalized', 'PartiallyPaid')
+DB --> Repo: past due invoices
+Repo --> Function: List<Invoice>
+deactivate Repo
+
+loop For each past due invoice
+
+    Function -> Invoice: MarkPastDue()
+    activate Invoice
+    Invoice -> Invoice: Calculate days past due
+    Invoice -> Invoice: Set status = PastDue
+    Invoice --> Function: InvoicePastDue event
+    deactivate Invoice
+
+    Function -> Repo: UpdateAsync(invoice)
+    activate Repo
+    Repo -> DB: UPDATE Invoices SET Status = 'PastDue'
+    DB --> Repo: Success
+    deactivate Repo
+
+    alt First Reminder (1-7 days)
+        Function -> Email: SendPaymentReminderAsync(invoice, "FirstReminder")
+        Email -> SMTP: Send
+        SMTP -> Customer: Email: "Payment overdue"
+        SMTP --> Email: Sent
+        Email --> Function: Success
+    else Second Reminder (8-14 days)
+        Function -> Email: SendPaymentReminderAsync(invoice, "SecondReminder")
+        Email -> SMTP: Send
+        SMTP -> Customer: Email: "Urgent: Payment overdue"
+        SMTP --> Email: Sent
+        Email --> Function: Success
+    else Final Notice (15+ days)
+        Function -> Email: SendPaymentReminderAsync(invoice, "FinalNotice")
+        Email -> SMTP: Send
+        SMTP -> Customer: Email: "Final notice: Payment overdue"
+        SMTP --> Email: Sent
+        Email --> Function: Success
+    end
+
+    Function -> Events: PublishAsync(InvoiceReminderSent,\nInvoicePastDue)
+    Events -> ServiceBus: Send events
+    ServiceBus --> Events: Acknowledged
+
+end
+
+Function -> Function: Log completion
+deactivate Function
+
+@enduml
+
+' ============================================
+' Sequence 4: Refund Payment
+' ============================================
+
+@startuml 4-Refund-Payment
+
+title 4. Refund Payment Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+
+actor "Finance Manager" as FM
+participant "Angular SPA" as SPA
+participant "API Gateway" as Gateway
+participant "Payment Controller" as Controller
+participant "Refund Payment\nCommand Handler" as Handler
+participant "Payment Service" as Service
+participant "Payment Repository" as PaymentRepo
+participant "Payment\nAggregate" as Payment
+participant "Refund\nEntity" as Refund
+participant "Payment Gateway\n(Stripe)" as Stripe
+participant "Invoice Repository" as InvoiceRepo
+participant "Invoice\nAggregate" as Invoice
+participant "Event Publisher" as Events
+participant "Azure Service Bus" as ServiceBus
+participant "Azure SQL" as DB
+
+== Initiate Refund ==
+
+FM -> SPA: Select payment to refund
+activate SPA
+
+SPA -> SPA: Load payment details
+SPA -> SPA: Show refund form
+
+FM -> SPA: Enter refund details\n(amount, reason)
+SPA -> SPA: Validate refund amount
+
+SPA -> Gateway: POST /api/v1/payments/{id}/refund\n{amount, reason}
+activate Gateway
+
+Gateway -> Gateway: Authenticate
+Gateway -> Gateway: Authorize (Payment.Refund)
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> Handler: Send RefundPaymentCommand
+activate Handler
+
+== Load Payment and Validate ==
+
+Handler -> Service: RefundPayment(paymentId, amount, reason)
+activate Service
+
+Service -> PaymentRepo: GetByIdAsync(paymentId)
+activate PaymentRepo
+PaymentRepo -> DB: SELECT FROM Payments
+DB --> PaymentRepo: payment
+PaymentRepo --> Service: payment
+deactivate PaymentRepo
+
+Service -> Payment: CanRefund()
+activate Payment
+Payment -> Payment: Check status = Successful
+Payment -> Payment: Validate amount <= paid amount
+Payment --> Service: true
+deactivate Payment
+
+alt Full Refund
+
+    Service -> Payment: FullRefund(reason)
+    activate Payment
+    Payment -> Refund: new Refund(amount: full, ...)
+    activate Refund
+    Refund -> Refund: Set status = Pending
+    Refund --> Payment: refund
+    deactivate Refund
+    Payment --> Service: refund
+    deactivate Payment
+
+else Partial Refund
+
+    Service -> Payment: PartialRefund(amount, reason)
+    activate Payment
+    Payment -> Refund: new Refund(amount: partial, ...)
+    activate Refund
+    Refund --> Payment: refund
+    deactivate Refund
+    Payment --> Service: refund
+    deactivate Payment
+
+end
+
+Service -> PaymentRepo: UpdateAsync(payment)
+PaymentRepo -> DB: INSERT INTO Refunds
+DB --> PaymentRepo: Success
+
+== Process Refund with Gateway ==
+
+Service -> Stripe: RefundPayment(transactionId, amount)
+activate Stripe
+note right
+  POST /v1/refunds
+  {
+    charge: "ch_xxx",
+    amount: 50000
+  }
+end note
+
+alt Refund Successful
+
+    Stripe -> Stripe: Process refund to card
+    Stripe --> Service: {status: "succeeded", id: "re_xxx"}
+    deactivate Stripe
+
+    Service -> Refund: Process()
+    activate Refund
+    Refund -> Refund: Set status = Processed
+    Refund -> Refund: Set transactionId
+    Refund -> Refund: Set processedDate
+    Refund --> Service: success
+    deactivate Refund
+
+    Service -> Payment: UpdateRefundStatus(refund)
+    activate Payment
+
+    alt Full Refund
+        Payment -> Payment: Set status = Refunded
+    else Partial Refund
+        Payment -> Payment: Set status = PartiallyRefunded
+    end
+
+    Payment --> Service: success
+    deactivate Payment
+
+    Service -> PaymentRepo: UpdateAsync(payment)
+    PaymentRepo -> DB: UPDATE Payments, UPDATE Refunds
+    DB --> PaymentRepo: Success
+
+    == Update Invoice ==
+
+    Service -> InvoiceRepo: GetByIdAsync(invoiceId)
+    activate InvoiceRepo
+    InvoiceRepo -> DB: SELECT FROM Invoices
+    DB --> InvoiceRepo: invoice
+    InvoiceRepo --> Service: invoice
+    deactivate InvoiceRepo
+
+    Service -> Invoice: RecordRefund(refund)
+    activate Invoice
+    Invoice -> Invoice: Subtract from amountPaid
+    Invoice -> Invoice: Add to amountDue
+    Invoice -> Invoice: Update status if needed
+    Invoice --> Service: success
+    deactivate Invoice
+
+    Service -> InvoiceRepo: UpdateAsync(invoice)
+    InvoiceRepo -> DB: UPDATE Invoices
+    DB --> InvoiceRepo: Success
+
+    == Publish Events ==
+
+    Service -> Events: PublishAsync(PaymentRefunded)
+    activate Events
+    Events -> ServiceBus: Send event
+    ServiceBus --> Events: Acknowledged
+    deactivate Events
+
+    alt Partial Refund
+        Service -> Events: PublishAsync(PartialRefundIssued)
+        Events -> ServiceBus: Send event
+        ServiceBus --> Events: Acknowledged
+    end
+
+else Refund Failed
+
+    Stripe --> Service: {status: "failed", error: "..."}
+    deactivate Stripe
+
+    Service -> Refund: Fail(reason)
+    activate Refund
+    Refund -> Refund: Set status = Failed
+    Refund --> Service: failure
+    deactivate Refund
+
+    Service -> PaymentRepo: UpdateAsync(payment)
+    PaymentRepo -> DB: UPDATE Refunds
+    DB --> PaymentRepo: Success
+
+    Service --> Handler: RefundFailedException
+    Handler --> Controller: 422 Unprocessable Entity
+    Controller --> Gateway: Error response
+    Gateway --> SPA: Refund failed
+    SPA --> FM: Show error message
+
+end
+
+Service --> Handler: refund
+deactivate Service
+
+Handler --> Controller: RefundResponse
+deactivate Handler
+
+Controller --> Gateway: 200 OK + refund
+deactivate Controller
+
+Gateway --> SPA: Refund successful
+deactivate Gateway
+
+SPA -> SPA: Update payment & invoice state
+SPA --> FM: Show success message
+deactivate SPA
+
+@enduml
+
+' ============================================
+' Sequence 5: Generate Financial Dashboard
+' ============================================
+
+@startuml 5-Generate-Financial-Dashboard
+
+title 5. Generate Financial Dashboard Workflow
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+
+actor "Administrator" as Admin
+participant "Angular SPA" as SPA
+participant "API Gateway" as Gateway
+participant "Financial Controller" as Controller
+participant "Get Dashboard\nQuery Handler" as Handler
+participant "Financial Reporting\nService" as Service
+participant "Invoice Repository" as InvoiceRepo
+participant "Payment Repository" as PaymentRepo
+participant "Azure SQL" as DB
+participant "Redis Cache" as Cache
+participant "AI Analysis Service" as AI
+participant "Azure OpenAI" as OpenAI
+
+== Request Dashboard ==
+
+Admin -> SPA: Navigate to Financial Dashboard
+activate SPA
+
+SPA -> SPA: Set date range (YTD)
+
+SPA -> Gateway: GET /api/v1/financial/dashboard\n?startDate=2025-01-01&endDate=2025-12-22
+activate Gateway
+
+Gateway -> Gateway: Authenticate
+Gateway -> Gateway: Authorize (Financial.Read)
+Gateway -> Controller: Forward request
+activate Controller
+
+Controller -> Handler: Send GetFinancialDashboardQuery
+activate Handler
+
+== Check Cache ==
+
+Handler -> Cache: TryGetAsync("dashboard:2025-01-01:2025-12-22")
+activate Cache
+
+alt Cache Hit
+    Cache --> Handler: cached dashboard
+    deactivate Cache
+    Handler --> Controller: FinancialDashboard
+    Controller --> Gateway: 200 OK + dashboard
+    Gateway --> SPA: Dashboard data
+    SPA --> Admin: Display dashboard
+else Cache Miss
+    Cache --> Handler: null
+    deactivate Cache
+
+    == Load Data from Database ==
+
+    Handler -> Service: GetFinancialDashboard(startDate, endDate)
+    activate Service
+
+    par Parallel Queries
+
+        Service -> InvoiceRepo: GetInvoiceStatistics(period)
+        activate InvoiceRepo
+        InvoiceRepo -> DB: SELECT COUNT(*), SUM(TotalAmount),\nAVG(TotalAmount), etc.\nFROM Invoices\nWHERE IssueDate BETWEEN @start AND @end
+        DB --> InvoiceRepo: statistics
+        InvoiceRepo --> Service: InvoiceStats
+        deactivate InvoiceRepo
+
+    and
+
+        Service -> InvoiceRepo: GetRevenueByMonth(period)
+        activate InvoiceRepo
+        InvoiceRepo -> DB: SELECT MONTH(IssueDate), SUM(TotalAmount)\nFROM Invoices\nGROUP BY MONTH(IssueDate)
+        DB --> InvoiceRepo: monthly data
+        InvoiceRepo --> Service: List<MonthlyRevenue>
+        deactivate InvoiceRepo
+
+    and
+
+        Service -> InvoiceRepo: GetRevenueByFeeType(period)
+        activate InvoiceRepo
+        InvoiceRepo -> DB: SELECT FeeType, SUM(LineTotal)\nFROM InvoiceItems\nGROUP BY FeeType
+        DB --> InvoiceRepo: fee type data
+        InvoiceRepo --> Service: Dictionary<FeeType, Money>
+        deactivate InvoiceRepo
+
+    and
+
+        Service -> PaymentRepo: GetPaymentStatistics(period)
+        activate PaymentRepo
+        PaymentRepo -> DB: SELECT SUM(Amount), COUNT(*),\nAVG(DATEDIFF(ProcessedDate, Invoice.IssueDate))\nFROM Payments
+        DB --> PaymentRepo: payment stats
+        PaymentRepo --> Service: PaymentStats
+        deactivate PaymentRepo
+
+    and
+
+        Service -> InvoiceRepo: GetPastDueCount()
+        activate InvoiceRepo
+        InvoiceRepo -> DB: SELECT COUNT(*)\nFROM Invoices\nWHERE Status = 'PastDue'
+        DB --> InvoiceRepo: count
+        InvoiceRepo --> Service: pastDueCount
+        deactivate InvoiceRepo
+
+    end
+
+    == Build Dashboard ==
+
+    Service -> Service: Aggregate all data
+    Service -> Service: Calculate KPIs
+    Service -> Service: Build FinancialDashboard object
+
+    == AI-Powered Insights (Optional) ==
+
+    Service -> AI: GetFinancialInsights(dashboard)
+    activate AI
+
+    AI -> AI: Prepare prompt with data
+    AI -> OpenAI: POST /openai/deployments/gpt-4/chat/completions
+    activate OpenAI
+    note right
+      Analyze revenue trends,
+      identify anomalies,
+      predict future revenue
+    end note
+    OpenAI -> OpenAI: Generate insights
+    OpenAI --> AI: {insights, predictions}
+    deactivate OpenAI
+
+    AI --> Service: AI insights
+    deactivate AI
+
+    Service -> Service: Add AI insights to dashboard
+
+    Service --> Handler: FinancialDashboard
+    deactivate Service
+
+    == Cache Result ==
+
+    Handler -> Cache: SetAsync("dashboard:...", dashboard, TTL: 1h)
+    activate Cache
+    Cache --> Handler: Cached
+    deactivate Cache
+
+    Handler --> Controller: FinancialDashboard
+    deactivate Handler
+
+    Controller --> Gateway: 200 OK + dashboard
+    deactivate Controller
+
+    Gateway --> SPA: Dashboard data
+    deactivate Gateway
+
+    == Render Dashboard ==
+
+    SPA -> SPA: Update NgRx store
+    SPA -> SPA: Render KPI cards
+    SPA -> SPA: Render revenue charts (Chart.js)
+    SPA -> SPA: Render fee type distribution
+    SPA -> SPA: Display AI insights
+
+    SPA --> Admin: Interactive dashboard
+    deactivate SPA
+
+end
+
+@enduml
+
+' ============================================
+' Sequence 6: AI-Powered Invoice Anomaly Detection
+' ============================================
+
+@startuml 6-AI-Invoice-Anomaly-Detection
+
+title 6. AI-Powered Invoice Anomaly Detection
+
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+
+participant "Azure Function\n(Scheduled)" as Function
+participant "Invoice Repository" as Repo
+participant "AI Analysis Service" as AI
+participant "Azure OpenAI" as OpenAI
+participant "Event Publisher" as Events
+participant "Azure Service Bus" as ServiceBus
+participant "Email Service" as Email
+participant "Azure SQL" as DB
+actor "Finance Manager" as FM
+
+== Scheduled Analysis (Daily) ==
+
+Function -> Function: Timer triggers (daily 2 AM)
+activate Function
+
+Function -> Repo: GetRecentInvoices(lastNDays: 7)
+activate Repo
+Repo -> DB: SELECT * FROM Invoices\nWHERE CreatedAt > NOW() - 7 DAYS\nAND Status != 'Draft'
+DB --> Repo: recent invoices
+Repo --> Function: List<Invoice>
+deactivate Repo
+
+Function -> AI: DetectAnomaliesAsync(invoices)
+activate AI
+
+== Prepare Data for AI ==
+
+AI -> AI: Extract invoice features:\n- Total amount\n- Item count\n- Customer history\n- Event type\n- Line item prices
+
+AI -> AI: Build analysis prompt
+
+== Call Azure OpenAI ==
+
+AI -> OpenAI: POST /chat/completions
+activate OpenAI
+note right
+  {
+    "model": "gpt-4",
+    "messages": [{
+      "role": "system",
+      "content": "Analyze invoices for anomalies..."
+    }, {
+      "role": "user",
+      "content": "Invoice data: [...]"
+    }]
+  }
+end note
+
+OpenAI -> OpenAI: Analyze patterns
+OpenAI -> OpenAI: Detect anomalies:\n- Unusual amounts\n- Duplicate items\n- Pricing inconsistencies\n- Suspicious patterns
+
+OpenAI --> AI: {anomalies: [...]}
+deactivate OpenAI
+
+== Process Results ==
+
+AI -> AI: Parse AI response
+AI -> AI: Create InvoiceAnomaly objects
+
+loop For each detected anomaly
+
+    alt High Severity Anomaly
+        AI -> AI: Mark as high severity
+    else Medium Severity
+        AI -> AI: Mark as medium severity
+    else Low Severity
+        AI -> AI: Mark as informational
+    end
+
+end
+
+AI --> Function: List<InvoiceAnomaly>
+deactivate AI
+
+== Handle Anomalies ==
+
+loop For each anomaly
+
+    Function -> Events: PublishAsync(InvoiceAnomalyDetected)
+    activate Events
+    Events -> ServiceBus: Send event
+    note right
+      {
+        invoiceId: "...",
+        anomalyType: "UnusualAmount",
+        severity: "High",
+        description: "...",
+        suggestedAction: "..."
+      }
+    end note
+    ServiceBus --> Events: Acknowledged
+    deactivate Events
+
+    alt High Severity
+        Function -> Email: SendAnomalyAlert(anomaly)
+        activate Email
+        Email -> Email: Format alert email
+        Email -> FM: Email: "Urgent: Invoice anomaly detected"
+        Email --> Function: Sent
+        deactivate Email
+    end
+
+    Function -> Repo: AddAnomalyRecord(anomaly)
+    activate Repo
+    Repo -> DB: INSERT INTO InvoiceAnomalies
+    DB --> Repo: Success
+    deactivate Repo
+
+end
+
+Function -> Function: Log analysis complete
+deactivate Function
+
+@enduml
+
+@enduml

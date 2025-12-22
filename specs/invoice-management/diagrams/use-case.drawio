@@ -1,0 +1,370 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T10:00:00.000Z" agent="5.0" version="22.1.0" etag="use-case-diagram" type="device">
+  <diagram name="Invoice Management Use Cases" id="invoice-use-cases">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Invoice &amp; Financial Management System" style="swimlane;startSize=40;horizontal=1;containerType=tree;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;};fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="1000" height="1100" as="geometry" />
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-customer" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="150" y="200" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-finance-manager" value="Finance Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="150" y="500" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-admin" value="Administrator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="150" y="800" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="500" width="60" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Invoice Management -->
+        <mxCell id="uc-create-invoice" value="Create Draft Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="80" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-add-items" value="Add Invoice Items" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="170" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-add-fees" value="Add Fee Sources\n(Staff, Prizes, Equipment)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="170" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-apply-discount" value="Apply Discount" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-calculate-tax" value="Calculate Tax" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-finalize-invoice" value="Finalize Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="350" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-send-invoice" value="Send Invoice to Customer" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="350" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-void-invoice" value="Void Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="440" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-correct-invoice" value="Create Corrective Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="440" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-view-invoice" value="View Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="530" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-download-invoice" value="Download Invoice PDF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="530" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Payment Management -->
+        <mxCell id="uc-process-payment" value="Process Payment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="500" y="80" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-record-payment" value="Record Manual Payment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="500" y="170" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-refund-payment" value="Refund Payment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="500" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-partial-refund" value="Issue Partial Refund" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="680" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-retry-payment" value="Retry Failed Payment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="500" y="350" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-view-payment-history" value="View Payment History" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="system-boundary">
+          <mxGeometry x="500" y="440" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Financial Reporting -->
+        <mxCell id="uc-view-dashboard" value="View Financial Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="720" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-aging-report" value="Generate Aging Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="720" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-export-data" value="Export Financial Data" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="810" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-revenue-analysis" value="View Revenue Analysis" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="280" y="810" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-write-off" value="Write Off Invoice" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="system-boundary">
+          <mxGeometry x="100" y="900" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases - Automated Actions -->
+        <mxCell id="uc-send-reminder" value="Send Payment Reminder" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="80" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-mark-past-due" value="Mark Invoice Past Due" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="170" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-generate-pdf" value="Generate Invoice PDF" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="260" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-recalculate" value="Recalculate Invoice Totals" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="350" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-detect-anomaly" value="Detect Invoice Anomalies (AI)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="440" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-predict-payment" value="Predict Payment Date (AI)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="system-boundary">
+          <mxGeometry x="750" y="530" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Customer -->
+        <mxCell id="rel-customer-view" style="endArrow=none;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-customer" target="uc-view-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-customer-download" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-customer" target="uc-download-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-customer-payment" style="endArrow=none;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-customer" target="uc-process-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Finance Manager -->
+        <mxCell id="rel-fm-create" style="endArrow=none;html=1;exitX=1;exitY=0.1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-create-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-add-items" style="endArrow=none;html=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-add-items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-discount" style="endArrow=none;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-apply-discount">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-finalize" style="endArrow=none;html=1;exitX=1;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-finalize-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-send" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-send-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-void" style="endArrow=none;html=1;exitX=1;exitY=0.6;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-void-invoice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-record-payment" style="endArrow=none;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-record-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-refund" style="endArrow=none;html=1;exitX=1;exitY=0.8;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-refund-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-fm-dashboard" style="endArrow=none;html=1;exitX=1;exitY=0.9;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-finance-manager" target="uc-view-dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Administrator -->
+        <mxCell id="rel-admin-dashboard" style="endArrow=none;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-view-dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-aging" style="endArrow=none;html=1;exitX=1;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-aging-report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-export" style="endArrow=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-export-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-revenue" style="endArrow=none;html=1;exitX=1;exitY=0.6;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-revenue-analysis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-admin-writeoff" style="endArrow=none;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-write-off">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - System -->
+        <mxCell id="rel-system-reminder" style="endArrow=none;html=1;exitX=0;exitY=0.1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-send-reminder">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-pastdue" style="endArrow=none;html=1;exitX=0;exitY=0.2;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-mark-past-due">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-pdf" style="endArrow=none;html=1;exitX=0;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-generate-pdf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-recalc" style="endArrow=none;html=1;exitX=0;exitY=0.6;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-recalculate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-anomaly" style="endArrow=none;html=1;exitX=0;exitY=0.8;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-detect-anomaly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-predict" style="endArrow=none;html=1;exitX=0;exitY=0.9;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-system" target="uc-predict-payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="rel-include-addfees" style="endArrow=open;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endFill=0;" edge="1" parent="1" source="uc-add-items" target="uc-add-fees">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="650" y="350" as="targetPoint" />
+            <mxLabel value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rel-include-addfees">
+              <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="5" y="-8" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-include-recalc1" style="endArrow=open;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;endFill=0;" edge="1" parent="1" source="uc-apply-discount" target="uc-recalculate">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="650" y="350" as="targetPoint" />
+            <mxLabel value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rel-include-recalc1">
+              <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="10" y="-10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-include-recalc2" style="endArrow=open;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endFill=0;" edge="1" parent="1" source="uc-calculate-tax" target="uc-recalculate">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="650" y="350" as="targetPoint" />
+            <mxLabel value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rel-include-recalc2">
+              <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="20" y="-8" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-include-pdf" style="endArrow=open;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;endFill=0;" edge="1" parent="1" source="uc-finalize-invoice" target="uc-generate-pdf">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="650" y="350" as="targetPoint" />
+            <mxLabel value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rel-include-pdf">
+              <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="15" y="10" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-extend-partial" style="endArrow=block;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endFill=1;" edge="1" parent="1" source="uc-refund-payment" target="uc-partial-refund">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="400" as="sourcePoint" />
+            <mxPoint x="650" y="350" as="targetPoint" />
+            <mxLabel value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rel-extend-partial">
+              <mxGeometry x="-0.1" y="2" relative="1" as="geometry">
+                <mxPoint x="5" y="-8" as="offset" />
+              </mxGeometry>
+            </mxLabel>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="40" width="260" height="280" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="50" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-customer-color" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="90" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-customer-text" value="Customer Actions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="85" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-finance-color" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="120" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-finance-text" value="Finance Manager Actions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="115" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-admin-color" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="150" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-admin-text" value="Admin/Reporting Actions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="145" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system-color" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="180" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-system-text" value="Automated/AI Actions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="175" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-general-color" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="210" width="30" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-general-text" value="General Use Cases" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="205" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-include" value="" style="endArrow=open;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;endFill=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1520" y="250" as="sourcePoint" />
+            <mxPoint x="1550" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-include-text" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt; relationship" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="235" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-extend" value="" style="endArrow=block;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1520" y="280" as="sourcePoint" />
+            <mxPoint x="1550" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-extend-text" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt; relationship" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="265" width="180" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

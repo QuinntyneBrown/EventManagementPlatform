@@ -1,0 +1,595 @@
+@startuml Invoice and Financial Management - Class Diagram
+
+!define ENTITY_COLOR #E3F2FD
+!define VALUE_OBJECT_COLOR #FFF9C4
+!define SERVICE_COLOR #E8F5E9
+!define REPOSITORY_COLOR #F3E5F5
+
+title Invoice & Financial Management - Domain Model Class Diagram
+
+skinparam classFontSize 11
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam classBackgroundColor ENTITY_COLOR
+skinparam arrowColor #424242
+
+' ============================================
+' Aggregates
+' ============================================
+
+package "Invoice Aggregate" <<Rectangle>> {
+    class Invoice <<Aggregate Root>> {
+        - InvoiceId : Guid
+        - InvoiceNumber : InvoiceNumber
+        - EventId : Guid
+        - CustomerId : Guid
+        - Status : InvoiceStatus
+        - IssueDate : DateTime
+        - DueDate : DateTime
+        - FinalizedDate : DateTime?
+        - PaidDate : DateTime?
+        - Items : List<InvoiceItem>
+        - Subtotal : Money
+        - TaxAmount : Money
+        - TaxRate : decimal?
+        - TaxJurisdiction : string
+        - DiscountAmount : Money
+        - DiscountType : DiscountType?
+        - DiscountReason : string
+        - TotalAmount : Money
+        - AmountPaid : Money
+        - AmountDue : Money
+        - BillingAddress : Address
+        - Notes : string
+        - Terms : string
+        - PdfBlobUrl : string
+        - Version : int
+        --
+        + AddItem(item : InvoiceItem) : void
+        + RemoveItem(itemId : Guid) : void
+        + UpdateItem(itemId : Guid, quantity : decimal, unitPrice : Money) : void
+        + ApplyDiscount(amount : Money, type : DiscountType, reason : string) : void
+        + RemoveDiscount() : void
+        + CalculateTax(taxRate : decimal, jurisdiction : string) : void
+        + Recalculate() : void
+        + Finalize() : void
+        + Void(reason : string) : void
+        + CreateCorrection(reason : string) : Invoice
+        + RecordPayment(payment : Payment) : void
+        + RecordRefund(refund : Refund) : void
+        + WriteOff(reason : string, approvedBy : Guid) : void
+        + MarkPastDue() : void
+        + CanEdit() : bool
+        + CanFinalize() : bool
+        + CanVoid() : bool
+    }
+
+    class InvoiceItem <<Entity>> {
+        - ItemId : Guid
+        - InvoiceId : Guid
+        - FeeType : FeeType
+        - Description : string
+        - ReferenceId : Guid?
+        - Quantity : decimal
+        - UnitPrice : Money
+        - LineTotal : Money
+        - TaxRate : decimal?
+        - TaxAmount : Money
+        - DiscountAmount : Money
+        - SortOrder : int
+        --
+        + CalculateLineTotal() : void
+        + UpdateQuantity(quantity : decimal) : void
+        + UpdateUnitPrice(price : Money) : void
+    }
+
+    enum InvoiceStatus {
+        Draft
+        Finalized
+        Paid
+        PartiallyPaid
+        Voided
+        WrittenOff
+        PastDue
+    }
+
+    enum FeeType {
+        Staff
+        Invitation
+        Prize
+        Equipment
+        Additional
+    }
+
+    enum DiscountType {
+        Percentage
+        FixedAmount
+    }
+}
+
+package "Payment Aggregate" <<Rectangle>> {
+    class Payment <<Aggregate Root>> {
+        - PaymentId : Guid
+        - InvoiceId : Guid
+        - Amount : Money
+        - PaymentMethod : PaymentMethod
+        - Status : PaymentStatus
+        - TransactionId : string
+        - ProcessedDate : DateTime?
+        - PaymentGateway : string
+        - PaymentDetails : PaymentDetails
+        - FailureReason : string
+        - RetryCount : int
+        - Notes : string
+        - CreatedAt : DateTime
+        - CreatedBy : Guid
+        --
+        + Process() : void
+        + Fail(reason : string) : void
+        + Retry() : void
+        + FullRefund(reason : string) : Refund
+        + PartialRefund(amount : Money, reason : string) : Refund
+        + CanRetry() : bool
+        + CanRefund() : bool
+    }
+
+    class Refund <<Entity>> {
+        - RefundId : Guid
+        - PaymentId : Guid
+        - InvoiceId : Guid
+        - Amount : Money
+        - RefundMethod : RefundMethod
+        - Status : RefundStatus
+        - Reason : string
+        - ProcessedDate : DateTime?
+        - TransactionId : string
+        - Notes : string
+        - CreatedAt : DateTime
+        - CreatedBy : Guid
+        --
+        + Process() : void
+        + Fail(reason : string) : void
+        + CanProcess() : bool
+    }
+
+    enum PaymentMethod {
+        CreditCard
+        BankTransfer
+        Check
+        Cash
+        PayPal
+        Stripe
+    }
+
+    enum PaymentStatus {
+        Pending
+        Successful
+        Failed
+        Refunded
+        PartiallyRefunded
+    }
+
+    enum RefundMethod {
+        ToOriginalPaymentMethod
+        StoreCredit
+        Check
+    }
+
+    enum RefundStatus {
+        Pending
+        Processed
+        Failed
+    }
+}
+
+' ============================================
+' Value Objects
+' ============================================
+
+package "Value Objects" <<Rectangle>> {
+    class Money <<Value Object>> {
+        + Amount : decimal
+        + Currency : string
+        --
+        + {static} Zero(currency : string) : Money
+        + Add(other : Money) : Money
+        + Subtract(other : Money) : Money
+        + Multiply(factor : decimal) : Money
+        + Divide(divisor : decimal) : Money
+        + IsGreaterThan(other : Money) : bool
+        + IsLessThan(other : Money) : bool
+        + Equals(other : Money) : bool
+    }
+
+    class InvoiceNumber <<Value Object>> {
+        + Value : string
+        --
+        + {static} Generate(year : int, sequence : int) : InvoiceNumber
+        + ToString() : string
+        + Equals(other : InvoiceNumber) : bool
+    }
+
+    class Address <<Value Object>> {
+        + Street : string
+        + City : string
+        + State : string
+        + PostalCode : string
+        + Country : string
+        --
+        + GetFullAddress() : string
+        + Equals(other : Address) : bool
+    }
+
+    class PaymentDetails <<Value Object>> {
+        + Last4Digits : string?
+        + CardType : string?
+        + AccountNumber : string?
+        + PayPalEmail : string?
+        --
+        + GetMaskedDetails() : string
+        + Equals(other : PaymentDetails) : bool
+    }
+
+    class TaxRate <<Value Object>> {
+        + Rate : decimal
+        + Description : string
+        --
+        + Calculate(amount : Money) : Money
+        + Equals(other : TaxRate) : bool
+    }
+}
+
+' ============================================
+' Domain Events
+' ============================================
+
+package "Domain Events" <<Rectangle>> {
+    interface IDomainEvent {
+        + EventId : Guid
+        + AggregateId : Guid
+        + OccurredAt : DateTime
+        + Version : int
+    }
+
+    class InvoiceDraftCreated implements IDomainEvent {
+        + InvoiceId : Guid
+        + EventId : Guid
+        + CustomerId : Guid
+        + IssueDate : DateTime
+        + DueDate : DateTime
+        + BillingAddress : Address
+        + OccurredAt : DateTime
+    }
+
+    class InvoiceFinalized implements IDomainEvent {
+        + InvoiceId : Guid
+        + InvoiceNumber : string
+        + TotalAmount : Money
+        + FinalizedDate : DateTime
+        + OccurredAt : DateTime
+    }
+
+    class PaymentReceived implements IDomainEvent {
+        + PaymentId : Guid
+        + InvoiceId : Guid
+        + Amount : Money
+        + PaymentMethod : string
+        + TransactionId : string
+        + ProcessedDate : DateTime
+        + OccurredAt : DateTime
+    }
+
+    class InvoiceFullyPaid implements IDomainEvent {
+        + InvoiceId : Guid
+        + TotalAmount : Money
+        + TotalPaid : Money
+        + PaymentIds : List<Guid>
+        + PaidDate : DateTime
+        + OccurredAt : DateTime
+    }
+
+    class PaymentRefunded implements IDomainEvent {
+        + PaymentId : Guid
+        + RefundId : Guid
+        + InvoiceId : Guid
+        + RefundAmount : Money
+        + Reason : string
+        + RefundedDate : DateTime
+        + OccurredAt : DateTime
+    }
+
+    class InvoicePastDue implements IDomainEvent {
+        + InvoiceId : Guid
+        + DueDate : DateTime
+        + AmountDue : Money
+        + DaysPastDue : int
+        + OccurredAt : DateTime
+    }
+}
+
+' ============================================
+' Domain Services
+' ============================================
+
+package "Domain Services" <<Rectangle>> {
+    class InvoiceService <<Service>> {
+        - _invoiceRepository : IInvoiceRepository
+        - _eventPublisher : IDomainEventPublisher
+        - _taxService : ITaxCalculationService
+        --
+        + CreateDraftInvoice(request : CreateInvoiceRequest) : Invoice
+        + AddItemsFromFeeSources(invoiceId : Guid, sources : FeeSources) : void
+        + FinalizeInvoice(invoiceId : Guid) : void
+        + VoidInvoice(invoiceId : Guid, reason : string) : void
+        + CreateCorrectiveInvoice(originalId : Guid, reason : string) : Invoice
+        + RecalculateInvoice(invoiceId : Guid) : void
+    }
+
+    class PaymentService <<Service>> {
+        - _paymentRepository : IPaymentRepository
+        - _invoiceRepository : IInvoiceRepository
+        - _paymentGateway : IPaymentGateway
+        - _eventPublisher : IDomainEventPublisher
+        --
+        + ProcessPayment(request : PaymentRequest) : Payment
+        + RecordManualPayment(request : ManualPaymentRequest) : Payment
+        + RefundPayment(paymentId : Guid, amount : Money, reason : string) : Refund
+        + RetryFailedPayment(paymentId : Guid) : void
+    }
+
+    interface ITaxCalculationService <<Interface>> {
+        + CalculateTax(amount : Money, jurisdiction : string) : TaxCalculation
+        + GetTaxRate(jurisdiction : string) : TaxRate
+    }
+
+    class TaxCalculationService implements ITaxCalculationService {
+        --
+        + CalculateTax(amount : Money, jurisdiction : string) : TaxCalculation
+        + GetTaxRate(jurisdiction : string) : TaxRate
+    }
+
+    class FinancialReportingService <<Service>> {
+        - _invoiceRepository : IInvoiceRepository
+        - _paymentRepository : IPaymentRepository
+        --
+        + GetFinancialDashboard(startDate : DateTime, endDate : DateTime) : FinancialDashboard
+        + GenerateAgingReport(asOfDate : DateTime) : AgingReport
+        + GetRevenueAnalysis(period : DateRange) : RevenueAnalysis
+        + ExportFinancialData(format : string, period : DateRange) : byte[]
+    }
+}
+
+' ============================================
+' Repositories
+' ============================================
+
+package "Repositories" <<Rectangle>> {
+    interface IInvoiceRepository <<Interface>> {
+        + GetByIdAsync(invoiceId : Guid) : Task<Invoice>
+        + GetByInvoiceNumberAsync(number : string) : Task<Invoice>
+        + ListAsync(filters : InvoiceFilters, page : int, pageSize : int) : Task<PagedResult<Invoice>>
+        + AddAsync(invoice : Invoice) : Task
+        + UpdateAsync(invoice : Invoice) : Task
+        + DeleteAsync(invoiceId : Guid) : Task
+        + GetUpcomingDueInvoices(daysAhead : int) : Task<List<Invoice>>
+        + GetPastDueInvoices() : Task<List<Invoice>>
+        + CalculateAgingReport() : Task<AgingReport>
+    }
+
+    interface IPaymentRepository <<Interface>> {
+        + GetByIdAsync(paymentId : Guid) : Task<Payment>
+        + GetByInvoiceIdAsync(invoiceId : Guid) : Task<List<Payment>>
+        + GetByTransactionIdAsync(transactionId : string) : Task<Payment>
+        + AddAsync(payment : Payment) : Task
+        + UpdateAsync(payment : Payment) : Task
+        + GetRetryablePayments(maxRetries : int) : Task<List<Payment>>
+    }
+
+    interface IRefundRepository <<Interface>> {
+        + GetByIdAsync(refundId : Guid) : Task<Refund>
+        + GetByPaymentIdAsync(paymentId : Guid) : Task<List<Refund>>
+        + AddAsync(refund : Refund) : Task
+        + UpdateAsync(refund : Refund) : Task
+    }
+
+    interface IDomainEventPublisher <<Interface>> {
+        + PublishAsync<TEvent>(event : TEvent) : Task
+        + PublishBatchAsync(events : List<IDomainEvent>) : Task
+    }
+}
+
+' ============================================
+' DTOs and Read Models
+' ============================================
+
+package "DTOs / Read Models" <<Rectangle>> {
+    class FinancialDashboard <<DTO>> {
+        + Period : DateRange
+        + TotalRevenue : Money
+        + TotalPaid : Money
+        + TotalOutstanding : Money
+        + TotalRefunded : Money
+        + InvoiceCount : int
+        + PaidInvoiceCount : int
+        + PastDueInvoiceCount : int
+        + AverageInvoiceValue : Money
+        + AverageDaysToPayment : int
+        + RevenueByMonth : List<MonthlyRevenue>
+        + RevenueByFeeType : Dictionary<string, Money>
+    }
+
+    class AgingReport <<DTO>> {
+        + AsOfDate : DateTime
+        + Current : AgingBucket
+        + Days1to30 : AgingBucket
+        + Days31to60 : AgingBucket
+        + Days61to90 : AgingBucket
+        + Over90Days : AgingBucket
+        + Total : AgingBucket
+    }
+
+    class AgingBucket <<DTO>> {
+        + Amount : Money
+        + Count : int
+        + Percentage : decimal
+    }
+
+    class MonthlyRevenue <<DTO>> {
+        + Month : string
+        + Amount : Money
+        + InvoiceCount : int
+    }
+
+    class InvoiceFilters <<DTO>> {
+        + Status : InvoiceStatus?
+        + EventId : Guid?
+        + CustomerId : Guid?
+        + StartDate : DateTime?
+        + EndDate : DateTime?
+        + SearchTerm : string
+    }
+
+    class CreateInvoiceRequest <<DTO>> {
+        + EventId : Guid
+        + CustomerId : Guid
+        + DueDate : DateTime
+        + BillingAddress : Address
+        + Notes : string
+        + Terms : string
+    }
+
+    class PaymentRequest <<DTO>> {
+        + InvoiceId : Guid
+        + Amount : Money
+        + PaymentMethod : PaymentMethod
+        + PaymentGateway : string
+        + PaymentDetails : PaymentDetails
+        + Notes : string
+    }
+}
+
+' ============================================
+' Infrastructure Interfaces
+' ============================================
+
+package "Infrastructure" <<Rectangle>> {
+    interface IPaymentGateway <<Interface>> {
+        + ProcessPaymentAsync(request : PaymentRequest) : Task<PaymentResult>
+        + RefundPaymentAsync(request : RefundRequest) : Task<RefundResult>
+        + GetTransactionStatusAsync(transactionId : string) : Task<TransactionStatus>
+    }
+
+    class StripePaymentGateway implements IPaymentGateway {
+        - _stripeClient : StripeClient
+        --
+        + ProcessPaymentAsync(request : PaymentRequest) : Task<PaymentResult>
+        + RefundPaymentAsync(request : RefundRequest) : Task<RefundResult>
+        + GetTransactionStatusAsync(transactionId : string) : Task<TransactionStatus>
+    }
+
+    interface IPdfGenerator <<Interface>> {
+        + GenerateInvoicePdfAsync(invoice : Invoice) : Task<byte[]>
+    }
+
+    interface IEmailService <<Interface>> {
+        + SendInvoiceAsync(invoice : Invoice, recipient : string) : Task
+        + SendPaymentReminderAsync(invoice : Invoice) : Task
+        + SendPaymentConfirmationAsync(payment : Payment) : Task
+    }
+
+    interface IAIAnalysisService <<Interface>> {
+        + DetectAnomaliesAsync(invoiceIds : List<Guid>) : Task<List<InvoiceAnomaly>>
+        + PredictPaymentDateAsync(invoiceId : Guid) : Task<PaymentPrediction>
+    }
+}
+
+' ============================================
+' Relationships
+' ============================================
+
+' Invoice to InvoiceItem
+Invoice "1" *-- "0..*" InvoiceItem : contains
+
+' Invoice relationships with value objects
+Invoice --> Money : uses
+Invoice --> InvoiceNumber : has
+Invoice --> Address : has
+Invoice --> InvoiceStatus : has
+
+' InvoiceItem relationships
+InvoiceItem --> Money : uses
+InvoiceItem --> FeeType : has
+
+' Payment relationships
+Payment --> Money : uses
+Payment --> PaymentMethod : has
+Payment --> PaymentStatus : has
+Payment --> PaymentDetails : has
+
+' Payment to Refund
+Payment "1" *-- "0..*" Refund : has
+
+' Refund relationships
+Refund --> Money : uses
+Refund --> RefundMethod : has
+Refund --> RefundStatus : has
+
+' Domain Events published by aggregates
+Invoice ..> InvoiceDraftCreated : publishes
+Invoice ..> InvoiceFinalized : publishes
+Invoice ..> InvoiceFullyPaid : publishes
+Invoice ..> InvoicePastDue : publishes
+Payment ..> PaymentReceived : publishes
+Payment ..> PaymentRefunded : publishes
+
+' Services using repositories
+InvoiceService --> IInvoiceRepository : uses
+InvoiceService --> IDomainEventPublisher : uses
+InvoiceService --> ITaxCalculationService : uses
+PaymentService --> IPaymentRepository : uses
+PaymentService --> IInvoiceRepository : uses
+PaymentService --> IPaymentGateway : uses
+PaymentService --> IDomainEventPublisher : uses
+FinancialReportingService --> IInvoiceRepository : uses
+FinancialReportingService --> IPaymentRepository : uses
+
+' Services working with aggregates
+InvoiceService ..> Invoice : manages
+PaymentService ..> Payment : manages
+PaymentService ..> Refund : manages
+
+' DTOs
+FinancialReportingService ..> FinancialDashboard : returns
+FinancialReportingService ..> AgingReport : returns
+AgingReport --> AgingBucket : contains
+FinancialDashboard --> MonthlyRevenue : contains
+
+' Infrastructure implementations
+TaxCalculationService ..|> ITaxCalculationService : implements
+StripePaymentGateway ..|> IPaymentGateway : implements
+
+note right of Invoice
+  Aggregate Root for Invoice bounded context.
+  Enforces invariants and business rules.
+  Publishes domain events for all state changes.
+end note
+
+note right of Payment
+  Aggregate Root for Payment bounded context.
+  Handles payment processing and refunds.
+  Integrates with external payment gateways.
+end note
+
+note right of Money
+  Value Object ensuring currency
+  consistency in all calculations.
+  Immutable by design.
+end note
+
+note bottom of IDomainEvent
+  All domain events implement this interface.
+  Events are stored in Event Store for audit trail.
+  Events trigger side effects via handlers.
+end note
+
+@enduml

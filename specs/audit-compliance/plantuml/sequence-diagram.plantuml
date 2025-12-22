@@ -1,0 +1,549 @@
+@startuml Audit & Compliance Sequence Diagrams
+
+title Audit & Compliance - Key Workflow Sequence Diagrams
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 200
+
+' ============================================
+' Sequence 1: Audit Log Creation on Entity Operation
+' ============================================
+
+participant "Event Management\nService" as EventSvc
+participant "Audit Log\nService" as AuditSvc
+participant "Audit Log\nRepository" as AuditRepo
+participant "Database" as DB
+participant "Event Publisher" as EventPub
+
+== Automatic Audit Logging ==
+
+EventSvc -> EventSvc : Create/Update/Delete Entity
+activate EventSvc
+
+EventSvc -> AuditSvc : LogEntityOperation(\nentityType, entityId,\noperationType, userId, changes)
+activate AuditSvc
+
+AuditSvc -> AuditSvc : Create AuditLog Aggregate
+AuditSvc -> AuditSvc : Capture IP Address & UserAgent
+AuditSvc -> AuditSvc : Generate CorrelationId
+
+AuditSvc -> AuditRepo : Save(auditLog)
+activate AuditRepo
+AuditRepo -> DB : INSERT INTO AuditLogs
+DB --> AuditRepo : Success
+deactivate AuditRepo
+
+AuditSvc -> EventPub : Publish(EntityCreated/Updated/Deleted)
+activate EventPub
+EventPub --> AuditSvc : Event Published
+deactivate EventPub
+
+AuditSvc --> EventSvc : AuditLogId
+deactivate AuditSvc
+
+EventSvc --> EventSvc : Continue Operation
+deactivate EventSvc
+
+|||
+
+' ============================================
+' Sequence 2: Data Export Workflow
+' ============================================
+
+actor Customer
+participant "Web App" as Web
+participant "Export\nController" as ExportCtrl
+participant "Export\nService" as ExportSvc
+participant "Export\nRepository" as ExportRepo
+participant "Service Bus" as ServiceBus
+participant "Background\nWorker" as Worker
+participant "Blob Storage" as Blob
+
+== Customer Requests Data Export ==
+
+Customer -> Web : Request Data Export
+activate Web
+
+Web -> ExportCtrl : POST /api/exports\n{exportType, filterCriteria}
+activate ExportCtrl
+
+ExportCtrl -> ExportSvc : CreateExport(request)
+activate ExportSvc
+
+ExportSvc -> ExportSvc : Validate Request
+ExportSvc -> ExportSvc : Check User Permissions
+
+ExportSvc -> ExportRepo : Create DataExport Aggregate
+activate ExportRepo
+ExportRepo -> DB : INSERT INTO DataExports\nStatus = Pending
+DB --> ExportRepo : ExportId
+deactivate ExportRepo
+
+ExportSvc -> ServiceBus : Queue Export Job\n{exportId}
+activate ServiceBus
+ServiceBus --> ExportSvc : Job Queued
+deactivate ServiceBus
+
+ExportSvc --> ExportCtrl : DataExportDto\n{exportId, status: "Pending"}
+deactivate ExportSvc
+
+ExportCtrl --> Web : 202 Accepted\n{exportId, status}
+deactivate ExportCtrl
+
+Web --> Customer : Export Request Submitted
+deactivate Web
+
+|||
+
+== Background Processing ==
+
+ServiceBus -> Worker : Export Job Message
+activate Worker
+
+Worker -> ExportRepo : GetExportById(exportId)
+activate ExportRepo
+ExportRepo -> DB : SELECT FROM DataExports
+DB --> ExportRepo : DataExport
+deactivate ExportRepo
+
+Worker -> Worker : Update Status to InProgress
+
+Worker -> DB : Query Data\nBased on Filter
+activate DB
+DB --> Worker : Data Records
+deactivate DB
+
+Worker -> Worker : Transform to Export Format\n(CSV/JSON/Excel)
+
+Worker -> Blob : Upload Export File
+activate Blob
+Blob --> Worker : FileUrl
+deactivate Blob
+
+Worker -> ExportRepo : Update Export\n{fileUrl, fileSize, recordCount,\nstatus: Completed}
+activate ExportRepo
+ExportRepo -> DB : UPDATE DataExports
+deactivate ExportRepo
+
+Worker -> EventPub : Publish(DataExported)
+activate EventPub
+EventPub --> Worker : Event Published
+deactivate EventPub
+
+Worker -> Customer : Send Notification\n"Export Ready"
+deactivate Worker
+
+|||
+
+' ============================================
+' Sequence 3: Consent Recording
+' ============================================
+
+actor Customer2 as "Customer"
+participant "Privacy Center\nUI" as PrivacyUI
+participant "Consent\nController" as ConsentCtrl
+participant "Consent\nService" as ConsentSvc
+participant "Consent\nRepository" as ConsentRepo
+
+== Customer Accepts Privacy Policy ==
+
+Customer2 -> PrivacyUI : View Privacy Policy
+activate PrivacyUI
+
+PrivacyUI -> ConsentCtrl : GET /api/privacy-policy/current
+activate ConsentCtrl
+ConsentCtrl -> ConsentSvc : GetCurrentPrivacyPolicy()
+activate ConsentSvc
+ConsentSvc --> ConsentCtrl : PolicyDto{version, text}
+deactivate ConsentSvc
+ConsentCtrl --> PrivacyUI : Privacy Policy v2.1
+deactivate ConsentCtrl
+
+PrivacyUI --> Customer2 : Display Policy
+
+Customer2 -> PrivacyUI : Click "I Accept"
+PrivacyUI -> PrivacyUI : Capture IP & User Agent
+
+PrivacyUI -> ConsentCtrl : POST /api/consents\n{customerId, type: PrivacyPolicy,\nversion, consentText}
+activate ConsentCtrl
+
+ConsentCtrl -> ConsentSvc : RecordConsent(request)
+activate ConsentSvc
+
+ConsentSvc -> ConsentSvc : Create ConsentRecord Aggregate
+ConsentSvc -> ConsentSvc : Set Status = Active
+
+ConsentSvc -> ConsentRepo : Save(consentRecord)
+activate ConsentRepo
+ConsentRepo -> DB : INSERT INTO ConsentRecords
+DB --> ConsentRepo : ConsentId
+deactivate ConsentRepo
+
+ConsentSvc -> EventPub : Publish(PrivacyPolicyAccepted)
+activate EventPub
+EventPub --> ConsentSvc : Event Published
+deactivate EventPub
+
+ConsentSvc -> AuditSvc : LogDataAccess\n(customerId, ConsentRecorded)
+activate AuditSvc
+AuditSvc --> ConsentSvc : Logged
+deactivate AuditSvc
+
+ConsentSvc --> ConsentCtrl : ConsentDto
+deactivate ConsentSvc
+
+ConsentCtrl --> PrivacyUI : 201 Created
+deactivate ConsentCtrl
+
+PrivacyUI --> Customer2 : Consent Recorded
+deactivate PrivacyUI
+
+|||
+
+' ============================================
+' Sequence 4: Data Deletion Request (GDPR Right to be Forgotten)
+' ============================================
+
+actor Customer3 as "Customer"
+participant "Privacy Center" as Privacy
+participant "Deletion\nController" as DelCtrl
+participant "GDPR\nService" as GDPRSvc
+participant "Deletion\nRepository" as DelRepo
+actor DPO as "Data Protection\nOfficer"
+participant "DPO Portal" as DPOPortal
+
+== Customer Requests Data Deletion ==
+
+Customer3 -> Privacy : Request Account Deletion
+activate Privacy
+
+Privacy -> Privacy : Verify Identity\n(Email/SMS Code)
+
+Privacy -> DelCtrl : POST /api/data-deletions\n{customerId, deletionScope}
+activate DelCtrl
+
+DelCtrl -> GDPRSvc : RequestDataDeletion(request)
+activate GDPRSvc
+
+GDPRSvc -> GDPRSvc : Create CustomerDataDeletion Aggregate
+GDPRSvc -> GDPRSvc : Set ApprovalRequired = true
+GDPRSvc -> GDPRSvc : Calculate ScheduledFor\n(30 days from now)
+
+GDPRSvc -> DelRepo : Save(deletionRequest)
+activate DelRepo
+DelRepo -> DB : INSERT INTO DataDeletionRequests\nStatus = PendingApproval
+DB --> DelRepo : DeletionRequestId
+deactivate DelRepo
+
+GDPRSvc -> EventPub : Publish Event
+GDPRSvc -> DPO : Send Notification\n"Deletion Request Pending"
+
+GDPRSvc --> DelCtrl : DeletionRequestDto
+deactivate GDPRSvc
+
+DelCtrl --> Privacy : 202 Accepted
+deactivate DelCtrl
+
+Privacy --> Customer3 : Request Submitted\n(Will be processed in 30 days)
+deactivate Privacy
+
+|||
+
+== DPO Reviews and Approves ==
+
+DPO -> DPOPortal : Review Deletion Request
+activate DPOPortal
+
+DPOPortal -> DelCtrl : GET /api/data-deletions/{id}
+activate DelCtrl
+DelCtrl --> DPOPortal : DeletionRequestDto
+deactivate DelCtrl
+
+DPO -> DPO : Review Legal Obligations\n& Retention Requirements
+
+DPO -> DPOPortal : Approve Deletion
+DPOPortal -> DelCtrl : POST /api/data-deletions/{id}/approve
+activate DelCtrl
+
+DelCtrl -> GDPRSvc : ApproveDeletion(requestId, approvedBy)
+activate GDPRSvc
+
+GDPRSvc -> DelRepo : GetById(requestId)
+activate DelRepo
+DelRepo --> GDPRSvc : CustomerDataDeletion
+deactivate DelRepo
+
+GDPRSvc -> GDPRSvc : Aggregate.Approve(dpoId)
+GDPRSvc -> GDPRSvc : Set Status = Approved
+
+GDPRSvc -> DelRepo : Update(deletionRequest)
+activate DelRepo
+DelRepo -> DB : UPDATE DataDeletionRequests\nStatus = Approved
+deactivate DelRepo
+
+GDPRSvc --> DelCtrl : Success
+deactivate GDPRSvc
+
+DelCtrl --> DPOPortal : 200 OK
+deactivate DelCtrl
+
+DPOPortal --> DPO : Deletion Approved
+deactivate DPOPortal
+
+|||
+
+== Scheduled Deletion Execution ==
+
+Worker -> Worker : Daily Job: Check Scheduled Deletions
+Worker -> DelRepo : GetApprovedDeletions\n(scheduledFor <= today)
+activate DelRepo
+DelRepo --> Worker : List<DeletionRequest>
+deactivate DelRepo
+
+Worker -> GDPRSvc : ExecuteDeletion(requestId)
+activate GDPRSvc
+
+GDPRSvc -> GDPRSvc : Set Status = InProgress
+
+loop For Each Data Category
+    GDPRSvc -> DB : DELETE/ANONYMIZE Customer Data
+    activate DB
+    DB --> GDPRSvc : Rows Affected
+    deactivate DB
+end
+
+GDPRSvc -> GDPRSvc : Generate Verification Hash
+
+GDPRSvc -> DelRepo : Update Status = Completed
+activate DelRepo
+DelRepo -> DB : UPDATE DataDeletionRequests
+deactivate DelRepo
+
+GDPRSvc -> EventPub : Publish(CustomerDataDeleted)
+activate EventPub
+EventPub --> GDPRSvc : Event Published
+deactivate EventPub
+
+GDPRSvc -> AuditSvc : LogDataDeletion
+activate AuditSvc
+AuditSvc --> GDPRSvc : Logged
+deactivate AuditSvc
+
+GDPRSvc --> Worker : Deletion Complete
+deactivate GDPRSvc
+
+Worker -> Customer3 : Send Confirmation Email\n"Data Deleted"
+
+|||
+
+' ============================================
+' Sequence 5: System Backup Workflow
+' ============================================
+
+actor SysAdmin as "System\nAdministrator"
+participant "Backup Portal" as BackupUI
+participant "Backup\nController" as BackupCtrl
+participant "Backup\nService" as BackupSvc
+participant "Backup\nRepository" as BackupRepo
+participant "Azure SQL\nBackup Service" as SQLBackup
+
+== Manual Backup Creation ==
+
+SysAdmin -> BackupUI : Create Backup
+activate BackupUI
+
+BackupUI -> BackupCtrl : POST /api/backups\n{backupType: Full,\nretentionDays: 90}
+activate BackupCtrl
+
+BackupCtrl -> BackupSvc : CreateBackup(request)
+activate BackupSvc
+
+BackupSvc -> BackupSvc : Create SystemBackup Aggregate
+BackupSvc -> BackupSvc : Calculate RetentionUntil
+
+BackupSvc -> BackupRepo : Save(backup)
+activate BackupRepo
+BackupRepo -> DB : INSERT INTO SystemBackups\nStatus = Initiated
+DB --> BackupRepo : BackupId
+deactivate BackupRepo
+
+BackupSvc -> ServiceBus : Queue Backup Job
+activate ServiceBus
+ServiceBus --> BackupSvc : Job Queued
+deactivate ServiceBus
+
+BackupSvc --> BackupCtrl : BackupDto{backupId, status}
+deactivate BackupSvc
+
+BackupCtrl --> BackupUI : 202 Accepted
+deactivate BackupCtrl
+
+BackupUI --> SysAdmin : Backup Initiated
+deactivate BackupUI
+
+|||
+
+== Background Backup Processing ==
+
+ServiceBus -> Worker : Backup Job Message
+activate Worker
+
+Worker -> BackupRepo : GetById(backupId)
+activate BackupRepo
+BackupRepo --> Worker : SystemBackup
+deactivate BackupRepo
+
+Worker -> Worker : Update Status = InProgress
+
+Worker -> SQLBackup : Create Database Backup
+activate SQLBackup
+SQLBackup -> SQLBackup : Generate Backup File
+SQLBackup -> Blob : Upload Backup to Blob Storage
+activate Blob
+Blob --> SQLBackup : BackupUrl
+deactivate Blob
+SQLBackup --> Worker : BackupUrl, Size, Snapshot
+deactivate SQLBackup
+
+Worker -> BackupRepo : Update Backup\n{url, size, snapshot,\nstatus: Completed}
+activate BackupRepo
+BackupRepo -> DB : UPDATE SystemBackups
+deactivate BackupRepo
+
+Worker -> EventPub : Publish(SystemBackupCompleted)
+activate EventPub
+EventPub --> Worker : Event Published
+deactivate EventPub
+
+Worker -> AuditSvc : LogBackupOperation
+activate AuditSvc
+AuditSvc --> Worker : Logged
+deactivate AuditSvc
+
+Worker -> SysAdmin : Send Notification\n"Backup Completed"
+deactivate Worker
+
+|||
+
+' ============================================
+' Sequence 6: Data Restore Workflow
+' ============================================
+
+== Restore Request with Approval ==
+
+SysAdmin -> BackupUI : Request Data Restore
+activate BackupUI
+
+BackupUI -> BackupCtrl : POST /api/restores\n{backupId, restoreType,\napprovalRequired: true}
+activate BackupCtrl
+
+BackupCtrl -> BackupSvc : RequestRestore(request)
+activate BackupSvc
+
+BackupSvc -> BackupSvc : Create DataRestore Aggregate
+BackupSvc -> BackupSvc : Set Status = PendingApproval
+
+BackupSvc -> BackupRepo : Save(restore)
+activate BackupRepo
+BackupRepo -> DB : INSERT INTO DataRestores
+DB --> BackupRepo : RestoreId
+deactivate BackupRepo
+
+BackupSvc -> SysAdmin : Send Notification to Approver
+
+BackupSvc --> BackupCtrl : RestoreDto
+deactivate BackupSvc
+
+BackupCtrl --> BackupUI : 202 Accepted\nAwaiting Approval
+deactivate BackupCtrl
+
+BackupUI --> SysAdmin : Restore Pending Approval
+deactivate BackupUI
+
+|||
+
+== Second Admin Approves ==
+
+actor Admin2 as "Second\nAdministrator"
+participant "Admin Portal" as AdminUI
+
+Admin2 -> AdminUI : Review Restore Request
+activate AdminUI
+
+AdminUI -> BackupCtrl : POST /api/restores/{id}/approve
+activate BackupCtrl
+
+BackupCtrl -> BackupSvc : ApproveRestore(restoreId, approvedBy)
+activate BackupSvc
+
+BackupSvc -> BackupRepo : GetById(restoreId)
+activate BackupRepo
+BackupRepo --> BackupSvc : DataRestore
+deactivate BackupRepo
+
+BackupSvc -> BackupSvc : Aggregate.Approve(admin2Id)
+BackupSvc -> BackupSvc : Set Status = Approved
+
+BackupSvc -> ServiceBus : Queue Restore Job
+activate ServiceBus
+ServiceBus --> BackupSvc : Job Queued
+deactivate ServiceBus
+
+BackupSvc -> BackupRepo : Update(restore)
+activate BackupRepo
+BackupRepo -> DB : UPDATE DataRestores
+deactivate BackupRepo
+
+BackupSvc --> BackupCtrl : Success
+deactivate BackupSvc
+
+BackupCtrl --> AdminUI : 200 OK
+deactivate BackupCtrl
+
+AdminUI --> Admin2 : Restore Approved & Queued
+deactivate AdminUI
+
+|||
+
+== Execute Restore ==
+
+Worker -> BackupRepo : GetApprovedRestores()
+activate BackupRepo
+BackupRepo --> Worker : List<DataRestore>
+deactivate BackupRepo
+
+Worker -> Worker : Update Status = InProgress
+
+Worker -> SQLBackup : Restore Database\nfrom Backup
+activate SQLBackup
+
+SQLBackup -> Blob : Download Backup File
+activate Blob
+Blob --> SQLBackup : Backup File
+deactivate Blob
+
+SQLBackup -> SQLBackup : Restore Database
+
+SQLBackup --> Worker : Restore Complete
+deactivate SQLBackup
+
+Worker -> BackupRepo : Update Status = Completed
+activate BackupRepo
+BackupRepo -> DB : UPDATE DataRestores
+deactivate BackupRepo
+
+Worker -> EventPub : Publish(DataRestorePerformed)
+activate EventPub
+EventPub --> Worker : Event Published
+deactivate EventPub
+
+Worker -> AuditSvc : LogRestoreOperation
+activate AuditSvc
+AuditSvc --> Worker : Logged
+deactivate AuditSvc
+
+Worker -> SysAdmin : Send Notification\n"Restore Completed"
+Worker -> Admin2 : Send Notification\n"Restore Completed"
+
+@enduml

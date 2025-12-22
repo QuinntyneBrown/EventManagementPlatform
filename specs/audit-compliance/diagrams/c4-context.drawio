@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device" pages="3">
+
+  <!-- Page 1: Context Diagram -->
+  <diagram id="c4-context" name="C4 Context Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Audit &amp; Compliance System - Context Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="system-main" value="&lt;b&gt;Audit &amp; Compliance System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Provides comprehensive audit logging, data lifecycle management, backup/restore capabilities, and GDPR compliance features for the Event Management Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=14;verticalAlign=top;align=center;" parent="1" vertex="1">
+          <mxGeometry x="500" y="350" width="400" height="150" as="geometry"/>
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="user-customer" value="&lt;b&gt;Customer&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Event platform user who manages personal data and consents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="user-auditor" value="&lt;b&gt;Auditor&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Reviews audit logs and generates compliance reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="280" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="user-dpo" value="&lt;b&gt;Data Protection Officer&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Manages GDPR compliance, consents, and data deletion requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="460" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="user-sysadmin" value="&lt;b&gt;System Administrator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Manages backups, restores, and data imports/exports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="640" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-event-system" value="&lt;b&gt;Event Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Core event management platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="100" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-azure-storage" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Stores export files, backup files, and import documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="280" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-azure-sql" value="&lt;b&gt;Azure SQL Database&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Primary database for audit logs and compliance data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="460" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ext-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Provides anomaly detection for audit logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="640" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections from Users to System -->
+        <mxCell id="conn-cust" value="Views activity logs,&lt;br&gt;manages consents,&lt;br&gt;requests data export/deletion" style="endArrow=classic;html=1;entryX=0;entryY=0.25;exitX=1;exitY=0.5;strokeColor=#0d5eaf;strokeWidth=2;" parent="1" source="user-customer" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-aud" value="Views and searches&lt;br&gt;audit logs,&lt;br&gt;generates reports" style="endArrow=classic;html=1;entryX=0;entryY=0.4;exitX=1;exitY=0.5;strokeColor=#0d5eaf;strokeWidth=2;" parent="1" source="user-auditor" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo" value="Manages data access logs,&lt;br&gt;approves deletions,&lt;br&gt;monitors compliance" style="endArrow=classic;html=1;entryX=0;entryY=0.6;exitX=1;exitY=0.5;strokeColor=#0d5eaf;strokeWidth=2;" parent="1" source="user-dpo" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-admin" value="Creates backups,&lt;br&gt;manages imports/exports,&lt;br&gt;requests restores" style="endArrow=classic;html=1;entryX=0;entryY=0.8;exitX=1;exitY=0.5;strokeColor=#0d5eaf;strokeWidth=2;" parent="1" source="user-sysadmin" target="system-main" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections from System to External Systems -->
+        <mxCell id="conn-event-sys" value="Receives domain events&lt;br&gt;for audit logging" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.25;strokeColor=#666666;strokeWidth=2;startArrow=classic;startFill=1;" parent="1" source="system-main" target="ext-event-system" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-blob" value="Stores and retrieves&lt;br&gt;files [HTTPS]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.4;strokeColor=#666666;strokeWidth=2;startArrow=classic;startFill=1;" parent="1" source="system-main" target="ext-azure-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sql" value="Reads and writes data&lt;br&gt;[SQL/TDS]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.6;strokeColor=#666666;strokeWidth=2;startArrow=classic;startFill=1;" parent="1" source="system-main" target="ext-azure-sql" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-ai" value="Requests anomaly&lt;br&gt;detection [HTTPS/REST]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.8;strokeColor=#666666;strokeWidth=2;" parent="1" source="system-main" target="ext-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-title" value="Legend:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="800" width="100" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="400" y="830" width="100" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-system" value="Software System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="520" y="830" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legend-external" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="660" y="830" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 2: Container Diagram -->
+  <diagram id="c4-container" name="C4 Container Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="c-title" value="Audit &amp; Compliance System - Container Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="600" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Users (simplified) -->
+        <mxCell id="c-users" value="&lt;b&gt;Users&lt;/b&gt;&lt;br&gt;[Customer, Auditor, DPO, SysAdmin]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="c-web-app" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;[Angular 18+]&lt;br&gt;&lt;br&gt;Provides UI for audit logs, exports, backups, and compliance management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="500" y="80" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-api" value="&lt;b&gt;API Application&lt;/b&gt;&lt;br&gt;[.NET 8 Web API]&lt;br&gt;&lt;br&gt;Handles audit logging, data exports/imports, backups, and GDPR operations via REST API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="500" y="280" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-database" value="&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;[Azure SQL Database]&lt;br&gt;&lt;br&gt;Stores audit logs, export/import records, backup metadata, consents, and deletion requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="500" y="500" width="240" height="140" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-blob-storage" value="&lt;b&gt;File Storage&lt;/b&gt;&lt;br&gt;[Azure Blob Storage]&lt;br&gt;&lt;br&gt;Stores export files, backup files, and import documents with encryption" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="500" y="720" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-background-jobs" value="&lt;b&gt;Background Services&lt;/b&gt;&lt;br&gt;[.NET 8 Hosted Services]&lt;br&gt;&lt;br&gt;Processes exports, imports, backups, and scheduled cleanup jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="500" y="920" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="c-ext-event" value="&lt;b&gt;Event Management&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="100" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-ext-azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="320" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-ext-key-vault" value="&lt;b&gt;Azure Key Vault&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="530" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-ext-service-bus" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&lt;br&gt;[External System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="740" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections -->
+        <mxCell id="c-conn-1" value="Uses [HTTPS/JSON]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;strokeWidth=2;" parent="1" source="c-users" target="c-web-app" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-2" value="Makes API calls&lt;br&gt;[HTTPS/REST]" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;strokeWidth=2;" parent="1" source="c-web-app" target="c-api" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-3" value="Reads/writes data&lt;br&gt;[EF Core/SQL]" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;strokeWidth=2;" parent="1" source="c-api" target="c-database" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-4" value="Stores/retrieves files&lt;br&gt;[Azure SDK]" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;strokeWidth=2;" parent="1" source="c-database" target="c-blob-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-5" value="Reads metadata&lt;br&gt;[SQL]" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;strokeWidth=2;" parent="1" source="c-blob-storage" target="c-background-jobs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-6" value="Publishes domain events&lt;br&gt;[Event Bus]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.25;strokeWidth=2;startArrow=classic;startFill=1;" parent="1" source="c-api" target="c-ext-event" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-7" value="Anomaly detection&lt;br&gt;[HTTPS/REST]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;strokeWidth=2;" parent="1" source="c-api" target="c-ext-azure-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-8" value="Gets encryption keys&lt;br&gt;[HTTPS]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.7;strokeWidth=2;" parent="1" source="c-api" target="c-ext-key-vault" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-9" value="Queues jobs&lt;br&gt;[AMQP]" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;strokeWidth=2;startArrow=classic;startFill=1;" parent="1" source="c-blob-storage" target="c-ext-service-bus" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c-conn-10" value="Processes files" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;strokeWidth=2;startArrow=classic;startFill=1;dashed=1;" parent="1" source="c-background-jobs" target="c-blob-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <!-- Page 3: Component Diagram -->
+  <diagram id="c4-component" name="C4 Component Diagram">
+    <mxGraphModel dx="1400" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="comp-title" value="Audit &amp; Compliance API - Component Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="350" y="20" width="700" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Web App -->
+        <mxCell id="comp-webapp" value="&lt;b&gt;Web Application&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="100" y="100" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- API Components -->
+        <mxCell id="comp-audit-controller" value="&lt;b&gt;Audit Log Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Handles audit log queries and searches" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="400" y="80" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-export-controller" value="&lt;b&gt;Export Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Manages data export requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="620" y="80" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-import-controller" value="&lt;b&gt;Import Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Handles data import operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="840" y="80" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-backup-controller" value="&lt;b&gt;Backup Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Manages backup and restore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="80" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-consent-controller" value="&lt;b&gt;Consent Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Handles consent management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="400" y="220" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-deletion-controller" value="&lt;b&gt;Data Deletion Controller&lt;/b&gt;&lt;br&gt;[REST Controller]&lt;br&gt;&lt;br&gt;Manages deletion requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="620" y="220" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Layer -->
+        <mxCell id="comp-audit-service" value="&lt;b&gt;Audit Log Service&lt;/b&gt;&lt;br&gt;[Domain Service]&lt;br&gt;&lt;br&gt;Business logic for audit logging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="400" y="380" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-export-service" value="&lt;b&gt;Export Service&lt;/b&gt;&lt;br&gt;[Domain Service]&lt;br&gt;&lt;br&gt;Handles export generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="620" y="380" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-import-service" value="&lt;b&gt;Import Service&lt;/b&gt;&lt;br&gt;[Domain Service]&lt;br&gt;&lt;br&gt;Validates and processes imports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="840" y="380" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-backup-service" value="&lt;b&gt;Backup Service&lt;/b&gt;&lt;br&gt;[Domain Service]&lt;br&gt;&lt;br&gt;Creates and manages backups" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="380" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-gdpr-service" value="&lt;b&gt;GDPR Service&lt;/b&gt;&lt;br&gt;[Domain Service]&lt;br&gt;&lt;br&gt;GDPR compliance operations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="400" y="520" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Repository Layer -->
+        <mxCell id="comp-audit-repo" value="&lt;b&gt;Audit Log Repository&lt;/b&gt;&lt;br&gt;[Repository]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="400" y="680" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-export-repo" value="&lt;b&gt;Export Repository&lt;/b&gt;&lt;br&gt;[Repository]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="620" y="680" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-consent-repo" value="&lt;b&gt;Consent Repository&lt;/b&gt;&lt;br&gt;[Repository]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="840" y="680" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-deletion-repo" value="&lt;b&gt;Deletion Repository&lt;/b&gt;&lt;br&gt;[Repository]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="680" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Infrastructure -->
+        <mxCell id="comp-blob-client" value="&lt;b&gt;Blob Storage Client&lt;/b&gt;&lt;br&gt;[Infrastructure]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="400" y="820" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-event-publisher" value="&lt;b&gt;Event Publisher&lt;/b&gt;&lt;br&gt;[Infrastructure]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="620" y="820" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-ai-client" value="&lt;b&gt;Azure AI Client&lt;/b&gt;&lt;br&gt;[Infrastructure]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85bbf0;strokeColor=#0d5eaf;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="840" y="820" width="180" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Database -->
+        <mxCell id="comp-db" value="&lt;b&gt;Azure SQL Database&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438dd5;strokeColor=#0d5eaf;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="400" y="960" width="840" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="comp-ext-storage" value="&lt;b&gt;Azure Blob Storage&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="100" y="680" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-ext-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="100" y="820" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Connections -->
+        <mxCell id="comp-c1" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" parent="1" source="comp-webapp" target="comp-audit-controller" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c2" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-audit-controller" target="comp-audit-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c3" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-export-controller" target="comp-export-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c4" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-import-controller" target="comp-import-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c5" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-backup-controller" target="comp-backup-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c6" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-consent-controller" target="comp-gdpr-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c7" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-deletion-controller" target="comp-gdpr-service" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c8" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-audit-service" target="comp-audit-repo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c9" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-export-service" target="comp-export-repo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c10" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;" parent="1" source="comp-gdpr-service" target="comp-consent-repo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c11" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;dashed=1;" parent="1" source="comp-audit-repo" target="comp-db" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c12" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;dashed=1;" parent="1" source="comp-export-repo" target="comp-db" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c13" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;dashed=1;" parent="1" source="comp-consent-repo" target="comp-db" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c14" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;dashed=1;" parent="1" source="comp-deletion-repo" target="comp-db" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c15" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.5;" parent="1" source="comp-blob-client" target="comp-ext-storage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c16" value="" style="endArrow=classic;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.5;" parent="1" source="comp-ai-client" target="comp-ext-ai" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c17" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0;exitY=0.75;dashed=1;" parent="1" source="comp-export-service" target="comp-blob-client" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="comp-c18" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;exitX=0.5;exitY=1;dashed=1;" parent="1" source="comp-audit-service" target="comp-ai-client" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+</mxfile>

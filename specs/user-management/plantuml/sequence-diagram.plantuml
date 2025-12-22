@@ -1,0 +1,695 @@
+@startuml User & Access Management - Sequence Diagrams
+
+title User & Access Management - Sequence Diagrams
+
+' ==================== USER REGISTRATION ====================
+
+@startuml User Registration Flow
+title User Registration Flow
+
+actor User
+participant "Web App" as Web
+participant "API Gateway" as Gateway
+participant "Auth Controller" as AuthCtrl
+participant "User Service" as UserSvc
+participant "Password Service" as PwdSvc
+participant "User Repository" as UserRepo
+database "SQL Database" as DB
+participant "Event Publisher" as EventPub
+queue "Service Bus" as Bus
+participant "Email Service" as Email
+
+User -> Web: Fill registration form
+activate Web
+
+Web -> Web: Validate input
+Web -> Gateway: POST /api/v1/auth/register\n{email, password, firstName, lastName}
+activate Gateway
+
+Gateway -> AuthCtrl: Register(request)
+activate AuthCtrl
+
+AuthCtrl -> UserSvc: CreateUserAsync(registerData)
+activate UserSvc
+
+UserSvc -> UserRepo: ExistsAsync(email)
+activate UserRepo
+UserRepo -> DB: SELECT COUNT(*) FROM Users\nWHERE Email = @email
+activate DB
+DB --> UserRepo: 0
+deactivate DB
+UserRepo --> UserSvc: false
+deactivate UserRepo
+
+UserSvc -> PwdSvc: HashPassword(password)
+activate PwdSvc
+PwdSvc -> PwdSvc: Generate salt
+PwdSvc -> PwdSvc: Hash with BCrypt
+PwdSvc --> UserSvc: {hash, salt}
+deactivate PwdSvc
+
+UserSvc -> UserSvc: Create User entity\nwith hashed password
+
+UserSvc -> UserRepo: AddAsync(user)
+activate UserRepo
+UserRepo -> DB: INSERT INTO Users\n(Id, Email, FirstName, ...)
+activate DB
+DB --> UserRepo: Success
+deactivate DB
+UserRepo --> UserSvc: Success
+deactivate UserRepo
+
+UserSvc -> EventPub: Publish(UserAccountCreated)
+activate EventPub
+EventPub -> Bus: Send message
+activate Bus
+Bus --> EventPub: Acknowledged
+deactivate Bus
+deactivate EventPub
+
+UserSvc --> AuthCtrl: UserDto
+deactivate UserSvc
+
+AuthCtrl --> Gateway: 201 Created\n{userId, email, message}
+deactivate AuthCtrl
+
+Gateway --> Web: 201 Created
+deactivate Gateway
+
+Web -> Web: Show success message
+Web --> User: "Account created!\nPlease verify your email."
+deactivate Web
+
+Bus -> Email: UserAccountCreated event
+activate Email
+Email -> Email: Generate verification email
+Email -> User: Send verification email
+deactivate Email
+
+@enduml
+
+' ==================== USER LOGIN ====================
+
+@startuml User Login Flow
+title User Login Flow (with JWT Authentication)
+
+actor User
+participant "Web App" as Web
+participant "API Gateway" as Gateway
+participant "Auth Controller" as AuthCtrl
+participant "Auth Service" as AuthSvc
+participant "Password Service" as PwdSvc
+participant "User Repository" as UserRepo
+database "SQL Database" as DB
+participant "Session Service" as SessionSvc
+participant "Session Repository" as SessionRepo
+database "Redis Cache" as Cache
+participant "Event Publisher" as EventPub
+queue "Service Bus" as Bus
+
+User -> Web: Enter credentials
+activate Web
+
+Web -> Gateway: POST /api/v1/auth/login\n{email, password}
+activate Gateway
+
+Gateway -> AuthCtrl: Login(credentials)
+activate AuthCtrl
+
+AuthCtrl -> AuthSvc: AuthenticateAsync(email, password)
+activate AuthSvc
+
+AuthSvc -> UserRepo: GetByEmailAsync(email)
+activate UserRepo
+UserRepo -> DB: SELECT * FROM Users\nWHERE Email = @email
+activate DB
+DB --> UserRepo: User record
+deactivate DB
+UserRepo --> AuthSvc: User
+deactivate UserRepo
+
+alt User not found
+    AuthSvc --> AuthCtrl: InvalidCredentials
+    AuthCtrl -> EventPub: Publish(UserLoginFailed)
+    AuthCtrl --> Gateway: 401 Unauthorized
+    Gateway --> Web: 401 Unauthorized
+    Web --> User: "Invalid credentials"
+else User found
+
+    AuthSvc -> AuthSvc: Check user status
+
+    alt User is Deactivated/Locked
+        AuthSvc --> AuthCtrl: AccountLocked/Deactivated
+        AuthCtrl -> EventPub: Publish(UserLoginFailed)
+        AuthCtrl --> Gateway: 403 Forbidden
+        Gateway --> Web: 403 Forbidden
+        Web --> User: "Account is locked"
+    else User is Active
+
+        AuthSvc -> PwdSvc: VerifyPassword(password, hash, salt)
+        activate PwdSvc
+        PwdSvc -> PwdSvc: Hash input with BCrypt
+        PwdSvc -> PwdSvc: Compare hashes
+        PwdSvc --> AuthSvc: true/false
+        deactivate PwdSvc
+
+        alt Password invalid
+            AuthSvc -> UserRepo: IncrementFailedAttempts(userId)
+            AuthSvc --> AuthCtrl: InvalidCredentials
+            AuthCtrl -> EventPub: Publish(UserLoginFailed)
+            AuthCtrl --> Gateway: 401 Unauthorized
+            Gateway --> Web: 401 Unauthorized
+            Web --> User: "Invalid credentials"
+        else Password valid
+
+            AuthSvc -> AuthSvc: GenerateAccessToken(user)
+            note right: JWT with user claims\nExpires in 1 hour
+
+            AuthSvc -> SessionSvc: CreateSessionAsync(user, deviceInfo, ipAddress)
+            activate SessionSvc
+
+            SessionSvc -> SessionSvc: Generate refresh token
+            SessionSvc -> SessionSvc: Create UserSession entity
+
+            SessionSvc -> SessionRepo: AddAsync(session)
+            activate SessionRepo
+            SessionRepo -> DB: INSERT INTO UserSessions\n(Id, UserId, RefreshToken, ...)
+            activate DB
+            DB --> SessionRepo: Success
+            deactivate DB
+            SessionRepo --> SessionSvc: Success
+            deactivate SessionRepo
+
+            SessionSvc --> AuthSvc: UserSession
+            deactivate SessionSvc
+
+            AuthSvc -> UserRepo: UpdateLastLoginAsync(userId)
+            activate UserRepo
+            UserRepo -> DB: UPDATE Users\nSET LastLoginAt = @now\nWHERE Id = @userId
+            activate DB
+            DB --> UserRepo: Success
+            deactivate DB
+            UserRepo --> AuthSvc: Success
+            deactivate UserRepo
+
+            AuthSvc --> AuthCtrl: AuthenticationResult.Success\n{accessToken, refreshToken, user}
+            deactivate AuthSvc
+
+            AuthCtrl -> EventPub: Publish(UserLoginSuccessful)
+            activate EventPub
+            EventPub -> Bus: Send message
+            EventPub --> AuthCtrl: Acknowledged
+            deactivate EventPub
+
+            AuthCtrl --> Gateway: 200 OK\n{accessToken, refreshToken, expiresIn, user}
+            deactivate AuthCtrl
+
+            Gateway --> Web: 200 OK
+            deactivate Gateway
+
+            Web -> Web: Store tokens in localStorage
+            Web -> Web: Set auth state
+            Web --> User: Redirect to dashboard
+            deactivate Web
+
+        end
+    end
+end
+
+@enduml
+
+' ==================== ROLE ASSIGNMENT ====================
+
+@startuml Role Assignment Flow
+title Assign Role to User (Admin Operation)
+
+actor Administrator
+participant "Admin Portal" as Portal
+participant "API Gateway" as Gateway
+participant "User Controller" as UserCtrl
+participant "Authorization Middleware" as AuthzMW
+participant "User Service" as UserSvc
+participant "Authorization Service" as AuthzSvc
+database "Redis Cache" as Cache
+participant "User Repository" as UserRepo
+participant "Role Repository" as RoleRepo
+database "SQL Database" as DB
+participant "Event Publisher" as EventPub
+queue "Service Bus" as Bus
+
+Administrator -> Portal: Select user and role
+activate Portal
+
+Portal -> Gateway: POST /api/v1/users/{userId}/roles\n{roleId}\nAuthorization: Bearer {token}
+activate Gateway
+
+Gateway -> AuthzMW: Validate token & permissions
+activate AuthzMW
+
+AuthzMW -> AuthzMW: Decode JWT token
+AuthzMW -> AuthzMW: Extract userId from token
+
+AuthzMW -> AuthzSvc: HasPermissionAsync(adminUserId,\n"Users", "AssignRole")
+activate AuthzSvc
+
+AuthzSvc -> Cache: GET user:{adminUserId}:permissions
+activate Cache
+Cache --> AuthzSvc: [cached permissions]
+deactivate Cache
+
+alt Permissions in cache
+    AuthzSvc -> AuthzSvc: Check permission in cache
+else Permissions not in cache
+    AuthzSvc -> UserRepo: GetEffectivePermissionsAsync(adminUserId)
+    activate UserRepo
+    UserRepo -> DB: SELECT p.* FROM Permissions p\nJOIN RolePermissions rp ON p.Id = rp.PermissionId\nJOIN UserRoles ur ON rp.RoleId = ur.RoleId\nWHERE ur.UserId = @adminUserId
+    activate DB
+    DB --> UserRepo: Permission list
+    deactivate DB
+    UserRepo --> AuthzSvc: Permissions
+    deactivate UserRepo
+
+    AuthzSvc -> Cache: SET user:{adminUserId}:permissions\nEXPIRE 900
+    activate Cache
+    Cache --> AuthzSvc: OK
+    deactivate Cache
+end
+
+AuthzSvc --> AuthzMW: true/false
+deactivate AuthzSvc
+
+alt No permission
+    AuthzMW -> EventPub: Publish(UnauthorizedAccessAttempted)
+    AuthzMW --> Gateway: 403 Forbidden
+    Gateway --> Portal: 403 Forbidden
+    Portal --> Administrator: "Access denied"
+else Has permission
+    AuthzMW --> UserCtrl: Continue
+    deactivate AuthzMW
+
+    activate UserCtrl
+    UserCtrl -> UserSvc: AssignRoleAsync(userId, roleId, assignedBy)
+    activate UserSvc
+
+    UserSvc -> UserRepo: GetByIdAsync(userId)
+    activate UserRepo
+    UserRepo -> DB: SELECT * FROM Users WHERE Id = @userId
+    activate DB
+    DB --> UserRepo: User
+    deactivate DB
+    UserRepo --> UserSvc: User
+    deactivate UserRepo
+
+    UserSvc -> RoleRepo: GetByIdAsync(roleId)
+    activate RoleRepo
+    RoleRepo -> DB: SELECT * FROM Roles WHERE Id = @roleId
+    activate DB
+    DB --> RoleRepo: Role
+    deactivate DB
+    RoleRepo --> UserSvc: Role
+    deactivate RoleRepo
+
+    UserSvc -> UserSvc: Validate user and role exist
+    UserSvc -> UserSvc: Create UserRole entity
+
+    UserSvc -> UserRepo: AddUserRoleAsync(userRole)
+    activate UserRepo
+    UserRepo -> DB: INSERT INTO UserRoles\n(UserId, RoleId, AssignedAt, AssignedBy)
+    activate DB
+    DB --> UserRepo: Success
+    deactivate DB
+    UserRepo --> UserSvc: Success
+    deactivate UserRepo
+
+    UserSvc -> Cache: DELETE user:{userId}:roles
+    activate Cache
+    Cache --> UserSvc: OK
+    deactivate Cache
+
+    UserSvc -> Cache: DELETE user:{userId}:permissions
+    activate Cache
+    Cache --> UserSvc: OK
+    deactivate Cache
+
+    UserSvc -> EventPub: Publish(UserRoleAssigned)
+    activate EventPub
+    EventPub -> Bus: Send message
+    EventPub --> UserSvc: Acknowledged
+    deactivate EventPub
+
+    UserSvc --> UserCtrl: Success
+    deactivate UserSvc
+
+    UserCtrl --> Gateway: 200 OK\n{message, userId, roleId, assignedAt}
+    deactivate UserCtrl
+
+    Gateway --> Portal: 200 OK
+    deactivate Gateway
+
+    Portal -> Portal: Refresh user details
+    Portal --> Administrator: "Role assigned successfully"
+    deactivate Portal
+end
+
+@enduml
+
+' ==================== PERMISSION CHECK ====================
+
+@startuml Permission Check Flow
+title Authorization - Permission Check Flow
+
+participant "Web App" as Web
+participant "API Gateway" as Gateway
+participant "Authorization Middleware" as AuthzMW
+participant "Authorization Service" as AuthzSvc
+database "Redis Cache" as Cache
+participant "User Repository" as UserRepo
+database "SQL Database" as DB
+participant "Controller" as Ctrl
+
+Web -> Gateway: GET /api/v1/events/{id}\nAuthorization: Bearer {token}
+activate Gateway
+
+Gateway -> AuthzMW: Validate & Authorize
+activate AuthzMW
+
+AuthzMW -> AuthzMW: Decode JWT
+AuthzMW -> AuthzMW: Extract userId
+
+AuthzMW -> AuthzSvc: HasPermissionAsync(userId,\n"Events", "Read")
+activate AuthzSvc
+
+AuthzSvc -> Cache: GET user:{userId}:permissions
+activate Cache
+
+alt Permissions cached
+    Cache --> AuthzSvc: [permission list]
+    deactivate Cache
+
+    AuthzSvc -> AuthzSvc: Check if "Events.Read"\nexists in cached list
+
+else Permissions not cached
+    Cache --> AuthzSvc: null
+    deactivate Cache
+
+    AuthzSvc -> UserRepo: GetEffectivePermissionsAsync(userId)
+    activate UserRepo
+
+    UserRepo -> DB: Query effective permissions\n(role-based + direct)
+    activate DB
+    note right
+        SELECT DISTINCT p.*
+        FROM Permissions p
+        LEFT JOIN RolePermissions rp ON p.Id = rp.PermissionId
+        LEFT JOIN UserRoles ur ON rp.RoleId = ur.RoleId
+        LEFT JOIN UserPermissions up ON p.Id = up.PermissionId
+        WHERE ur.UserId = @userId OR up.UserId = @userId
+    end note
+    DB --> UserRepo: Permission list
+    deactivate DB
+
+    UserRepo --> AuthzSvc: List<Permission>
+    deactivate UserRepo
+
+    AuthzSvc -> Cache: SET user:{userId}:permissions\n[permission list]\nEXPIRE 900 (15 minutes)
+    activate Cache
+    Cache --> AuthzSvc: OK
+    deactivate Cache
+
+    AuthzSvc -> AuthzSvc: Check if "Events.Read"\nexists in list
+end
+
+alt Permission granted
+    AuthzSvc --> AuthzMW: true
+    deactivate AuthzSvc
+
+    AuthzMW --> Ctrl: Continue to controller
+    deactivate AuthzMW
+
+    activate Ctrl
+    Ctrl -> Ctrl: Process request
+    Ctrl --> Gateway: 200 OK {event data}
+    deactivate Ctrl
+
+    Gateway --> Web: 200 OK
+    deactivate Gateway
+
+else Permission denied
+    AuthzSvc --> AuthzMW: false
+    deactivate AuthzSvc
+
+    AuthzMW -> AuthzMW: Log unauthorized attempt
+    AuthzMW --> Gateway: 403 Forbidden\n{error: "Insufficient permissions"}
+    deactivate AuthzMW
+
+    Gateway --> Web: 403 Forbidden
+    deactivate Gateway
+end
+
+@enduml
+
+' ==================== PASSWORD RESET ====================
+
+@startuml Password Reset Flow
+title Password Reset Flow
+
+actor User
+participant "Web App" as Web
+participant "API Gateway" as Gateway
+participant "Auth Controller" as AuthCtrl
+participant "Password Service" as PwdSvc
+participant "User Repository" as UserRepo
+database "SQL Database" as DB
+database "Redis Cache" as Cache
+participant "Email Service" as Email
+
+== Request Password Reset ==
+
+User -> Web: Click "Forgot Password"
+activate Web
+
+Web -> Web: Enter email address
+
+Web -> Gateway: POST /api/v1/auth/forgot-password\n{email}
+activate Gateway
+
+Gateway -> AuthCtrl: ForgotPasswordAsync(email)
+activate AuthCtrl
+
+AuthCtrl -> UserRepo: GetByEmailAsync(email)
+activate UserRepo
+UserRepo -> DB: SELECT * FROM Users\nWHERE Email = @email
+activate DB
+DB --> UserRepo: User (or null)
+deactivate DB
+UserRepo --> AuthCtrl: User
+deactivate UserRepo
+
+alt User not found
+    note right of AuthCtrl
+        Return success anyway
+        to prevent email enumeration
+    end note
+    AuthCtrl --> Gateway: 200 OK\n{message: "If email exists, reset link sent"}
+    Gateway --> Web: 200 OK
+    Web --> User: "Reset instructions sent\nto your email"
+else User found
+    AuthCtrl -> PwdSvc: GeneratePasswordResetTokenAsync(user)
+    activate PwdSvc
+
+    PwdSvc -> PwdSvc: Generate secure token\n(cryptographically random)
+    PwdSvc -> PwdSvc: Hash token for storage
+
+    PwdSvc -> Cache: SET password-reset:{hashedToken}\n{userId, email}\nEXPIRE 3600 (1 hour)
+    activate Cache
+    Cache --> PwdSvc: OK
+    deactivate Cache
+
+    PwdSvc --> AuthCtrl: resetToken (unhashed)
+    deactivate PwdSvc
+
+    AuthCtrl -> Email: SendPasswordResetEmailAsync(email, resetToken)
+    activate Email
+    Email -> Email: Generate reset link\nhttps://app.com/reset-password?token={resetToken}
+    Email -> User: Send email
+    deactivate Email
+
+    AuthCtrl --> Gateway: 200 OK\n{message: "Reset instructions sent"}
+    deactivate AuthCtrl
+
+    Gateway --> Web: 200 OK
+    deactivate Gateway
+
+    Web --> User: "Reset instructions sent\nto your email"
+    deactivate Web
+end
+
+== Reset Password with Token ==
+
+User -> User: Check email
+User -> User: Click reset link
+
+User -> Web: Open reset password page\nwith token in URL
+activate Web
+
+Web -> Web: Display new password form
+User -> Web: Enter new password
+
+Web -> Gateway: POST /api/v1/auth/reset-password\n{resetToken, newPassword}
+activate Gateway
+
+Gateway -> AuthCtrl: ResetPasswordAsync(resetToken, newPassword)
+activate AuthCtrl
+
+AuthCtrl -> PwdSvc: ValidatePasswordResetTokenAsync(resetToken)
+activate PwdSvc
+
+PwdSvc -> PwdSvc: Hash incoming token
+PwdSvc -> Cache: GET password-reset:{hashedToken}
+activate Cache
+
+alt Token not found or expired
+    Cache --> PwdSvc: null
+    deactivate Cache
+    PwdSvc --> AuthCtrl: Invalid/Expired token
+    AuthCtrl --> Gateway: 400 Bad Request\n{error: "Invalid or expired token"}
+    Gateway --> Web: 400 Bad Request
+    Web --> User: "Reset link expired.\nRequest a new one."
+else Token valid
+    Cache --> PwdSvc: {userId, email}
+    deactivate Cache
+
+    PwdSvc --> AuthCtrl: userId
+    deactivate PwdSvc
+
+    AuthCtrl -> UserRepo: GetByIdAsync(userId)
+    activate UserRepo
+    UserRepo -> DB: SELECT * FROM Users WHERE Id = @userId
+    activate DB
+    DB --> UserRepo: User
+    deactivate DB
+    UserRepo --> AuthCtrl: User
+    deactivate UserRepo
+
+    AuthCtrl -> PwdSvc: ValidatePasswordStrength(newPassword)
+    activate PwdSvc
+    PwdSvc -> PwdSvc: Check password requirements
+
+    alt Password weak
+        PwdSvc --> AuthCtrl: Validation failed
+        AuthCtrl --> Gateway: 400 Bad Request\n{errors: [...]}
+        Gateway --> Web: 400 Bad Request
+        Web --> User: "Password requirements not met"
+    else Password strong
+        PwdSvc --> AuthCtrl: Valid
+
+        AuthCtrl -> PwdSvc: HashPassword(newPassword)
+        PwdSvc -> PwdSvc: Generate salt\nHash with BCrypt
+        PwdSvc --> AuthCtrl: {hash, salt}
+        deactivate PwdSvc
+
+        AuthCtrl -> AuthCtrl: Update user password
+
+        AuthCtrl -> UserRepo: UpdateAsync(user)
+        activate UserRepo
+        UserRepo -> DB: UPDATE Users\nSET PasswordHash = @hash,\nPasswordSalt = @salt\nWHERE Id = @userId
+        activate DB
+        DB --> UserRepo: Success
+        deactivate DB
+        UserRepo --> AuthCtrl: Success
+        deactivate UserRepo
+
+        AuthCtrl -> Cache: DELETE password-reset:{hashedToken}
+        activate Cache
+        Cache --> AuthCtrl: OK
+        deactivate Cache
+
+        AuthCtrl -> AuthCtrl: Revoke all user sessions\n(force re-login)
+
+        AuthCtrl --> Gateway: 200 OK\n{message: "Password reset successful"}
+        deactivate AuthCtrl
+
+        Gateway --> Web: 200 OK
+        deactivate Gateway
+
+        Web --> User: "Password reset successful.\nPlease login."
+        deactivate Web
+    end
+end
+
+@enduml
+
+' ==================== SESSION MANAGEMENT ====================
+
+@startuml Session Refresh Flow
+title Token Refresh Flow
+
+participant "Web App" as Web
+participant "API Gateway" as Gateway
+participant "Auth Controller" as AuthCtrl
+participant "Auth Service" as AuthSvc
+participant "Session Repository" as SessionRepo
+database "SQL Database" as DB
+
+Web -> Web: Access token expired
+Web -> Gateway: POST /api/v1/auth/refresh\n{refreshToken}
+activate Gateway
+
+Gateway -> AuthCtrl: RefreshTokenAsync(refreshToken)
+activate AuthCtrl
+
+AuthCtrl -> AuthSvc: ValidateRefreshTokenAsync(refreshToken)
+activate AuthSvc
+
+AuthSvc -> SessionRepo: GetByRefreshTokenAsync(refreshToken)
+activate SessionRepo
+SessionRepo -> DB: SELECT * FROM UserSessions\nWHERE RefreshToken = @token\nAND IsActive = 1
+activate DB
+DB --> SessionRepo: UserSession (or null)
+deactivate DB
+SessionRepo --> AuthSvc: UserSession
+deactivate SessionRepo
+
+alt Session not found or revoked
+    AuthSvc --> AuthCtrl: Invalid token
+    AuthCtrl --> Gateway: 401 Unauthorized\n{error: "Invalid refresh token"}
+    Gateway --> Web: 401 Unauthorized
+    Web -> Web: Redirect to login
+else Session found and active
+    AuthSvc -> AuthSvc: Check if session expired
+
+    alt Session expired
+        AuthSvc --> AuthCtrl: Token expired
+        AuthCtrl --> Gateway: 401 Unauthorized
+        Gateway --> Web: 401 Unauthorized
+        Web -> Web: Redirect to login
+    else Session valid
+        AuthSvc -> AuthSvc: Generate new access token
+        AuthSvc -> AuthSvc: Generate new refresh token
+
+        AuthSvc -> SessionRepo: UpdateRefreshTokenAsync(session, newRefreshToken)
+        activate SessionRepo
+        SessionRepo -> DB: UPDATE UserSessions\nSET RefreshToken = @newToken,\nExpiresAt = @newExpiry\nWHERE Id = @sessionId
+        activate DB
+        DB --> SessionRepo: Success
+        deactivate DB
+        SessionRepo --> AuthSvc: Success
+        deactivate SessionRepo
+
+        AuthSvc --> AuthCtrl: {newAccessToken, newRefreshToken}
+        deactivate AuthSvc
+
+        AuthCtrl --> Gateway: 200 OK\n{accessToken, refreshToken, expiresIn}
+        deactivate AuthCtrl
+
+        Gateway --> Web: 200 OK
+        deactivate Gateway
+
+        Web -> Web: Update stored tokens
+        Web -> Web: Retry original request
+    end
+end
+
+@enduml
+
+@enduml

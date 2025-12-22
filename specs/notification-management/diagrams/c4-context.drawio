@@ -1,0 +1,421 @@
+<mxfile host="app.diagrams.net" modified="2024-01-20T12:00:00.000Z" agent="5.0" version="22.1.0">
+  <diagram name="C4 Context Diagram" id="c4-context">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="C4 Context Diagram - Notification &amp; Alert Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Event Management Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;dashed=1;dashPattern=8 8;fontSize=16;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="400" y="200" width="800" height="600" as="geometry" />
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="notification-system" value="&lt;b&gt;Notification &amp; Alert Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages system notifications, alerts, and user notification preferences. Provides real-time notification delivery across multiple channels (email, SMS, push, in-app)." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;align=center;" parent="1" vertex="1">
+          <mxGeometry x="600" y="400" width="400" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Actors/Users -->
+        <mxCell id="end-user" value="&lt;b&gt;End User&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Platform user who receives and manages notifications about events, payments, and system activities." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="100" y="300" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="admin" value="&lt;b&gt;Administrator&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;System administrator who manages alerts, sends emergency broadcasts, and monitors notification system." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="100" y="500" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="email-service" value="&lt;b&gt;Azure Communication Services&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Email and SMS delivery service for sending notifications to users." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1300" y="200" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="push-service" value="&lt;b&gt;Azure Notification Hubs&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Push notification delivery for mobile and web applications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1300" y="330" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="signalr-service" value="&lt;b&gt;Azure SignalR Service&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Real-time communication service for delivering in-app notifications instantly." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1300" y="460" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ai-service" value="&lt;b&gt;Azure OpenAI Service&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;AI-powered notification prioritization, summarization, and intelligent alert prediction." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1300" y="590" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="service-bus" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Message queue for asynchronous notification processing and delivery." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1300" y="720" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Related Internal Systems -->
+        <mxCell id="event-system" value="&lt;b&gt;Event Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Generates event-related notifications and reminders." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="100" y="850" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="payment-system" value="&lt;b&gt;Payment System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Generates payment due alerts and payment confirmation notifications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="350" y="850" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inventory-system" value="&lt;b&gt;Inventory System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Generates low inventory alerts and stock notifications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="600" y="850" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="staff-system" value="&lt;b&gt;Staff Management System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Generates staff no-show alerts and scheduling notifications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="850" y="850" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="maintenance-system" value="&lt;b&gt;Maintenance System&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Generates maintenance due alerts and equipment notifications." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="850" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Database -->
+        <mxCell id="database" value="&lt;b&gt;Azure SQL Database&lt;/b&gt;&lt;br&gt;[Database]&lt;br&gt;&lt;br&gt;Stores notifications, alerts, user preferences, and notification history." style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#647687;strokeColor=#314354;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="725" y="620" width="150" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Users to System -->
+        <mxCell id="rel-user-view" value="Views notifications,&lt;br&gt;manages preferences,&lt;br&gt;takes actions" style="endArrow=classic;startArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="end-user" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-admin-manage" value="Manages alerts,&lt;br&gt;sends emergency broadcasts,&lt;br&gt;escalates issues" style="endArrow=classic;startArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="admin" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relationships - System to External Services -->
+        <mxCell id="rel-email" value="Sends email and&lt;br&gt;SMS notifications" style="endArrow=classic;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="email-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-push" value="Delivers push&lt;br&gt;notifications" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="push-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-signalr" value="Streams real-time&lt;br&gt;in-app notifications" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="signalr-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-ai" value="Analyzes and prioritizes&lt;br&gt;notifications with AI" style="endArrow=classic;startArrow=classic;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="ai-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-servicebus" value="Queues notifications for&lt;br&gt;async processing" style="endArrow=classic;startArrow=classic;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="service-bus" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relationships - System to Database -->
+        <mxCell id="rel-database" value="Reads from and&lt;br&gt;writes to" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=11;" parent="1" source="notification-system" target="database" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relationships - Internal Systems to Notification System -->
+        <mxCell id="rel-event-system" value="Triggers event&lt;br&gt;notifications" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.1;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;dashed=1;" parent="1" source="event-system" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-payment-system" value="Triggers payment&lt;br&gt;alerts" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;dashed=1;" parent="1" source="payment-system" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-inventory-system" value="Triggers inventory&lt;br&gt;alerts" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.4;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;dashed=1;" parent="1" source="inventory-system" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-staff-system" value="Triggers staff&lt;br&gt;alerts" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;dashed=1;" parent="1" source="staff-system" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-maintenance-system" value="Triggers maintenance&lt;br&gt;alerts" style="endArrow=classic;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.9;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=11;dashed=1;" parent="1" source="maintenance-system" target="notification-system" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-boundary" value="Legend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="100" y="1050" width="1400" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontSize=10;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="150" y="1080" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system" value="Software System&lt;br&gt;(Target)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=10;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="280" y="1080" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-internal" value="Software System&lt;br&gt;(Internal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontSize=10;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="410" y="1080" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-external" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=10;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="540" y="1080" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-database" value="Database" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#647687;strokeColor=#314354;fontSize=10;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="670" y="1080" width="70" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-relationship" value="" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="780" y="1105" as="sourcePoint" />
+            <mxPoint x="880" y="1105" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-rel-label" value="Relationship" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="780" y="1110" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-async" value="" style="endArrow=classic;html=1;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="920" y="1105" as="sourcePoint" />
+            <mxPoint x="1020" y="1105" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-async-label" value="Async/Event" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="920" y="1110" width="100" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container Diagram" id="c4-container">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title2" value="C4 Container Diagram - Notification &amp; Alert Management System" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary2" value="Notification &amp; Alert Management System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#0050ef;dashed=1;dashPattern=8 8;fontSize=16;fontStyle=1;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="300" y="150" width="1000" height="700" as="geometry" />
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="web-app" value="&lt;b&gt;Web Application&lt;/b&gt;&lt;br&gt;[Angular 18+]&lt;br&gt;&lt;br&gt;Delivers notification UI, real-time updates, and user preference management." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="350" y="200" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mobile-app" value="&lt;b&gt;Mobile Application&lt;/b&gt;&lt;br&gt;[iOS/Android]&lt;br&gt;&lt;br&gt;Receives push notifications and provides mobile notification interface." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="600" y="200" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-gateway" value="&lt;b&gt;API Gateway&lt;/b&gt;&lt;br&gt;[ASP.NET Core]&lt;br&gt;&lt;br&gt;Routes requests, handles authentication, and rate limiting." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="350" y="380" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notification-api" value="&lt;b&gt;Notification API&lt;/b&gt;&lt;br&gt;[ASP.NET Core Web API]&lt;br&gt;&lt;br&gt;REST API for notification management and user preferences." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="350" y="540" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alert-api" value="&lt;b&gt;Alert API&lt;/b&gt;&lt;br&gt;[ASP.NET Core Web API]&lt;br&gt;&lt;br&gt;REST API for alert management, escalation, and resolution." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="600" y="540" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="delivery-service" value="&lt;b&gt;Notification Delivery Service&lt;/b&gt;&lt;br&gt;[.NET Worker Service]&lt;br&gt;&lt;br&gt;Processes notification queue and delivers via multiple channels." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="850" y="540" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="signalr-hub" value="&lt;b&gt;SignalR Hub&lt;/b&gt;&lt;br&gt;[ASP.NET Core SignalR]&lt;br&gt;&lt;br&gt;Real-time notification broadcasting to connected clients." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1050" y="200" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="background-jobs" value="&lt;b&gt;Background Jobs Service&lt;/b&gt;&lt;br&gt;[Hangfire]&lt;br&gt;&lt;br&gt;Scheduled tasks for digests, escalations, and cleanup." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1050" y="360" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ai-service-container" value="&lt;b&gt;AI Intelligence Service&lt;/b&gt;&lt;br&gt;[.NET Service]&lt;br&gt;&lt;br&gt;AI-powered notification analysis and prioritization." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;strokeColor=#001DBC;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1050" y="520" width="200" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="database-container" value="&lt;b&gt;Notification Database&lt;/b&gt;&lt;br&gt;[Azure SQL Database]&lt;br&gt;&lt;br&gt;Stores notifications, alerts, preferences, and history." style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#647687;strokeColor=#314354;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="600" y="700" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="cache-container" value="&lt;b&gt;Redis Cache&lt;/b&gt;&lt;br&gt;[Azure Redis Cache]&lt;br&gt;&lt;br&gt;Caches user preferences and frequent queries." style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#647687;strokeColor=#314354;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="350" y="700" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Services -->
+        <mxCell id="service-bus2" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="200" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="communication-services" value="&lt;b&gt;Azure Communication Services&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="290" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notification-hubs" value="&lt;b&gt;Azure Notification Hubs&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="380" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="signalr-service2" value="&lt;b&gt;Azure SignalR Service&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="470" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="openai-service" value="&lt;b&gt;Azure OpenAI Service&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontSize=12;fontColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="560" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="user2" value="&lt;b&gt;User&lt;/b&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;" parent="1" vertex="1">
+          <mxGeometry x="100" y="220" width="60" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-user-web" value="Uses&lt;br&gt;[HTTPS]" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="user2" target="web-app" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-user-mobile" value="Uses" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="user2" target="mobile-app" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-web-gateway" value="API Calls&lt;br&gt;[HTTPS/JSON]" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="web-app" target="api-gateway" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-mobile-gateway" value="API Calls&lt;br&gt;[HTTPS/JSON]" style="endArrow=classic;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="mobile-app" target="api-gateway" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-gateway-notif-api" value="Routes" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="api-gateway" target="notification-api" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-gateway-alert-api" value="Routes" style="endArrow=classic;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="api-gateway" target="alert-api" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-notif-db" value="Reads/Writes" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.145;entryY=0;entryDx=0;entryDy=4.35;entryPerimeter=0;strokeWidth=2;fontSize=10;" parent="1" source="notification-api" target="database-container" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-alert-db" value="Reads/Writes" style="endArrow=classic;startArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=10;" parent="1" source="alert-api" target="database-container" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-notif-cache" value="Caches" style="endArrow=classic;startArrow=classic;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;strokeWidth=2;fontSize=10;" parent="1" source="notification-api" target="cache-container" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-notif-servicebus" value="Publishes" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="notification-api" target="delivery-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-delivery-external" value="Uses" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="delivery-service" target="communication-services" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-delivery-hubs" value="Uses" style="endArrow=classic;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="delivery-service" target="notification-hubs" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-signalr-service" value="Uses" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="signalr-hub" target="signalr-service2" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-ai-openai" value="Uses" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="ai-service-container" target="openai-service" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-web-signalr" value="Connects&lt;br&gt;[WebSocket]" style="endArrow=classic;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" parent="1" source="web-app" target="signalr-hub" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="600" as="sourcePoint" />
+            <mxPoint x="850" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

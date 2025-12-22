@@ -1,0 +1,762 @@
+@startuml Shipper Management Sequence Diagrams
+!theme plain
+
+title Shipper & Logistics Management - Sequence Diagrams
+
+' ========================================
+' 1. Create Shipper List Flow
+' ========================================
+
+@startuml Create_Shipper_List
+title Sequence: Create Shipper List and Add Items
+
+actor "Event Manager" as EM
+participant "Web App" as Web
+participant "API Controller" as API
+participant "Command Handler" as Handler
+participant "ShipperList\nAggregate" as Aggregate
+participant "Repository" as Repo
+participant "Event Publisher" as EventPub
+participant "Service Bus" as Bus
+database "SQL Database" as DB
+database "Event Store" as ES
+
+EM -> Web: Create new shipper list
+activate Web
+
+Web -> API: POST /api/v1/shipper-lists\n{eventId, generatedBy}
+activate API
+
+API -> Handler: CreateShipperListCommand
+activate Handler
+
+Handler -> Aggregate: new ShipperList(eventId, generatedBy)
+activate Aggregate
+
+Aggregate -> Aggregate: Generate list number
+Aggregate -> Aggregate: Set status = Draft
+Aggregate --> Aggregate: Create ShipperListGenerated event
+
+Handler <-- Aggregate: ShipperList created
+deactivate Aggregate
+
+Handler -> Repo: AddAsync(shipperList)
+activate Repo
+Repo -> DB: INSERT INTO ShipperLists
+Repo <-- DB: Success
+Handler <-- Repo: ShipperList saved
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ShipperListGenerated)
+activate EventPub
+EventPub -> Bus: Send message
+EventPub -> ES: Store event
+EventPub <-- Bus: Ack
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: ShipperListDto
+deactivate Handler
+
+Web <-- API: 201 Created\n{shipperListDto}
+deactivate API
+
+EM <-- Web: Display success message
+deactivate Web
+
+== Add Items to Shipper List ==
+
+EM -> Web: Add item to list
+activate Web
+
+Web -> API: POST /api/v1/shipper-lists/{id}/items\n{inventoryItemId, quantity}
+activate API
+
+API -> Handler: AddItemToShipperListCommand
+activate Handler
+
+Handler -> Repo: GetByIdAsync(shipperListId)
+activate Repo
+Repo -> DB: SELECT * FROM ShipperLists
+Repo <-- DB: ShipperList data
+Handler <-- Repo: ShipperList
+deactivate Repo
+
+Handler -> Aggregate: AddItem(inventoryItemId, quantity)
+activate Aggregate
+Aggregate -> Aggregate: Validate item
+Aggregate -> Aggregate: Create ShipperListItem
+Aggregate --> Aggregate: Create ItemAddedToShipperList event
+Handler <-- Aggregate: Item added
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(shipperList)
+activate Repo
+Repo -> DB: UPDATE ShipperLists\nINSERT INTO ShipperListItems
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ItemAddedToShipperList)
+activate EventPub
+EventPub -> Bus: Send message
+EventPub -> ES: Store event
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: ShipperListItemDto
+deactivate Handler
+
+Web <-- API: 200 OK\n{itemDto}
+deactivate API
+
+EM <-- Web: Item added successfully
+deactivate Web
+
+@enduml
+
+' ========================================
+' 2. Create and Track Shipment Flow
+' ========================================
+
+@startuml Create_and_Track_Shipment
+title Sequence: Create Shipment and Real-time Tracking
+
+actor "Logistics Coordinator" as LC
+actor "Driver" as Driver
+participant "Web App" as Web
+participant "Mobile App" as Mobile
+participant "API Controller" as API
+participant "Command Handler" as Handler
+participant "Shipment\nAggregate" as Aggregate
+participant "Repository" as Repo
+participant "Event Publisher" as EventPub
+participant "SignalR Hub" as Hub
+participant "Azure Maps" as Maps
+participant "Azure AI" as AI
+database "SQL Database" as DB
+
+LC -> Web: Create shipment
+activate Web
+
+Web -> API: POST /api/v1/shipments\n{eventId, shipperListId, addresses}
+activate API
+
+API -> Maps: Geocode addresses
+activate Maps
+Maps --> API: Coordinates
+deactivate Maps
+
+API -> Handler: CreateShipmentCommand
+activate Handler
+
+Handler -> Aggregate: new Shipment(eventId, shipperListId)
+activate Aggregate
+Aggregate -> Aggregate: Generate tracking number
+Aggregate -> Aggregate: Set status = Created
+Aggregate --> Aggregate: Create ShipmentCreatedForEvent
+Handler <-- Aggregate: Shipment
+deactivate Aggregate
+
+Handler -> Repo: AddAsync(shipment)
+activate Repo
+Repo -> DB: INSERT INTO Shipments
+Handler <-- Repo: Saved
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ShipmentCreatedForEvent)
+activate EventPub
+EventPub -> EventPub: Publish to Service Bus
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: ShipmentDto
+deactivate Handler
+
+Web <-- API: 201 Created\n{shipmentDto}
+deactivate API
+
+LC <-- Web: Shipment created
+deactivate Web
+
+== Assign Driver ==
+
+LC -> Web: Assign driver to shipment
+activate Web
+
+Web -> API: POST /api/v1/shipments/{id}/assign-driver\n{driverId}
+activate API
+
+API -> AI: OptimizeDeliveryRoute(shipment)
+activate AI
+AI --> API: Optimized route
+deactivate AI
+
+API -> Handler: AssignDriverCommand
+activate Handler
+
+Handler -> Repo: GetByIdAsync(shipmentId)
+activate Repo
+Repo -> DB: SELECT * FROM Shipments
+Handler <-- Repo: Shipment
+deactivate Repo
+
+Handler -> Aggregate: AssignDriver(driverId)
+activate Aggregate
+Aggregate -> Aggregate: Set driverId
+Aggregate -> Aggregate: Update status
+Aggregate --> Aggregate: Create ShipmentAssignedToDriver
+Handler <-- Aggregate: Driver assigned
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(shipment)
+activate Repo
+Repo -> DB: UPDATE Shipments
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ShipmentAssignedToDriver)
+activate EventPub
+EventPub -> EventPub: Notify driver
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: Success
+deactivate Handler
+
+Web <-- API: 200 OK
+deactivate API
+
+LC <-- Web: Driver assigned
+deactivate Web
+
+== Real-time Tracking ==
+
+Driver -> Mobile: Depart warehouse
+activate Mobile
+
+Mobile -> API: POST /api/v1/shipments/{id}/depart
+activate API
+
+API -> Handler: DepartWarehouseCommand
+activate Handler
+
+Handler -> Aggregate: DepartWarehouse(departureTime)
+activate Aggregate
+Aggregate -> Aggregate: Update status = Departed
+Aggregate --> Aggregate: Create ShipmentDepartedWarehouse
+Handler <-- Aggregate: Departed
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(shipment)
+activate Repo
+Repo -> DB: UPDATE Shipments
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> Hub: BroadcastStatusUpdate(shipmentId, status)
+activate Hub
+Hub -> Web: Send status update (WebSocket)
+Hub -> Mobile: Send status update (WebSocket)
+Handler <-- Hub: Broadcasted
+deactivate Hub
+
+API <-- Handler: Success
+deactivate Handler
+
+Mobile <-- API: 200 OK
+deactivate API
+
+Driver <-- Mobile: Status updated
+deactivate Mobile
+
+loop Every 30 seconds while in transit
+    Driver -> Mobile: Update location
+    activate Mobile
+
+    Mobile -> Hub: SendLocationUpdate(shipmentId, location)
+    activate Hub
+
+    Hub -> DB: UPDATE Shipments SET CurrentLocation
+    Hub -> Web: Broadcast location (WebSocket)
+
+    Mobile <-- Hub: Location updated
+    deactivate Hub
+
+    Driver <-- Mobile: Location sent
+    deactivate Mobile
+
+    LC -> Web: View real-time location
+    activate Web
+    Web -> Web: Update map with new location
+    LC <-- Web: Location displayed
+    deactivate Web
+end
+
+@enduml
+
+' ========================================
+' 3. Delivery and Signature Capture Flow
+' ========================================
+
+@startuml Delivery_Signature_Capture
+title Sequence: Delivery with Signature Capture
+
+actor "Driver" as Driver
+actor "Venue Staff" as Venue
+participant "Mobile App" as Mobile
+participant "API Controller" as API
+participant "Command Handler" as Handler
+participant "Delivery\nAggregate" as Aggregate
+participant "Blob Storage\nService" as BlobSvc
+participant "Repository" as Repo
+participant "Event Publisher" as EventPub
+participant "SignalR Hub" as Hub
+database "SQL Database" as DB
+database "Azure Blob" as Blob
+
+Driver -> Mobile: Arrive at venue
+activate Mobile
+
+Mobile -> API: POST /api/v1/shipments/{id}/arrive
+activate API
+
+API -> Handler: ArriveAtVenueCommand
+activate Handler
+
+Handler -> Aggregate: ArriveAtVenue(arrivalTime)
+activate Aggregate
+Aggregate -> Aggregate: Update status = ArrivedAtVenue
+Aggregate --> Aggregate: Create ShipmentArrivedAtVenue
+Handler <-- Aggregate: Arrived
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(shipment)
+activate Repo
+Repo -> DB: UPDATE Shipments
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> Hub: BroadcastStatusUpdate
+activate Hub
+Hub -> Hub: Notify subscribers
+Handler <-- Hub: Broadcasted
+deactivate Hub
+
+API <-- Handler: Success
+deactivate Handler
+
+Mobile <-- API: 200 OK
+deactivate API
+
+Driver <-- Mobile: Arrived at venue
+deactivate Mobile
+
+== Deliver Items ==
+
+Driver -> Mobile: Start delivery
+activate Mobile
+
+loop For each item
+    Driver -> Mobile: Scan/select item
+    Driver -> Mobile: Enter quantity delivered
+
+    Mobile -> API: POST /api/v1/deliveries/{id}/items/{itemId}/deliver\n{quantity}
+    activate API
+
+    API -> Handler: DeliverItemCommand
+    activate Handler
+
+    Handler -> Aggregate: DeliverItem(itemId, quantity)
+    activate Aggregate
+    Aggregate -> Aggregate: Update delivery status
+    Aggregate --> Aggregate: Create ItemDeliveredToVenue
+    Handler <-- Aggregate: Item delivered
+    deactivate Aggregate
+
+    Handler -> Repo: UpdateAsync(delivery)
+    activate Repo
+    Repo -> DB: UPDATE Deliveries, DeliveryItems
+    Handler <-- Repo: Updated
+    deactivate Repo
+
+    API <-- Handler: Success
+    deactivate Handler
+
+    Mobile <-- API: 200 OK
+    deactivate API
+
+    Driver <-- Mobile: Item marked delivered
+end
+
+Driver <-- Mobile: All items delivered
+deactivate Mobile
+
+== Capture Signature ==
+
+Driver -> Mobile: Request signature
+activate Mobile
+
+Mobile -> Mobile: Display signature pad
+
+Venue -> Mobile: Draw signature on screen
+activate Venue
+
+Mobile <-- Venue: Signature captured
+deactivate Venue
+
+Driver -> Mobile: Enter recipient name and title
+Driver -> Mobile: Submit delivery
+
+Mobile -> Mobile: Convert signature to base64
+
+Mobile -> API: POST /api/v1/deliveries/{id}/signature\n{signatureData, recipientName}
+activate API
+
+API -> BlobSvc: UploadSignatureAsync(deliveryId, base64Data)
+activate BlobSvc
+
+BlobSvc -> Blob: Upload signature image
+BlobSvc <-- Blob: Blob URL
+API <-- BlobSvc: Signature URL
+deactivate BlobSvc
+
+API -> Handler: CaptureSignatureCommand
+activate Handler
+
+Handler -> Aggregate: CaptureSignature(signature, recipientName)
+activate Aggregate
+Aggregate -> Aggregate: Set signature URL
+Aggregate -> Aggregate: Update status = SignatureReceived
+Aggregate --> Aggregate: Create DeliverySignatureReceived
+Handler <-- Aggregate: Signature captured
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(delivery)
+activate Repo
+Repo -> DB: UPDATE Deliveries
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(DeliverySignatureReceived)
+activate EventPub
+EventPub -> EventPub: Notify stakeholders
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: Success with signature URL
+deactivate Handler
+
+Mobile <-- API: 200 OK\n{signatureUrl}
+deactivate API
+
+Driver <-- Mobile: Delivery completed
+deactivate Mobile
+
+@enduml
+
+' ========================================
+' 4. Return with Damage Report Flow
+' ========================================
+
+@startuml Return_with_Damage_Report
+title Sequence: Item Return with Damage Report
+
+actor "Driver" as Driver
+actor "Warehouse Personnel" as WH
+participant "Mobile App" as Mobile
+participant "Web App" as Web
+participant "API Controller" as API
+participant "Command Handler" as Handler
+participant "ReturnItem\nAggregate" as Aggregate
+participant "Blob Storage\nService" as BlobSvc
+participant "Repository" as Repo
+participant "Event Publisher" as EventPub
+participant "Azure AI" as AI
+database "SQL Database" as DB
+database "Azure Blob" as Blob
+
+Driver -> Mobile: Schedule pickup
+activate Mobile
+
+Mobile -> API: POST /api/v1/returns/schedule-pickup\n{eventId, items, scheduledDate}
+activate API
+
+API -> Handler: SchedulePickupCommand
+activate Handler
+
+Handler -> Aggregate: new ReturnItem(eventId, itemId, shipmentId)
+activate Aggregate
+Aggregate -> Aggregate: Set status = PickupScheduled
+Aggregate -> Aggregate: Set scheduled date
+Aggregate --> Aggregate: Create ItemPickupScheduled
+Handler <-- Aggregate: Return item created
+deactivate Aggregate
+
+Handler -> Repo: AddAsync(returnItem)
+activate Repo
+Repo -> DB: INSERT INTO ReturnItems
+Handler <-- Repo: Saved
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ItemPickupScheduled)
+activate EventPub
+EventPub -> EventPub: Schedule reminder
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: ReturnItemDto
+deactivate Handler
+
+Mobile <-- API: 201 Created
+deactivate API
+
+Driver <-- Mobile: Pickup scheduled
+deactivate Mobile
+
+== Record Pickup ==
+
+Driver -> Mobile: Pick up items from venue
+activate Mobile
+
+Mobile -> API: POST /api/v1/returns/{id}/pickup\n{pickupTime, quantity}
+activate API
+
+API -> Handler: RecordPickupCommand
+activate Handler
+
+Handler -> Aggregate: RecordPickup(pickupTime, quantity)
+activate Aggregate
+Aggregate -> Aggregate: Update status = PickedUp
+Aggregate -> Aggregate: Set actual pickup time
+Aggregate --> Aggregate: Create ItemPickedUpFromVenue
+Handler <-- Aggregate: Pickup recorded
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(returnItem)
+activate Repo
+Repo -> DB: UPDATE ReturnItems
+Handler <-- Repo: Updated
+deactivate Repo
+
+API <-- Handler: Success
+deactivate Handler
+
+Mobile <-- API: 200 OK
+deactivate API
+
+Driver <-- Mobile: Pickup recorded
+deactivate Mobile
+
+== Inspect and Report Damage ==
+
+WH -> Web: Inspect returned items
+activate Web
+
+WH -> Web: Notice damage on items
+WH -> Web: Open damage report form
+
+Web -> Web: Display damage report interface
+
+WH -> Web: Enter damage description
+WH -> Web: Take photos of damage (3 photos)
+
+loop For each photo
+    Web -> Web: Capture photo from camera
+    Web -> Web: Preview photo
+end
+
+WH -> Web: Submit damage report
+
+Web -> API: POST /api/v1/returns/{id}/damage\n{description, photos[]}
+activate API
+
+API -> BlobSvc: UploadDamagePhotosAsync(returnItemId, photos)
+activate BlobSvc
+
+loop For each photo
+    BlobSvc -> Blob: Upload photo
+    BlobSvc <-- Blob: Photo URL
+end
+
+API <-- BlobSvc: List of photo URLs
+deactivate BlobSvc
+
+API -> AI: AnalyzeDamageImages(photoUrls)
+activate AI
+AI --> API: Damage assessment and suggestions
+deactivate AI
+
+API -> Handler: RecordDamageCommand
+activate Handler
+
+Handler -> Aggregate: RecordDamage(description, photoUrls)
+activate Aggregate
+Aggregate -> Aggregate: Set IsDamaged = true
+Aggregate -> Aggregate: Set damage description
+Aggregate -> Aggregate: Store photo URLs
+Aggregate --> Aggregate: Create ItemDamagedDuringReturn
+Handler <-- Aggregate: Damage recorded
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(returnItem)
+activate Repo
+Repo -> DB: UPDATE ReturnItems
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ItemDamagedDuringReturn)
+activate EventPub
+EventPub -> EventPub: Notify inventory team
+EventPub -> EventPub: Create maintenance ticket
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: Success with AI suggestions
+deactivate Handler
+
+Web <-- API: 200 OK\n{photoUrls, aiSuggestions}
+deactivate API
+
+WH <-- Web: Damage report submitted
+deactivate Web
+
+== Complete Return ==
+
+WH -> Web: Mark items as returned to warehouse
+activate Web
+
+Web -> API: POST /api/v1/returns/{id}/returned\n{returnTime, quantityReceived}
+activate API
+
+API -> Handler: ReturnToWarehouseCommand
+activate Handler
+
+Handler -> Aggregate: ReturnToWarehouse(returnTime)
+activate Aggregate
+Aggregate -> Aggregate: Update status = ReturnedToWarehouse
+Aggregate -> Aggregate: Set return time
+Aggregate --> Aggregate: Create ItemReturnedToWarehouse
+Handler <-- Aggregate: Return completed
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(returnItem)
+activate Repo
+Repo -> DB: UPDATE ReturnItems
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(ItemReturnedToWarehouse)
+activate EventPub
+EventPub -> EventPub: Update inventory
+EventPub -> EventPub: Close shipment cycle
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: Success
+deactivate Handler
+
+Web <-- API: 200 OK
+deactivate API
+
+WH <-- Web: Return completed
+deactivate Web
+
+@enduml
+
+' ========================================
+' 5. Exception Handling Flow
+' ========================================
+
+@startuml Delivery_Exception_Handling
+title Sequence: Delivery Exception Handling with AI Analysis
+
+actor "Driver" as Driver
+participant "Mobile App" as Mobile
+participant "API Controller" as API
+participant "Command Handler" as Handler
+participant "Delivery\nAggregate" as Aggregate
+participant "Azure AI" as AI
+participant "Notification\nService" as NotifSvc
+participant "Repository" as Repo
+participant "Event Publisher" as EventPub
+database "SQL Database" as DB
+
+Driver -> Mobile: Encounter delivery issue
+activate Mobile
+
+Mobile -> Mobile: Display exception form
+
+Driver -> Mobile: Select exception type:\n"Access Restricted"
+Driver -> Mobile: Enter description:\n"Gate locked, cannot access loading area"
+
+Mobile -> API: POST /api/v1/deliveries/{id}/exceptions\n{type, description}
+activate API
+
+API -> DB: Get historical exceptions
+activate DB
+DB --> API: Similar past exceptions
+deactivate DB
+
+API -> AI: AnalyzeException(description, historicalExceptions)
+activate AI
+
+AI -> AI: Analyze root cause
+AI -> AI: Generate recommendations
+AI -> AI: Predict resolution time
+
+AI --> API: ExceptionAnalysis:\n- Root cause: Venue coordination issue\n- Recommendation: Contact venue manager\n- Resolution time: 30-60 minutes
+deactivate AI
+
+API -> Handler: ReportExceptionCommand
+activate Handler
+
+Handler -> Aggregate: ReportException(exceptionType, description)
+activate Aggregate
+Aggregate -> Aggregate: Update status = ExceptionReported
+Aggregate -> Aggregate: Store exception details
+Aggregate --> Aggregate: Create DeliveryExceptionReported
+Handler <-- Aggregate: Exception recorded
+deactivate Aggregate
+
+Handler -> Repo: UpdateAsync(delivery)
+activate Repo
+Repo -> DB: UPDATE Deliveries
+Handler <-- Repo: Updated
+deactivate Repo
+
+Handler -> EventPub: PublishAsync(DeliveryExceptionReported)
+activate EventPub
+
+EventPub -> NotifSvc: SendExceptionAlert(supervisorId, exception)
+activate NotifSvc
+NotifSvc -> NotifSvc: Send urgent email
+NotifSvc -> NotifSvc: Send SMS alert
+EventPub <-- NotifSvc: Notifications sent
+deactivate NotifSvc
+
+Handler <-- EventPub: Published
+deactivate EventPub
+
+API <-- Handler: Success with AI recommendations
+deactivate Handler
+
+Mobile <-- API: 200 OK\n{aiRecommendations}
+deactivate API
+
+Mobile -> Mobile: Display AI recommendations
+Mobile -> Mobile: Show suggested actions
+Mobile -> Mobile: Provide contact information
+
+Driver <-- Mobile: Exception reported\nRecommended action displayed
+deactivate Mobile
+
+note right of AI
+  Azure AI analyzes the exception
+  based on historical data and
+  provides intelligent recommendations
+  to resolve the issue quickly
+end note
+
+@enduml
+
+@enduml

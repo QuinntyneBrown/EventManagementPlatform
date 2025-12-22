@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="prize-management-use-case" name="Prize Management Use Cases">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Prize Management System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=140;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="240" y="40" width="960" height="820" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-staff" value="Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-warehouse" value="Warehouse&#xa;Staff" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="340" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-manager" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="80" y="520" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1280" y="400" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Prize Item Management -->
+        <mxCell id="uc-view-prizes" value="View Prize&#xa;Items" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="300" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-create-prize" value="Create Prize&#xa;Item" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-prize" value="Update Prize&#xa;Item" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-activate-prize" value="Activate/&#xa;Deactivate Prize" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="300" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-upload-photo" value="Upload Prize&#xa;Photo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="300" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Prize Packs -->
+        <mxCell id="uc-create-pack" value="Create Prize&#xa;Pack" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-pack" value="Update Prize&#xa;Pack" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="480" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-add-to-pack" value="Add Items to&#xa;Prize Pack" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="480" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Event Prize Orders -->
+        <mxCell id="uc-create-order" value="Create Prize&#xa;Order" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="660" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-update-order" value="Update Prize&#xa;Order" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="660" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-cancel-order" value="Cancel Prize&#xa;Order" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="660" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-add-to-order" value="Add Items to&#xa;Order" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="660" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Order Processing -->
+        <mxCell id="uc-pack-prizes" value="Pack Prizes&#xa;for Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="840" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-ship-prizes" value="Ship Prizes&#xa;to Event" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="840" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-deliver-prizes" value="Mark Prizes&#xa;Delivered" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="840" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-distribute-prizes" value="Distribute&#xa;Prizes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="840" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-return-prizes" value="Return Unused&#xa;Prizes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="840" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Use Cases - Inventory Management -->
+        <mxCell id="uc-view-inventory" value="View Inventory&#xa;Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="80" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-receive-inventory" value="Receive&#xa;Inventory" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-adjust-inventory" value="Adjust&#xa;Inventory" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="240" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-view-transactions" value="View Inventory&#xa;Transactions" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="320" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-low-stock-report" value="View Low Stock&#xa;Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="400" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- System Use Cases -->
+        <mxCell id="uc-allocate-inventory" value="Allocate&#xa;Inventory" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="660" y="520" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-deallocate-inventory" value="Deallocate&#xa;Inventory" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="840" y="520" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-low-stock-alert" value="Trigger Low&#xa;Stock Alert" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="520" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-publish-events" value="Publish Domain&#xa;Events" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="840" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-validate-stock" value="Validate Stock&#xa;Availability" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="660" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-forecast-demand" value="Forecast Prize&#xa;Demand" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="600" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-track-usage" value="Track Prize&#xa;Usage" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="660" y="680" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-generate-reports" value="Generate&#xa;Inventory Reports" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="680" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Staff -->
+        <mxCell id="assoc-1" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-2" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-upload-photo" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-3" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-add-to-pack" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-4" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-create-order" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-5" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-update-order" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-6" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-add-to-order" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-7" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-8" style="endArrow=none;html=1;strokeColor=#82b366;" parent="1" source="actor-staff" target="uc-view-transactions" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Warehouse Staff -->
+        <mxCell id="assoc-9" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-pack-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-10" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-ship-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-11" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-deliver-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-12" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-distribute-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-13" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-return-prizes" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-14" style="endArrow=none;html=1;strokeColor=#6c8ebf;" parent="1" source="actor-warehouse" target="uc-receive-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - Manager -->
+        <mxCell id="assoc-15" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-create-prize" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-16" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-update-prize" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-17" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-activate-prize" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-18" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-create-pack" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-19" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-update-pack" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-20" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-cancel-order" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-21" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-adjust-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-22" style="endArrow=none;html=1;strokeColor=#d79b00;" parent="1" source="actor-manager" target="uc-low-stock-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Associations - System -->
+        <mxCell id="assoc-23" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-allocate-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-24" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-deallocate-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-25" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-low-stock-alert" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-26" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-27" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-validate-stock" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-28" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-forecast-demand" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-29" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-track-usage" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="assoc-30" style="endArrow=none;html=1;strokeColor=#b85450;" parent="1" source="actor-system" target="uc-generate-reports" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-create-order" target="uc-validate-stock" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-1-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-2" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-pack-prizes" target="uc-allocate-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-2-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-2" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-3" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-return-prizes" target="uc-deallocate-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-3-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-3" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-4" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-receive-inventory" target="uc-publish-events" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-4-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-4" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="include-5" style="endArrow=open;html=1;dashed=1;strokeColor=#666666;" parent="1" source="uc-adjust-inventory" target="uc-low-stock-alert" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="include-5-label" value="&lt;&lt;include&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="include-5" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-low-stock-report" target="uc-view-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-1-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-1" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <mxCell id="extend-2" style="endArrow=open;html=1;dashed=1;strokeColor=#999999;" parent="1" source="uc-forecast-demand" target="uc-view-inventory" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+          <mxCell id="extend-2-label" value="&lt;&lt;extend&gt;&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="extend-2" vertex="1" connectable="0">
+            <mxGeometry x="0.2" relative="1" as="geometry">
+              <mxPoint as="offset"/>
+            </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

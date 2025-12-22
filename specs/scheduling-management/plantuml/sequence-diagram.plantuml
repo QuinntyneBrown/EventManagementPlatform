@@ -1,0 +1,629 @@
+@startuml Scheduling & Calendar Management Sequence Diagrams
+
+title Scheduling & Calendar Management - Key Sequence Diagrams
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+' ==============================================
+' Sequence 1: Schedule Event on Calendar
+' ==============================================
+
+!startsub SCHEDULE_EVENT
+
+participant "User" as User
+participant "Web App" as WebApp
+participant "API Gateway" as API
+participant "ScheduleEventHandler" as Handler
+participant "AvailabilityCheckService" as AvailService
+participant "OverbookingGuardService" as OverbookGuard
+participant "ConflictDetectionService" as ConflictService
+participant "Database" as DB
+participant "Service Bus" as SB
+participant "Cache" as Cache
+
+title Sequence 1: Schedule Event on Calendar
+
+User -> WebApp : Select event and time slot
+activate WebApp
+
+WebApp -> WebApp : Validate form inputs
+WebApp -> API : POST /api/schedules\n{eventId, calendarId, startDateTime, endDateTime}
+activate API
+
+API -> Handler : Handle(ScheduleEventCommand)
+activate Handler
+
+' Check resource availability
+Handler -> AvailService : CheckResourceAvailabilityAsync(resourceId, timeSlot)
+activate AvailService
+AvailService -> DB : Query ResourceAvailability
+activate DB
+DB --> AvailService : Availability records
+deactivate DB
+AvailService --> Handler : IsAvailable = true
+deactivate AvailService
+
+' Check calendar capacity
+Handler -> OverbookGuard : CheckCalendarCapacityAsync(calendarId, timeSlot)
+activate OverbookGuard
+OverbookGuard -> DB : Query ScheduledEvents for calendar
+activate DB
+DB --> OverbookGuard : Event count
+deactivate DB
+OverbookGuard -> OverbookGuard : Compare with MaxConcurrentEvents
+OverbookGuard --> Handler : CanSchedule = true
+deactivate OverbookGuard
+
+' Create scheduled event
+Handler -> DB : Create ScheduledEvent
+activate DB
+DB --> Handler : ScheduledEvent created
+deactivate DB
+
+' Detect conflicts
+Handler -> ConflictService : DetectConflictsAsync(scheduledEvent)
+activate ConflictService
+ConflictService -> DB : Query overlapping events
+activate DB
+DB --> ConflictService : Overlapping events
+deactivate DB
+ConflictService -> ConflictService : Calculate conflict level
+ConflictService -> DB : Create ScheduleConflict (if conflicts found)
+activate DB
+DB --> ConflictService : Conflict created
+deactivate DB
+ConflictService --> Handler : Conflicts detected
+deactivate ConflictService
+
+' Update conflict level on scheduled event
+Handler -> DB : Update ScheduledEvent.ConflictLevel
+activate DB
+DB --> Handler : Updated
+deactivate DB
+
+' Publish domain event
+Handler -> SB : Publish EventScheduledOnCalendar
+activate SB
+SB --> Handler : Event published
+deactivate SB
+
+alt Conflicts detected
+    Handler -> SB : Publish ScheduleConflictDetected
+    activate SB
+    SB --> Handler : Event published
+    deactivate SB
+end
+
+' Invalidate cache
+Handler -> Cache : Invalidate calendar view cache
+activate Cache
+Cache --> Handler : Cache invalidated
+deactivate Cache
+
+Handler --> API : ScheduledEventDetailDto
+deactivate Handler
+API --> WebApp : 201 Created + ScheduledEventDetailDto
+deactivate API
+WebApp --> User : Display success message\n(with conflict warnings if any)
+deactivate WebApp
+
+!endsub
+
+@enduml
+
+' ==============================================
+' Sequence 2: Reschedule Event with Conflict Detection
+' ==============================================
+
+@startuml
+!include Scheduling & Calendar Management Sequence Diagrams
+
+participant "User" as User2
+participant "Web App" as WebApp2
+participant "API Gateway" as API2
+participant "RescheduleEventHandler" as RescheduleHandler
+participant "ConflictDetectionService" as ConflictService2
+participant "ScheduledEvent" as Event
+participant "Database" as DB2
+participant "Service Bus" as SB2
+participant "Cache" as Cache2
+
+title Sequence 2: Reschedule Event with Conflict Detection
+
+User2 -> WebApp2 : Drag event to new time slot
+activate WebApp2
+
+WebApp2 -> API2 : PUT /api/schedules/{id}/reschedule\n{newStartDateTime, newEndDateTime}
+activate API2
+
+API2 -> RescheduleHandler : Handle(RescheduleEventCommand)
+activate RescheduleHandler
+
+RescheduleHandler -> DB2 : Load ScheduledEvent by ID
+activate DB2
+DB2 --> RescheduleHandler : ScheduledEvent
+deactivate DB2
+
+RescheduleHandler -> Event : Reschedule(newStart, newEnd, userId)
+activate Event
+Event -> Event : Store old dates
+Event -> Event : Update StartDateTime, EndDateTime
+Event -> Event : Raise EventRescheduled event
+Event --> RescheduleHandler : Event rescheduled
+deactivate Event
+
+' Re-detect conflicts with new time
+RescheduleHandler -> ConflictService2 : DetectConflictsAsync(scheduledEvent)
+activate ConflictService2
+
+ConflictService2 -> DB2 : Query overlapping events\n(excluding current event)
+activate DB2
+DB2 --> ConflictService2 : Overlapping events
+deactivate DB2
+
+ConflictService2 -> ConflictService2 : Calculate conflict levels
+
+alt New conflicts detected
+    ConflictService2 -> DB2 : Create new ScheduleConflict records
+    activate DB2
+    DB2 --> ConflictService2 : Conflicts created
+    deactivate DB2
+end
+
+alt Previous conflicts resolved
+    ConflictService2 -> DB2 : Update old conflicts to Resolved status
+    activate DB2
+    DB2 --> ConflictService2 : Conflicts updated
+    deactivate DB2
+end
+
+ConflictService2 --> RescheduleHandler : Conflict analysis complete
+deactivate ConflictService2
+
+RescheduleHandler -> Event : UpdateConflictLevel(newLevel)
+activate Event
+Event --> RescheduleHandler : Updated
+deactivate Event
+
+RescheduleHandler -> DB2 : SaveChangesAsync()
+activate DB2
+DB2 --> RescheduleHandler : Changes saved
+deactivate DB2
+
+' Publish events
+RescheduleHandler -> SB2 : Publish EventRescheduled
+activate SB2
+SB2 --> RescheduleHandler : Published
+deactivate SB2
+
+alt New conflicts detected
+    RescheduleHandler -> SB2 : Publish ScheduleConflictDetected
+    activate SB2
+    SB2 --> RescheduleHandler : Published
+    deactivate SB2
+end
+
+alt Conflicts resolved
+    RescheduleHandler -> SB2 : Publish ScheduleConflictResolved
+    activate SB2
+    SB2 --> RescheduleHandler : Published
+    deactivate SB2
+end
+
+RescheduleHandler -> Cache2 : Invalidate calendar cache
+activate Cache2
+Cache2 --> RescheduleHandler : Invalidated
+deactivate Cache2
+
+RescheduleHandler --> API2 : ScheduledEventDetailDto
+deactivate RescheduleHandler
+
+API2 --> WebApp2 : 200 OK + ScheduledEventDetailDto
+deactivate API2
+
+WebApp2 --> User2 : Update calendar view\n(show conflict warnings if any)
+deactivate WebApp2
+
+@enduml
+
+' ==============================================
+' Sequence 3: Resolve Schedule Conflict
+' ==============================================
+
+@startuml
+!include Scheduling & Calendar Management Sequence Diagrams
+
+participant "Manager" as Manager
+participant "Web App" as WebApp3
+participant "API Gateway" as API3
+participant "ResolveConflictHandler" as ResolveHandler
+participant "Azure AI Service" as AI
+participant "Database" as DB3
+participant "Service Bus" as SB3
+
+title Sequence 3: Resolve Schedule Conflict
+
+Manager -> WebApp3 : Open conflict details
+activate WebApp3
+
+WebApp3 -> API3 : GET /api/schedules/conflicts/{conflictId}
+activate API3
+API3 -> DB3 : Query conflict with related events
+activate DB3
+DB3 --> API3 : ConflictDetailDto
+deactivate DB3
+API3 --> WebApp3 : ConflictDetailDto
+deactivate API3
+
+' Get AI suggestions
+WebApp3 -> API3 : GET /api/schedules/conflicts/{conflictId}/suggestions
+activate API3
+API3 -> AI : Request conflict resolution suggestions
+activate AI
+AI -> AI : Analyze event details,\nhistorical resolutions,\nresource availability
+AI --> API3 : Suggested resolutions
+deactivate AI
+API3 --> WebApp3 : Resolution suggestions
+deactivate API3
+
+WebApp3 --> Manager : Display conflict details\nand AI suggestions
+deactivate WebApp3
+
+Manager -> WebApp3 : Select resolution method\n(e.g., Reschedule primary event)
+activate WebApp3
+
+WebApp3 -> API3 : POST /api/schedules/conflicts/{conflictId}/resolve\n{resolutionMethod, notes}
+activate API3
+
+API3 -> ResolveHandler : Handle(ResolveConflictCommand)
+activate ResolveHandler
+
+ResolveHandler -> DB3 : Load ScheduleConflict
+activate DB3
+DB3 --> ResolveHandler : ScheduleConflict
+deactivate DB3
+
+ResolveHandler -> ResolveHandler : Apply resolution method
+
+alt Reschedule event
+    ResolveHandler -> DB3 : Update ScheduledEvent with new time
+    activate DB3
+    DB3 --> ResolveHandler : Updated
+    deactivate DB3
+end
+
+alt Change resource
+    ResolveHandler -> DB3 : Update resource allocation
+    activate DB3
+    DB3 --> ResolveHandler : Updated
+    deactivate DB3
+end
+
+alt Cancel event
+    ResolveHandler -> DB3 : Update event status to Cancelled
+    activate DB3
+    DB3 --> ResolveHandler : Updated
+    deactivate DB3
+end
+
+' Mark conflict as resolved
+ResolveHandler -> DB3 : Update ScheduleConflict\n(Status=Resolved, ResolutionMethod, ResolvedBy, ResolvedAt)
+activate DB3
+DB3 --> ResolveHandler : Conflict resolved
+deactivate DB3
+
+ResolveHandler -> DB3 : SaveChangesAsync()
+activate DB3
+DB3 --> ResolveHandler : Saved
+deactivate DB3
+
+' Publish event
+ResolveHandler -> SB3 : Publish ScheduleConflictResolved
+activate SB3
+SB3 --> ResolveHandler : Published
+deactivate SB3
+
+ResolveHandler --> API3 : Success
+deactivate ResolveHandler
+
+API3 --> WebApp3 : 200 OK
+deactivate API3
+
+WebApp3 --> Manager : Display success message\nUpdate conflict dashboard
+deactivate WebApp3
+
+@enduml
+
+' ==============================================
+' Sequence 4: Check Resource Availability
+' ==============================================
+
+@startuml
+!include Scheduling & Calendar Management Sequence Diagrams
+
+participant "User" as User4
+participant "Web App" as WebApp4
+participant "API Gateway" as API4
+participant "CheckAvailabilityHandler" as AvailHandler
+participant "AvailabilityCheckService" as AvailCheckService
+participant "Database" as DB4
+participant "Cache" as Cache4
+
+title Sequence 4: Check Resource Availability
+
+User4 -> WebApp4 : Select resources and date/time
+activate WebApp4
+
+WebApp4 -> API4 : POST /api/resources/availability/check-multiple\n{resourceIds[], startDateTime, endDateTime}
+activate API4
+
+API4 -> AvailHandler : Handle(CheckResourceAvailabilityQuery)
+activate AvailHandler
+
+' Check cache first
+AvailHandler -> Cache4 : Get cached availability
+activate Cache4
+Cache4 --> AvailHandler : Cache miss
+deactivate Cache4
+
+loop For each resource
+    AvailHandler -> AvailCheckService : CheckResourceAvailabilityAsync(resourceId, timeSlot)
+    activate AvailCheckService
+
+    ' Check explicit unavailability records
+    AvailCheckService -> DB4 : Query ResourceAvailability\nWHERE ResourceId AND TimeSlot overlaps
+    activate DB4
+    DB4 --> AvailCheckService : Unavailability records
+    deactivate DB4
+
+    alt Resource marked unavailable
+        AvailCheckService --> AvailHandler : IsAvailable = false, Reason
+    else Resource not marked unavailable
+        ' Check existing bookings
+        AvailCheckService -> DB4 : Query ScheduledEvents\nWHERE ResourceId AND TimeSlot overlaps
+        activate DB4
+        DB4 --> AvailCheckService : Existing bookings
+        deactivate DB4
+
+        alt Resource already booked
+            AvailCheckService --> AvailHandler : IsAvailable = false,\nReason = "Already booked"
+        else Resource available
+            AvailCheckService --> AvailHandler : IsAvailable = true,\nAvailable time slots
+        end
+    end
+
+    deactivate AvailCheckService
+end
+
+' Calculate available time slots
+AvailHandler -> AvailHandler : Aggregate results,\nCalculate available slots
+
+' Cache the results
+AvailHandler -> Cache4 : Cache availability results (2 min TTL)
+activate Cache4
+Cache4 --> AvailHandler : Cached
+deactivate Cache4
+
+AvailHandler --> API4 : ResourceAvailabilityDto[]
+deactivate AvailHandler
+
+API4 --> WebApp4 : 200 OK + Availability results
+deactivate API4
+
+WebApp4 -> WebApp4 : Render availability timeline
+WebApp4 --> User4 : Display resource availability\n(green/red timeline)
+deactivate WebApp4
+
+@enduml
+
+' ==============================================
+' Sequence 5: Generate and Export Calendar View
+' ==============================================
+
+@startuml
+!include Scheduling & Calendar Management Sequence Diagrams
+
+participant "Manager" as Manager5
+participant "Web App" as WebApp5
+participant "API Gateway" as API5
+participant "CalendarViewHandler" as ViewHandler
+participant "CalendarViewService" as ViewService
+participant "Database" as DB5
+participant "Cache" as Cache5
+participant "Blob Storage" as Blob
+
+title Sequence 5: Generate and Export Calendar View
+
+Manager5 -> WebApp5 : Request monthly calendar view
+activate WebApp5
+
+WebApp5 -> API5 : GET /api/calendars/{calendarId}/monthly?month=12&year=2025
+activate API5
+
+API5 -> ViewHandler : Handle(GetCalendarViewQuery)
+activate ViewHandler
+
+' Check cache
+ViewHandler -> ViewService : GenerateMonthlyViewAsync(calendarId, 12, 2025)
+activate ViewService
+
+ViewService -> Cache5 : Get cached view
+activate Cache5
+Cache5 --> ViewService : Cache miss
+deactivate Cache5
+
+' Generate view from database
+ViewService -> DB5 : Query ScheduledEvents\nWHERE CalendarId AND Month = 12
+activate DB5
+DB5 --> ViewService : Scheduled events for month
+deactivate DB5
+
+ViewService -> DB5 : Query Calendars by ID
+activate DB5
+DB5 --> ViewService : Calendar details
+deactivate DB5
+
+ViewService -> ViewService : Group events by date,\nCalculate event counts,\nFormat for monthly grid
+
+' Cache the view
+ViewService -> Cache5 : Cache view (5 min TTL)
+activate Cache5
+Cache5 --> ViewService : Cached
+deactivate Cache5
+
+ViewService --> ViewHandler : CalendarViewDto
+deactivate ViewService
+
+ViewHandler --> API5 : CalendarViewDto
+deactivate ViewHandler
+
+API5 --> WebApp5 : 200 OK + CalendarViewDto
+deactivate API5
+
+WebApp5 --> Manager5 : Render monthly calendar
+deactivate WebApp5
+
+' Export calendar
+Manager5 -> WebApp5 : Click "Export to PDF"
+activate WebApp5
+
+WebApp5 -> API5 : POST /api/calendars/{calendarId}/export/monthly\n{month: 12, year: 2025, format: "PDF"}
+activate API5
+
+API5 -> ViewHandler : Handle(ExportMonthlyScheduleCommand)
+activate ViewHandler
+
+ViewHandler -> ViewService : GenerateMonthlyViewAsync(calendarId, 12, 2025)
+activate ViewService
+ViewService -> Cache5 : Get cached view
+activate Cache5
+Cache5 --> ViewService : CalendarViewDto (from cache)
+deactivate Cache5
+ViewService --> ViewHandler : CalendarViewDto
+deactivate ViewService
+
+ViewHandler -> ViewHandler : Generate PDF from calendar data
+
+ViewHandler -> Blob : Upload PDF to blob storage
+activate Blob
+Blob --> ViewHandler : Blob URL
+deactivate Blob
+
+ViewHandler -> DB5 : Log export activity
+activate DB5
+DB5 --> ViewHandler : Logged
+deactivate DB5
+
+ViewHandler -> SB3 : Publish MonthlyScheduleExported
+activate SB3
+SB3 --> ViewHandler : Published
+deactivate SB3
+
+ViewHandler --> API5 : Export URL
+deactivate ViewHandler
+
+API5 --> WebApp5 : 200 OK + {downloadUrl, expiresAt}
+deactivate API5
+
+WebApp5 -> WebApp5 : Trigger download
+WebApp5 --> Manager5 : PDF download started
+deactivate WebApp5
+
+@enduml
+
+' ==============================================
+' Sequence 6: Automatic Conflict Detection (Background Job)
+' ==============================================
+
+@startuml
+!include Scheduling & Calendar Management Sequence Diagrams
+
+participant "Timer Trigger" as Timer
+participant "Azure Function" as Function
+participant "ConflictDetectionService" as ConflictSvc
+participant "Database" as DB6
+participant "Service Bus" as SB6
+
+title Sequence 6: Automatic Conflict Detection (Background Job)
+
+Timer -> Function : Trigger every 5 minutes
+activate Function
+
+Function -> ConflictSvc : DetectAllConflictsAsync()
+activate ConflictSvc
+
+' Get recent schedules
+ConflictSvc -> DB6 : Query ScheduledEvents\nWHERE ModifiedAt > LastRunTime\nOR Status = Tentative
+activate DB6
+DB6 --> ConflictSvc : Recent/tentative events
+deactivate DB6
+
+loop For each scheduled event
+    ConflictSvc -> ConflictSvc : DetectConflictsAsync(scheduledEvent)
+
+    ConflictSvc -> DB6 : Query overlapping events\non same calendar/resources
+    activate DB6
+    DB6 --> ConflictSvc : Overlapping events
+    deactivate DB6
+
+    alt Overlaps found
+        ConflictSvc -> ConflictSvc : Calculate conflict type and level
+
+        ConflictSvc -> DB6 : Check if conflict already exists
+        activate DB6
+        DB6 --> ConflictSvc : Existing conflict (if any)
+        deactivate DB6
+
+        alt New conflict
+            ConflictSvc -> DB6 : Create ScheduleConflict
+            activate DB6
+            DB6 --> ConflictSvc : Conflict created
+            deactivate DB6
+
+            ConflictSvc -> SB6 : Publish ScheduleConflictDetected
+            activate SB6
+            SB6 --> ConflictSvc : Published
+            deactivate SB6
+        else Existing conflict - update level if changed
+            ConflictSvc -> DB6 : Update conflict level
+            activate DB6
+            DB6 --> ConflictSvc : Updated
+            deactivate DB6
+        end
+    end
+end
+
+' Check for conflicts that should be auto-escalated
+ConflictSvc -> DB6 : Query ScheduleConflicts\nWHERE Status = Detected\nAND ConflictLevel = Critical\nAND DetectedAt < 24 hours ago
+activate DB6
+DB6 --> ConflictSvc : Critical unresolved conflicts
+deactivate DB6
+
+loop For each critical unresolved conflict
+    ConflictSvc -> DB6 : Update conflict status to Escalated
+    activate DB6
+    DB6 --> ConflictSvc : Updated
+    deactivate DB6
+
+    ConflictSvc -> SB6 : Publish ScheduleConflictEscalated
+    activate SB6
+    SB6 --> ConflictSvc : Published
+    deactivate SB6
+end
+
+ConflictSvc -> DB6 : Update LastRunTime
+activate DB6
+DB6 --> ConflictSvc : Updated
+deactivate DB6
+
+ConflictSvc --> Function : Detection complete\n{newConflicts: 3, escalated: 1}
+deactivate ConflictSvc
+
+Function -> Function : Log results
+Function --> Timer : Complete
+deactivate Function
+
+@enduml
+
+@enduml

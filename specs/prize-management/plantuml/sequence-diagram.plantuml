@@ -1,0 +1,658 @@
+@startuml Prize Management Sequence Diagrams
+
+title Prize Management - Sequence Diagrams
+
+' ============================================
+' Sequence 1: Create Prize Item
+' ============================================
+
+newpage Create Prize Item Sequence
+
+actor Manager as manager
+participant "Angular App" as webapp
+participant "PrizesController" as controller
+participant "MediatR" as mediatr
+participant "CreatePrizeItemCommandHandler" as handler
+participant "PrizeService" as service
+participant "IPrizeManagementContext" as context
+database "Azure SQL" as db
+queue "Service Bus" as servicebus
+
+manager -> webapp : Fill prize form
+activate webapp
+
+webapp -> webapp : Validate form inputs
+webapp -> controller : POST /api/prizes\n{name, sku, category, unitCost, ...}
+activate controller
+
+controller -> controller : Validate request
+controller -> mediatr : Send(CreatePrizeItemCommand)
+activate mediatr
+
+mediatr -> handler : Handle(command)
+activate handler
+
+handler -> service : ValidateUniqueSKUAsync(sku)
+activate service
+service -> context : Query existing SKUs
+activate context
+context -> db : SELECT WHERE sku = @sku
+db --> context : sku exists?
+context --> service : validation result
+deactivate context
+service --> handler : validation result
+deactivate service
+
+alt SKU Already Exists
+    handler --> mediatr : throw DuplicateSkuException
+    mediatr --> controller : DuplicateSkuException
+    controller --> webapp : 409 Conflict
+    webapp --> manager : Show SKU exists error
+else SKU is Unique
+    handler -> handler : Create PrizeItem entity
+    handler -> handler : prizeItem.AddDomainEvent(PrizeItemAdded)
+
+    handler -> context : PrizeItems.Add(prizeItem)
+    activate context
+    handler -> context : SaveChangesAsync()
+    context -> db : INSERT prize_item
+    db --> context : success
+    context -> servicebus : Publish PrizeItemAdded
+    context --> handler : saved
+    deactivate context
+
+    handler -> handler : Map to PrizeItemDetailDto
+    handler --> mediatr : PrizeItemDetailDto
+    deactivate handler
+
+    mediatr --> controller : PrizeItemDetailDto
+    deactivate mediatr
+
+    controller --> webapp : 201 Created\nPrizeItemDetailDto
+    deactivate controller
+
+    webapp --> manager : Show success message\nNavigate to prize detail
+end
+
+deactivate webapp
+
+' ============================================
+' Sequence 2: Upload Prize Photo
+' ============================================
+
+newpage Upload Prize Photo Sequence
+
+actor Staff as staff
+participant "Angular App" as webapp2
+participant "PrizesController" as controller2
+participant "MediatR" as mediatr2
+participant "UploadPrizePhotoCommandHandler" as handler2
+participant "PhotoStorageService" as photoservice
+participant "IPrizeManagementContext" as context2
+participant "Azure Blob Storage" as blobstorage
+database "Azure SQL" as db2
+queue "Service Bus" as servicebus2
+
+staff -> webapp2 : Select photo file\n(max 5MB)
+activate webapp2
+
+webapp2 -> webapp2 : Validate image file\n(type, size)
+webapp2 -> controller2 : POST /api/prizes/{prizeItemId}/photo\nwith file upload
+activate controller2
+
+controller2 -> mediatr2 : Send(UploadPrizePhotoCommand)
+activate mediatr2
+
+mediatr2 -> handler2 : Handle(command)
+activate handler2
+
+handler2 -> context2 : PrizeItems.FindAsync(prizeItemId)
+activate context2
+context2 -> db2 : SELECT prize_item
+db2 --> context2 : prize data
+context2 --> handler2 : PrizeItem entity
+deactivate context2
+
+alt Prize Not Found
+    handler2 --> mediatr2 : throw NotFoundException
+    mediatr2 --> controller2 : NotFoundException
+    controller2 --> webapp2 : 404 Not Found
+    webapp2 --> staff : Show not found error
+else Prize Found
+    handler2 -> photoservice : UploadPhotoAsync(file, prizeItemId)
+    activate photoservice
+    photoservice -> blobstorage : Upload image blob
+    activate blobstorage
+    blobstorage --> photoservice : blob URL
+    deactivate blobstorage
+    photoservice --> handler2 : photo URL
+    deactivate photoservice
+
+    handler2 -> handler2 : prizeItem.UploadPhoto(photoUrl)
+    handler2 -> handler2 : prizeItem.AddDomainEvent(PrizeItemPhotoUploaded)
+
+    handler2 -> context2 : SaveChangesAsync()
+    activate context2
+    context2 -> db2 : UPDATE prize_item SET PhotoUrl
+    db2 --> context2 : success
+    context2 -> servicebus2 : Publish PrizeItemPhotoUploaded
+    context2 --> handler2 : saved
+    deactivate context2
+
+    handler2 --> mediatr2 : photo URL
+    deactivate handler2
+
+    mediatr2 --> controller2 : photo URL
+    deactivate mediatr2
+
+    controller2 --> webapp2 : 200 OK\n{photoUrl}
+    deactivate controller2
+
+    webapp2 -> webapp2 : Display uploaded photo
+    webapp2 --> staff : Show success message
+end
+
+deactivate webapp2
+
+' ============================================
+' Sequence 3: Create Event Prize Order
+' ============================================
+
+newpage Create Event Prize Order Sequence
+
+actor Staff as staff3
+participant "Angular App" as webapp3
+participant "PrizeOrdersController" as controller3
+participant "MediatR" as mediatr3
+participant "CreateEventPrizeOrderCommandHandler" as handler3
+participant "OrderProcessingService" as orderservice
+participant "InventoryService" as inventoryservice
+participant "IPrizeManagementContext" as context3
+database "Azure SQL" as db3
+queue "Service Bus" as servicebus3
+
+staff3 -> webapp3 : Create order for event\nSelect prizes and quantities
+activate webapp3
+
+webapp3 -> webapp3 : Validate form inputs
+webapp3 -> controller3 : POST /api/events/{eventId}/prize-orders\n{requiredByDate, items[]}
+activate controller3
+
+controller3 -> mediatr3 : Send(CreateEventPrizeOrderCommand)
+activate mediatr3
+
+mediatr3 -> handler3 : Handle(command)
+activate handler3
+
+handler3 -> orderservice : ValidateOrderAsync(order)
+activate orderservice
+orderservice -> inventoryservice : CheckStockAvailabilityAsync(items)
+activate inventoryservice
+
+loop For each item
+    inventoryservice -> context3 : Query stock for prizeItemId
+    activate context3
+    context3 -> db3 : SELECT CurrentStock
+    db3 --> context3 : stock level
+    context3 --> inventoryservice : stock level
+    deactivate context3
+    inventoryservice -> inventoryservice : Check if stock >= quantity
+end
+
+inventoryservice --> orderservice : availability result
+deactivate inventoryservice
+orderservice --> handler3 : validation result
+deactivate orderservice
+
+alt Insufficient Stock
+    handler3 --> mediatr3 : throw InsufficientInventoryException
+    mediatr3 --> controller3 : InsufficientInventoryException
+    controller3 --> webapp3 : 409 Conflict\n{availableQuantity}
+    webapp3 --> staff3 : Show insufficient stock error
+else Stock Available
+    handler3 -> handler3 : Create EventPrizeOrder entity
+    handler3 -> handler3 : Add items to order
+    handler3 -> handler3 : order.AddDomainEvent(EventPrizesOrdered)
+
+    handler3 -> context3 : EventPrizeOrders.Add(order)
+    activate context3
+    handler3 -> context3 : SaveChangesAsync()
+    context3 -> db3 : INSERT event_prize_order and items
+    db3 --> context3 : success
+    context3 -> servicebus3 : Publish EventPrizesOrdered
+    context3 --> handler3 : saved
+    deactivate context3
+
+    handler3 -> handler3 : Map to EventPrizeOrderDetailDto
+    handler3 --> mediatr3 : EventPrizeOrderDetailDto
+    deactivate handler3
+
+    mediatr3 --> controller3 : EventPrizeOrderDetailDto
+    deactivate mediatr3
+
+    controller3 --> webapp3 : 201 Created\nEventPrizeOrderDetailDto
+    deactivate controller3
+
+    webapp3 --> staff3 : Show success message\nNavigate to order detail
+end
+
+deactivate webapp3
+
+' ============================================
+' Sequence 4: Pack Prizes for Event
+' ============================================
+
+newpage Pack Prizes for Event Sequence
+
+actor Warehouse as warehouse
+participant "Angular App" as webapp4
+participant "PrizeOrdersController" as controller4
+participant "MediatR" as mediatr4
+participant "PackPrizesCommandHandler" as handler4
+participant "OrderProcessingService" as orderservice4
+participant "InventoryService" as inventoryservice4
+participant "IPrizeManagementContext" as context4
+database "Azure SQL" as db4
+queue "Service Bus" as servicebus4
+
+warehouse -> webapp4 : Click Pack button\non order detail
+activate webapp4
+
+webapp4 -> controller4 : POST /api/prize-orders/{orderId}/pack
+activate controller4
+
+controller4 -> mediatr4 : Send(PackPrizesCommand)
+activate mediatr4
+
+mediatr4 -> handler4 : Handle(command)
+activate handler4
+
+handler4 -> context4 : EventPrizeOrders.FindAsync(orderId)\nInclude(o => o.Items)
+activate context4
+context4 -> db4 : SELECT order with items
+db4 --> context4 : order data
+context4 --> handler4 : EventPrizeOrder entity
+deactivate context4
+
+handler4 -> handler4 : Validate status allows packing
+
+alt Status != Submitted/Confirmed
+    handler4 --> mediatr4 : throw InvalidStatusTransitionException
+    mediatr4 --> controller4 : InvalidStatusTransitionException
+    controller4 --> webapp4 : 409 Conflict
+    webapp4 --> warehouse : Show invalid status error
+else Status Allows Packing
+    handler4 -> orderservice4 : ProcessPackingAsync(orderId, warehouseUserId)
+    activate orderservice4
+
+    loop For each order item
+        orderservice4 -> inventoryservice4 : AllocateInventoryAsync(prizeItemId, quantity)
+        activate inventoryservice4
+
+        inventoryservice4 -> context4 : Get PrizeItem
+        activate context4
+        context4 -> db4 : SELECT prize_item
+        db4 --> context4 : prize item
+        context4 --> inventoryservice4 : PrizeItem entity
+        deactivate context4
+
+        inventoryservice4 -> inventoryservice4 : prizeItem.DecreaseStock(quantity)
+        inventoryservice4 -> inventoryservice4 : Create InventoryTransaction(Allocated)
+
+        inventoryservice4 -> context4 : SaveChangesAsync()
+        activate context4
+        context4 -> db4 : UPDATE CurrentStock\nINSERT inventory_transaction
+        db4 --> context4 : success
+        context4 -> servicebus4 : Publish PrizeInventoryAllocated
+        context4 --> inventoryservice4 : saved
+        deactivate context4
+
+        inventoryservice4 --> orderservice4 : allocated
+        deactivate inventoryservice4
+    end
+
+    orderservice4 -> orderservice4 : Update order item AllocatedQuantity
+    orderservice4 --> handler4 : packing processed
+    deactivate orderservice4
+
+    handler4 -> handler4 : order.Pack(warehouseUserId)
+    handler4 -> handler4 : order.AddDomainEvent(PrizesPackedForEvent)
+
+    handler4 -> context4 : SaveChangesAsync()
+    activate context4
+    context4 -> db4 : UPDATE order status, packed_date
+    db4 --> context4 : success
+    context4 -> servicebus4 : Publish PrizesPackedForEvent
+    context4 --> handler4 : saved
+    deactivate context4
+
+    handler4 --> mediatr4 : success
+    deactivate handler4
+
+    mediatr4 --> controller4 : success
+    deactivate mediatr4
+
+    controller4 --> webapp4 : 200 OK
+    deactivate controller4
+
+    webapp4 -> webapp4 : Update order status
+    webapp4 --> warehouse : Show packing success\nEnable Ship button
+end
+
+deactivate webapp4
+
+' ============================================
+' Sequence 5: Receive Inventory
+' ============================================
+
+newpage Receive Inventory Sequence
+
+actor Warehouse as warehouse5
+participant "Angular App" as webapp5
+participant "InventoryController" as controller5
+participant "MediatR" as mediatr5
+participant "ReceiveInventoryCommandHandler" as handler5
+participant "InventoryService" as inventoryservice5
+participant "IPrizeManagementContext" as context5
+database "Azure SQL" as db5
+queue "Service Bus" as servicebus5
+
+warehouse5 -> webapp5 : Open Receive Inventory dialog\nEnter quantity and notes
+activate webapp5
+
+webapp5 -> controller5 : POST /api/prizes/{prizeItemId}/receive\n{quantity, notes}
+activate controller5
+
+controller5 -> mediatr5 : Send(ReceiveInventoryCommand)
+activate mediatr5
+
+mediatr5 -> handler5 : Handle(command)
+activate handler5
+
+handler5 -> context5 : PrizeItems.FindAsync(prizeItemId)
+activate context5
+context5 -> db5 : SELECT prize_item
+db5 --> context5 : prize data
+context5 --> handler5 : PrizeItem entity
+deactivate context5
+
+alt Prize Not Found
+    handler5 --> mediatr5 : throw NotFoundException
+    mediatr5 --> controller5 : NotFoundException
+    controller5 --> webapp5 : 404 Not Found
+    webapp5 --> warehouse5 : Show not found error
+else Prize Found
+    handler5 -> inventoryservice5 : RecordTransactionAsync(prizeItemId, Received, quantity, notes)
+    activate inventoryservice5
+
+    inventoryservice5 -> inventoryservice5 : Create InventoryTransaction(Received, +quantity)
+    inventoryservice5 -> inventoryservice5 : prizeItem.IncreaseStock(quantity)
+
+    inventoryservice5 -> context5 : SaveChangesAsync()
+    activate context5
+    context5 -> db5 : UPDATE CurrentStock\nINSERT inventory_transaction
+    db5 --> context5 : success
+    context5 -> servicebus5 : Publish PrizeInventoryReceived
+    context5 --> inventoryservice5 : saved
+    deactivate context5
+
+    inventoryservice5 -> inventoryservice5 : Check if was low stock and now replenished
+
+    alt Stock now above minimum
+        inventoryservice5 -> context5 : SaveChangesAsync()
+        activate context5
+        context5 -> servicebus5 : Publish PrizeInventoryReplenished
+        context5 --> inventoryservice5 : event published
+        deactivate context5
+    end
+
+    inventoryservice5 --> handler5 : transaction recorded
+    deactivate inventoryservice5
+
+    handler5 --> mediatr5 : success
+    deactivate handler5
+
+    mediatr5 --> controller5 : success
+    deactivate mediatr5
+
+    controller5 --> webapp5 : 200 OK
+    deactivate controller5
+
+    webapp5 -> webapp5 : Close dialog
+    webapp5 -> webapp5 : Refresh inventory display
+    webapp5 --> warehouse5 : Show success message\nDisplay updated stock
+end
+
+deactivate webapp5
+
+' ============================================
+' Sequence 6: Distribute Prizes at Event
+' ============================================
+
+newpage Distribute Prizes at Event Sequence
+
+actor Warehouse as warehouse6
+participant "Angular App" as webapp6
+participant "PrizeOrdersController" as controller6
+participant "MediatR" as mediatr6
+participant "DistributePrizesCommandHandler" as handler6
+participant "OrderProcessingService" as orderservice6
+participant "IPrizeManagementContext" as context6
+database "Azure SQL" as db6
+queue "Service Bus" as servicebus6
+
+warehouse6 -> webapp6 : Enter distributed quantities\nfor each item
+activate webapp6
+
+webapp6 -> controller6 : POST /api/prize-orders/{orderId}/distribute\n{distributedQuantities[]}
+activate controller6
+
+controller6 -> mediatr6 : Send(DistributePrizesCommand)
+activate mediatr6
+
+mediatr6 -> handler6 : Handle(command)
+activate handler6
+
+handler6 -> context6 : EventPrizeOrders.FindAsync(orderId)
+activate context6
+context6 -> db6 : SELECT order with items
+db6 --> context6 : order data
+context6 --> handler6 : EventPrizeOrder entity
+deactivate context6
+
+handler6 -> handler6 : Validate status == Delivered
+
+alt Status != Delivered
+    handler6 --> mediatr6 : throw InvalidStatusTransitionException
+    mediatr6 --> controller6 : InvalidStatusTransitionException
+    controller6 --> webapp6 : 409 Conflict
+    webapp6 --> warehouse6 : Show status error
+else Status is Delivered
+    handler6 -> orderservice6 : ProcessDistributionAsync(orderId, distributedQuantities)
+    activate orderservice6
+
+    loop For each item with distributed quantity
+        orderservice6 -> orderservice6 : Validate distributedQty <= allocatedQty
+        orderservice6 -> orderservice6 : Update item.DistributedQuantity
+        orderservice6 -> orderservice6 : Create InventoryTransaction(Distributed)
+    end
+
+    orderservice6 -> context6 : SaveChangesAsync()
+    activate context6
+    context6 -> db6 : UPDATE order items\nINSERT transactions
+    db6 --> context6 : success
+    context6 --> orderservice6 : saved
+    deactivate context6
+
+    orderservice6 --> handler6 : distribution processed
+    deactivate orderservice6
+
+    handler6 -> handler6 : order.Distribute(userId)
+    handler6 -> handler6 : order.AddDomainEvent(PrizesDistributedAtEvent)
+
+    handler6 -> context6 : SaveChangesAsync()
+    activate context6
+    context6 -> db6 : UPDATE order status, distributed_date
+    db6 --> context6 : success
+    context6 -> servicebus6 : Publish PrizesDistributedAtEvent
+    context6 --> handler6 : saved
+    deactivate context6
+
+    handler6 --> mediatr6 : success
+    deactivate handler6
+
+    mediatr6 --> controller6 : success
+    deactivate mediatr6
+
+    controller6 --> webapp6 : 200 OK
+    deactivate controller6
+
+    webapp6 -> webapp6 : Update order status
+    webapp6 --> warehouse6 : Show distribution success\nEnable Return button
+end
+
+deactivate webapp6
+
+' ============================================
+' Sequence 7: Return Unused Prizes
+' ============================================
+
+newpage Return Unused Prizes Sequence
+
+actor Warehouse as warehouse7
+participant "Angular App" as webapp7
+participant "PrizeOrdersController" as controller7
+participant "MediatR" as mediatr7
+participant "ReturnPrizesCommandHandler" as handler7
+participant "InventoryService" as inventoryservice7
+participant "IPrizeManagementContext" as context7
+database "Azure SQL" as db7
+queue "Service Bus" as servicebus7
+
+warehouse7 -> webapp7 : Enter returned quantities\nfor each item
+activate webapp7
+
+webapp7 -> controller7 : POST /api/prize-orders/{orderId}/return\n{returnedQuantities[]}
+activate controller7
+
+controller7 -> mediatr7 : Send(ReturnPrizesCommand)
+activate mediatr7
+
+mediatr7 -> handler7 : Handle(command)
+activate handler7
+
+handler7 -> context7 : EventPrizeOrders.FindAsync(orderId)
+activate context7
+context7 -> db7 : SELECT order with items
+db7 --> context7 : order data
+context7 --> handler7 : EventPrizeOrder entity
+deactivate context7
+
+handler7 -> handler7 : Validate status == Distributed
+
+loop For each item with returned quantity
+    handler7 -> handler7 : Calculate: returned = allocated - distributed
+    handler7 -> handler7 : Validate returnedQty matches calculation
+    handler7 -> handler7 : Update item.ReturnedQuantity
+
+    handler7 -> inventoryservice7 : DeallocateInventoryAsync(prizeItemId, returnedQty)
+    activate inventoryservice7
+
+    inventoryservice7 -> context7 : Get PrizeItem
+    activate context7
+    context7 -> db7 : SELECT prize_item
+    db7 --> context7 : prize item
+    context7 --> inventoryservice7 : PrizeItem entity
+    deactivate context7
+
+    inventoryservice7 -> inventoryservice7 : prizeItem.IncreaseStock(returnedQty)
+    inventoryservice7 -> inventoryservice7 : Create InventoryTransaction(Returned, +returnedQty)
+
+    inventoryservice7 -> context7 : SaveChangesAsync()
+    activate context7
+    context7 -> db7 : UPDATE CurrentStock\nINSERT transaction
+    db7 --> context7 : success
+    context7 -> servicebus7 : Publish PrizeInventoryDeallocated
+    context7 --> inventoryservice7 : saved
+    deactivate context7
+
+    inventoryservice7 --> handler7 : inventory returned
+    deactivate inventoryservice7
+end
+
+handler7 -> handler7 : order.ReturnUnused(userId)
+handler7 -> handler7 : order.AddDomainEvent(UnusedPrizesReturned)
+
+handler7 -> context7 : SaveChangesAsync()
+activate context7
+context7 -> db7 : UPDATE order status, items
+db7 --> context7 : success
+context7 -> servicebus7 : Publish UnusedPrizesReturned
+context7 --> handler7 : saved
+deactivate context7
+
+handler7 --> mediatr7 : success
+deactivate handler7
+
+mediatr7 --> controller7 : success
+deactivate mediatr7
+
+controller7 --> webapp7 : 200 OK
+deactivate controller7
+
+webapp7 -> webapp7 : Update order status
+webapp7 -> webapp7 : Refresh inventory levels
+webapp7 --> warehouse7 : Show return success\nOrder completed
+
+deactivate webapp7
+
+' ============================================
+' Sequence 8: Low Stock Alert (System)
+' ============================================
+
+newpage Low Stock Alert Sequence (Automated)
+
+participant "Background Worker" as worker
+participant "InventoryService" as inventoryservice8
+participant "IPrizeManagementContext" as context8
+database "Azure SQL" as db8
+participant "Email Service" as email
+queue "Service Bus" as servicebus8
+
+activate worker
+worker -> worker : Scheduled job runs\n(every hour)
+
+worker -> inventoryservice8 : CheckLowStockAsync()
+activate inventoryservice8
+
+inventoryservice8 -> context8 : Query low stock items\nWHERE CurrentStock <= MinimumStock
+activate context8
+context8 -> db8 : SELECT prize_items with low stock
+db8 --> context8 : low stock items
+context8 --> inventoryservice8 : List<PrizeItem>
+deactivate context8
+
+loop For each low stock item
+    inventoryservice8 -> inventoryservice8 : Create PrizeLowStockWarningTriggered event
+
+    inventoryservice8 -> context8 : SaveChangesAsync()
+    activate context8
+    context8 -> servicebus8 : Publish PrizeLowStockWarningTriggered
+    context8 --> inventoryservice8 : event published
+    deactivate context8
+
+    inventoryservice8 -> email : SendLowStockAlert(prizeItem, managers)
+    activate email
+    email -> email : Compose alert email
+    email -> email : Send to all managers
+    email --> inventoryservice8 : email sent
+    deactivate email
+end
+
+inventoryservice8 --> worker : alerts processed
+deactivate inventoryservice8
+
+worker -> worker : Log completion
+deactivate worker
+
+@enduml

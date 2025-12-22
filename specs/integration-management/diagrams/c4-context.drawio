@@ -1,0 +1,486 @@
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="5.0" version="24.0.0">
+  <diagram name="C4 Context Diagram" id="c4-context">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Integration &amp; External System Management - C4 Context Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="1000" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Central System -->
+        <mxCell id="system-integration" value="&lt;b&gt;Integration Management System&lt;/b&gt;&#xa;[Software System]&#xa;&#xa;Manages external system integrations,&#xa;API keys, webhooks, and data&#xa;synchronization for the Event&#xa;Management Platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=14;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="750" y="550" width="300" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- Users/Actors -->
+        <mxCell id="user-admin" value="&lt;b&gt;Administrator&lt;/b&gt;&#xa;[Person]&#xa;&#xa;Configures and manages&#xa;external integrations,&#xa;monitors health status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="350" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-developer" value="&lt;b&gt;Developer&lt;/b&gt;&#xa;[Person]&#xa;&#xa;Generates API keys,&#xa;creates webhook subscriptions,&#xa;initiates data syncs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="580" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-event-manager" value="&lt;b&gt;Event Manager&lt;/b&gt;&#xa;[Person]&#xa;&#xa;Views integration status,&#xa;monitors sync progress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="800" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems - Right Side -->
+        <mxCell id="ext-payment-stripe" value="&lt;b&gt;Stripe Payment Gateway&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Processes payments for&#xa;event registrations and&#xa;ticket purchases" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="150" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-email-sendgrid" value="&lt;b&gt;SendGrid Email Service&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Sends event notifications,&#xa;confirmations, and reminders&#xa;via email" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="300" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-sms-twilio" value="&lt;b&gt;Twilio SMS Service&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Sends SMS notifications&#xa;and alerts to event&#xa;participants" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="450" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-calendar-google" value="&lt;b&gt;Google Calendar&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Synchronizes event dates&#xa;and schedules with user&#xa;calendars" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="600" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-calendar-outlook" value="&lt;b&gt;Microsoft Outlook Calendar&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Integrates with Outlook&#xa;for event scheduling and&#xa;reminders" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="750" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-crm-salesforce" value="&lt;b&gt;Salesforce CRM&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Syncs customer and lead&#xa;information with event&#xa;platform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="900" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ext-analytics" value="&lt;b&gt;Google Analytics&lt;/b&gt;&#xa;[External System]&#xa;&#xa;Tracks event engagement&#xa;and user behavior metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1050" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Supporting Systems - Left Side -->
+        <mxCell id="system-event" value="&lt;b&gt;Event Management System&lt;/b&gt;&#xa;[Software System]&#xa;&#xa;Core system managing events,&#xa;bookings, and participants" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1050" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="system-notification" value="&lt;b&gt;Notification System&lt;/b&gt;&#xa;[Software System]&#xa;&#xa;Sends notifications about&#xa;integration failures and&#xa;health issues" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1200" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Azure Services - Top -->
+        <mxCell id="azure-keyvault" value="&lt;b&gt;Azure Key Vault&lt;/b&gt;&#xa;[Cloud Service]&#xa;&#xa;Securely stores integration&#xa;credentials and API keys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="550" y="150" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-servicebus" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&#xa;[Cloud Service]&#xa;&#xa;Queues webhook deliveries&#xa;and sync jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="770" y="150" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-redis" value="&lt;b&gt;Azure Redis Cache&lt;/b&gt;&#xa;[Cloud Service]&#xa;&#xa;Caches integration state&#xa;and rate limiting data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="990" y="150" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-ai" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&#xa;[Cloud Service]&#xa;&#xa;Provides intelligent&#xa;recommendations and&#xa;anomaly detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="150" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - Users to System -->
+        <mxCell id="rel-admin-system" value="Configures integrations,&#xa;manages API keys,&#xa;monitors health" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;" edge="1" parent="1" source="user-admin" target="system-integration">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-dev-system" value="Generates API keys,&#xa;creates webhooks,&#xa;initiates syncs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;" edge="1" parent="1" source="user-developer" target="system-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-event-system" value="Views integration&#xa;status and progress" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;" edge="1" parent="1" source="user-event-manager" target="system-integration">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Relationships - System to External Systems -->
+        <mxCell id="rel-system-stripe" value="Processes payments&#xa;[HTTPS/REST API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-payment-stripe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-sendgrid" value="Sends emails&#xa;[HTTPS/REST API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=1;exitY=0.35;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-email-sendgrid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-twilio" value="Sends SMS&#xa;[HTTPS/REST API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-sms-twilio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-google" value="Syncs calendar events&#xa;[OAuth 2.0/CalDAV]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=1;exitY=0.65;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-calendar-google">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-outlook" value="Syncs calendar events&#xa;[OAuth 2.0/Microsoft Graph]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-calendar-outlook">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-salesforce" value="Syncs customer data&#xa;[HTTPS/REST API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=0.75;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-crm-salesforce">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-analytics" value="Sends analytics data&#xa;[HTTPS/Measurement Protocol]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#707070;fontSize=11;fontColor=#707070;exitX=0.65;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="ext-analytics">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - System to Azure Services -->
+        <mxCell id="rel-system-keyvault" value="Stores and retrieves&#xa;credentials&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=11;fontColor=#2E8B57;exitX=0.25;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="system-integration" target="azure-keyvault">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-servicebus" value="Queues messages&#xa;[AMQP]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=11;fontColor=#2E8B57;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="system-integration" target="azure-servicebus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-redis" value="Caches state&#xa;and rate limits&#xa;[Redis Protocol]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=11;fontColor=#2E8B57;exitX=0.75;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="system-integration" target="azure-redis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-system-ai" value="Gets recommendations&#xa;and anomaly detection&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=11;fontColor=#2E8B57;exitX=1;exitY=0.15;entryX=0;entryY=0.5;" edge="1" parent="1" source="system-integration" target="azure-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships - System to Internal Systems -->
+        <mxCell id="rel-event-integration" value="Provides event data&#xa;for webhooks&#xa;[Internal API]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=11;fontColor=#0D5EAF;exitX=0;exitY=1;entryX=1;entryY=0.5;" edge="1" parent="1" source="system-integration" target="system-event">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-notification-integration" value="Receives alerts about&#xa;integration failures&#xa;[Events]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=11;fontColor=#0D5EAF;exitX=0.15;exitY=1;entryX=1;entryY=0.5;" edge="1" parent="1" source="system-integration" target="system-notification">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Bidirectional arrows for webhooks -->
+        <mxCell id="rel-stripe-webhook" value="Sends payment webhooks&#xa;[HTTPS/Webhook]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#FF6B6B;fontSize=11;fontColor=#FF6B6B;dashed=1;exitX=0;exitY=0.75;entryX=1;entryY=0.2;" edge="1" parent="1" source="ext-payment-stripe" target="system-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-sendgrid-webhook" value="Sends email event webhooks&#xa;[HTTPS/Webhook]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#FF6B6B;fontSize=11;fontColor=#FF6B6B;dashed=1;exitX=0;exitY=0.75;entryX=1;entryY=0.3;" edge="1" parent="1" source="ext-email-sendgrid" target="system-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="50" y="80" width="280" height="220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="85" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-person" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="125" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-system" value="Software System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="190" y="125" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-external" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="180" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-azure" value="Azure Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="210" y="180" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-api" value="API Call" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="245" as="sourcePoint" />
+            <mxPoint x="140" y="245" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-webhook" value="Webhook" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#FF6B6B;fontSize=10;fontColor=#FF6B6B;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="245" as="sourcePoint" />
+            <mxPoint x="260" y="245" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-internal" value="Internal" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=10;fontColor=#0D5EAF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="70" y="270" as="sourcePoint" />
+            <mxPoint x="140" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-azure-svc" value="Azure Service" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="190" y="270" as="sourcePoint" />
+            <mxPoint x="260" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="C4 Container Diagram" id="c4-container">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title-container" value="Integration &amp; External System Management - C4 Container Diagram" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="1000" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Integration Management System" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6F2FF;strokeColor=#1168bd;verticalAlign=top;align=left;spacingLeft=10;fontSize=16;fontStyle=1;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="150" width="1000" height="1100" as="geometry" />
+        </mxCell>
+
+        <!-- Users -->
+        <mxCell id="user-admin-c" value="&lt;b&gt;Administrator&lt;/b&gt;&#xa;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="400" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="user-dev-c" value="&lt;b&gt;Developer&lt;/b&gt;&#xa;[Person]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="640" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Containers -->
+        <mxCell id="container-web" value="&lt;b&gt;Web Application&lt;/b&gt;&#xa;[Container: Angular 18]&#xa;&#xa;Provides integration management&#xa;UI for administrators and&#xa;developers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#2E5F8C;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="200" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-api" value="&lt;b&gt;API Application&lt;/b&gt;&#xa;[Container: .NET 8 Web API]&#xa;&#xa;Provides REST API for integration&#xa;management, API keys, webhooks,&#xa;and data synchronization" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#2E5F8C;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="400" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-worker" value="&lt;b&gt;Background Worker&lt;/b&gt;&#xa;[Container: .NET 8 Worker Service]&#xa;&#xa;Processes webhook deliveries,&#xa;executes data sync jobs,&#xa;performs health checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#2E5F8C;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="620" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-signalr" value="&lt;b&gt;Real-time Hub&lt;/b&gt;&#xa;[Container: SignalR]&#xa;&#xa;Provides real-time updates&#xa;for integration health, sync&#xa;progress, webhook status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#2E5F8C;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="840" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="container-database" value="&lt;b&gt;Integration Database&lt;/b&gt;&#xa;[Container: Azure SQL Database]&#xa;&#xa;Stores integrations, API keys,&#xa;webhooks, deliveries, sync jobs,&#xa;and logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7FBADC;strokeColor=#4A7A9E;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1040" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Azure Services -->
+        <mxCell id="azure-kv-c" value="&lt;b&gt;Azure Key Vault&lt;/b&gt;&#xa;[Azure Service]&#xa;&#xa;Stores integration&#xa;credentials securely" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="200" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-sb-c" value="&lt;b&gt;Azure Service Bus&lt;/b&gt;&#xa;[Azure Service]&#xa;&#xa;Message queue for&#xa;webhooks and sync jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="340" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-redis-c" value="&lt;b&gt;Azure Redis Cache&lt;/b&gt;&#xa;[Azure Service]&#xa;&#xa;Caches integration state,&#xa;rate limiting counters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="480" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-ai-c" value="&lt;b&gt;Azure AI Services&lt;/b&gt;&#xa;[Azure Service]&#xa;&#xa;Intelligent recommendations,&#xa;anomaly detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="620" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="azure-insights-c" value="&lt;b&gt;Application Insights&lt;/b&gt;&#xa;[Azure Service]&#xa;&#xa;Monitors application&#xa;performance and logs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="760" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- External Systems -->
+        <mxCell id="ext-systems-c" value="&lt;b&gt;External Systems&lt;/b&gt;&#xa;[External]&#xa;&#xa;Payment gateways, Email/SMS&#xa;services, Calendars, CRM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="400" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Internal Systems -->
+        <mxCell id="int-event-c" value="&lt;b&gt;Event Management&lt;/b&gt;&#xa;[Internal System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="900" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="int-notification-c" value="&lt;b&gt;Notification System&lt;/b&gt;&#xa;[Internal System]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="1020" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="rel-admin-web-c" value="Uses&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="user-admin-c" target="container-web">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-dev-web-c" value="Uses&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="user-dev-c" target="container-web">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="680" />
+              <mxPoint x="360" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-web-api-c" value="Makes API calls&#xa;[HTTPS/REST]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="container-web" target="container-api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-web-signalr-c" value="Subscribes to&#xa;[WebSocket]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="container-web" target="container-signalr">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="360" />
+              <mxPoint x="420" y="360" />
+              <mxPoint x="420" y="900" />
+              <mxPoint x="590" y="900" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-api-db-c" value="Reads/Writes&#xa;[ADO.NET/EF Core]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="container-api" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-api-keyvault-c" value="Retrieves secrets&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;" edge="1" parent="1" source="container-api" target="azure-kv-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-api-servicebus-c" value="Queues messages&#xa;[AMQP]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;" edge="1" parent="1" source="container-api" target="azure-sb-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-api-redis-c" value="Caches data&#xa;[Redis Protocol]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;" edge="1" parent="1" source="container-api" target="azure-redis-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-api-ai-c" value="Gets insights&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;" edge="1" parent="1" source="container-api" target="azure-ai-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-worker-db-c" value="Reads/Writes&#xa;[ADO.NET/EF Core]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="container-worker" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-worker-servicebus-c" value="Dequeues messages&#xa;[AMQP]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;" edge="1" parent="1" source="container-worker" target="azure-sb-c">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="690" />
+              <mxPoint x="740" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-worker-external-c" value="Calls APIs, sends webhooks&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="container-worker" target="ext-systems-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-worker-signalr-c" value="Pushes updates&#xa;[WebSocket]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;" edge="1" parent="1" source="container-worker" target="container-signalr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-signalr-db-c" value="Reads state&#xa;[ADO.NET]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#707070;fontSize=10;fontColor=#707070;dashed=1;" edge="1" parent="1" source="container-signalr" target="container-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-api-insights-c" value="Logs telemetry&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;dashed=1;" edge="1" parent="1" source="container-api" target="azure-insights-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-worker-insights-c" value="Logs telemetry&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=10;fontColor=#2E8B57;dashed=1;" edge="1" parent="1" source="container-worker" target="azure-insights-c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel-event-api-c" value="Publishes domain events&#xa;[Internal Events]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=10;fontColor=#0D5EAF;" edge="1" parent="1" source="int-event-c" target="container-api">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="940" />
+              <mxPoint x="360" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-api-notification-c" value="Triggers alerts&#xa;[Internal Events]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=10;fontColor=#0D5EAF;" edge="1" parent="1" source="container-api" target="int-notification-c">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="500" />
+              <mxPoint x="360" y="1060" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="rel-external-webhook-c" value="Sends webhooks&#xa;[HTTPS]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeWidth=2;strokeColor=#FF6B6B;fontSize=10;fontColor=#FF6B6B;dashed=1;" edge="1" parent="1" source="ext-systems-c" target="container-api">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="540" />
+              <mxPoint x="1060" y="540" />
+              <mxPoint x="1060" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box-c" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="150" width="280" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-title-c" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1480" y="155" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-person-c" value="Person" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#08427b;strokeColor=#052E56;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="195" width="100" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-container-c" value="Container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=#2E5F8C;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="195" width="120" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-database-c" value="Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7FBADC;strokeColor=#4A7A9E;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="245" width="100" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-azure-c" value="Azure Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#50C878;strokeColor=#2E8B57;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="245" width="120" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-external-c" value="External System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=#666666;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="295" width="120" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-internal-c" value="Internal System" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1168bd;strokeColor=#0D5EAF;fontColor=#ffffff;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="295" width="100" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-api-call-c" value="API Call" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#707070;fontSize=9;fontColor=#707070;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1500" y="360" as="sourcePoint" />
+            <mxPoint x="1580" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-webhook-c" value="Webhook" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#FF6B6B;fontSize=9;fontColor=#FF6B6B;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1630" y="360" as="sourcePoint" />
+            <mxPoint x="1710" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-azure-svc-c" value="Azure Service" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#2E8B57;fontSize=9;fontColor=#2E8B57;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1500" y="390" as="sourcePoint" />
+            <mxPoint x="1580" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-internal-svc-c" value="Internal" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#0D5EAF;fontSize=9;fontColor=#0D5EAF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1630" y="390" as="sourcePoint" />
+            <mxPoint x="1710" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend-async-c" value="Async" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=2;strokeColor=#707070;fontSize=9;fontColor=#707070;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1500" y="420" as="sourcePoint" />
+            <mxPoint x="1580" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,741 @@
+@startuml Customer Management Sequence Diagrams
+
+title Customer Management - Key Sequence Diagrams
+
+' ===== SEQUENCE 1: Customer Registration =====
+
+@startuml Customer Registration
+title Sequence Diagram: Customer Registration
+
+actor "Customer Manager" as CM
+participant "Angular SPA" as SPA
+participant "API Gateway" as Gateway
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Customer Aggregate" as Customer
+participant "Repository" as Repo
+participant "Azure SQL" as DB
+participant "Service Bus" as Bus
+participant "SignalR Hub" as SignalR
+
+CM -> SPA: Fill registration form
+activate SPA
+
+SPA -> SPA: Validate form data
+SPA -> Gateway: POST /api/v1/customers\n{customerData}
+activate Gateway
+
+Gateway -> Gateway: Validate JWT token
+Gateway -> Gateway: Check rate limits
+Gateway -> API: Forward request
+activate API
+
+API -> Handler: CreateCustomerCommand
+activate Handler
+
+Handler -> Handler: Validate business rules
+Handler -> Customer: Register(profile, contactInfo)
+activate Customer
+
+Customer -> Customer: Generate customer number
+Customer -> Customer: Set initial status
+Customer --> Customer: CustomerRegistered event
+deactivate Customer
+
+Handler -> Repo: AddAsync(customer)
+activate Repo
+
+Repo -> DB: INSERT INTO Customers
+activate DB
+DB --> Repo: Success
+deactivate DB
+
+Repo --> Handler: Success
+deactivate Repo
+
+Handler -> Bus: Publish CustomerRegistered event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: Customer created
+deactivate Handler
+
+API --> Gateway: 201 Created\n{customerId, customerNumber}
+deactivate API
+
+Gateway --> SPA: Customer created
+deactivate Gateway
+
+SPA -> SPA: Navigate to customer detail
+SPA --> CM: Show success message
+deactivate SPA
+
+' Async event processing
+Bus -> SignalR: CustomerRegistered event
+activate SignalR
+SignalR -> SPA: Push real-time update
+SignalR -> SPA: Notify other connected users
+deactivate SignalR
+
+@enduml
+
+' ===== SEQUENCE 2: Send Email to Customer =====
+
+@startuml Send Email to Customer
+title Sequence Diagram: Send Email to Customer
+
+actor "Sales Rep" as SR
+participant "Angular SPA" as SPA
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Customer Aggregate" as Customer
+participant "Communication Service" as CommService
+participant "Azure Service Bus" as Bus
+participant "Email Service" as Email
+participant "Azure OpenAI" as AI
+participant "Repository" as Repo
+participant "SignalR Hub" as SignalR
+
+SR -> SPA: Click "Send Email"
+activate SPA
+
+SPA -> SPA: Open email dialog
+SR -> SPA: Compose email\n(or request AI generation)
+
+alt AI-Generated Email
+    SPA -> API: POST /api/v1/customers/{id}/generate-email
+    activate API
+    API -> AI: Generate personalized email
+    activate AI
+    AI -> AI: Analyze customer history
+    AI -> AI: Generate content
+    AI --> API: Generated email content
+    deactivate AI
+    API --> SPA: Email template
+    deactivate API
+    SPA -> SPA: Pre-fill email form
+end
+
+SR -> SPA: Review and send email
+
+SPA -> API: POST /api/v1/customers/{id}/communications/email
+activate API
+
+API -> Handler: SendEmailCommand
+activate Handler
+
+Handler -> Customer: SendEmail(emailData)
+activate Customer
+
+Customer -> Customer: Create communication history
+Customer --> Customer: CustomerEmailSent event
+deactivate Customer
+
+Handler -> CommService: SendEmailAsync(email)
+activate CommService
+
+CommService -> Email: Send email via SendGrid/Azure
+activate Email
+Email -> Email: Process and deliver
+Email --> CommService: Delivery status
+deactivate Email
+
+CommService --> Handler: Email sent
+deactivate CommService
+
+Handler -> Repo: SaveCommunicationHistory()
+activate Repo
+Repo --> Handler: Saved
+deactivate Repo
+
+Handler -> Bus: Publish CustomerEmailSent event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: Email sent successfully
+deactivate Handler
+
+API --> SPA: 201 Created\n{communicationId}
+deactivate API
+
+SPA --> SR: Show success notification
+deactivate SPA
+
+' Async processing
+Bus -> AI: Analyze email sentiment
+activate AI
+AI -> AI: Extract sentiment and key phrases
+AI -> Repo: Update customer insights
+deactivate AI
+
+Bus -> SignalR: Notify connected clients
+activate SignalR
+SignalR -> SPA: Update communication history
+deactivate SignalR
+
+@enduml
+
+' ===== SEQUENCE 3: Submit and Resolve Complaint =====
+
+@startuml Submit and Resolve Complaint
+title Sequence Diagram: Submit and Resolve Customer Complaint
+
+actor "Customer" as CUST
+participant "Customer Portal" as Portal
+actor "Support Agent" as SA
+participant "Support Dashboard" as Dashboard
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Complaint Aggregate" as Complaint
+participant "Repository" as Repo
+participant "Service Bus" as Bus
+participant "Azure Cognitive Services" as Cognitive
+participant "SignalR Hub" as SignalR
+
+== Complaint Submission ==
+
+CUST -> Portal: Navigate to submit complaint
+activate Portal
+
+Portal -> Portal: Show complaint form
+CUST -> Portal: Fill complaint details\n(subject, description, priority)
+
+Portal -> API: POST /api/v1/customers/{id}/complaints
+activate API
+
+API -> Handler: SubmitComplaintCommand
+activate Handler
+
+Handler -> Complaint: Submit(subject, description, priority)
+activate Complaint
+
+Complaint -> Complaint: Generate complaint number
+Complaint -> Complaint: Set initial status = New
+Complaint --> Complaint: CustomerComplaintReceived event
+deactivate Complaint
+
+Handler -> Repo: AddAsync(complaint)
+activate Repo
+Repo --> Handler: Saved
+deactivate Repo
+
+Handler -> Bus: Publish CustomerComplaintReceived event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: Complaint submitted
+deactivate Handler
+
+API --> Portal: 201 Created\n{complaintId, complaintNumber}
+deactivate API
+
+Portal --> CUST: Show confirmation\n"Complaint #{number} submitted"
+deactivate Portal
+
+' Async sentiment analysis
+Bus -> Cognitive: Analyze complaint sentiment
+activate Cognitive
+Cognitive -> Cognitive: Extract sentiment\nIdentify key issues
+Cognitive -> Repo: Update complaint metadata
+deactivate Cognitive
+
+' Notify support team
+Bus -> SignalR: New complaint notification
+activate SignalR
+SignalR -> Dashboard: Push notification to support agents
+deactivate SignalR
+
+== Complaint Resolution ==
+
+SA -> Dashboard: View new complaints
+activate Dashboard
+
+Dashboard -> API: GET /api/v1/customers/{id}/complaints
+activate API
+API -> Repo: GetUnresolvedComplaintsAsync()
+activate Repo
+Repo --> API: Complaint list
+deactivate Repo
+API --> Dashboard: Complaint list
+deactivate API
+
+Dashboard --> SA: Display complaints
+SA -> Dashboard: Select complaint
+Dashboard -> Dashboard: Show complaint details
+
+SA -> Dashboard: Click "Resolve Complaint"
+Dashboard -> Dashboard: Open resolution dialog
+SA -> Dashboard: Enter resolution details\n(solution, compensation)
+
+Dashboard -> API: POST /api/v1/customers/{id}/complaints/{complaintId}/resolve
+activate API
+
+API -> Handler: ResolveComplaintCommand
+activate Handler
+
+Handler -> Complaint: Resolve(resolution, resolvedBy)
+activate Complaint
+
+Complaint -> Complaint: Set status = Resolved
+Complaint -> Complaint: Calculate resolution time
+Complaint --> Complaint: CustomerComplaintResolved event
+deactivate Complaint
+
+Handler -> Repo: UpdateAsync(complaint)
+activate Repo
+Repo --> Handler: Updated
+deactivate Repo
+
+Handler -> Bus: Publish CustomerComplaintResolved event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: Complaint resolved
+deactivate Handler
+
+API --> Dashboard: 200 OK
+deactivate API
+
+Dashboard --> SA: Show success message
+deactivate Dashboard
+
+' Notify customer
+Bus -> Portal: Complaint resolved notification
+activate Portal
+Portal -> CUST: Email/SMS notification
+deactivate Portal
+
+' Update metrics
+Bus -> Repo: Update customer satisfaction metrics
+Bus -> SignalR: Update dashboards
+activate SignalR
+SignalR -> Dashboard: Refresh complaint list
+deactivate SignalR
+
+@enduml
+
+' ===== SEQUENCE 4: Generate Customer Insights =====
+
+@startuml Generate Customer Insights
+title Sequence Diagram: Generate AI-Powered Customer Insights
+
+actor "Customer Manager" as CM
+participant "Angular SPA" as SPA
+participant "Customer API" as API
+participant "Query Handler" as Handler
+participant "Repository" as Repo
+participant "AI Service" as AIService
+participant "Azure OpenAI" as OpenAI
+participant "Azure Cognitive" as Cognitive
+participant "Service Bus" as Bus
+participant "Cache" as Redis
+
+CM -> SPA: Navigate to customer insights tab
+activate SPA
+
+SPA -> API: GET /api/v1/customers/{id}/insights
+activate API
+
+API -> Redis: Check cache for insights
+activate Redis
+Redis --> API: Cache miss
+deactivate Redis
+
+API -> Handler: GetCustomerInsightsQuery
+activate Handler
+
+Handler -> Repo: GetCustomerWithHistoryAsync(customerId)
+activate Repo
+Repo --> Handler: Customer with full history
+deactivate Repo
+
+Handler -> AIService: GenerateInsightsAsync(customer)
+activate AIService
+
+' Parallel AI processing
+par Sentiment Analysis
+    AIService -> Cognitive: AnalyzeSentimentBatch(communications)
+    activate Cognitive
+    Cognitive -> Cognitive: Process text analytics
+    Cognitive --> AIService: Sentiment scores
+    deactivate Cognitive
+else Insight Generation
+    AIService -> OpenAI: GenerateInsights(customer, history)
+    activate OpenAI
+    OpenAI -> OpenAI: Analyze customer data
+    OpenAI -> OpenAI: Identify patterns
+    OpenAI -> OpenAI: Generate recommendations
+    OpenAI --> AIService: Insights and recommendations
+    deactivate OpenAI
+else Churn Prediction
+    AIService -> AIService: Calculate churn risk
+    AIService -> AIService: Identify risk factors
+end
+
+AIService -> AIService: Aggregate all insights
+AIService -> AIService: Calculate engagement level
+AIService -> AIService: Identify key interests
+
+AIService -> Repo: SaveInsightsAsync(insights)
+activate Repo
+Repo --> AIService: Saved
+deactivate Repo
+
+AIService --> Handler: Customer insights
+deactivate AIService
+
+Handler -> Redis: Cache insights (24h expiry)
+activate Redis
+Redis --> Handler: Cached
+deactivate Redis
+
+Handler --> API: Customer insights
+deactivate Handler
+
+API --> SPA: 200 OK\n{insights}
+deactivate API
+
+SPA -> SPA: Render insights dashboard
+SPA -> SPA: Display sentiment chart
+SPA -> SPA: Display engagement metrics
+SPA -> SPA: Show recommended actions
+
+SPA --> CM: Show comprehensive insights
+deactivate SPA
+
+' Async background update
+Bus -> AIService: Schedule periodic refresh
+activate AIService
+AIService -> AIService: Queue insight refresh job
+deactivate AIService
+
+@enduml
+
+' ===== SEQUENCE 5: Import Contact List =====
+
+@startuml Import Contact List
+title Sequence Diagram: Import Contact List
+
+actor "Customer Manager" as CM
+participant "Angular SPA" as SPA
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Import Service" as ImportService
+participant "Azure Blob Storage" as Blob
+participant "Repository" as Repo
+participant "Service Bus" as Bus
+participant "SignalR Hub" as SignalR
+
+CM -> SPA: Click "Import Contacts"
+activate SPA
+
+SPA -> SPA: Open file upload dialog
+CM -> SPA: Select CSV/Excel file
+SPA -> SPA: Validate file format
+
+SPA -> API: POST /api/v1/customers/contacts/import\n[multipart/form-data]
+activate API
+
+API -> Handler: ImportContactListCommand
+activate Handler
+
+Handler -> Blob: Upload file to blob storage
+activate Blob
+Blob --> Handler: Blob URL
+deactivate Blob
+
+Handler -> ImportService: ProcessImportAsync(blobUrl, customerId)
+activate ImportService
+
+note right of ImportService
+  Import processing runs
+  asynchronously in background
+end note
+
+ImportService --> Handler: Import ID (processing)
+deactivate ImportService
+
+Handler -> Bus: Publish ContactListImport Started event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: 202 Accepted\n{importId, status: "Processing"}
+deactivate Handler
+
+API --> SPA: Import initiated
+deactivate API
+
+SPA --> CM: Show "Import in progress"\nwith progress indicator
+deactivate SPA
+
+== Background Processing ==
+
+ImportService -> Blob: Download file
+activate ImportService
+activate Blob
+Blob --> ImportService: File content
+deactivate Blob
+
+ImportService -> ImportService: Parse CSV/Excel
+ImportService -> ImportService: Validate each row
+
+loop For each contact record
+    ImportService -> ImportService: Validate contact data
+
+    alt Valid record
+        ImportService -> Repo: AddContactAsync(contact)
+        activate Repo
+        Repo --> ImportService: Success
+        deactivate Repo
+        ImportService -> ImportService: successCount++
+
+        ImportService -> Bus: Publish ContactAdded event
+        activate Bus
+        Bus --> ImportService: Acknowledged
+        deactivate Bus
+    else Invalid record
+        ImportService -> ImportService: Log error
+        ImportService -> ImportService: failedCount++
+    end
+
+    ' Progress update every 10%
+    alt Progress milestone reached
+        ImportService -> SignalR: Send progress update
+        activate SignalR
+        SignalR -> SPA: Update progress bar
+        deactivate SignalR
+    end
+end
+
+ImportService -> ImportService: Generate summary report
+ImportService -> Repo: SaveImportSummaryAsync(summary)
+activate Repo
+Repo --> ImportService: Saved
+deactivate Repo
+
+ImportService -> Bus: Publish ContactListImported event
+activate Bus
+Bus --> ImportService: Acknowledged
+deactivate Bus
+
+ImportService -> SignalR: Import completed notification
+activate SignalR
+SignalR -> SPA: Show completion notification
+activate SPA
+SPA -> SPA: Display import summary
+SPA --> CM: Show results:\n"{successCount} imported\n{failedCount} failed"
+deactivate SPA
+deactivate SignalR
+
+deactivate ImportService
+
+@enduml
+
+' ===== SEQUENCE 6: Merge Duplicate Customers =====
+
+@startuml Merge Duplicate Customers
+title Sequence Diagram: Merge Duplicate Customers
+
+actor "Customer Manager" as CM
+participant "Angular SPA" as SPA
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Domain Service" as DomainService
+participant "Customer Aggregate" as Customer
+participant "Repository" as Repo
+participant "Service Bus" as Bus
+
+CM -> SPA: Search for customers
+activate SPA
+SPA -> API: GET /api/v1/customers/search?query=...
+activate API
+API --> SPA: Customer list with potential duplicates
+deactivate API
+
+SPA --> CM: Display customer list
+CM -> SPA: Select duplicate customers
+CM -> SPA: Click "Merge Customers"
+
+SPA -> SPA: Show merge confirmation dialog
+SPA --> CM: Confirm merge operation:\nSource → Target
+
+CM -> SPA: Confirm merge
+
+SPA -> API: POST /api/v1/customers/merge\n{sourceId, targetId, mergeOptions}
+activate API
+
+API -> Handler: MergeCustomersCommand
+activate Handler
+
+Handler -> DomainService: ValidateMerge(source, target)
+activate DomainService
+DomainService -> DomainService: Check business rules
+DomainService --> Handler: Validation result
+deactivate DomainService
+
+alt Validation failed
+    Handler --> API: 400 Bad Request\n{validationErrors}
+    API --> SPA: Show validation errors
+    SPA --> CM: Display error message
+else Validation passed
+
+    Handler -> Repo: BeginTransactionAsync()
+    activate Repo
+
+    Handler -> Repo: GetByIdAsync(sourceId)
+    Repo --> Handler: Source customer
+
+    Handler -> Repo: GetByIdAsync(targetId)
+    Repo --> Handler: Target customer
+
+    Handler -> Customer: Merge(targetCustomer)
+    activate Customer
+
+    Customer -> Customer: Transfer contacts
+    Customer -> Customer: Transfer communication history
+    Customer -> Customer: Transfer complaints
+    Customer -> Customer: Transfer testimonials
+    Customer -> Customer: Aggregate lifetime value
+    Customer -> Customer: Merge preferences
+    Customer --> Customer: CustomerMerged event
+    deactivate Customer
+
+    Handler -> Repo: UpdateAsync(targetCustomer)
+    Repo --> Handler: Updated
+
+    Handler -> Repo: SoftDeleteAsync(sourceCustomer)
+    Repo --> Handler: Deleted
+
+    Handler -> Repo: CommitTransactionAsync()
+    Repo --> Handler: Committed
+    deactivate Repo
+
+    Handler -> Bus: Publish CustomerMerged event
+    activate Bus
+    Bus --> Handler: Acknowledged
+    deactivate Bus
+
+    Handler --> API: Merge completed
+    deactivate Handler
+
+    API --> SPA: 200 OK\n{mergedCustomerId}
+    deactivate API
+
+    SPA -> SPA: Redirect to merged customer
+    SPA --> CM: Show success message:\n"Customers merged successfully"
+    deactivate SPA
+
+    ' Update related systems
+    Bus -> "External CRM": Update customer records
+    Bus -> "Analytics": Update customer metrics
+    Bus -> "Marketing": Update segmentation
+end
+
+@enduml
+
+' ===== SEQUENCE 7: Schedule Customer Meeting =====
+
+@startuml Schedule Customer Meeting
+title Sequence Diagram: Schedule Customer Meeting
+
+actor "Sales Rep" as SR
+participant "Angular SPA" as SPA
+participant "Customer API" as API
+participant "Command Handler" as Handler
+participant "Customer Aggregate" as Customer
+participant "Repository" as Repo
+participant "Calendar Service" as Calendar
+participant "Email Service" as Email
+participant "Service Bus" as Bus
+participant "SignalR Hub" as SignalR
+
+SR -> SPA: Navigate to customer detail
+activate SPA
+
+SR -> SPA: Click "Schedule Meeting"
+SPA -> SPA: Open meeting scheduler
+
+SR -> SPA: Fill meeting details:\n- Title\n- Date & Time\n- Attendees\n- Location
+
+opt Check availability
+    SPA -> Calendar: Check calendar availability
+    activate Calendar
+    Calendar --> SPA: Available time slots
+    deactivate Calendar
+    SPA --> SR: Show availability
+end
+
+SR -> SPA: Confirm meeting schedule
+
+SPA -> API: POST /api/v1/customers/{id}/communications/meeting
+activate API
+
+API -> Handler: ScheduleMeetingCommand
+activate Handler
+
+Handler -> Customer: ScheduleMeeting(meetingData)
+activate Customer
+
+Customer -> Customer: Validate meeting data
+Customer -> Customer: Create communication record
+Customer --> Customer: CustomerMeetingScheduled event
+deactivate Customer
+
+Handler -> Repo: SaveCommunicationAsync(meeting)
+activate Repo
+Repo --> Handler: Saved
+deactivate Repo
+
+par Calendar Integration
+    Handler -> Calendar: CreateCalendarEvent(meeting)
+    activate Calendar
+    Calendar -> Calendar: Create event in Outlook/Google
+    Calendar --> Handler: Calendar event created
+    deactivate Calendar
+else Email Notifications
+    Handler -> Email: SendMeetingInvite(attendees, meeting)
+    activate Email
+    Email -> Email: Generate meeting invite (ICS)
+    Email -> Email: Send to all attendees
+    Email --> Handler: Invites sent
+    deactivate Email
+end
+
+Handler -> Bus: Publish CustomerMeetingScheduled event
+activate Bus
+Bus --> Handler: Acknowledged
+deactivate Bus
+
+Handler --> API: Meeting scheduled
+deactivate Handler
+
+API --> SPA: 201 Created\n{meetingId}
+deactivate API
+
+SPA --> SR: Show confirmation:\n"Meeting scheduled"
+deactivate SPA
+
+' Real-time notifications
+Bus -> SignalR: Meeting scheduled notification
+activate SignalR
+SignalR -> SPA: Update calendar view
+SignalR -> "Other Users": Notify team members
+deactivate SignalR
+
+' Create follow-up reminder
+Bus -> API: Create follow-up task
+activate API
+API -> Handler: CreateFollowUpCommand
+activate Handler
+Handler -> Repo: SaveFollowUpAsync(followUp)
+deactivate Handler
+deactivate API
+
+@enduml
+
+@enduml

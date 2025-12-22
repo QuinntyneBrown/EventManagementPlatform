@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-12-22T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram id="audit-compliance-use-case" name="Audit &amp; Compliance Use Cases">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- System Boundary -->
+        <mxCell id="system-boundary" value="Audit &amp; Compliance System" style="shape=umlFrame;whiteSpace=wrap;html=1;width=160;height=30;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;dashed=0;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="220" y="40" width="960" height="880" as="geometry"/>
+        </mxCell>
+
+        <!-- Actors -->
+        <mxCell id="actor-customer" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="180" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-auditor" value="Auditor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="60" y="340" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-dpo" value="Data Protection&#xa;Officer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="60" y="500" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-sysadmin" value="System&#xa;Administrator" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="60" y="680" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="actor-system" value="System" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="440" width="40" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Customer Use Cases -->
+        <mxCell id="uc-view-own-audit" value="View Own&#xa;Activity Log" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-request-data-export" value="Request Data&#xa;Export" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-download-data" value="Download&#xa;Personal Data" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-manage-consents" value="Manage&#xa;Consents" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-request-deletion" value="Request Data&#xa;Deletion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Auditor Use Cases -->
+        <mxCell id="uc-view-audit-logs" value="View Audit&#xa;Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-search-audit-logs" value="Search Audit&#xa;Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-entity-audit-trail" value="View Entity&#xa;Audit Trail" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-export-audit-logs" value="Export Audit&#xa;Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-compliance-report" value="Generate&#xa;Compliance Report" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="500" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- DPO Use Cases -->
+        <mxCell id="uc-view-access-logs" value="View Customer&#xa;Data Access Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-review-consents" value="Review&#xa;Consent Records" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-manage-deletions" value="Manage Deletion&#xa;Requests" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-approve-deletion" value="Approve Data&#xa;Deletion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-execute-deletion" value="Execute Data&#xa;Deletion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-verify-deletion" value="Verify Data&#xa;Deletion" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="720" y="530" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- System Administrator Use Cases -->
+        <mxCell id="uc-create-backup" value="Create System&#xa;Backup" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="80" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-verify-backup" value="Verify Backup&#xa;Integrity" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="170" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-request-restore" value="Request Data&#xa;Restore" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="260" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-approve-restore" value="Approve&#xa;Restore Request" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="350" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-manage-exports" value="Manage Data&#xa;Exports" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="440" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-manage-imports" value="Manage Data&#xa;Imports" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="530" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-upload-import" value="Upload Import&#xa;File" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="620" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-validate-import" value="Validate Import&#xa;Data" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="940" y="710" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- System Use Cases -->
+        <mxCell id="uc-auto-audit-log" value="Automatically Log&#xa;Entity Operations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="500" y="620" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-auto-backup" value="Execute Scheduled&#xa;Backups" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="500" y="710" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-process-export" value="Process Export&#xa;Requests" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="500" y="800" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-expire-exports" value="Expire Old&#xa;Export Files" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="720" y="710" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-archive-logs" value="Archive Old&#xa;Audit Logs" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="720" y="800" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc-detect-anomalies" value="Detect Audit&#xa;Anomalies" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="280" y="620" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor to Use Case Connections - Customer -->
+        <mxCell id="conn-cust-1" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-view-own-audit" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-cust-2" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-request-data-export" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-cust-3" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-download-data" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-cust-4" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-manage-consents" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-cust-5" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#6c8ebf;" parent="1" source="actor-customer" target="uc-request-deletion" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor to Use Case Connections - Auditor -->
+        <mxCell id="conn-aud-1" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#82b366;" parent="1" source="actor-auditor" target="uc-view-audit-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-aud-2" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#82b366;" parent="1" source="actor-auditor" target="uc-search-audit-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-aud-3" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#82b366;" parent="1" source="actor-auditor" target="uc-entity-audit-trail" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-aud-4" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#82b366;" parent="1" source="actor-auditor" target="uc-export-audit-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-aud-5" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#82b366;" parent="1" source="actor-auditor" target="uc-compliance-report" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor to Use Case Connections - DPO -->
+        <mxCell id="conn-dpo-1" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-view-access-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo-2" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-review-consents" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo-3" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-manage-deletions" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo-4" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-approve-deletion" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo-5" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-execute-deletion" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-dpo-6" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#d79b00;" parent="1" source="actor-dpo" target="uc-verify-deletion" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor to Use Case Connections - System Administrator -->
+        <mxCell id="conn-sys-1" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-create-backup" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-2" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-verify-backup" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-3" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-request-restore" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-4" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-approve-restore" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-5" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-manage-exports" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-6" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-manage-imports" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-7" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-upload-import" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-sys-8" value="" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3;strokeColor=#b85450;" parent="1" source="actor-sysadmin" target="uc-validate-import" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Actor to Use Case Connections - System -->
+        <mxCell id="conn-auto-1" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-auto-audit-log" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-auto-2" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-auto-backup" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-auto-3" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-process-export" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-auto-4" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-expire-exports" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-auto-5" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-archive-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="conn-auto-6" value="" style="endArrow=none;html=1;entryX=1;entryY=0.5;exitX=0;exitY=0.3;strokeColor=#9673a6;" parent="1" source="actor-system" target="uc-detect-anomalies" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Include Relationships -->
+        <mxCell id="include-1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;dashPattern=5 5;entryX=1;entryY=0.5;exitX=0;exitY=0.5;" parent="1" source="uc-download-data" target="uc-request-data-export" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;dashPattern=5 5;entryX=0.5;entryY=1;exitX=0.5;exitY=0;" parent="1" source="uc-validate-import" target="uc-upload-import" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="include-3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;dashPattern=5 5;entryX=0.5;entryY=1;exitX=0.5;exitY=0;" parent="1" source="uc-execute-deletion" target="uc-approve-deletion" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Extend Relationships -->
+        <mxCell id="extend-1" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;dashPattern=5 5;entryX=0.5;entryY=1;exitX=0.5;exitY=0;" parent="1" source="uc-detect-anomalies" target="uc-view-audit-logs" edge="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
