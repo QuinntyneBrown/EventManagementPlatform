@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace EventManagementPlatform.Api.Tests;
 
 public class UnitTest1

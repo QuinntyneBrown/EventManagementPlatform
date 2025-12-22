@@ -1,3 +1,5 @@
+using Xunit;
+
 namespace EventManagementPlatform.Infrastructure.Tests;
 
 public class UnitTest1
