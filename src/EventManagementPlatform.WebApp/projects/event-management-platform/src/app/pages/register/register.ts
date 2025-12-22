@@ -53,7 +53,7 @@ export class Register {
   hidePassword = true;
   hideConfirmPassword = true;
 
-  passwordMatchValidator(form: FormGroup): { [key: string]: boolean } | null {
+  passwordMatchValidator(form: FormGroup): Record<string, boolean> | null {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
     if (password && confirmPassword && password.value !== confirmPassword.value) {

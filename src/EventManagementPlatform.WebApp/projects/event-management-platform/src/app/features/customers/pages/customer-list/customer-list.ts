@@ -98,7 +98,7 @@ export class CustomerList implements OnInit {
     this.pageSize = event.pageSize;
     this.loadCustomers();
   }
-  onSortChange(sort: Sort): void { this.loadCustomers(); }
+  onSortChange(_sort: Sort): void { this.loadCustomers(); }
 
   onDelete(customer: CustomerListDto): void {
     const dialogRef = this.dialog.open(ConfirmDialog, {

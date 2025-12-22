@@ -132,7 +132,7 @@ export class EventList implements OnInit {
     this.loadEvents();
   }
 
-  onSortChange(sort: Sort): void {
+  onSortChange(_sort: Sort): void {
     this.loadEvents();
   }
 

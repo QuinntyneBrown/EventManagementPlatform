@@ -40,7 +40,7 @@ export interface CreateCustomerDto {
   notes?: string;
 }
 
-export interface UpdateCustomerDto extends CreateCustomerDto {}
+export type UpdateCustomerDto = CreateCustomerDto;
 
 export type CustomerStatus = 'Active' | 'Inactive' | 'Blocked';
 
