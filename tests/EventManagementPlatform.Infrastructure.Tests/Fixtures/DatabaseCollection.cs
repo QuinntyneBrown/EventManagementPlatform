@@ -8,6 +8,6 @@ namespace EventManagementPlatform.Infrastructure.Tests.Fixtures;
 /// All tests in this collection share the same database fixture.
 /// </summary>
 [CollectionDefinition("Database")]
-public class DatabaseCollection : ICollectionFixture<SqlExpressDatabaseFixture>
+public class DatabaseFixtureDefinition : ICollectionFixture<SqlExpressDatabaseFixture>
 {
 }

@@ -14,15 +14,16 @@ public class SqlExpressDatabaseFixture : IAsyncLifetime
 {
     private const string MasterConnectionString = "Server=.\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
 
-    public string DatabaseName { get; }
-    public string ConnectionString { get; }
-
     public SqlExpressDatabaseFixture()
     {
         // Create a unique database name for this test run to allow parallel test execution
         DatabaseName = $"EventManagementPlatform_Tests_{Guid.NewGuid():N}";
         ConnectionString = $"Server=.\\SQLEXPRESS;Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
     }
+
+    public string DatabaseName { get; }
+
+    public string ConnectionString { get; }
 
     public async Task InitializeAsync()
     {

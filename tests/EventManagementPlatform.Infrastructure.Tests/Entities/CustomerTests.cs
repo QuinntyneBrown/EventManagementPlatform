@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class CustomerTests : IntegrationTestBase
 {
-    public CustomerTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public CustomerTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
@@ -25,8 +26,7 @@ public class CustomerTests : IntegrationTestBase
         var customer = TestDataFactory.CreateCustomer(
             companyName: "Acme Corporation",
             type: CustomerType.Enterprise,
-            email: "contact@acme.com"
-        );
+            email: "contact@acme.com");
 
         // Act
         DbContext.Customers.Add(customer);
@@ -463,11 +463,20 @@ public class CustomerTests : IntegrationTestBase
               BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry,
               Status, IsDeleted, CreatedAt, CreatedBy)
               VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13})",
-            deletedCustomer.CustomerId, deletedCustomer.CompanyName, (int)deletedCustomer.Type,
-            deletedCustomer.PrimaryEmail, deletedCustomer.PrimaryPhone, deletedCustomer.BillingStreet,
-            deletedCustomer.BillingCity, deletedCustomer.BillingState, deletedCustomer.BillingPostalCode,
-            deletedCustomer.BillingCountry, (int)deletedCustomer.Status, true,
-            deletedCustomer.CreatedAt, deletedCustomer.CreatedBy);
+            deletedCustomer.CustomerId,
+            deletedCustomer.CompanyName,
+            (int)deletedCustomer.Type,
+            deletedCustomer.PrimaryEmail,
+            deletedCustomer.PrimaryPhone,
+            deletedCustomer.BillingStreet,
+            deletedCustomer.BillingCity,
+            deletedCustomer.BillingState,
+            deletedCustomer.BillingPostalCode,
+            deletedCustomer.BillingCountry,
+            (int)deletedCustomer.Status,
+            true,
+            deletedCustomer.CreatedAt,
+            deletedCustomer.CreatedBy);
 
         DbContext.Customers.Add(activeCustomer);
         await DbContext.SaveChangesAsync();

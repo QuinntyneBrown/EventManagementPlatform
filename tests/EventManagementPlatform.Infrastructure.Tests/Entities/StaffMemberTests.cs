@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class StaffMemberTests : IntegrationTestBase
 {
-    public StaffMemberTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public StaffMemberTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
@@ -26,8 +27,7 @@ public class StaffMemberTests : IntegrationTestBase
             firstName: "John",
             lastName: "Smith",
             email: "john.smith@events.com",
-            role: StaffRole.EventCoordinator
-        );
+            role: StaffRole.EventCoordinator);
 
         // Act
         DbContext.StaffMembers.Add(staffMember);

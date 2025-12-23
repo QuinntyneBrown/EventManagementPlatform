@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class EventTypeTests : IntegrationTestBase
 {
-    public EventTypeTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public EventTypeTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
@@ -24,8 +25,7 @@ public class EventTypeTests : IntegrationTestBase
         // Arrange
         var eventType = TestDataFactory.CreateEventType(
             name: "Corporate Conference",
-            description: "Business and corporate conferences"
-        );
+            description: "Business and corporate conferences");
 
         // Act
         DbContext.EventTypes.Add(eventType);
@@ -94,8 +94,7 @@ public class EventTypeTests : IntegrationTestBase
         // Arrange
         var eventType = TestDataFactory.CreateEventType(
             name: "Inactive Event Type",
-            isActive: false
-        );
+            isActive: false);
 
         // Act
         DbContext.EventTypes.Add(eventType);

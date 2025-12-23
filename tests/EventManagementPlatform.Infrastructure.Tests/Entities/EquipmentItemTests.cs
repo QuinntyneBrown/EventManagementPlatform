@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class EquipmentItemTests : IntegrationTestBase
 {
-    public EquipmentItemTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public EquipmentItemTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
@@ -26,8 +27,7 @@ public class EquipmentItemTests : IntegrationTestBase
             name: "Professional Sound System",
             category: EquipmentCategory.AudioVisual,
             condition: EquipmentCondition.Excellent,
-            purchasePrice: 5000.00m
-        );
+            purchasePrice: 5000.00m);
 
         // Act
         DbContext.EquipmentItems.Add(equipment);
@@ -123,6 +123,7 @@ public class EquipmentItemTests : IntegrationTestBase
             Status = EquipmentStatus.Available,
             PurchaseDate = DateTime.UtcNow,
             PurchasePrice = 100.00m,
+
             // Optional fields left as null
             Description = null,
             Manufacturer = null,
@@ -703,10 +704,17 @@ public class EquipmentItemTests : IntegrationTestBase
             @"INSERT INTO EquipmentItems (EquipmentItemId, Name, Category, Condition, Status,
               PurchaseDate, PurchasePrice, IsActive, IsDeleted, CreatedAt, CreatedBy)
               VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})",
-            deletedItem.EquipmentItemId, deletedItem.Name, (int)deletedItem.Category,
-            (int)deletedItem.Condition, (int)deletedItem.Status, deletedItem.PurchaseDate,
-            deletedItem.PurchasePrice, deletedItem.IsActive, true,
-            deletedItem.CreatedAt, deletedItem.CreatedBy);
+            deletedItem.EquipmentItemId,
+            deletedItem.Name,
+            (int)deletedItem.Category,
+            (int)deletedItem.Condition,
+            (int)deletedItem.Status,
+            deletedItem.PurchaseDate,
+            deletedItem.PurchasePrice,
+            deletedItem.IsActive,
+            true,
+            deletedItem.CreatedAt,
+            deletedItem.CreatedBy);
 
         DbContext.EquipmentItems.Add(activeItem);
         await DbContext.SaveChangesAsync();

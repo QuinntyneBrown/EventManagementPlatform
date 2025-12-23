@@ -12,7 +12,8 @@ namespace EventManagementPlatform.Infrastructure.Tests.Entities;
 [Collection("Database")]
 public class VenueTests : IntegrationTestBase
 {
-    public VenueTests(SqlExpressDatabaseFixture fixture) : base(fixture)
+    public VenueTests(SqlExpressDatabaseFixture fixture)
+        : base(fixture)
     {
     }
 
@@ -26,8 +27,7 @@ public class VenueTests : IntegrationTestBase
             name: "Grand Convention Center",
             type: VenueType.ConferenceCenter,
             city: "Toronto",
-            maxCapacity: 1000
-        );
+            maxCapacity: 1000);
 
         // Act
         DbContext.Venues.Add(venue);
@@ -548,10 +548,19 @@ public class VenueTests : IntegrationTestBase
             @"INSERT INTO Venues (VenueId, Name, Type, Street, City, State, PostalCode, Country,
               MaxCapacity, Status, IsDeleted, CreatedAt, CreatedBy)
               VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})",
-            deletedVenue.VenueId, deletedVenue.Name, (int)deletedVenue.Type,
-            deletedVenue.Street, deletedVenue.City, deletedVenue.State, deletedVenue.PostalCode,
-            deletedVenue.Country, deletedVenue.MaxCapacity, (int)deletedVenue.Status,
-            true, deletedVenue.CreatedAt, deletedVenue.CreatedBy);
+            deletedVenue.VenueId,
+            deletedVenue.Name,
+            (int)deletedVenue.Type,
+            deletedVenue.Street,
+            deletedVenue.City,
+            deletedVenue.State,
+            deletedVenue.PostalCode,
+            deletedVenue.Country,
+            deletedVenue.MaxCapacity,
+            (int)deletedVenue.Status,
+            true,
+            deletedVenue.CreatedAt,
+            deletedVenue.CreatedBy);
 
         DbContext.Venues.Add(activeVenue);
         await DbContext.SaveChangesAsync();

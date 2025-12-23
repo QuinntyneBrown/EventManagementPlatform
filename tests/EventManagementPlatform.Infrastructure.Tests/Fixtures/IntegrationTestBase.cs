@@ -13,13 +13,14 @@ namespace EventManagementPlatform.Infrastructure.Tests.Fixtures;
 [Collection("Database")]
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
-    protected readonly SqlExpressDatabaseFixture Fixture;
-    protected EventManagementPlatformDbContext DbContext { get; private set; } = null!;
-
     protected IntegrationTestBase(SqlExpressDatabaseFixture fixture)
     {
         Fixture = fixture;
     }
+
+    protected SqlExpressDatabaseFixture Fixture { get; }
+
+    protected EventManagementPlatformDbContext DbContext { get; private set; } = null!;
 
     public virtual Task InitializeAsync()
     {
@@ -38,6 +39,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// Cleans all data from the database tables while preserving the schema.
     /// Uses DELETE instead of TRUNCATE to handle foreign key constraints.
     /// </summary>
+    /// <returns>A task representing the asynchronous cleanup operation.</returns>
     protected async Task CleanupDatabaseAsync()
     {
         // Delete in order to respect foreign key constraints
@@ -60,6 +62,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// Creates a new DbContext instance for verification queries.
     /// Useful when you need to verify data was persisted correctly.
     /// </summary>
+    /// <returns>A new instance of <see cref="EventManagementPlatformDbContext"/>.</returns>
     protected EventManagementPlatformDbContext CreateNewDbContext()
     {
         return Fixture.CreateDbContext();

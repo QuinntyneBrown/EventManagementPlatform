@@ -120,7 +120,7 @@ public static class TestDataFactory
         string? email = null,
         StaffRole role = StaffRole.EventCoordinator,
         StaffStatus status = StaffStatus.Active,
-        decimal? hourlyRate = null,
+        decimal? hourlyRate = 25.00m,
         bool isDeleted = false)
     {
         return new StaffMember
@@ -134,7 +134,7 @@ public static class TestDataFactory
             Status = status,
             HireDate = DateTime.UtcNow.AddYears(-1),
             Role = role,
-            HourlyRate = hourlyRate ?? 25.00m,
+            HourlyRate = hourlyRate,
             IsDeleted = isDeleted,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = Guid.NewGuid()
