@@ -39,6 +39,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// Cleans all data from the database tables while preserving the schema.
     /// Uses DELETE instead of TRUNCATE to handle foreign key constraints.
     /// </summary>
+    /// <returns>A task representing the asynchronous cleanup operation.</returns>
     protected async Task CleanupDatabaseAsync()
     {
         // Delete in order to respect foreign key constraints

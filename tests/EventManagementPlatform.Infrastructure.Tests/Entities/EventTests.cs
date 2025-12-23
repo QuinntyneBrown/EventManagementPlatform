@@ -241,13 +241,19 @@ public class EventTests : IntegrationTestBase
         await DbContext.SaveChangesAsync();
 
         var pastEvent = TestDataFactory.CreateEvent(
-            eventTypeId: eventType.EventTypeId, venueId: venue.VenueId, customerId: customer.CustomerId,
+            eventTypeId: eventType.EventTypeId,
+            venueId: venue.VenueId,
+            customerId: customer.CustomerId,
             eventDate: DateTime.UtcNow.AddMonths(-1));
         var currentEvent = TestDataFactory.CreateEvent(
-            eventTypeId: eventType.EventTypeId, venueId: venue.VenueId, customerId: customer.CustomerId,
+            eventTypeId: eventType.EventTypeId,
+            venueId: venue.VenueId,
+            customerId: customer.CustomerId,
             eventDate: DateTime.UtcNow.AddDays(7));
         var futureEvent = TestDataFactory.CreateEvent(
-            eventTypeId: eventType.EventTypeId, venueId: venue.VenueId, customerId: customer.CustomerId,
+            eventTypeId: eventType.EventTypeId,
+            venueId: venue.VenueId,
+            customerId: customer.CustomerId,
             eventDate: DateTime.UtcNow.AddMonths(2));
 
         DbContext.Events.AddRange(pastEvent, currentEvent, futureEvent);
