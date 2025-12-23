@@ -123,6 +123,7 @@ public class EquipmentItemTests : IntegrationTestBase
             Status = EquipmentStatus.Available,
             PurchaseDate = DateTime.UtcNow,
             PurchasePrice = 100.00m,
+
             // Optional fields left as null
             Description = null,
             Manufacturer = null,

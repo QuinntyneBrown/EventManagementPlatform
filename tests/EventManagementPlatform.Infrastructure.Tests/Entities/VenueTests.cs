@@ -548,10 +548,19 @@ public class VenueTests : IntegrationTestBase
             @"INSERT INTO Venues (VenueId, Name, Type, Street, City, State, PostalCode, Country,
               MaxCapacity, Status, IsDeleted, CreatedAt, CreatedBy)
               VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})",
-            deletedVenue.VenueId, deletedVenue.Name, (int)deletedVenue.Type,
-            deletedVenue.Street, deletedVenue.City, deletedVenue.State, deletedVenue.PostalCode,
-            deletedVenue.Country, deletedVenue.MaxCapacity, (int)deletedVenue.Status,
-            true, deletedVenue.CreatedAt, deletedVenue.CreatedBy);
+            deletedVenue.VenueId,
+            deletedVenue.Name,
+            (int)deletedVenue.Type,
+            deletedVenue.Street,
+            deletedVenue.City,
+            deletedVenue.State,
+            deletedVenue.PostalCode,
+            deletedVenue.Country,
+            deletedVenue.MaxCapacity,
+            (int)deletedVenue.Status,
+            true,
+            deletedVenue.CreatedAt,
+            deletedVenue.CreatedBy);
 
         DbContext.Venues.Add(activeVenue);
         await DbContext.SaveChangesAsync();

@@ -61,6 +61,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     /// Creates a new DbContext instance for verification queries.
     /// Useful when you need to verify data was persisted correctly.
     /// </summary>
+    /// <returns>A new instance of <see cref="EventManagementPlatformDbContext"/>.</returns>
     protected EventManagementPlatformDbContext CreateNewDbContext()
     {
         return Fixture.CreateDbContext();
