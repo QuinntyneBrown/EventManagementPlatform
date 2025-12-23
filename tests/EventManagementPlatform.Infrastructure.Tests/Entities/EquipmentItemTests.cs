@@ -704,10 +704,17 @@ public class EquipmentItemTests : IntegrationTestBase
             @"INSERT INTO EquipmentItems (EquipmentItemId, Name, Category, Condition, Status,
               PurchaseDate, PurchasePrice, IsActive, IsDeleted, CreatedAt, CreatedBy)
               VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})",
-            deletedItem.EquipmentItemId, deletedItem.Name, (int)deletedItem.Category,
-            (int)deletedItem.Condition, (int)deletedItem.Status, deletedItem.PurchaseDate,
-            deletedItem.PurchasePrice, deletedItem.IsActive, true,
-            deletedItem.CreatedAt, deletedItem.CreatedBy);
+            deletedItem.EquipmentItemId,
+            deletedItem.Name,
+            (int)deletedItem.Category,
+            (int)deletedItem.Condition,
+            (int)deletedItem.Status,
+            deletedItem.PurchaseDate,
+            deletedItem.PurchasePrice,
+            deletedItem.IsActive,
+            true,
+            deletedItem.CreatedAt,
+            deletedItem.CreatedBy);
 
         DbContext.EquipmentItems.Add(activeItem);
         await DbContext.SaveChangesAsync();
